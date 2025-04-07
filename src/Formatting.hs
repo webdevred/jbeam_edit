@@ -3,6 +3,7 @@ module Formatting
   ) where
 
 import Data.Char (isSpace)
+import Data.Scientific (FPFormat(Fixed), formatScientific)
 import qualified Data.Text as T
 import Data.Text (Text)
 import Data.Vector (Vector)
@@ -55,7 +56,7 @@ formatNode :: Node -> Text
 formatNode (SinglelineComment c) = T.append "\n// " c
 formatNode (MultilineComment c) = T.concat ["/* ", c, " */"]
 formatNode (String s) = T.concat ["\"", s, "\""]
-formatNode (Number n) = T.pack . show $ n
+formatNode (Number n) = T.pack . formatScientific Fixed Nothing $ n
 formatNode (Bool True) = "true"
 formatNode (Bool _) = "false"
 formatNode (Array a)

@@ -123,4 +123,6 @@ objectSelector = do
   return $ Object . V.fromList $ keys
 
 parseNodes :: ByteString -> Either String Node
-parseNodes = C.parseOnly $ nodeSelector <* (C.endOfInput <?> "unexpected input")
+parseNodes =
+  C.parseOnly $ nodeSelector <* skipWhiteSpace <*
+  (C.endOfInput <?> "unexpected input")
