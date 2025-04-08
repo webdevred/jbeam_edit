@@ -1,1 +1,87 @@
-# jbeam-edit
+* JBeam Tool in Haskell
+A Parser, Formatter, and Editor for jbeam Files
+
+This project is a command-line tool designed to work with jbeam files (the structured, JSON-like format used in BeamNG to define vehicles, physics, and structures). Initially implemented in Haskell as a fast and robust demo, it has grown into a comprehensive utility for manipulating jbeam data.
+
+** Features
+
+- Complete File Parsing  
+  The tool parses the entire jbeam file—including comments—while ignoring extraneous whitespace. This ensures that even files maintained manually are processed accurately.
+
+- Consistent Formatting  
+  It automatically formats the whole file with consistent indentation and structure, making even the most chaotic jbeam files readable.
+
+- Automatic Node Management  
+  - Sorting & Renaming: All nodes are automatically sorted and sequentially renamed.  
+  - Reference Updates: Every reference to these nodes in the rest of the file is updated, minimizing the risk of inconsistencies and errors.
+
+- Configurable Formatting Rules  
+  The tool features a configuration system that allows users to:  
+  - Define custom formatting rules that target specific parts of the data tree (for example, controlling indentation or enforcing line breaks).  
+  - Specify which files should be processed.  
+  - Set default indentation settings and other formatting options.
+
+** Why Haskell + Attoparsec
+
+- Rapid Prototyping & Robustness  
+  Haskell’s strong type system and expressive syntax allowed for quick development of a reliable prototype.
+
+- Elegant Parser Composition  
+  Utilizing the Attoparsec family of parser combinators enabled building modular, reusable components that make the parser clear and maintainable.
+
+- Safe Data Transformation  
+  Haskell’s emphasis on immutability and pure functions ensures that even complex transformations of your jbeam files are performed safely and predictably.
+
+** Future Considerations
+
+I have considered porting this project to C/C++ in the future.
+
+*** Ease of Distribution for Windows Users
+  Many developers running Windows already have Visual Studio and MSVC installed, so a C/C++ version might simplify the build process by eliminating the need for additional toolchains (like GHC).
+
+*** Trade-Offs
+  Although a C/C++ rewrite might improve accessibility on Windows, it would come at the expense of Haskell’s expressive power, type safety, and the elegant parser composition facilitated by Parsec.
+
+For now, the project remains a Haskell-based tool, but the idea of a C/C++ port is kept in mind as it might broaden the user base in the future.
+
+** Getting Started
+
+*** Prerequisites
+
+- Haskell Compiler: GHC (https://www.haskell.org/ghc/)  
+- Build Tool: Stack (https://docs.haskellstack.org)
+
+*** Installation
+
+Clone the repository and build the project using your preferred Haskell build tool:
+
+git clone https://github.com/yourusername/jbeam-tool.git  
+cd jbeam-tool  
+stack build
+
+*** Usage
+
+Run the tool from the command line as follows:
+
+#+begin_src 
+stack exec jbeam-tool -- [options] <input-file>
+#+end_src
+
+The tool will:  
+• Parse the provided jbeam file.  
+• Format it according to the default or user-defined rules.  
+• Automatically sort nodes, rename them sequentially, and update all related references.
+
+For full usage details and configuration options, please refer to the documentation in the project's docs folder.
+
+*** Contributing
+
+Contributions, bug reports, and feature requests are welcome! Please check the CONTRIBUTING.md file for guidelines.
+
+*** License
+
+This project is licensed under the MIT License – see the LICENSE file for details.
+
+If you have any questions or suggestions, feel free to open an issue or contact me directly.
+
+Happy parsing and formatting!

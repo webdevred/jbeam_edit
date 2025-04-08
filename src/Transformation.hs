@@ -262,7 +262,7 @@ updateNode [] n (Array a) =
   let vertices = gVertices n
       startIndex =
         fromMaybe (gStartIndex n) $ V.findIndex (nodeBelongsToGroup n) a
-      endIndex = startIndex + (succIfNonZero $ gSize n)
+      endIndex = startIndex + succIfNonZero (gSize n)
       beginNodes = V.slice 0 startIndex a
       groupHeader = newGroupHeader n
       verticeNodes = V.map verticeToNode vertices
