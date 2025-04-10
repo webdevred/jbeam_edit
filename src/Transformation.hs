@@ -4,7 +4,8 @@ module Transformation
 
 import Control.Monad
 import Data.Char (isDigit)
-import Data.Function (on)
+import Data.Function (applyWhen, on)
+import Data.Functor (($>))
 import qualified Data.List as L
 import qualified Data.Map as M
 import Data.Map (Map)
@@ -83,9 +84,10 @@ newVertice :: Node -> Maybe Vertice
 newVertice (Array n) = f . V.toList $ n
   where
     f [String name, Number x, Number y, Number z] =
-      if isDigit (T.last name)
-        then Just Vertice {vName = name, vX = x, vY = y, vZ = z}
-        else Nothing
+      applyWhen
+        (isDigit $ T.last name)
+        ($> Vertice {vName = name, vX = x, vY = y, vZ = z})
+        Nothing
     f _ = Nothing
 newVertice _ = Nothing
 
@@ -199,12 +201,12 @@ groupTypeToChar MiddleGroup = "m"
 groupTypeToChar RightGroup = "r"
 
 newGroupName :: [(VerticeGroupType, VerticeGroup)] -> VerticeGroupType -> Text
-newGroupName [(_, VerticeGroup {gName = name})] groupType =
-  name <> groupTypeToChar groupType
-newGroupName ((_, VerticeGroup {gName = name1}):(_, VerticeGroup {gName = name2}):_) groupType =
-  case T.commonPrefixes name1 name2 of
+newGroupName [(_, g)] groupType = gName g <> groupTypeToChar groupType
+newGroupName ((_, g1):(_, g2):_) groupType =
+  case on T.commonPrefixes gName g1 g2 of
     Just (prefix, _, _) -> prefix <> groupTypeToChar groupType
-    _ -> name1 <> groupTypeToChar groupType
+    _ -> gName g1 <> groupTypeToChar groupType
+newGroupName [] groupType = groupTypeToChar groupType
 
 addVerticesToGroups ::
      (VerticeGroupType, Vertice) -> VerticeGroupMap -> VerticeGroupMap
@@ -214,10 +216,8 @@ addVerticesToGroups (gType, vert) gs =
     else let currentGroupList = M.toList gs
              i = newGroupIndex currentGroupList gType
              name = newGroupName currentGroupList gType
-          in M.insert
-               gType
-               (newVerticeGroup i name vert) {gFresh = True, gSize = 0}
-               gs
+             group = newVerticeGroup i name vert
+          in M.insert gType group {gFresh = True, gSize = 0} gs
   where
     addVerticeToGroup g = Just g {gVertices = V.cons vert $ gVertices g}
 
