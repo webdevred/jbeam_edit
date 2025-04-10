@@ -54,17 +54,17 @@ data Vertice =
     }
   deriving (Show)
 
-extractVal :: Node -> Node
-extractVal (ObjectKey (_, val)) = val
-extractVal _ = error "unreachable"
+extractValInKey :: Node -> Maybe Node
+extractValInKey (ObjectKey (_, val)) = Just val
+extractValInKey _ = Nothing
 
 select :: NodeQuery -> Node -> Maybe Node
 select (Index i) (Array ns) = ns !? i
-select (Key k) (Object ns) = extractVal <$> V.find compareKey ns
+select (Key k) (Object ns) = extractValInKey =<< V.find compareKey ns
   where
     compareKey (ObjectKey (String keyText, _)) = keyText == k
-    compareKey _ = error "unreachable"
-select (NumericKey i) (Object a) = extractVal <$> a !? i
+    compareKey _ = False
+select (NumericKey i) (Object a) = extractValInKey =<< a !? i
 select _ _ = Nothing
 
 queryNodes :: [NodeQuery] -> Node -> Maybe Node
@@ -201,11 +201,10 @@ groupTypeToChar RightGroup = "r"
 newGroupName :: [(VerticeGroupType, VerticeGroup)] -> VerticeGroupType -> Text
 newGroupName [(_, VerticeGroup {gName = name})] groupType =
   name <> groupTypeToChar groupType
-newGroupName [(_, VerticeGroup {gName = name1}), (_, VerticeGroup {gName = name2})] groupType =
+newGroupName ((_, VerticeGroup {gName = name1}):(_, VerticeGroup {gName = name2}):_) groupType =
   case T.commonPrefixes name1 name2 of
     Just (prefix, _, _) -> prefix <> groupTypeToChar groupType
     _ -> name1 <> groupTypeToChar groupType
-newGroupName _ _ = error "unreachable"
 
 addVerticesToGroups ::
      (VerticeGroupType, Vertice) -> VerticeGroupMap -> VerticeGroupMap
