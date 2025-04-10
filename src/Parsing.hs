@@ -31,6 +31,7 @@ data Node
   | Bool Bool
   | SinglelineComment Text
   | MultilineComment Text
+  | Null
   deriving (Show, Eq)
 
 ---
@@ -67,6 +68,9 @@ singlelineCommentSelector =
 commentSelector :: Parser ByteString Node
 commentSelector = multilineCommentSelector <|> singlelineCommentSelector
 
+nullSelector :: Parser ByteString Node
+nullSelector = C.string "null" $> Null
+
 boolSelector :: Parser ByteString Node
 boolSelector =
   C.choice [C.string "true", C.string "false"] <&> Bool . (== "true")
@@ -77,7 +81,8 @@ stringSelector =
 
 scalarSelector :: Parser ByteString Node
 scalarSelector =
-  stringSelector <|> commentSelector <|> numberSelector <|> boolSelector
+  stringSelector <|> commentSelector <|> numberSelector <|> boolSelector <|>
+  nullSelector
 
 nodeSelector :: Parser ByteString Node
 nodeSelector = skipWhiteSpace *> anyNode
@@ -120,7 +125,7 @@ objectSelector = do
   _ <- C.char '{'
   keys <- C.many' (commentSelector <|> objectKeySelector)
   _ <- C.char '}'
-  return $ Object . V.fromList $ keys
+  return . Object . V.fromList $ keys
 
 parseNodes :: ByteString -> Either String Node
 parseNodes =

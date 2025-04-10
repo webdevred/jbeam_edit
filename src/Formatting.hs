@@ -20,7 +20,7 @@ addDelimiters _ acc [] = acc
 addDelimiters complexChildren acc ns@(node:rest)
   | complexChildren && null acc = addDelimiters complexChildren ["\n"] ns
   | isCommentNode node =
-    addDelimiters complexChildren (T.append (formatNode node) "\n" : acc) rest
+    addDelimiters complexChildren (formatNode node <> "\n" : acc) rest
   | otherwise =
     let new_acc = T.concat [formatNode node, comma, space, newline] : acc
      in addDelimiters complexChildren new_acc rest
@@ -28,8 +28,8 @@ addDelimiters complexChildren acc ns@(node:rest)
     isCommentNode (MultilineComment _) = True
     isCommentNode (SinglelineComment _) = True
     isCommentNode _ = False
-    comma = whenTrue (not . null $ rest) ","
-    space = whenTrue ((not . null $ rest) && not complexChildren) " "
+    comma = whenTrue (rest /= []) ","
+    space = whenTrue (rest /= [] && not complexChildren) " "
     newline = whenTrue complexChildren "\n"
 
 isComplexNode :: Node -> Bool
@@ -41,7 +41,7 @@ isComplexNode _ = False
 indent :: Text -> Text
 indent s
   | T.all isSpace s = s
-  | otherwise = T.append "  " s
+  | otherwise = "  " <> s
 
 doFormatNode :: Vector Node -> Text
 doFormatNode nodes =
@@ -53,12 +53,13 @@ doFormatNode nodes =
     complexChildren = any isComplexNode nodes
 
 formatNode :: Node -> Text
-formatNode (SinglelineComment c) = T.append "\n// " c
+formatNode (SinglelineComment c) = "\n// " <> c
 formatNode (MultilineComment c) = T.concat ["/* ", c, " */"]
 formatNode (String s) = T.concat ["\"", s, "\""]
 formatNode (Number n) = T.pack . formatScientific Fixed Nothing $ n
 formatNode (Bool True) = "true"
 formatNode (Bool _) = "false"
+formatNode Null = "null"
 formatNode (Array a)
   | V.null a = "[]"
   | otherwise = T.concat ["[", doFormatNode a, "]"]

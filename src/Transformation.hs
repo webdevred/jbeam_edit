@@ -200,11 +200,11 @@ groupTypeToChar RightGroup = "r"
 
 newGroupName :: [(VerticeGroupType, VerticeGroup)] -> VerticeGroupType -> Text
 newGroupName [(_, VerticeGroup {gName = name})] groupType =
-  T.append name $ groupTypeToChar groupType
+  name <> groupTypeToChar groupType
 newGroupName [(_, VerticeGroup {gName = name1}), (_, VerticeGroup {gName = name2})] groupType =
   case T.commonPrefixes name1 name2 of
-    Just (prefix, _, _) -> T.append prefix $ groupTypeToChar groupType
-    _ -> T.append name1 $ groupTypeToChar groupType
+    Just (prefix, _, _) -> prefix <> groupTypeToChar groupType
+    _ -> name1 <> groupTypeToChar groupType
 newGroupName _ _ = error "unreachable"
 
 addVerticesToGroups ::
@@ -224,7 +224,7 @@ addVerticesToGroups (gType, vert) gs =
 
 updateVerticeName :: Text -> VerticeIndex -> Vertice -> Vertice
 updateVerticeName name index vertice =
-  vertice {vName = T.append name $ T.pack $ show index}
+  vertice {vName = name <> T.pack (show index)}
 
 updateVerticeNames :: VerticeGroup -> VerticeGroup
 updateVerticeNames g =
