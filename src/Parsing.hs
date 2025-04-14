@@ -4,17 +4,17 @@ module Parsing
   ) where
 
 import Control.Applicative ((<|>))
-import qualified Data.Attoparsec.ByteString.Char8 as C
+import Data.Attoparsec.ByteString.Char8 qualified as C
 import Data.Attoparsec.ByteString.Char8 ((<?>))
 import Data.Attoparsec.Internal.Types (Parser)
 import Data.ByteString (ByteString)
 import Data.Functor (($>), (<&>))
 import Data.Scientific (Scientific)
-import qualified Data.Text as T
+import Data.Text qualified as T
 import Data.Text (Text)
 import Data.Text.Encoding (decodeUtf8)
 import Data.Vector (Vector)
-import qualified Data.Vector as V (fromList)
+import Data.Vector qualified as V (fromList)
 
 type Object = Vector Node
 

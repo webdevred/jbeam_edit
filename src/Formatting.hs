@@ -4,10 +4,10 @@ module Formatting
 
 import Data.Char (isSpace)
 import Data.Scientific (FPFormat(Fixed), formatScientific)
-import qualified Data.Text as T
+import Data.Text qualified as T
 import Data.Text (Text)
 import Data.Vector (Vector)
-import qualified Data.Vector as V (null, toList)
+import Data.Vector qualified as V (null, toList)
 
 import Parsing (Node(..))
 

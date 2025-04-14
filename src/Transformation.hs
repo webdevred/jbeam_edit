@@ -6,17 +6,17 @@ import Control.Monad ((>=>), guard)
 import Data.Char (isDigit)
 import Data.Foldable1 (maximumBy)
 import Data.Function (on)
-import qualified Data.List as L
-import qualified Data.List.NonEmpty as LV
+import Data.List qualified as L
+import Data.List.NonEmpty qualified as LV
 import Data.List.NonEmpty (NonEmpty, (<|))
-import qualified Data.Map as M
+import Data.Map qualified as M
 import Data.Map (Map)
 import Data.Maybe (fromMaybe)
 import Data.Scientific (Scientific)
 import Data.Text (Text)
-import qualified Data.Text as T
+import Data.Text qualified as T
 import Data.Vector (Vector, (!), (!?), (//))
-import qualified Data.Vector as V
+import Data.Vector qualified as V
 import Parsing (Node(..))
 
 import Control.Arrow ((&&&))
