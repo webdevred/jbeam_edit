@@ -2,10 +2,13 @@ module Transformation
   ( transform
   ) where
 
-import Control.Monad ((>=>),guard)
+import Control.Monad ((>=>), guard)
 import Data.Char (isDigit)
+import Data.Foldable1 (maximumBy)
 import Data.Function (on)
 import qualified Data.List as L
+import qualified Data.List.NonEmpty as LV
+import Data.List.NonEmpty (NonEmpty, (<|))
 import qualified Data.Map as M
 import Data.Map (Map)
 import Data.Maybe (fromMaybe)
@@ -41,7 +44,7 @@ data VerticeGroup =
     { gName :: Text
     , gStartIndex :: VerticeIndex
     , gSize :: VerticeIndex
-    , gVertices :: Vector Vertice
+    , gVertices :: NonEmpty Vertice
     , gFresh :: Bool
     }
   deriving (Show)
@@ -84,7 +87,8 @@ newVertice :: Node -> Maybe Vertice
 newVertice (Array n) = f . V.toList $ n
   where
     f [String name, Number x, Number y, Number z] =
-      guard (isDigit $ T.last name) >> Just (Vertice {vName = name, vX = x, vY = y, vZ = z})
+      guard (isDigit $ T.last name) >>
+      Just (Vertice {vName = name, vX = x, vY = y, vZ = z})
     f _ = Nothing
 newVertice _ = Nothing
 
@@ -97,8 +101,8 @@ determineGroup x
 setGroupAcc :: VerticeGroup -> VerticeGroupMap -> VerticeGroupMap
 setGroupAcc g acc = M.insert gType g acc
   where
-    gType = mostCommon . V.toList . V.map (determineGroup . vX) . gVertices $ g
-    mostCommon = head . L.maximumBy (compare `on` length) . L.group . L.sort
+    gType = mostCommon . LV.map (determineGroup . vX) . gVertices $ g
+    mostCommon = LV.head . maximumBy (compare `on` length) . LV.group1 . LV.sort
 
 newVerticeGroup :: VerticeIndex -> Text -> Vertice -> VerticeGroup
 newVerticeGroup i name vertice =
@@ -107,7 +111,7 @@ newVerticeGroup i name vertice =
     , gStartIndex = i
     , gSize = 1
     , gName = dropIndex name
-    , gVertices = V.singleton vertice
+    , gVertices = LV.singleton vertice
     }
 
 nodeBelongsToGroup :: VerticeGroup -> Node -> Bool
@@ -123,7 +127,7 @@ nodeToVerticeGroupList acc i n =
           if nodeBelongsToGroup first n
             then first
                    { gSize = i - gStartIndex first
-                   , gVertices = vertice `V.cons` gVertices first
+                   , gVertices = vertice <| gVertices first
                    } :
                  accRest
             else newVerticeGroup i (vName vertice) vertice : acc
@@ -162,11 +166,11 @@ findVerticesWithIncorrectGroup ::
   -> ([(VerticeGroupType, Vertice)], VerticeGroupMap)
 findVerticesWithIncorrectGroup gType g (verticesToMoveAcc, groups) =
   let (verticesToMove, vs) =
-        V.foldl' findVerticesToMoveInGroup ([], []) $ gVertices g
+        foldr findVerticesToMoveInGroup ([], []) $ gVertices g
    in ( verticesToMove ++ verticesToMoveAcc
-      , M.insert gType (g {gVertices = V.fromList vs}) groups)
+      , M.insert gType (g {gVertices = LV.fromList vs}) groups)
   where
-    findVerticesToMoveInGroup (updateAcc, noUpdateAcc) v =
+    findVerticesToMoveInGroup v (updateAcc, noUpdateAcc) =
       let group = determineGroup . vX $ v
        in if group == gType
             then (updateAcc, v : noUpdateAcc)
@@ -215,16 +219,18 @@ addVerticesToGroups (gType, vert) gs =
              group = newVerticeGroup i name vert
           in M.insert gType group {gFresh = True, gSize = 0} gs
   where
-    addVerticeToGroup g = Just g {gVertices = V.cons vert $ gVertices g}
+    addVerticeToGroup g = Just g {gVertices = vert <| gVertices g}
 
-updateVerticeName :: Text -> VerticeIndex -> Vertice -> Vertice
-updateVerticeName name index vertice =
+updateVerticeName :: Text -> (VerticeIndex, Vertice) -> Vertice
+updateVerticeName name (index, vertice) =
   vertice {vName = name <> T.pack (show index)}
 
 updateVerticeNames :: VerticeGroup -> VerticeGroup
 updateVerticeNames g =
-  let vertices = V.fromList . L.sortOn (vZ &&& vY) . V.toList $ gVertices g
-      updatedVertices = V.imap (updateVerticeName $ gName g) vertices
+  let vertices = LV.sortBy (on compare $ vZ &&& vY) $ gVertices g
+      updatedVertices =
+        LV.map (updateVerticeName $ gName g) . LV.zip (LV.fromList [0 ..]) $
+        vertices
    in g {gVertices = updatedVertices}
 
 updateVerticesInGroup :: VerticeGroupMap -> VerticeGroupMap
@@ -257,7 +263,7 @@ updateNode [] n (Array a) =
       endIndex = startIndex + succIfNonZero (gSize n)
       beginNodes = V.slice 0 startIndex a
       groupHeader = newGroupHeader n
-      verticeNodes = V.map verticeToNode vertices
+      verticeNodes = V.fromList . LV.toList . LV.map verticeToNode $ vertices
       endNodes = V.slice endIndex (V.length a - endIndex) a
    in Array $ V.concat [beginNodes, groupHeader, verticeNodes, endNodes]
 updateNode ((Index i):qrest) n (Array a) =
@@ -279,7 +285,7 @@ verticeNameMap :: VerticeGroup -> UpdateMap -> UpdateMap
 verticeNameMap g acc =
   M.union acc .
   M.fromList .
-  V.toList . V.map (\v -> ((vX v, vY v, vZ v), vName v)) . gVertices $
+  LV.toList . LV.map (\v -> ((vX v, vY v, vZ v), vName v)) . gVertices $
   g
 
 transform :: Node -> Node
