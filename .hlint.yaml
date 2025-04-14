@@ -1,2 +1,3 @@
 - warn: {name: Use explicit module export list}
 - group: {name: dollar, enabled: true}
+- ignore: {name: Use infix}

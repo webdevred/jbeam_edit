@@ -2,10 +2,9 @@ module Transformation
   ( transform
   ) where
 
-import Control.Monad
+import Control.Monad ((>=>),guard)
 import Data.Char (isDigit)
-import Data.Function (applyWhen, on)
-import Data.Functor (($>))
+import Data.Function (on)
 import qualified Data.List as L
 import qualified Data.Map as M
 import Data.Map (Map)
@@ -35,10 +34,11 @@ type VerticeIndex = Int
 
 type VerticeGroupMap = Map VerticeGroupType VerticeGroup
 
+type UpdateMap = Map (Scientific, Scientific, Scientific) Text
+
 data VerticeGroup =
   VerticeGroup
-    { gUpdateMap :: Map Text Text
-    , gName :: Text
+    { gName :: Text
     , gStartIndex :: VerticeIndex
     , gSize :: VerticeIndex
     , gVertices :: Vector Vertice
@@ -84,10 +84,7 @@ newVertice :: Node -> Maybe Vertice
 newVertice (Array n) = f . V.toList $ n
   where
     f [String name, Number x, Number y, Number z] =
-      applyWhen
-        (isDigit $ T.last name)
-        ($> Vertice {vName = name, vX = x, vY = y, vZ = z})
-        Nothing
+      guard (isDigit $ T.last name) >> Just (Vertice {vName = name, vX = x, vY = y, vZ = z})
     f _ = Nothing
 newVertice _ = Nothing
 
@@ -111,7 +108,6 @@ newVerticeGroup i name vertice =
     , gSize = 1
     , gName = dropIndex name
     , gVertices = V.singleton vertice
-    , gUpdateMap = M.empty
     }
 
 nodeBelongsToGroup :: VerticeGroup -> Node -> Bool
@@ -228,11 +224,8 @@ updateVerticeName name index vertice =
 updateVerticeNames :: VerticeGroup -> VerticeGroup
 updateVerticeNames g =
   let vertices = V.fromList . L.sortOn (vZ &&& vY) . V.toList $ gVertices g
-      verticeNames = V.toList . V.map vName $ vertices
       updatedVertices = V.imap (updateVerticeName $ gName g) vertices
-      updatedVerticeNames = V.toList . V.map vName $ updatedVertices
-      updateMap = M.fromList $ zip verticeNames updatedVerticeNames
-   in g {gVertices = updatedVertices, gUpdateMap = updateMap}
+   in g {gVertices = updatedVertices}
 
 updateVerticesInGroup :: VerticeGroupMap -> VerticeGroupMap
 updateVerticesInGroup gs =
@@ -246,10 +239,10 @@ verticeToNode (Vertice {vName = name, vX = x, vY = y, vZ = z}) =
   Array $ V.fromList [String name, Number x, Number y, Number z]
 
 newGroupHeader :: VerticeGroup -> Vector Node
-newGroupHeader (VerticeGroup {gFresh = True, gName = name}) =
-  V.fromList [SinglelineComment name, Object objKey]
+newGroupHeader (VerticeGroup {gFresh = True}) =
+  V.fromList [SinglelineComment "ny grupp", Object objKey]
   where
-    objKey = V.singleton $ ObjectKey (String "group", String name)
+    objKey = V.singleton $ ObjectKey (String "group", String "new_group")
 newGroupHeader _ = V.empty
 
 succIfNonZero :: Int -> Int
@@ -282,11 +275,20 @@ updateNode (k@(Key _):qrest) n (Object a) =
 updateNode qs n (ObjectKey (k, v)) = ObjectKey (k, updateNode qs n v)
 updateNode _ _ a = a
 
+verticeNameMap :: VerticeGroup -> UpdateMap -> UpdateMap
+verticeNameMap g acc =
+  M.union acc .
+  M.fromList .
+  V.toList . V.map (\v -> ((vX v, vY v, vZ v), vName v)) . gVertices $
+  g
+
 transform :: Node -> Node
 transform ns =
   let query = [NumericKey 0, Key "nodes"]
       verticeGroups = getVerticeGroups query ns
+      verticeNames = M.foldr verticeNameMap M.empty verticeGroups
       updatedGroups = updateVerticesInGroup verticeGroups
-      updateMap = M.unions $ M.map gUpdateMap updatedGroups
+      updatedVerticeNames = M.foldr verticeNameMap M.empty updatedGroups
+      updateMap = M.fromList $ on zip M.elems verticeNames updatedVerticeNames
    in findAndUpdateTextInNode updateMap $
       foldr (updateNode query) ns updatedGroups
