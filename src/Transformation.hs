@@ -281,11 +281,9 @@ updateNode _ _ a = a
 
 verticeNameMap :: VerticeGroup -> UpdateMap -> UpdateMap
 verticeNameMap g acc =
-  (M.union acc . M.fromList)
-    (maybe
-       []
-       (map (\v -> ((vX v, vY v, vZ v), vName v)) . LV.toList)
-       (gVertices g))
+  let sortKeys = map (\v -> ((vX v, vY v, vZ v), vName v)) . LV.toList
+      vertices = gVertices g
+   in M.union acc . M.fromList $ maybe [] sortKeys vertices
 
 transform :: Node -> Node
 transform ns =
