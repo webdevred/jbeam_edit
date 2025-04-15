@@ -81,8 +81,11 @@ stringSelector =
 
 scalarSelector :: Parser ByteString Node
 scalarSelector =
-  stringSelector <|> commentSelector <|> numberSelector <|> boolSelector <|>
-  nullSelector
+  stringSelector
+    <|> commentSelector
+    <|> numberSelector
+    <|> boolSelector
+    <|> nullSelector
 
 nodeSelector :: Parser ByteString Node
 nodeSelector = skipWhiteSpace *> anyNode
@@ -129,5 +132,5 @@ objectSelector = do
 
 parseNodes :: ByteString -> Either String Node
 parseNodes =
-  C.parseOnly $ nodeSelector <* skipWhiteSpace <*
-  (C.endOfInput <?> "unexpected input")
+  C.parseOnly
+    $ nodeSelector <* skipWhiteSpace <* (C.endOfInput <?> "unexpected input")

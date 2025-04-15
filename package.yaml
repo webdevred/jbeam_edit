@@ -30,6 +30,7 @@ dependencies:
 
 default-extensions:
 - OverloadedStrings
+- ImportQualifiedPost
 
 ghc-options:
 - -Wall

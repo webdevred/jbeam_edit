@@ -22,8 +22,11 @@ main = do
       let nodes = parseNodes (BL.toStrict contents)
       case nodes of
         Right nodes' ->
-          BL.writeFile "hewwu.jbeam" .
-          encodeUtf8 . TL.fromStrict . formatNode . transform $
-          nodes'
+          BL.writeFile "hewwu.jbeam"
+            . encodeUtf8
+            . TL.fromStrict
+            . formatNode
+            . transform
+            $ nodes'
         Left err -> putStrLn err
     Nothing -> TIO.putStrLn "missing arg filename"
