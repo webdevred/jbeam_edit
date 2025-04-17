@@ -2,6 +2,7 @@ module Formatting
   ( formatNode
   ) where
 
+import Data.Bool (bool)
 import Data.Char (isSpace)
 import Data.Scientific (FPFormat(Fixed), formatScientific)
 import Data.Text qualified as T
@@ -10,10 +11,6 @@ import Data.Vector (Vector)
 import Data.Vector qualified as V (null, toList)
 
 import Parsing (Node(..))
-
-whenTrue :: Bool -> Text -> Text
-whenTrue True a = a
-whenTrue False _ = ""
 
 addDelimiters :: Bool -> [Text] -> [Node] -> [Text]
 addDelimiters _ acc [] = acc
@@ -28,9 +25,9 @@ addDelimiters complexChildren acc ns@(node:rest)
     isCommentNode (MultilineComment _) = True
     isCommentNode (SinglelineComment _) = True
     isCommentNode _ = False
-    comma = whenTrue (rest /= []) ","
-    space = whenTrue (rest /= [] && not complexChildren) " "
-    newline = whenTrue complexChildren "\n"
+    comma = bool "," "" $ null rest
+    space = bool " " "" $ null rest || complexChildren
+    newline = bool "" "\n" complexChildren
 
 isComplexNode :: Node -> Bool
 isComplexNode (Object _) = True

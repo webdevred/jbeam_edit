@@ -100,7 +100,7 @@ arrayElemSelector = do
   n <- nodeSelector
   c <- C.peekChar
   case c of
-    Just ']' -> return n
+    Just ']' -> pure n
     _ -> separatorSelector $> n
 
 arraySelector :: Parser ByteString Node
@@ -108,7 +108,7 @@ arraySelector = do
   _ <- C.char '['
   elems <- C.many' arrayElemSelector
   _ <- C.char ']'
-  return . Array . V.fromList $ elems
+  pure . Array . V.fromList $ elems
 
 objectKeySelector :: Parser ByteString Node
 objectKeySelector = do
@@ -120,7 +120,7 @@ objectKeySelector = do
   let obj = ObjectKey (key, value)
   c <- C.peekChar
   case c of
-    Just '}' -> return obj
+    Just '}' -> pure obj
     _ -> separatorSelector $> obj
 
 objectSelector :: Parser ByteString Node
@@ -128,7 +128,7 @@ objectSelector = do
   _ <- C.char '{'
   keys <- C.many' (commentSelector <|> objectKeySelector)
   _ <- C.char '}'
-  return . Object . V.fromList $ keys
+  pure . Object . V.fromList $ keys
 
 parseNodes :: ByteString -> Either String Node
 parseNodes =

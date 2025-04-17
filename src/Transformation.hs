@@ -210,7 +210,7 @@ rejectVertices :: VerticeGroupType -> VerticeGroup -> VerticeGroup
 rejectVertices t g =
   g
     { gVertices =
-        LV.nonEmpty . LV.filter ((==) t . determineGroup . vX) =<< gVertices g
+        gVertices g >>= LV.nonEmpty . LV.filter ((==) t . determineGroup . vX)
     }
 
 moveVertices ::
