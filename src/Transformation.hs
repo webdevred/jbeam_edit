@@ -1,12 +1,13 @@
+{-# LANGUAGE TypeFamilies #-}
+
 module Transformation
   ( transform
   ) where
 
-import Control.Monad ((>=>), guard)
+import Control.Monad ((<=<), guard)
 import Data.Char (isDigit)
 import Data.Foldable1 (maximumBy)
 import Data.Function (on)
-import Data.List qualified as L
 import Data.List.NonEmpty qualified as LV
 import Data.List.NonEmpty (NonEmpty, (<|))
 import Data.Map qualified as M
@@ -17,15 +18,23 @@ import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Vector (Vector, (!), (!?), (//))
 import Data.Vector qualified as V
+import GHC.IsList (IsList(..))
 import Parsing (Node(..))
 
 import Control.Arrow ((&&&))
 
-data NodeQuery
+data NodeSelector
   = Index Int
   | Key Text
   | NumericKey Int
-  deriving (Show)
+
+newtype NodePath =
+  NodePath [NodeSelector]
+
+instance IsList NodePath where
+  type Item NodePath = NodeSelector
+  fromList = NodePath . reverse
+  toList (NodePath xs) = reverse xs
 
 data VerticeGroupType
   = LeftGroup
@@ -58,7 +67,7 @@ extractValInKey :: Node -> Maybe Node
 extractValInKey (ObjectKey (_, val)) = Just val
 extractValInKey _ = Nothing
 
-select :: NodeQuery -> Node -> Maybe Node
+select :: NodeSelector -> Node -> Maybe Node
 select (Index i) (Array ns) = ns !? i
 select (Key k) (Object ns) = extractValInKey =<< V.find compareKey ns
   where
@@ -67,8 +76,8 @@ select (Key k) (Object ns) = extractValInKey =<< V.find compareKey ns
 select (NumericKey i) (Object a) = extractValInKey =<< a !? i
 select _ _ = Nothing
 
-queryNodes :: [NodeQuery] -> Node -> Maybe Node
-queryNodes qs = L.foldl' (>=>) id (map select qs) . Just
+queryNodes :: NodePath -> Node -> Maybe Node
+queryNodes (NodePath qs) = foldr ((<=<) . select) id qs . Just
 
 dropIndex :: Text -> Text
 dropIndex = T.dropWhileEnd isDigit
@@ -129,14 +138,14 @@ nodeToVerticeGroupList acc i n =
             else newVerticeGroup i (vName vertice) vertice : acc
     Nothing -> acc
 
-getVerticeGroups :: [NodeQuery] -> Node -> VerticeGroupMap
+getVerticeGroups :: NodePath -> Node -> VerticeGroupMap
 getVerticeGroups q n =
   case queryNodes q n of
     Just (Array n') ->
       foldr setGroupAcc M.empty . V.ifoldl' nodeToVerticeGroupList [] $ n'
     _ -> error "cannot find node with vertices"
 
-isObjectKeyEqual :: NodeQuery -> Node -> Bool
+isObjectKeyEqual :: NodeSelector -> Node -> Bool
 isObjectKeyEqual (Key a) (ObjectKey (String b, _)) = a == b
 isObjectKeyEqual _ _ = False
 
@@ -252,8 +261,8 @@ succIfNonZero :: Int -> Int
 succIfNonZero 0 = 0
 succIfNonZero i = i + 1
 
-updateNode :: [NodeQuery] -> VerticeGroup -> Node -> Node
-updateNode [] n (Array a) =
+updateNode :: NodePath -> VerticeGroup -> Node -> Node
+updateNode (NodePath []) n (Array a) =
   let vertices = gVertices n
       startIndex =
         fromMaybe (gStartIndex n) $ V.findIndex (nodeBelongsToGroup n) a
@@ -264,17 +273,17 @@ updateNode [] n (Array a) =
         V.fromList (maybe [] (map verticeToNode . LV.toList) vertices)
       endNodes = V.slice endIndex (V.length a - endIndex) a
    in Array $ V.concat [beginNodes, groupHeader, verticeNodes, endNodes]
-updateNode ((Index i):qrest) n (Array a) =
+updateNode (NodePath ((Index i):qrest)) n (Array a) =
   case a !? i of
-    Just a' -> Array $ a // [(i, updateNode qrest n a')]
+    Just a' -> Array $ a // [(i, updateNode (NodePath qrest) n a')]
     Nothing -> Array a
-updateNode ((NumericKey i):qrest) n (Object a) =
+updateNode (NodePath ((NumericKey i):qrest)) n (Object a) =
   case a !? i of
-    Just _ -> Object $ a // [(i, updateNode qrest n (a ! i))]
+    Just _ -> Object $ a // [(i, updateNode (NodePath qrest) n (a ! i))]
     Nothing -> Object a
-updateNode (k@(Key _):qrest) n (Object a) =
+updateNode (NodePath (k@(Key _):qrest)) n (Object a) =
   case V.findIndex (isObjectKeyEqual k) a of
-    Just i -> Object $ a // [(i, updateNode qrest n (a ! i))]
+    Just i -> Object $ a // [(i, updateNode (NodePath qrest) n (a ! i))]
     Nothing -> Object a
 updateNode qs n (ObjectKey (k, v)) = ObjectKey (k, updateNode qs n v)
 updateNode _ _ a = a
@@ -287,7 +296,7 @@ verticeNameMap g acc =
 
 transform :: Node -> Node
 transform ns =
-  let query = [NumericKey 0, Key "nodes"]
+  let query = fromList [NumericKey 0, Key "nodes"]
       verticeGroups = getVerticeGroups query ns
       verticeNames = M.foldr verticeNameMap M.empty verticeGroups
       updatedGroups = updateVerticesInGroup verticeGroups
