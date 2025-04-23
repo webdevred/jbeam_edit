@@ -23,7 +23,7 @@ newtype NodePath =
   NodePath [NodeSelector]
 
 instance Show NodePath where
-  show (NodePath xs) = concatMap show . toList $ xs
+  show (NodePath xs) = concatMap show xs
 
 instance IsList NodePath where
   type Item NodePath = NodeSelector

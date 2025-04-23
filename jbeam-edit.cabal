@@ -25,6 +25,7 @@ source-repository head
 library
   exposed-modules:
       Formatting
+      NodeCursor
       NodePath
       Parsing
       Transformation

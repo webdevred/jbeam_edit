@@ -20,6 +20,7 @@ import Data.Vector (Vector, (!), (!?), (//))
 import Data.Vector qualified as V
 import GHC.IsList (fromList)
 
+import NodeCursor qualified as NC
 import NodePath qualified as NP
 import Parsing (Node(..))
 
@@ -50,6 +51,9 @@ data Vertice = Vertice
   , vZ :: Scientific
   } deriving (Show)
 
+verticeQuery :: NP.NodePath
+verticeQuery = fromList [NP.ObjectIndex 0, NP.ObjectKey "nodes"]
+
 extractValInKey :: Node -> Maybe Node
 extractValInKey (ObjectKey (_, val)) = Just val
 extractValInKey _ = Nothing
@@ -64,7 +68,7 @@ select (NP.ObjectIndex i) (Object a) = extractValInKey =<< a !? i
 select _ _ = Nothing
 
 queryNodes :: NP.NodePath -> Node -> Maybe Node
-queryNodes (NP.NodePath s) = L.foldl' ((>=>)) id (map select s) . Just
+queryNodes (NP.NodePath s) = L.foldl' (>=>) id (map select s) . Just
 
 dropIndex :: Text -> Text
 dropIndex = T.dropWhileEnd isDigit
@@ -136,20 +140,32 @@ isObjectKeyEqual :: NP.NodeSelector -> Node -> Bool
 isObjectKeyEqual (NP.ObjectKey a) (ObjectKey (String b, _)) = a == b
 isObjectKeyEqual _ _ = False
 
-findAndUpdateTextInNode :: Map Text Text -> Node -> Node
-findAndUpdateTextInNode m (Array a) =
-  Array $ V.map (findAndUpdateTextInNode m) a
-findAndUpdateTextInNode m (Object a) =
-  Object $ V.map (findAndUpdateTextInNode m) a
-findAndUpdateTextInNode m (ObjectKey (k, v)) =
-  case k of
-    String "nodes" -> ObjectKey (k, v)
-    _ -> ObjectKey (k, findAndUpdateTextInNode m v)
-findAndUpdateTextInNode m (String s) =
-  case M.lookup s m of
-    Just s' -> String s'
-    Nothing -> String s
-findAndUpdateTextInNode _ a = a
+findAndUpdateTextInNode :: Map Text Text -> NC.NodeCursor -> Node -> Node
+findAndUpdateTextInNode m cursor node =
+  case node of
+    Array arr
+      | NC.comparePathAndCursor verticeQuery cursor -> Array arr
+      | otherwise -> Array $ V.imap applyBreadcrumbAndUpdateText arr
+    Object obj -> Object $ V.imap applyBreadcrumbAndUpdateText obj
+    ObjectKey (String key, value) -> updateObjectKey key value
+    String s -> String $ M.findWithDefault s s m
+    _ -> node
+  where
+    applyBreadcrumbAndUpdateText index =
+        NC.applyCrumb (NC.ArrayIndex index) cursor (findAndUpdateTextInNode m)
+    updateObjectKey key value =
+      case cursor of
+        NC.NodeCursor ((NC.ArrayIndex b):bs) ->
+          let crumb = NC.ObjectIndexAndKey (b, key)
+              newCursor' = NC.NodeCursor bs
+           in ObjectKey
+                ( String key
+                , NC.applyCrumb
+                    crumb
+                    newCursor'
+                    (findAndUpdateTextInNode m)
+                    value)
+        NC.NodeCursor _ -> node
 
 newGroupIndex ::
      [(VerticeGroupType, VerticeGroup)] -> VerticeGroupType -> VerticeIndex
@@ -283,11 +299,10 @@ verticeNameMap g acc =
 
 transform :: Node -> Node
 transform ns =
-  let query = fromList [NP.ObjectIndex 0, NP.ObjectKey "nodes"]
-      verticeGroups = getVerticeGroups query ns
+  let verticeGroups = getVerticeGroups verticeQuery ns
       verticeNames = M.foldr verticeNameMap M.empty verticeGroups
       updatedGroups = updateVerticesInGroup verticeGroups
       updatedVerticeNames = M.foldr verticeNameMap M.empty updatedGroups
       updateMap = M.fromList $ on zip M.elems verticeNames updatedVerticeNames
-   in findAndUpdateTextInNode updateMap
-        $ foldr (updateNode query) ns updatedGroups
+   in findAndUpdateTextInNode updateMap NC.newCursor
+        $ foldr (updateNode verticeQuery) ns updatedGroups
