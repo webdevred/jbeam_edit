@@ -1,40 +1,27 @@
-{-# LANGUAGE TypeFamilies #-}
-
 module Transformation
   ( transform
   ) where
 
-import Control.Monad ((<=<), guard)
+import Control.Arrow ((&&&))
+import Control.Monad ((>=>), guard)
 import Data.Char (isDigit)
 import Data.Foldable1 (maximumBy)
 import Data.Function (on)
+import Data.List qualified as L (foldl')
 import Data.List.NonEmpty qualified as LV
 import Data.List.NonEmpty (NonEmpty, (<|))
 import Data.Map qualified as M
 import Data.Map (Map)
-import Data.Maybe (fromJust, fromMaybe)
+import Data.Maybe (fromMaybe)
 import Data.Scientific (Scientific)
 import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Vector (Vector, (!), (!?), (//))
 import Data.Vector qualified as V
-import GHC.IsList (IsList(..))
+import GHC.IsList (fromList)
+
+import NodePath qualified as NP
 import Parsing (Node(..))
-
-import Control.Arrow ((&&&))
-
-data NodeSelector
-  = Index Int
-  | Key Text
-  | NumericKey Int
-
-newtype NodePath =
-  NodePath [NodeSelector]
-
-instance IsList NodePath where
-  type Item NodePath = NodeSelector
-  fromList = NodePath . reverse
-  toList (NodePath xs) = reverse xs
 
 data VerticeGroupType
   = LeftGroup
@@ -67,24 +54,24 @@ extractValInKey :: Node -> Maybe Node
 extractValInKey (ObjectKey (_, val)) = Just val
 extractValInKey _ = Nothing
 
-select :: NodeSelector -> Node -> Maybe Node
-select (Index i) (Array ns) = ns !? i
-select (Key k) (Object ns) = extractValInKey =<< V.find compareKey ns
+select :: NP.NodeSelector -> Node -> Maybe Node
+select (NP.ArrayIndex i) (Array ns) = ns !? i
+select (NP.ObjectKey k) (Object ns) = extractValInKey =<< V.find compareKey ns
   where
     compareKey (ObjectKey (String keyText, _)) = keyText == k
     compareKey _ = False
-select (NumericKey i) (Object a) = extractValInKey =<< a !? i
+select (NP.ObjectIndex i) (Object a) = extractValInKey =<< a !? i
 select _ _ = Nothing
 
-queryNodes :: NodePath -> Node -> Maybe Node
-queryNodes (NodePath qs) = foldr ((<=<) . select) id qs . Just
+queryNodes :: NP.NodePath -> Node -> Maybe Node
+queryNodes (NP.NodePath s) = L.foldl' ((>=>)) id (map select s) . Just
 
 dropIndex :: Text -> Text
 dropIndex = T.dropWhileEnd isDigit
 
 groupName :: Node -> Maybe Text
 groupName n =
-  case select (Index 0) n of
+  case select (NP.ArrayIndex 0) n of
     Just (String s) -> Just $ dropIndex s
     _ -> Nothing
 
@@ -104,9 +91,9 @@ determineGroup x
   | otherwise = LeftGroup
 
 setGroupAcc :: VerticeGroup -> VerticeGroupMap -> VerticeGroupMap
-setGroupAcc g acc = M.insert gType g acc
+setGroupAcc g acc = maybe acc (\vs -> M.insert (gType vs) g acc) (gVertices g)
   where
-    gType = mostCommon . LV.map (determineGroup . vX) . fromJust $ gVertices g
+    gType = mostCommon . LV.map (determineGroup . vX)
     mostCommon = LV.head . maximumBy (compare `on` length) . LV.group1 . LV.sort
 
 newVerticeGroup :: VerticeIndex -> Text -> Vertice -> VerticeGroup
@@ -138,15 +125,15 @@ nodeToVerticeGroupList acc i n =
             else newVerticeGroup i (vName vertice) vertice : acc
     Nothing -> acc
 
-getVerticeGroups :: NodePath -> Node -> VerticeGroupMap
+getVerticeGroups :: NP.NodePath -> Node -> VerticeGroupMap
 getVerticeGroups q n =
   case queryNodes q n of
     Just (Array n') ->
       foldr setGroupAcc M.empty . V.ifoldl' nodeToVerticeGroupList [] $ n'
     _ -> error "cannot find node with vertices"
 
-isObjectKeyEqual :: NodeSelector -> Node -> Bool
-isObjectKeyEqual (Key a) (ObjectKey (String b, _)) = a == b
+isObjectKeyEqual :: NP.NodeSelector -> Node -> Bool
+isObjectKeyEqual (NP.ObjectKey a) (ObjectKey (String b, _)) = a == b
 isObjectKeyEqual _ _ = False
 
 findAndUpdateTextInNode :: Map Text Text -> Node -> Node
@@ -261,8 +248,8 @@ succIfNonZero :: Int -> Int
 succIfNonZero 0 = 0
 succIfNonZero i = i + 1
 
-updateNode :: NodePath -> VerticeGroup -> Node -> Node
-updateNode (NodePath []) n (Array a) =
+updateNode :: NP.NodePath -> VerticeGroup -> Node -> Node
+updateNode (NP.NodePath []) n (Array a) =
   let vertices = gVertices n
       startIndex =
         fromMaybe (gStartIndex n) $ V.findIndex (nodeBelongsToGroup n) a
@@ -273,17 +260,17 @@ updateNode (NodePath []) n (Array a) =
         V.fromList (maybe [] (map verticeToNode . LV.toList) vertices)
       endNodes = V.slice endIndex (V.length a - endIndex) a
    in Array $ V.concat [beginNodes, groupHeader, verticeNodes, endNodes]
-updateNode (NodePath ((Index i):qrest)) n (Array a) =
+updateNode (NP.NodePath ((NP.ArrayIndex i):qrest)) n (Array a) =
   case a !? i of
-    Just a' -> Array $ a // [(i, updateNode (NodePath qrest) n a')]
+    Just a' -> Array $ a // [(i, updateNode (NP.NodePath qrest) n a')]
     Nothing -> Array a
-updateNode (NodePath ((NumericKey i):qrest)) n (Object a) =
+updateNode (NP.NodePath ((NP.ObjectIndex i):qrest)) n (Object a) =
   case a !? i of
-    Just _ -> Object $ a // [(i, updateNode (NodePath qrest) n (a ! i))]
+    Just _ -> Object $ a // [(i, updateNode (NP.NodePath qrest) n (a ! i))]
     Nothing -> Object a
-updateNode (NodePath (k@(Key _):qrest)) n (Object a) =
+updateNode (NP.NodePath (k@(NP.ObjectKey _):qrest)) n (Object a) =
   case V.findIndex (isObjectKeyEqual k) a of
-    Just i -> Object $ a // [(i, updateNode (NodePath qrest) n (a ! i))]
+    Just i -> Object $ a // [(i, updateNode (NP.NodePath qrest) n (a ! i))]
     Nothing -> Object a
 updateNode qs n (ObjectKey (k, v)) = ObjectKey (k, updateNode qs n v)
 updateNode _ _ a = a
@@ -296,7 +283,7 @@ verticeNameMap g acc =
 
 transform :: Node -> Node
 transform ns =
-  let query = fromList [NumericKey 0, Key "nodes"]
+  let query = fromList [NP.ObjectIndex 0, NP.ObjectKey "nodes"]
       verticeGroups = getVerticeGroups query ns
       verticeNames = M.foldr verticeNameMap M.empty verticeGroups
       updatedGroups = updateVerticesInGroup verticeGroups

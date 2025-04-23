@@ -41,8 +41,8 @@ data Node
 skipWhiteSpace :: C.Parser ()
 skipWhiteSpace = C.skipSpace
 
-separatorSelector :: Parser ByteString ()
-separatorSelector = (commaSeparator <|> whitespaceSeparator) *> skipWhiteSpace
+separatorParser :: Parser ByteString ()
+separatorParser = (commaSeparator <|> whitespaceSeparator) *> skipWhiteSpace
   where
     commaSeparator = skipWhiteSpace *> C.char ','
     whitespaceSeparator = C.space
@@ -50,87 +50,82 @@ separatorSelector = (commaSeparator <|> whitespaceSeparator) *> skipWhiteSpace
 ---
 --- selectors for numbers, comments, strings and bools
 ---
-numberSelector :: Parser ByteString Node
-numberSelector = fmap Number C.scientific
+numberParser :: Parser ByteString Node
+numberParser = fmap Number C.scientific
 
-multilineCommentSelector :: Parser ByteString Node
-multilineCommentSelector =
+multilineCommentParser :: Parser ByteString Node
+multilineCommentParser =
   C.string "/*" *> C.manyTill C.anyChar (C.string "*/") <&> parseComment
   where
     parseComment = MultilineComment . T.strip . T.pack
 
-singlelineCommentSelector :: Parser ByteString Node
-singlelineCommentSelector =
+singlelineCommentParser :: Parser ByteString Node
+singlelineCommentParser =
   C.string "//" *> C.takeWhile ('\n' /=) <&> parseComment
   where
     parseComment = SinglelineComment . T.strip . decodeUtf8
 
-commentSelector :: Parser ByteString Node
-commentSelector = multilineCommentSelector <|> singlelineCommentSelector
+commentParser :: Parser ByteString Node
+commentParser = multilineCommentParser <|> singlelineCommentParser
 
-nullSelector :: Parser ByteString Node
-nullSelector = C.string "null" $> Null
+nullParser :: Parser ByteString Node
+nullParser = C.string "null" $> Null
 
-boolSelector :: Parser ByteString Node
-boolSelector =
-  C.choice [C.string "true", C.string "false"] <&> Bool . (== "true")
+boolParser :: Parser ByteString Node
+boolParser = C.choice [C.string "true", C.string "false"] <&> Bool . (== "true")
 
-stringSelector :: Parser ByteString Node
-stringSelector =
+stringParser :: Parser ByteString Node
+stringParser =
   (C.char '"' *> C.takeWhile ('"' /=) <* C.char '"') <&> String . decodeUtf8
 
-scalarSelector :: Parser ByteString Node
-scalarSelector =
-  stringSelector
-    <|> commentSelector
-    <|> numberSelector
-    <|> boolSelector
-    <|> nullSelector
+scalarParser :: Parser ByteString Node
+scalarParser =
+  stringParser <|> commentParser <|> numberParser <|> boolParser <|> nullParser
 
-nodeSelector :: Parser ByteString Node
-nodeSelector = skipWhiteSpace *> anyNode
+nodeParser :: Parser ByteString Node
+nodeParser = skipWhiteSpace *> anyNode
   where
-    anyNode = scalarSelector <|> arraySelector <|> objectSelector
+    anyNode = scalarParser <|> arrayParser <|> objectParser
 
 ---
 --- selectors for objects, object keys and arrays
 ---
-arrayElemSelector :: Parser ByteString Node
-arrayElemSelector = do
-  n <- nodeSelector
+arrayElemParser :: Parser ByteString Node
+arrayElemParser = do
+  n <- nodeParser
   c <- C.peekChar
   case c of
     Just ']' -> pure n
-    _ -> separatorSelector $> n
+    _ -> separatorParser $> n
 
-arraySelector :: Parser ByteString Node
-arraySelector = do
+arrayParser :: Parser ByteString Node
+arrayParser = do
   _ <- C.char '['
-  elems <- C.many' arrayElemSelector
+  elems <- C.many' arrayElemParser
   _ <- C.char ']'
   pure . Array . V.fromList $ elems
 
-objectKeySelector :: Parser ByteString Node
-objectKeySelector = do
+objectKeyParser :: Parser ByteString Node
+objectKeyParser = do
   _ <- skipWhiteSpace
-  key <- stringSelector
+  key <- stringParser
   _ <- skipWhiteSpace
   _ <- C.char ':'
-  value <- nodeSelector
+  value <- nodeParser
   let obj = ObjectKey (key, value)
   c <- C.peekChar
   case c of
     Just '}' -> pure obj
-    _ -> separatorSelector $> obj
+    _ -> separatorParser $> obj
 
-objectSelector :: Parser ByteString Node
-objectSelector = do
+objectParser :: Parser ByteString Node
+objectParser = do
   _ <- C.char '{'
-  keys <- C.many' (commentSelector <|> objectKeySelector)
+  keys <- C.many' (commentParser <|> objectKeyParser)
   _ <- C.char '}'
   pure . Object . V.fromList $ keys
 
 parseNodes :: ByteString -> Either String Node
 parseNodes =
   C.parseOnly
-    $ nodeSelector <* skipWhiteSpace <* (C.endOfInput <?> "unexpected input")
+    $ nodeParser <* skipWhiteSpace <* (C.endOfInput <?> "unexpected input")
