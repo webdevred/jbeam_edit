@@ -4,6 +4,7 @@ module Transformation
 
 import Control.Arrow ((&&&))
 import Control.Monad ((>=>), guard)
+import Data.Bool (bool)
 import Data.Char (isDigit)
 import Data.Foldable1 (maximumBy)
 import Data.Function (on)
@@ -12,7 +13,7 @@ import Data.List.NonEmpty qualified as LV
 import Data.List.NonEmpty (NonEmpty, (<|))
 import Data.Map qualified as M
 import Data.Map (Map)
-import Data.Maybe (fromMaybe)
+import Data.Maybe (fromMaybe, isJust)
 import Data.Scientific (Scientific)
 import Data.Text (Text)
 import Data.Text qualified as T
@@ -152,7 +153,7 @@ findAndUpdateTextInNode m cursor node =
     _ -> node
   where
     applyBreadcrumbAndUpdateText index =
-        NC.applyCrumb (NC.ArrayIndex index) cursor (findAndUpdateTextInNode m)
+      NC.applyCrumb (NC.ArrayIndex index) cursor (findAndUpdateTextInNode m)
     updateObjectKey key value =
       case cursor of
         NC.NodeCursor ((NC.ArrayIndex b):bs) ->
@@ -265,30 +266,31 @@ succIfNonZero 0 = 0
 succIfNonZero i = i + 1
 
 updateNode :: NP.NodePath -> VerticeGroup -> Node -> Node
-updateNode (NP.NodePath []) n (Array a) =
-  let vertices = gVertices n
+updateNode (NP.NodePath []) g (Array a) =
+  let vertices = gVertices g
       startIndex =
-        fromMaybe (gStartIndex n) $ V.findIndex (nodeBelongsToGroup n) a
-      endIndex = startIndex + succIfNonZero (gSize n)
+        fromMaybe (gStartIndex g) $ V.findIndex (nodeBelongsToGroup g) a
+      endIndex = startIndex + succIfNonZero (gSize g)
       beginNodes = V.slice 0 startIndex a
-      groupHeader = newGroupHeader n
+      groupHeader = newGroupHeader g
       verticeNodes =
         V.fromList (maybe [] (map verticeToNode . LV.toList) vertices)
       endNodes = V.slice endIndex (V.length a - endIndex) a
    in Array $ V.concat [beginNodes, groupHeader, verticeNodes, endNodes]
-updateNode (NP.NodePath ((NP.ArrayIndex i):qrest)) n (Array a) =
-  case a !? i of
-    Just a' -> Array $ a // [(i, updateNode (NP.NodePath qrest) n a')]
-    Nothing -> Array a
-updateNode (NP.NodePath ((NP.ObjectIndex i):qrest)) n (Object a) =
-  case a !? i of
-    Just _ -> Object $ a // [(i, updateNode (NP.NodePath qrest) n (a ! i))]
-    Nothing -> Object a
-updateNode (NP.NodePath (k@(NP.ObjectKey _):qrest)) n (Object a) =
-  case V.findIndex (isObjectKeyEqual k) a of
-    Just i -> Object $ a // [(i, updateNode (NP.NodePath qrest) n (a ! i))]
-    Nothing -> Object a
-updateNode qs n (ObjectKey (k, v)) = ObjectKey (k, updateNode qs n v)
+updateNode (NP.NodePath ((NP.ArrayIndex i):qrest)) g (Array children) =
+  let updateInNode nodeToUpdate =
+        children // [(i, updateNode (NP.NodePath qrest) g nodeToUpdate)]
+   in Array $ maybe children updateInNode (children !? i)
+updateNode (NP.NodePath ((NP.ObjectIndex i):qrest)) g (Object children) =
+  let updateInNode _ =
+        children // [(i, updateNode (NP.NodePath qrest) g (children ! i))]
+   in Object $ maybe children updateInNode (children !? i)
+updateNode (NP.NodePath (k@(NP.ObjectKey _):qrest)) g (Object children) =
+  let updateInNode i =
+        children // [(i, updateNode (NP.NodePath qrest) g (children ! i))]
+   in Object . maybe children updateInNode
+        $ V.findIndex (isObjectKeyEqual k) children
+updateNode query g (ObjectKey (k, v)) = ObjectKey (k, updateNode query g v)
 updateNode _ _ a = a
 
 verticeNameMap :: VerticeGroup -> UpdateMap -> UpdateMap
