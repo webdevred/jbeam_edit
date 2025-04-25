@@ -72,11 +72,11 @@ The tool will:
 • Format it according to the default or user-defined rules.  
 • Automatically sort nodes, rename them sequentially, and update all related references.
 
-For full usage details and configuration options, please refer to the documentation in the project's docs folder.
+For full usage details and configuration options, please refer to [[EXPLANATION_OF_SOURCE_CODE.org][EXPLANATION_OF_SOURCE_CODE.org]]
 
 *** Contributing
 
-Contributions, bug reports, and feature requests are welcome! Please check the CONTRIBUTING.md file for guidelines.
+Contributions, bug reports, and feature requests are welcome!
 
 *** License
 
