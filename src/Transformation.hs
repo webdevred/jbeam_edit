@@ -25,27 +25,32 @@ import NodeCursor qualified as NC
 import NodePath qualified as NP
 import Parsing (Node(..))
 
-data VerticeGroupType
+data VertexGroupType
   = LeftGroup
   | MiddleGroup
   | RightGroup
   deriving (Eq, Ord, Show)
 
-type VerticeIndex = Int
+type VertexIndex = Int
 
-type VerticeGroupMap = Map VerticeGroupType VerticeGroup
+type VertexGroupMap = Map VertexGroupType VertexGroup
 
 type UpdateMap = Map (Scientific, Scientific, Scientific) Text
 
-data VerticeGroup = VerticeGroup
+data VertexBlock = VertexBlock
+  { bProps :: Map Text Node
+  , bVertices :: Maybe (NonEmpty Vertex)
+  } deriving (Show)
+
+data VertexGroup = VertexGroup
   { gName :: Text
-  , gStartIndex :: VerticeIndex
-  , gSize :: VerticeIndex
-  , gVertices :: Maybe (NonEmpty Vertice)
+  , gStartIndex :: VertexIndex
+  , gSize :: VertexIndex
+  , gVertices :: Maybe (NonEmpty Vertex)
   , gFresh :: Bool
   } deriving (Show)
 
-data Vertice = Vertice
+data Vertex = Vertex
   { vName :: Text
   , vX :: Scientific
   , vY :: Scientific
@@ -80,30 +85,30 @@ groupName n =
     Just (String s) -> Just $ dropIndex s
     _ -> Nothing
 
-newVertice :: Node -> Maybe Vertice
-newVertice (Array n) = f . V.toList $ n
+newVertex :: Node -> Maybe Vertex
+newVertex (Array n) = f . V.toList $ n
   where
     f [String name, Number x, Number y, Number z] =
       guard (isDigit $ T.last name)
-        >> Just (Vertice {vName = name, vX = x, vY = y, vZ = z})
+        >> Just (Vertex {vName = name, vX = x, vY = y, vZ = z})
     f _ = Nothing
-newVertice _ = Nothing
+newVertex _ = Nothing
 
-determineGroup :: Scientific -> VerticeGroupType
+determineGroup :: Scientific -> VertexGroupType
 determineGroup x
   | x < -0.09 = RightGroup
   | x < 0.09 = MiddleGroup
   | otherwise = LeftGroup
 
-setGroupAcc :: VerticeGroup -> VerticeGroupMap -> VerticeGroupMap
+setGroupAcc :: VertexGroup -> VertexGroupMap -> VertexGroupMap
 setGroupAcc g acc = maybe acc (\vs -> M.insert (gType vs) g acc) (gVertices g)
   where
     gType = mostCommon . LV.map (determineGroup . vX)
     mostCommon = LV.head . maximumBy (compare `on` length) . LV.group1 . LV.sort
 
-newVerticeGroup :: VerticeIndex -> Text -> Vertice -> VerticeGroup
-newVerticeGroup i name vertice =
-  VerticeGroup
+newVertexGroup :: VertexIndex -> Text -> Vertex -> VertexGroup
+newVertexGroup i name vertice =
+  VertexGroup
     { gFresh = False
     , gStartIndex = i
     , gSize = 1
@@ -111,15 +116,15 @@ newVerticeGroup i name vertice =
     , gVertices = Just $ LV.singleton vertice
     }
 
-nodeBelongsToGroup :: VerticeGroup -> Node -> Bool
-nodeBelongsToGroup (VerticeGroup {gName = name}) n = Just name == groupName n
+nodeBelongsToGroup :: VertexGroup -> Node -> Bool
+nodeBelongsToGroup (VertexGroup {gName = name}) n = Just name == groupName n
 
-nodeToVerticeGroupList :: [VerticeGroup] -> Int -> Node -> [VerticeGroup]
-nodeToVerticeGroupList acc i n =
-  case newVertice n of
+nodeToVertexGroupList :: [VertexGroup] -> Int -> Node -> [VertexGroup]
+nodeToVertexGroupList acc i n =
+  case newVertex n of
     Just vertice ->
       case acc of
-        [] -> [newVerticeGroup i (vName vertice) vertice]
+        [] -> [newVertexGroup i (vName vertice) vertice]
         (first:accRest) ->
           if nodeBelongsToGroup first n
             then first
@@ -127,14 +132,14 @@ nodeToVerticeGroupList acc i n =
                    , gVertices = (vertice <|) <$> gVertices first
                    }
                    : accRest
-            else newVerticeGroup i (vName vertice) vertice : acc
+            else newVertexGroup i (vName vertice) vertice : acc
     Nothing -> acc
 
-getVerticeGroups :: NP.NodePath -> Node -> VerticeGroupMap
-getVerticeGroups q n =
+getVertexGroups :: NP.NodePath -> Node -> VertexGroupMap
+getVertexGroups q n =
   case queryNodes q n of
     Just (Array n') ->
-      foldr setGroupAcc M.empty . V.ifoldl' nodeToVerticeGroupList [] $ n'
+      foldr setGroupAcc M.empty . V.ifoldl' nodeToVertexGroupList [] $ n'
     _ -> error "cannot find node with vertices"
 
 isObjectKeyEqual :: NP.NodeSelector -> Node -> Bool
@@ -169,7 +174,7 @@ findAndUpdateTextInNode m cursor node =
         NC.NodeCursor _ -> node
 
 newGroupIndex ::
-     [(VerticeGroupType, VerticeGroup)] -> VerticeGroupType -> VerticeIndex
+     [(VertexGroupType, VertexGroup)] -> VertexGroupType -> VertexIndex
 newGroupIndex groups newGroupType =
   case newGroupType of
     LeftGroup ->
@@ -187,12 +192,12 @@ newGroupIndex groups newGroupType =
         [_, (RightGroup, g)] -> gStartIndex g - 1
         _ -> error "expected to find LeftGroup or RightGroup in groups"
 
-groupTypeToChar :: VerticeGroupType -> Text
+groupTypeToChar :: VertexGroupType -> Text
 groupTypeToChar LeftGroup = "l"
 groupTypeToChar MiddleGroup = "m"
 groupTypeToChar RightGroup = "r"
 
-newGroupName :: [(VerticeGroupType, VerticeGroup)] -> VerticeGroupType -> Text
+newGroupName :: [(VertexGroupType, VertexGroup)] -> VertexGroupType -> Text
 newGroupName [(_, g)] groupType = gName g <> groupTypeToChar groupType
 newGroupName ((_, g1):(_, g2):_) groupType =
   case on T.commonPrefixes gName g1 g2 of
@@ -200,26 +205,26 @@ newGroupName ((_, g1):(_, g2):_) groupType =
     _ -> gName g1 <> groupTypeToChar groupType
 newGroupName [] groupType = groupTypeToChar groupType
 
-addVertice :: Vertice -> Maybe (NonEmpty Vertice) -> Maybe (NonEmpty Vertice)
-addVertice vertice Nothing = Just $ LV.singleton vertice
-addVertice vertice (Just vs) = Just $ vertice <| vs
+addVertex :: Vertex -> Maybe (NonEmpty Vertex) -> Maybe (NonEmpty Vertex)
+addVertex vertice Nothing = Just $ LV.singleton vertice
+addVertex vertice (Just vs) = Just $ vertice <| vs
 
-moveVerticeToGroup ::
-     VerticeGroupType -> Vertice -> VerticeGroupMap -> VerticeGroupMap
-moveVerticeToGroup gType vert gs
+moveVertexToGroup ::
+     VertexGroupType -> Vertex -> VertexGroupMap -> VertexGroupMap
+moveVertexToGroup gType vert gs
   | gType == destGroup = gs
-  | M.member destGroup gs = M.update addVerticeToGroup destGroup gs
+  | M.member destGroup gs = M.update addVertexToGroup destGroup gs
   | otherwise =
     let currentGroupList = M.toList gs
         i = newGroupIndex currentGroupList destGroup
         name = newGroupName currentGroupList destGroup
-        group = newVerticeGroup i name vert
+        group = newVertexGroup i name vert
      in M.insert destGroup group {gFresh = True, gSize = 0} gs
   where
     destGroup = determineGroup . vX $ vert
-    addVerticeToGroup g = Just g {gVertices = addVertice vert $ gVertices g}
+    addVertexToGroup g = Just g {gVertices = addVertex vert $ gVertices g}
 
-rejectVertices :: VerticeGroupType -> VerticeGroup -> VerticeGroup
+rejectVertices :: VertexGroupType -> VertexGroup -> VertexGroup
 rejectVertices t g =
   g
     { gVertices =
@@ -227,35 +232,35 @@ rejectVertices t g =
     }
 
 moveVertices ::
-     VerticeGroupType -> VerticeGroup -> VerticeGroupMap -> VerticeGroupMap
+     VertexGroupType -> VertexGroup -> VertexGroupMap -> VertexGroupMap
 moveVertices gType g gs =
   M.mapWithKey rejectVertices
-    . foldr (moveVerticeToGroup gType) gs
+    . foldr (moveVertexToGroup gType) gs
     . maybe [] LV.toList
     $ gVertices g
 
-updateVerticeName :: Text -> (VerticeIndex, Vertice) -> Vertice
-updateVerticeName name (index, vertice) =
+updateVertexName :: Text -> (VertexIndex, Vertex) -> Vertex
+updateVertexName name (index, vertice) =
   vertice {vName = name <> T.pack (show index)}
 
-updateVerticeNames :: VerticeGroup -> VerticeGroup
-updateVerticeNames g =
+updateVertexNames :: VertexGroup -> VertexGroup
+updateVertexNames g =
   let vertices = LV.sortBy (on compare $ vZ &&& vY) <$> gVertices g
       indexVertices = LV.zip (LV.fromList [0 ..])
       updatedVertices =
-        LV.map (updateVerticeName $ gName g) . indexVertices <$> vertices
+        LV.map (updateVertexName $ gName g) . indexVertices <$> vertices
    in g {gVertices = updatedVertices}
 
-updateVerticesInGroup :: VerticeGroupMap -> VerticeGroupMap
+updateVerticesInGroup :: VertexGroupMap -> VertexGroupMap
 updateVerticesInGroup gs =
-  M.map updateVerticeNames $ M.foldrWithKey moveVertices gs gs
+  M.map updateVertexNames $ M.foldrWithKey moveVertices gs gs
 
-verticeToNode :: Vertice -> Node
-verticeToNode (Vertice {vName = name, vX = x, vY = y, vZ = z}) =
+verticeToNode :: Vertex -> Node
+verticeToNode (Vertex {vName = name, vX = x, vY = y, vZ = z}) =
   Array $ V.fromList [String name, Number x, Number y, Number z]
 
-newGroupHeader :: VerticeGroup -> Vector Node
-newGroupHeader (VerticeGroup {gFresh = True}) =
+newGroupHeader :: VertexGroup -> Vector Node
+newGroupHeader (VertexGroup {gFresh = True}) =
   V.fromList [SinglelineComment "ny grupp", Object objKey]
   where
     objKey = V.singleton $ ObjectKey (String "group", String "new_group")
@@ -265,7 +270,7 @@ succIfNonZero :: Int -> Int
 succIfNonZero 0 = 0
 succIfNonZero i = i + 1
 
-updateNode :: NP.NodePath -> VerticeGroup -> Node -> Node
+updateNode :: NP.NodePath -> VertexGroup -> Node -> Node
 updateNode (NP.NodePath []) g (Array a) =
   let vertices = gVertices g
       startIndex =
@@ -293,7 +298,7 @@ updateNode (NP.NodePath (k@(NP.ObjectKey _):qrest)) g (Object children) =
 updateNode query g (ObjectKey (k, v)) = ObjectKey (k, updateNode query g v)
 updateNode _ _ a = a
 
-verticeNameMap :: VerticeGroup -> UpdateMap -> UpdateMap
+verticeNameMap :: VertexGroup -> UpdateMap -> UpdateMap
 verticeNameMap g acc =
   let sortKeys = map (\v -> ((vX v, vY v, vZ v), vName v)) . LV.toList
       vertices = gVertices g
@@ -301,10 +306,10 @@ verticeNameMap g acc =
 
 transform :: Node -> Node
 transform ns =
-  let verticeGroups = getVerticeGroups verticeQuery ns
+  let verticeGroups = getVertexGroups verticeQuery ns
       verticeNames = M.foldr verticeNameMap M.empty verticeGroups
       updatedGroups = updateVerticesInGroup verticeGroups
-      updatedVerticeNames = M.foldr verticeNameMap M.empty updatedGroups
-      updateMap = M.fromList $ on zip M.elems verticeNames updatedVerticeNames
+      updatedVertexNames = M.foldr verticeNameMap M.empty updatedGroups
+      updateMap = M.fromList $ on zip M.elems verticeNames updatedVertexNames
    in findAndUpdateTextInNode updateMap NC.newCursor
         $ foldr (updateNode verticeQuery) ns updatedGroups
