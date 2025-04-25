@@ -10,7 +10,7 @@ import Data.Text (Text)
 import Data.Vector (Vector)
 import Data.Vector qualified as V (null, toList)
 
-import Parsing (Node(..))
+import Parsing (Node(..),isCommentNode)
 
 addDelimiters :: Bool -> [Text] -> [Node] -> [Text]
 addDelimiters _ acc [] = acc
@@ -22,9 +22,6 @@ addDelimiters complexChildren acc ns@(node:rest)
     let new_acc = T.concat [formatNode node, comma, space, newline] : acc
      in addDelimiters complexChildren new_acc rest
   where
-    isCommentNode (MultilineComment _) = True
-    isCommentNode (SinglelineComment _) = True
-    isCommentNode _ = False
     comma = bool "," "" $ null rest
     space = bool " " "" $ null rest || complexChildren
     newline = bool "" "\n" complexChildren

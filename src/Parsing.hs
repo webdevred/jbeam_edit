@@ -1,5 +1,6 @@
 module Parsing
   ( parseNodes
+  , isCommentNode
   , Node(..)
   ) where
 
@@ -33,6 +34,11 @@ data Node
   | MultilineComment Text
   | Null
   deriving (Show, Eq)
+
+isCommentNode :: Node -> Bool
+isCommentNode (MultilineComment _) = True
+isCommentNode (SinglelineComment _) = True
+isCommentNode _ = False
 
 ---
 --- selector for white space and

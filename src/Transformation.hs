@@ -4,7 +4,6 @@ module Transformation
 
 import Control.Arrow ((&&&))
 import Control.Monad ((>=>), guard)
-import Data.Bool (bool)
 import Data.Char (isDigit)
 import Data.Foldable1 (maximumBy)
 import Data.Function (on)
@@ -13,7 +12,7 @@ import Data.List.NonEmpty qualified as LV
 import Data.List.NonEmpty (NonEmpty, (<|))
 import Data.Map qualified as M
 import Data.Map (Map)
-import Data.Maybe (fromMaybe, isJust)
+import Data.Maybe (fromJust, fromMaybe, isJust, isNothing)
 import Data.Scientific (Scientific)
 import Data.Text (Text)
 import Data.Text qualified as T
@@ -23,7 +22,7 @@ import GHC.IsList (fromList)
 
 import NodeCursor qualified as NC
 import NodePath qualified as NP
-import Parsing (Node(..))
+import Parsing (Node(..), isCommentNode)
 
 data VertexGroupType
   = LeftGroup
@@ -38,7 +37,7 @@ type VertexGroupMap = Map VertexGroupType VertexGroup
 type UpdateMap = Map (Scientific, Scientific, Scientific) Text
 
 data VertexBlock = VertexBlock
-  { bProps :: Map Text Node
+  { bPreNodes :: [Node]
   , bVertices :: Maybe (NonEmpty Vertex)
   } deriving (Show)
 
@@ -100,11 +99,14 @@ determineGroup x
   | x < 0.09 = MiddleGroup
   | otherwise = LeftGroup
 
+mostCommon :: NonEmpty VertexGroupType -> VertexGroupType
+mostCommon = LV.head . maximumBy (compare `on` length) . LV.group1 . LV.sort
+
 setGroupAcc :: VertexGroup -> VertexGroupMap -> VertexGroupMap
-setGroupAcc g acc = maybe acc (\vs -> M.insert (gType vs) g acc) (gVertices g)
+setGroupAcc g acc =
+  maybe acc (\vs -> M.insert (typeForVerticeList vs) g acc) (gVertices g)
   where
-    gType = mostCommon . LV.map (determineGroup . vX)
-    mostCommon = LV.head . maximumBy (compare `on` length) . LV.group1 . LV.sort
+    typeForVerticeList = mostCommon . LV.map (determineGroup . vX)
 
 newVertexGroup :: VertexIndex -> Text -> Vertex -> VertexGroup
 newVertexGroup i name vertice =
@@ -118,6 +120,32 @@ newVertexGroup i name vertice =
 
 nodeBelongsToGroup :: VertexGroup -> Node -> Bool
 nodeBelongsToGroup (VertexGroup {gName = name}) n = Just name == groupName n
+
+validateNodeVertices ::
+     ([VertexGroupType], Maybe (NonEmpty Scientific, Text)) -> [Node] -> Bool
+validateNodeVertices state (n:rest) =
+  case state of
+    (groups, Nothing)
+      | isVertex ->
+        validateNodeVertices
+          (groups, Just (LV.singleton xCord, groupName'))
+          rest
+      | otherwise -> validateNodeVertices (groups, Nothing) rest
+    (groups, Just (xs, currentGroupName))
+      | isNeitherVertexOrComment && typeForXCordList xs `elem` groups -> False
+      | isNeitherVertexOrComment ->
+          validateNodeVertices (typeForXCordList xs : groups, Nothing) rest
+      | isCommentNode n || Just currentGroupName == groupName n ->
+        validateNodeVertices (groups, Just (xCord <| xs, currentGroupName)) rest
+      | otherwise -> False
+  where
+    typeForXCordList = mostCommon . LV.map determineGroup
+    xCord = vX (fromJust vertex)
+    groupName' = dropIndex . vName $ fromJust vertex
+    vertex = newVertex n
+    isVertex = isJust vertex
+    isNeitherVertexOrComment = isNothing vertex && not (isCommentNode n)
+validateNodeVertices _ [] = True
 
 nodeToVertexGroupList :: [VertexGroup] -> Int -> Node -> [VertexGroup]
 nodeToVertexGroupList acc i n =
@@ -138,8 +166,10 @@ nodeToVertexGroupList acc i n =
 getVertexGroups :: NP.NodePath -> Node -> VertexGroupMap
 getVertexGroups q n =
   case queryNodes q n of
-    Just (Array n') ->
-      foldr setGroupAcc M.empty . V.ifoldl' nodeToVertexGroupList [] $ n'
+    Just (Array n')
+         | validateNodeVertices ([],Nothing) (V.toList n') ->
+             foldr setGroupAcc M.empty . V.ifoldl' nodeToVertexGroupList [] $ n'
+         | otherwise -> error "the nodes needs to restructured but restructuring is not implemented"
     _ -> error "cannot find node with vertices"
 
 isObjectKeyEqual :: NP.NodeSelector -> Node -> Bool
