@@ -7,6 +7,7 @@ import qualified Data.List as L (uncons)
 import qualified Data.Text.IO as TIO (putStrLn)
 import qualified Data.Text.Lazy as TL (fromStrict)
 import Data.Text.Lazy.Encoding (encodeUtf8)
+import NodeCursor (newCursor)
 import System.Environment (getArgs)
 import Transformation (transform)
 
@@ -25,7 +26,7 @@ main = do
           BL.writeFile "hewwu.jbeam"
             . encodeUtf8
             . TL.fromStrict
-            . formatNode
+            . formatNode newCursor
             . transform
             $ nodes'
         Left err -> putStrLn err

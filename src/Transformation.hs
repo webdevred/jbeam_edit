@@ -132,10 +132,12 @@ validateNodeVertices state (n:rest) =
           rest
       | otherwise -> validateNodeVertices (groups, Nothing) rest
     (groups, Just (xs, currentGroupName))
-      | isNeitherVertexOrComment && typeForXCordList xs `elem` groups -> False
-      | isNeitherVertexOrComment ->
-          validateNodeVertices (typeForXCordList xs : groups, Nothing) rest
-      | isCommentNode n || Just currentGroupName == groupName n ->
+      | isNeitherVertexNorComment && typeForXCordList xs `elem` groups -> False
+      | isNeitherVertexNorComment ->
+        validateNodeVertices (typeForXCordList xs : groups, Nothing) rest
+      | isCommentNode n ->
+        validateNodeVertices (groups, Just (xs, currentGroupName)) rest
+      | Just currentGroupName == groupName n ->
         validateNodeVertices (groups, Just (xCord <| xs, currentGroupName)) rest
       | otherwise -> False
   where
@@ -144,7 +146,7 @@ validateNodeVertices state (n:rest) =
     groupName' = dropIndex . vName $ fromJust vertex
     vertex = newVertex n
     isVertex = isJust vertex
-    isNeitherVertexOrComment = isNothing vertex && not (isCommentNode n)
+    isNeitherVertexNorComment = isNothing vertex && not (isCommentNode n)
 validateNodeVertices _ [] = True
 
 nodeToVertexGroupList :: [VertexGroup] -> Int -> Node -> [VertexGroup]
@@ -167,9 +169,11 @@ getVertexGroups :: NP.NodePath -> Node -> VertexGroupMap
 getVertexGroups q n =
   case queryNodes q n of
     Just (Array n')
-         | validateNodeVertices ([],Nothing) (V.toList n') ->
-             foldr setGroupAcc M.empty . V.ifoldl' nodeToVertexGroupList [] $ n'
-         | otherwise -> error "the nodes needs to restructured but restructuring is not implemented"
+      | validateNodeVertices ([], Nothing) (V.toList n') ->
+        foldr setGroupAcc M.empty . V.ifoldl' nodeToVertexGroupList [] $ n'
+      | otherwise ->
+        error
+          "the nodes needs to restructured but restructuring is not implemented"
     _ -> error "cannot find node with vertices"
 
 isObjectKeyEqual :: NP.NodeSelector -> Node -> Bool
@@ -183,25 +187,14 @@ findAndUpdateTextInNode m cursor node =
       | NC.comparePathAndCursor verticeQuery cursor -> Array arr
       | otherwise -> Array $ V.imap applyBreadcrumbAndUpdateText arr
     Object obj -> Object $ V.imap applyBreadcrumbAndUpdateText obj
-    ObjectKey (String key, value) -> updateObjectKey key value
+    ObjectKey (key, value) ->
+      ObjectKey
+        (key, NC.applyObjCrumb key cursor (findAndUpdateTextInNode m) value)
     String s -> String $ M.findWithDefault s s m
     _ -> node
   where
     applyBreadcrumbAndUpdateText index =
       NC.applyCrumb (NC.ArrayIndex index) cursor (findAndUpdateTextInNode m)
-    updateObjectKey key value =
-      case cursor of
-        NC.NodeCursor ((NC.ArrayIndex b):bs) ->
-          let crumb = NC.ObjectIndexAndKey (b, key)
-              newCursor' = NC.NodeCursor bs
-           in ObjectKey
-                ( String key
-                , NC.applyCrumb
-                    crumb
-                    newCursor'
-                    (findAndUpdateTextInNode m)
-                    value)
-        NC.NodeCursor _ -> node
 
 newGroupIndex ::
      [(VertexGroupType, VertexGroup)] -> VertexGroupType -> VertexIndex

@@ -55,7 +55,7 @@ For now, the project remains a Haskell-based tool, but the idea of a C/C++ port 
 
 Clone the repository and build the project using your preferred Haskell build tool:
 
-git clone https://github.com/yourusername/jbeam-tool.git  
+git clone https://github.com/webdevred/jbeam-tool.git  
 cd jbeam-tool  
 stack build
 

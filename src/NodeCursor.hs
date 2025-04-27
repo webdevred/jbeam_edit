@@ -2,6 +2,7 @@ module NodeCursor
   ( NodeCursor(..)
   , NodeBreadcrumb(..)
   , applyCrumb
+  , applyObjCrumb
   , comparePathAndCursor
   , newCursor
   ) where
@@ -29,10 +30,18 @@ instance Show NodeCursor where
 newCursor :: NodeCursor
 newCursor = NodeCursor []
 
-type CursorFun = NodeCursor -> Node -> Node
+type CursorFun a = NodeCursor -> Node -> a
 
-applyCrumb :: NodeBreadcrumb -> NodeCursor -> CursorFun -> Node -> Node
+applyCrumb :: NodeBreadcrumb -> NodeCursor -> CursorFun a -> Node -> a
 applyCrumb b (NodeCursor bs) f = f (NodeCursor $ b : bs)
+
+applyObjCrumb :: Node -> NodeCursor -> CursorFun a -> Node -> a
+applyObjCrumb (String key) (NodeCursor ((ArrayIndex i):bs)) f =
+  f (NodeCursor $ ObjectIndexAndKey (i, key) : bs)
+applyObjCrumb key cursor _ = error $ unwords [errMsg, show key, show cursor]
+  where
+    errMsg =
+      "applyObjCrumb expects a String Node and NodeCursor with a index as the head"
 
 type SelCrumbCompFun = NP.NodeSelector -> NodeBreadcrumb -> Bool
 

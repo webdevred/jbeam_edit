@@ -10,18 +10,27 @@ import Data.Text (Text)
 import Data.Vector (Vector)
 import Data.Vector qualified as V (null, toList)
 
-import Parsing (Node(..),isCommentNode)
+import NodeCursor qualified as NC
+import Parsing (Node(..), isCommentNode)
 
-addDelimiters :: Bool -> [Text] -> [Node] -> [Text]
-addDelimiters _ acc [] = acc
-addDelimiters complexChildren acc ns@(node:rest)
-  | complexChildren && null acc = addDelimiters complexChildren ["\n"] ns
+addDelimiters :: Int -> NC.NodeCursor -> Bool -> [Text] -> [Node] -> [Text]
+addDelimiters _ _ _ acc [] = acc
+addDelimiters index c complexChildren acc ns@(node:rest)
+  | complexChildren && null acc =
+    addDelimiters index c complexChildren ["\n"] ns
   | isCommentNode node =
-    addDelimiters complexChildren (formatNode node <> "\n" : acc) rest
+    addDelimiters
+      newIndex
+      c
+      complexChildren
+      (formatNode c node <> "\n" : acc)
+      rest
   | otherwise =
-    let new_acc = T.concat [formatNode node, comma, space, newline] : acc
-     in addDelimiters complexChildren new_acc rest
+    let new_acc = T.concat [applyCrumbAndFormat, comma, space, newline] : acc
+     in addDelimiters newIndex c complexChildren new_acc rest
   where
+    applyCrumbAndFormat = NC.applyCrumb (NC.ArrayIndex index) c formatNode node
+    newIndex = index + 1
     comma = bool "," "" $ null rest
     space = bool " " "" $ null rest || complexChildren
     newline = bool "" "\n" complexChildren
@@ -37,27 +46,29 @@ indent s
   | T.all isSpace s = s
   | otherwise = "  " <> s
 
-doFormatNode :: Vector Node -> Text
-doFormatNode nodes =
-  let formatted = reverse . addDelimiters complexChildren [] . V.toList $ nodes
+doFormatNode :: NC.NodeCursor -> Vector Node -> Text
+doFormatNode cursor nodes =
+  let formatted =
+        reverse . addDelimiters 0 cursor complexChildren [] . V.toList $ nodes
    in if complexChildren
         then T.unlines . map indent . concatMap T.lines $ formatted
         else T.concat formatted
   where
     complexChildren = any isComplexNode nodes
 
-formatNode :: Node -> Text
-formatNode (SinglelineComment c) = "\n// " <> c
-formatNode (MultilineComment c) = T.concat ["/* ", c, " */"]
-formatNode (String s) = T.concat ["\"", s, "\""]
-formatNode (Number n) = T.pack . formatScientific Fixed Nothing $ n
-formatNode (Bool True) = "true"
-formatNode (Bool _) = "false"
-formatNode Null = "null"
-formatNode (Array a)
+formatNode :: NC.NodeCursor -> Node -> Text
+formatNode _ (SinglelineComment c) = "\n// " <> c
+formatNode _ (MultilineComment c) = T.concat ["/* ", c, " */"]
+formatNode _ (String s) = T.concat ["\"", s, "\""]
+formatNode _ (Number n) = T.pack . formatScientific Fixed Nothing $ n
+formatNode _ (Bool True) = "true"
+formatNode _ (Bool _) = "false"
+formatNode _ Null = "null"
+formatNode cursor (Array a)
   | V.null a = "[]"
-  | otherwise = T.concat ["[", doFormatNode a, "]"]
-formatNode (Object o)
+  | otherwise = T.concat ["[", doFormatNode cursor a, "]"]
+formatNode cursor (Object o)
   | V.null o = "{}"
-  | otherwise = T.concat ["{", doFormatNode o, "}"]
-formatNode (ObjectKey (k, v)) = T.concat [formatNode k, " : ", formatNode v]
+  | otherwise = T.concat ["{", doFormatNode cursor o, "}"]
+formatNode cursor (ObjectKey (k, v)) =
+  T.concat [formatNode cursor k, " : ", NC.applyObjCrumb k cursor formatNode v]
