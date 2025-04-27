@@ -3,11 +3,10 @@ module Transformation
   ) where
 
 import Control.Arrow ((&&&))
-import Control.Monad ((<=<), guard)
+import Control.Monad (guard)
 import Data.Char (isDigit)
 import Data.Foldable1 (maximumBy)
 import Data.Function (on)
-import Data.List qualified as L (foldl')
 import Data.List.NonEmpty qualified as LV
 import Data.List.NonEmpty (NonEmpty, (<|))
 import Data.Map qualified as M
@@ -21,9 +20,9 @@ import Data.Vector (Vector, (!), (!?), (//))
 import Data.Vector qualified as V
 import GHC.IsList (fromList)
 
+import Node (Node(..), isCommentNode)
 import NodeCursor qualified as NC
 import NodePath qualified as NP
-import Parsing (Node(..), isCommentNode)
 
 data VertexGroupType
   = LeftGroup

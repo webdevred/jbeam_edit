@@ -1,7 +1,5 @@
 module Parsing
   ( parseNodes
-  , isCommentNode
-  , Node(..)
   ) where
 
 import Control.Applicative ((<|>))
@@ -10,35 +8,12 @@ import Data.Attoparsec.ByteString.Char8 ((<?>))
 import Data.Attoparsec.Internal.Types (Parser)
 import Data.ByteString (ByteString)
 import Data.Functor (($>), (<&>))
-import Data.Scientific (Scientific)
-import Data.Text qualified as T
-import Data.Text (Text)
 import Data.Text.Encoding (decodeUtf8)
-import Data.Vector (Vector)
 import Data.Vector qualified as V (fromList)
 
-type Object = Vector Node
+import Data.Text qualified as T
 
-type ObjectKey = (Node, Node)
-
-type Array = Vector Node
-
-data Node
-  = Array Array
-  | Object Object
-  | ObjectKey ObjectKey
-  | String Text
-  | Number Scientific
-  | Bool Bool
-  | SinglelineComment Text
-  | MultilineComment Text
-  | Null
-  deriving (Show, Eq)
-
-isCommentNode :: Node -> Bool
-isCommentNode (MultilineComment _) = True
-isCommentNode (SinglelineComment _) = True
-isCommentNode _ = False
+import Node (Node(..))
 
 ---
 --- selector for white space and

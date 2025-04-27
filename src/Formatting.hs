@@ -10,8 +10,8 @@ import Data.Text (Text)
 import Data.Vector (Vector)
 import Data.Vector qualified as V (null, toList)
 
+import Node (Node(..), isCommentNode)
 import NodeCursor qualified as NC
-import Parsing (Node(..), isCommentNode)
 
 addDelimiters :: Int -> NC.NodeCursor -> Bool -> [Text] -> [Node] -> [Text]
 addDelimiters _ _ _ acc [] = acc
