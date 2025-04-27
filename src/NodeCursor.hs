@@ -7,6 +7,7 @@ module NodeCursor
   , newCursor
   ) where
 
+import Data.List qualified as L (foldl')
 import Data.Text (Text)
 import Data.Text qualified as T
 import GHC.IsList (toList)
@@ -25,7 +26,7 @@ newtype NodeCursor =
   NodeCursor [NodeBreadcrumb]
 
 instance Show NodeCursor where
-  show (NodeCursor xs) = concatMap show xs
+  show (NodeCursor xs) = L.foldl' (flip $ (<>) . show) "" xs
 
 newCursor :: NodeCursor
 newCursor = NodeCursor []
