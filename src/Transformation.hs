@@ -3,7 +3,7 @@ module Transformation
   ) where
 
 import Control.Arrow ((&&&))
-import Control.Monad ((>=>), guard)
+import Control.Monad ((<=<), guard)
 import Data.Char (isDigit)
 import Data.Foldable1 (maximumBy)
 import Data.Function (on)
@@ -14,6 +14,7 @@ import Data.Map qualified as M
 import Data.Map (Map)
 import Data.Maybe (fromJust, fromMaybe, isJust, isNothing)
 import Data.Scientific (Scientific)
+import Data.Sequence (Seq(..))
 import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Vector (Vector, (!), (!?), (//))
@@ -59,28 +60,12 @@ data Vertex = Vertex
 verticeQuery :: NP.NodePath
 verticeQuery = fromList [NP.ObjectIndex 0, NP.ObjectKey "nodes"]
 
-extractValInKey :: Node -> Maybe Node
-extractValInKey (ObjectKey (_, val)) = Just val
-extractValInKey _ = Nothing
-
-select :: NP.NodeSelector -> Node -> Maybe Node
-select (NP.ArrayIndex i) (Array ns) = ns !? i
-select (NP.ObjectKey k) (Object ns) = extractValInKey =<< V.find compareKey ns
-  where
-    compareKey (ObjectKey (String keyText, _)) = keyText == k
-    compareKey _ = False
-select (NP.ObjectIndex i) (Object a) = extractValInKey =<< a !? i
-select _ _ = Nothing
-
-queryNodes :: NP.NodePath -> Node -> Maybe Node
-queryNodes (NP.NodePath s) = L.foldl' (>=>) id (map select s) . Just
-
 dropIndex :: Text -> Text
 dropIndex = T.dropWhileEnd isDigit
 
 groupName :: Node -> Maybe Text
 groupName n =
-  case select (NP.ArrayIndex 0) n of
+  case NP.select (NP.ArrayIndex 0) n of
     Just (String s) -> Just $ dropIndex s
     _ -> Nothing
 
@@ -167,7 +152,7 @@ nodeToVertexGroupList acc i n =
 
 getVertexGroups :: NP.NodePath -> Node -> VertexGroupMap
 getVertexGroups q n =
-  case queryNodes q n of
+  case NP.queryNodes q n of
     Just (Array n')
       | validateNodeVertices ([], Nothing) (V.toList n') ->
         foldr setGroupAcc M.empty . V.ifoldl' nodeToVertexGroupList [] $ n'
@@ -294,7 +279,7 @@ succIfNonZero 0 = 0
 succIfNonZero i = i + 1
 
 updateNode :: NP.NodePath -> VertexGroup -> Node -> Node
-updateNode (NP.NodePath []) g (Array a) =
+updateNode (NP.NodePath Empty) g (Array a) =
   let vertices = gVertices g
       startIndex =
         fromMaybe (gStartIndex g) $ V.findIndex (nodeBelongsToGroup g) a
@@ -305,15 +290,15 @@ updateNode (NP.NodePath []) g (Array a) =
         V.fromList (maybe [] (map verticeToNode . LV.toList) vertices)
       endNodes = V.slice endIndex (V.length a - endIndex) a
    in Array $ V.concat [beginNodes, groupHeader, verticeNodes, endNodes]
-updateNode (NP.NodePath ((NP.ArrayIndex i):qrest)) g (Array children) =
+updateNode (NP.NodePath ((NP.ArrayIndex i) :<| qrest)) g (Array children) =
   let updateInNode nodeToUpdate =
         children // [(i, updateNode (NP.NodePath qrest) g nodeToUpdate)]
    in Array $ maybe children updateInNode (children !? i)
-updateNode (NP.NodePath ((NP.ObjectIndex i):qrest)) g (Object children) =
+updateNode (NP.NodePath ((NP.ObjectIndex i) :<| qrest)) g (Object children) =
   let updateInNode _ =
         children // [(i, updateNode (NP.NodePath qrest) g (children ! i))]
    in Object $ maybe children updateInNode (children !? i)
-updateNode (NP.NodePath (k@(NP.ObjectKey _):qrest)) g (Object children) =
+updateNode (NP.NodePath (k@(NP.ObjectKey _) :<| qrest)) g (Object children) =
   let updateInNode i =
         children // [(i, updateNode (NP.NodePath qrest) g (children ! i))]
    in Object . maybe children updateInNode
