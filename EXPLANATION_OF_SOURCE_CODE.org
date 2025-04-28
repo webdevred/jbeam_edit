@@ -59,54 +59,87 @@ The parser is currently written using attoaparsec but I are considering to migra
 
 For full access to the parsing code, check the file [[src/Parsing.hs][src/Parsing.hs]]
 
-* Transforming the JBeam structure
+** NodePaths and NodeCursors
 
-When I talk about points in a JBeam structure, I express theese as a list of NodeSelectors. For example AnyKey would be the first key/value pair in a Object regardless of it key and ObjectKey would be the value of that key/value pair which has "nodes" as its key. So [AnyKey, ObjectKey "nodes"] would point to the Vertices ie the JBeam nodes.
+Before proceeding to talk about how we transform and format the Node structure we first need to talk about NodePath and NodeCursors.
 
-A VerticeGroup is a collection of Vertices from [AnyKey, Key "nodes"] list.
-To take a vector of Nodes and produce a list of VerticeGroups I need the Nodes representing the Vertices to not be interrupted by non-Vertice Nodes.
+NodeCursor is defined like this:
+#+begin_src haskell
+  data NodeBreadcrumb
+  = ArrayIndex Int
+  | ObjectIndexAndKey (Int, Text)
 
-For example this is valid:
-
-#+begin_src javascript
-  ["bfl0",0.959,-1.762,0.576],
-  ["bfl1",0.855,-1.788,0.707],
-  ["bfl2",0.739,-1.845,0.716],
-  {"group" : "nice_group"},
-  ["bfr0",0.739,-1.845,0.716],
+newtype NodeCursor =
+  NodeCursor (Seq NodeBreadcrumb)
 #+end_src
 
-However this is not valid:
-#+begin_src javascript
-  ["bfl0",0.959,-1.762,0.576],
-  ["bfl1",0.855,-1.788,0.707],
-  ["bfl2",0.739,-1.845,0.716],
-  {"group" : "nice_group"},
-  ["bfl3",0.739,-1.845,0.716],
+NodePath is defined like this:
+#+begin_src haskell
+  
+data NodeSelector
+  = ArrayIndex Int
+  | ObjectKey Text
+  | ObjectIndex Int
+
+newtype NodePath =
+  NodePath (Seq NodeSelector)
 #+end_src
 
-Here are the goals of this project:
-- in case the JBeam structure follows the above structure:
-  1. to sort the vertices inside each VerticeGroup
-  2. to move incorrectly placed Vertices to their correct group
-  3. to give the vertices new names based on their Z and Y values
-- in case the JBeam structure does not follow the mentioned structure:
-  1. find all the Vertices and create VerticeGroups for them, replacing the content at [AnyKey, ObjectKey "nodes"]
-  2. make sure theese VerticeGroups follow the points for the case where
-- pretty print the Node tree and save it to a file
+So NodeCursor is a Sequence of breadcrumbs add as we transcend deeper into the Node tree.
 
-After sucessfully parsing the node structure I can hand the Node tree to the transform function which performs sorting of the Vertices and moves Vertices betIen their groups.
-The transform function only performs changes inside the path [AnyKey, ObjectKey "nodes"], it does not touch for example [AnyKey, ObjectKey "beams"] or [AnyKey, ObjectKey "triangles"].
-The result of the transform operation is then handed to the formatNode function which will do the formatting but we will discuss that later, first I will explain how the tranformation works.
+And a NodePath is a Sequence of selectors to that point out a certain point in a Node tree, either to point at as something when fetching it from Node or to point to something compare that I at a certain point when doing updates.
+
+select takes a Node and a selector. In case the selector matches I get nodes at a certain point in the tree. And queryNodes allows me to chain the Selectors as a NodePath and perform complex queries.
 
 #+begin_src haskell
-  case nodes of
-  Right nodes' ->
-    BL.writeFile "hewwu.jbeam"
-      . encodeUtf8
-      . TL.fromStrict
-      . formatNode
-      . transform
-      $ nodes'
-  Left err -> putStrLn err
+  select :: NodeSelector -> N.Node -> Maybe N.Node
+  select (ArrayIndex i) (N.Array ns) = ns !? i
+  select (ObjectKey k) (N.Object ns) = extractValInKey =<< V.find compareKey ns
+    where
+      compareKey (N.ObjectKey (N.String keyText, _)) = keyText == k
+      compareKey _ = False
+  select (ObjectIndex i) (N.Object a) = extractValInKey =<< a !? i
+  select _ _ = Nothing
+
+  queryNodes :: NodePath -> N.Node -> Maybe N.Node
+  queryNodes (NodePath (s :<| p)) n = queryNodes (NodePath p) =<< select s n
+  queryNodes (NodePath Empty) n = Just n
 #+end_src
+
+This function takes a function f, a breadcrumb b, and a sequence of breadcrumbs wrapped in a NodeCursor, appends the the breadcrumb to the Sequence in the cursor and supplies the cursor to the function f. This is used whenever I update the Node tree to track where in the tree I am so, enabling checking whether I am updating at a certain point in the Node tree.
+
+#+begin_src haskell
+  type CursorFun a = NodeCursor -> Node -> a
+
+  applyCrumb :: NodeBreadcrumb -> NodeCursor -> CursorFun a -> Node -> a
+  applyCrumb :: NodeBreadcrumb -> NodeCursor -> CursorFun a -> Node -> a
+  applyCrumb b (NodeCursor bs) f = f (NodeCursor $ bs :|> b)
+#+end_src
+
+Then I use this function to validate to compare whether all the selectors match the corresponding breadcrumb, returning False if either Sequence exhausts prematurely.
+#+begin_src haskell
+  type SelCrumbCompFun = NP.NodeSelector -> NodeBreadcrumb -> Bool
+
+  compareSB :: SelCrumbCompFun
+  compareSB (NP.ObjectKey s) (ObjectIndexAndKey (_, k)) = s == k
+  compareSB (NP.ObjectIndex s) (ObjectIndexAndKey (i, _)) = s == i
+  compareSB (NP.ArrayIndex s) (ArrayIndex i) = s == i
+  compareSB _ _ = False
+
+  comparePathAndCursor :: NP.NodePath -> NodeCursor -> Bool
+  comparePathAndCursor (NP.NodePath p) (NodeCursor c) = sameBy compareSB p c
+
+  sameBy :: SelCrumbCompFun -> Seq NP.NodeSelector -> Seq NodeBreadcrumb -> Bool
+  sameBy f = go
+      where
+        go (p :<| ps) (b :<| bs) = f p b && go ps bs
+        go ps bs = Seq.null ps && Seq.null bs
+#+end_src
+
+A Seqeunce is good choice for NodeCursor since I need to compare the first element of the cursor and the path but when transcending the Node tree I need to append the current breadcrumb.
+
+
+** Transforming the JBeam structure
+
+TODO: Wrote documenation for Transformation. I wrote documenation on the Transformation module earlier but I scrapped it since the Transformation will need to be rewritten.
+
