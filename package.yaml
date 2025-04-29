@@ -24,7 +24,7 @@ dependencies:
 - vector
 - text
 - containers
-- attoparsec
+- megaparsec
 - text
 - scientific
 

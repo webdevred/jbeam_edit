@@ -29,5 +29,5 @@ main = do
             . formatNode newCursor
             . transform
             $ nodes'
-        Left err -> putStrLn err
+        Left err -> print err
     Nothing -> TIO.putStrLn "missing arg filename"
