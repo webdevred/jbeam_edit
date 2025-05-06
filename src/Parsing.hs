@@ -2,17 +2,18 @@ module Parsing
   ( parseNodes
   ) where
 
-import Control.Applicative ((<|>), asum, optional)
+import Control.Applicative (Alternative(..), (<|>), asum, optional)
 import Data.Bifunctor (first)
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
-import Data.Char (chr, ord)
+import Data.Char (chr, isSpace, ord)
 import Data.Function (on)
 import Data.Functor (($>), (<&>))
 import Data.List.NonEmpty qualified as LV
 import Data.Text.Encoding (decodeUtf8)
 import Data.Vector qualified as V (fromList)
 import Data.Void (Void)
+import Text.Megaparsec ((<?>))
 import Text.Megaparsec qualified as MP
 import Text.Megaparsec.Byte qualified as B
 import Text.Megaparsec.Byte.Lexer qualified as L (lexeme, scientific, signed)
@@ -69,7 +70,7 @@ singlelineCommentParser =
     parseComment = SinglelineComment . T.strip . decodeUtf8 . BS.pack
 
 commentParser :: Parser Node
-commentParser = singlelineCommentParser
+commentParser = singlelineCommentParser <?> "comment"
 
 nullParser :: Parser Node
 nullParser = C.string "null" $> Null
@@ -86,14 +87,31 @@ stringParser = string <&> String . decodeUtf8 . BS.pack
     emptyString = C.string "\"\"" >> pure []
     string = emptyString <|> validString
 
+failingScalarParser :: Parser Node
+failingScalarParser =
+  MP.label "invalid scalar" $ do
+    start <- MP.getOffset
+    _ <- MP.takeWhile1P Nothing isFinalChar
+    MP.setOffset start
+    empty
+  where
+    isFinalChar w =
+      let c = toChar w
+       in not (isSpace c) && notElem c [',', ']', '}']
+
 scalarParser :: Parser Node
 scalarParser =
-  tryParsers [stringParser, commentParser, numberParser, boolParser, nullParser]
+  tryScalarParsers
+    [stringParser, commentParser, numberParser, boolParser, nullParser]
+  where
+    tryScalarParsers = MP.try . tryParsers . map MP.hidden
 
 nodeParser :: Parser Node
-nodeParser = skipWhiteSpace *> anyNode
+nodeParser = skipWhiteSpace *> (anyNode <|> failingScalarParser)
   where
-    anyNode = tryParsers [scalarParser, arrayParser, objectParser]
+    anyNode =
+      MP.try
+        (tryParsers [arrayParser, objectParser, scalarParser <?> "a scalar"])
 
 ---
 --- selectors for objects, object keys and arrays
@@ -109,7 +127,7 @@ arrayParser = do
 objectKeyParser :: Parser Node
 objectKeyParser = do
   _ <- skipWhiteSpace
-  key <- stringParser
+  key <- MP.try (stringParser <?> "string")
   _ <- skipWhiteSpace
   _ <- byteChar ':'
   value <- nodeParser
