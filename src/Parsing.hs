@@ -162,12 +162,14 @@ formatTok toks =
     MP.Label lab -> T.pack $ LV.toList lab
     MP.Tokens toks' -> T.pack . wrap "'" "'" . map toChar $ LV.toList toks'
 
-errorArea :: Int -> ByteString -> Text
-errorArea pos inputNotParsed =
+errorAreaAndLineNumber :: Int -> ByteString -> (Text, Text)
+errorAreaAndLineNumber pos inputNotParsed =
   let (begin, end) = BS.splitAt pos inputNotParsed
       fstPartOfLine = BS.takeWhileEnd ((/=) '\n' . toChar) begin
       sndPartOfLine = BS.takeWhile ((/=) '\n' . toChar) end
-   in T.strip $ on (<>) decodeUtf8 fstPartOfLine sndPartOfLine
+      lineNumber = BS.count (fromIntegral . ord $ '\n') begin
+      errorArea = T.strip $ on (<>) decodeUtf8 fstPartOfLine sndPartOfLine
+   in (errorArea, T.pack $ show lineNumber)
 
 wrap :: Semigroup a => a -> a -> a -> a
 wrap l r m = l <> m <> r
@@ -180,11 +182,14 @@ formatTrivialErrors ::
   -> Text
 formatTrivialErrors pos inputNotParsed expToks unexpToks =
   let formattedUnexpTok = maybe "" (wrap "got: " ", " . formatTok) unexpToks
+      (errorArea, lineNumber) = errorAreaAndLineNumber pos inputNotParsed
    in formattedUnexpTok
         <> "expecting "
         <> joinAndFormatToks expToks
         <> " somewhere close to "
-        <> errorArea pos inputNotParsed
+        <> errorArea
+        <> " on line "
+        <> lineNumber
 
 formatFancyErrors = undefined
 
