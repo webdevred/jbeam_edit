@@ -29,6 +29,7 @@ library
       NodeCursor
       NodePath
       Parsing
+      Parsing.Internal
       Transformation
   other-modules:
       Paths_jbeam_edit
