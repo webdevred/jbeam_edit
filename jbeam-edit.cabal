@@ -78,6 +78,8 @@ test-suite jbeam-edit-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      Parsing.InternalSpec
+      SpecHelper
       Paths_jbeam_edit
   autogen-modules:
       Paths_jbeam_edit
@@ -91,6 +93,8 @@ test-suite jbeam-edit-test
       base >=4.7 && <5
     , bytestring
     , containers
+    , hspec
+    , hspec-megaparsec
     , jbeam-edit
     , megaparsec
     , scientific

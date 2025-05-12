@@ -67,3 +67,5 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - jbeam-edit
+    - hspec
+    - hspec-megaparsec
