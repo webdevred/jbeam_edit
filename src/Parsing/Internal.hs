@@ -17,7 +17,7 @@ import Data.Void (Void)
 import Text.Megaparsec ((<?>))
 import Text.Megaparsec qualified as MP
 import Text.Megaparsec.Byte qualified as B
-import Text.Megaparsec.Byte.Lexer qualified as L (lexeme, scientific, signed)
+import Text.Megaparsec.Byte.Lexer qualified as L (scientific, signed)
 import Text.Megaparsec.Char qualified as C
 
 import Data.Text qualified as T
@@ -61,10 +61,8 @@ separatorParser =
 numberParser :: Parser Node
 numberParser = fmap Number signedScientific
   where
-    spaceConsumer = B.space
-    lexeme = L.lexeme spaceConsumer
-    scientific = lexeme L.scientific
-    signedScientific = L.signed spaceConsumer scientific
+    scientific = L.scientific
+    signedScientific = L.signed B.space scientific
 
 multilineCommentParser :: Parser Node
 multilineCommentParser =
