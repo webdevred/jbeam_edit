@@ -5,12 +5,16 @@ module Parsing
 import Data.Bifunctor (first)
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
-import Data.Char (ord)
 import Data.Function (on)
 import Data.List.NonEmpty qualified as LV
 import Data.Text.Encoding (decodeUtf8)
 import Data.Void (Void)
-import Parsing.Internal (nodeParser, skipWhiteSpace, toChar, toWord8)
+import Parsing.Internal
+  ( charNotEqWord8
+  , topNodeParser
+  , toChar
+  , toWord8
+  )
 import Text.Megaparsec qualified as MP
 
 import Data.Set (Set)
@@ -39,14 +43,11 @@ formatTok toks =
     MP.Label lab -> T.pack $ LV.toList lab
     MP.Tokens toks' -> T.pack . wrap "'" "'" . map toChar $ LV.toList toks'
 
-charEqWord8 :: Char -> Word8 -> Bool
-charEqWord8 c w = toWord8 c /= w
-
 errorAreaAndLineNumber :: Int -> ByteString -> (Text, Text)
 errorAreaAndLineNumber pos inputNotParsed =
   let (begin, end) = BS.splitAt pos inputNotParsed
-      fstPartOfLine = BS.takeWhileEnd (charEqWord8 '\n') begin
-      sndPartOfLine = BS.takeWhile (charEqWord8 '\n') end
+      fstPartOfLine = BS.takeWhileEnd (charNotEqWord8 '\n') begin
+      sndPartOfLine = BS.takeWhile (charNotEqWord8 '\n') end
       lineNumber = BS.count (toWord8 '\n') begin
       errorArea = T.strip $ on (<>) decodeUtf8 fstPartOfLine sndPartOfLine
    in (errorArea, T.pack $ show lineNumber)
@@ -88,5 +89,3 @@ formatErrors bundle =
 
 parseNodes :: ByteString -> Either Text Node
 parseNodes = first formatErrors . MP.parse topNodeParser "<input>"
-  where
-    topNodeParser = nodeParser <* skipWhiteSpace <* MP.eof

@@ -1,12 +1,13 @@
 module Parsing.Internal
-  ( nodeParser
+  ( topNodeParser
+  , charNotEqWord8
   , toChar
   , toWord8
-  , skipWhiteSpace
   , stringParser
   , numberParser
   , boolParser
   , singlelineCommentParser
+  , multilineCommentParser
   , arrayParser
   , objectParser
   ) where
@@ -41,6 +42,9 @@ toWord8 = fromIntegral . ord
 toChar :: Word8 -> Char
 toChar = chr . fromIntegral
 
+charNotEqWord8 :: Char -> Word8 -> Bool
+charNotEqWord8 c w = toWord8 c /= w
+
 tryParsers :: [Parser a] -> Parser a
 tryParsers = asum . map MP.try
 
@@ -68,14 +72,21 @@ numberParser = fmap Number signedScientific
     scientific = lexeme L.scientific
     signedScientific = L.signed spaceConsumer scientific
 
+multilineCommentParser :: Parser Node
+multilineCommentParser =
+  C.string "/*" *> MP.manyTill B.asciiChar (B.string "*/") <&> parseComment
+  where
+    parseComment = MultilineComment . T.strip . decodeUtf8 . BS.pack
+
 singlelineCommentParser :: Parser Node
 singlelineCommentParser =
-  C.string "//" *> MP.some (MP.satisfy ((/=) '\n' . toChar)) <&> parseComment
+  C.string "//" *> MP.some (MP.satisfy (charNotEqWord8 '\n')) <&> parseComment
   where
     parseComment = SinglelineComment . T.strip . decodeUtf8 . BS.pack
 
 commentParser :: Parser Node
-commentParser = singlelineCommentParser <?> "comment"
+commentParser =
+  tryParsers [multilineCommentParser, singlelineCommentParser] <?> "comment"
 
 nullParser :: Parser Node
 nullParser = C.string "null" $> Null
@@ -88,7 +99,7 @@ stringParser :: Parser Node
 stringParser = string <&> String . decodeUtf8 . BS.pack
   where
     validString =
-      byteChar '"' *> MP.some (MP.satisfy ((/=) '"' . toChar)) <* byteChar '"'
+      byteChar '"' *> MP.some (MP.satisfy (charNotEqWord8 '"')) <* byteChar '"'
     emptyString = C.string "\"\"" >> pure []
     string = emptyString <|> validString
 
@@ -149,3 +160,6 @@ objectParser = do
   _ <- optional separatorParser
   _ <- byteChar '}'
   pure . Object . V.fromList $ keys
+
+topNodeParser :: Parser Node
+topNodeParser = nodeParser <* skipWhiteSpace <* MP.eof
