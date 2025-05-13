@@ -9,12 +9,7 @@ import Data.Function (on)
 import Data.List.NonEmpty qualified as LV
 import Data.Text.Encoding (decodeUtf8)
 import Data.Void (Void)
-import Parsing.Internal
-  ( charNotEqWord8
-  , topNodeParser
-  , toChar
-  , toWord8
-  )
+import Parsing.Internal (charNotEqWord8, toChar, toWord8, topNodeParser)
 import Text.Megaparsec qualified as MP
 
 import Data.Set (Set)
