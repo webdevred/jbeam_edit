@@ -98,11 +98,11 @@ stringParser = string <&> String . decodeUtf8 . BS.pack
     string = emptyString <|> validString
 
 failingScalarParser :: Parser Node
-failingScalarParser = do
-  bad <- MP.takeWhile1P Nothing isNotFinalChar
-  MP.failure (unexpTok bad) expToks
+failingScalarParser = unexpTok >>= flip MP.failure expToks
   where
-    unexpTok = Just . MP.Tokens . LV.fromList . BS.unpack
+    unexpTok =
+      Just . MP.Tokens . LV.fromList . BS.unpack
+        <$> MP.takeWhile1P Nothing isNotFinalChar
     expToks =
       S.fromList . map (MP.Label . LV.fromList)
         $ ["a valid scalar", "object", "array"]
