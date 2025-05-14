@@ -47,23 +47,32 @@ objectSpec =
            ]))
   ]
 
+invalidSpec :: Spec
+invalidSpec =
+  describe "should fail when input is malformed" . works
+    $ parse nodeParser "" "[1,2,a,4]"
+        `shouldFailWith` err 6 (utok (toWord8 'a') <> expLabels)
+  where
+    expLabels = foldMap elabel ["a valid scalar", "object", "array"]
+
 applyParserSpec :: [(String, Node)] -> [Spec]
 applyParserSpec = map (uncurry $ applySpecOnInput descFun assertParsesTo)
   where
-    assertParsesTo input = shouldParse . parse nodeParser "" $ fromString input 
+    assertParsesTo input = shouldParse . parse nodeParser "" $ fromString input
     descFun input expResult = "should parse " <> input <> " to " <> expResult
 
 spec :: Spec
 spec =
   sequence_
-    $ concatMap
-        applyParserSpec
-        [ numberSpec
-        , stringSpec
-        , boolSpec
-        , nullSpec
-        , multilineCommentSpec
-        , singlelineCommentSpec
-        , arraySpec
-        , objectSpec
-        ]
+    $ invalidSpec
+        : concatMap
+            applyParserSpec
+            [ numberSpec
+            , stringSpec
+            , boolSpec
+            , nullSpec
+            , multilineCommentSpec
+            , singlelineCommentSpec
+            , arraySpec
+            , objectSpec
+            ]

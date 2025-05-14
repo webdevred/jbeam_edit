@@ -11,6 +11,8 @@ import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
 import Data.Char (chr, isSpace, ord)
 import Data.Functor (($>), (<&>))
+import Data.List.NonEmpty qualified as LV (fromList)
+import Data.Set qualified as S
 import Data.Text.Encoding (decodeUtf8)
 import Data.Vector qualified as V (fromList)
 import Data.Void (Void)
@@ -96,14 +98,15 @@ stringParser = string <&> String . decodeUtf8 . BS.pack
     string = emptyString <|> validString
 
 failingScalarParser :: Parser Node
-failingScalarParser =
-  MP.label "invalid scalar" $ do
-    start <- MP.getOffset
-    _ <- MP.takeWhile1P Nothing isFinalChar
-    MP.setOffset start
-    empty
+failingScalarParser = do
+  bad <- MP.takeWhile1P Nothing isNotFinalChar
+  MP.failure (unexpTok bad) expToks
   where
-    isFinalChar w =
+    unexpTok = Just . MP.Tokens . LV.fromList . BS.unpack
+    expToks =
+      S.fromList . map (MP.Label . LV.fromList)
+        $ ["a valid scalar", "object", "array"]
+    isNotFinalChar w =
       let c = toChar w
        in not (isSpace c) && notElem c [',', ']', '}']
 
@@ -117,9 +120,7 @@ scalarParser =
 nodeParser :: Parser Node
 nodeParser = skipWhiteSpace *> (anyNode <|> failingScalarParser)
   where
-    anyNode =
-      MP.try
-        (tryParsers [arrayParser, objectParser, scalarParser <?> "a scalar"])
+    anyNode = MP.try (tryParsers [arrayParser, objectParser, scalarParser])
 
 ---
 --- selectors for objects, object keys and arrays
