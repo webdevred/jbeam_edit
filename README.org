@@ -21,13 +21,13 @@ This project is a command-line tool designed to work with jbeam files (the struc
   - Specify which files should be processed.  
   - Set default indentation settings and other formatting options.
 
-** Why Haskell + Attoparsec
+** Why Haskell + Megaparsec
 
 - Rapid Prototyping & Robustness  
   Haskell’s strong type system and expressive syntax allowed for quick development of a reliable prototype.
 
 - Elegant Parser Composition  
-  Utilizing the Attoparsec family of parser combinators enabled building modular, reusable components that make the parser clear and maintainable.
+  Utilizing the Parsec family of parser combinators enabled building modular, reusable components that make the parser clear and maintainable.
 
 - Safe Data Transformation  
   Haskell’s emphasis on immutability and pure functions ensures that even complex transformations of your jbeam files are performed safely and predictably.
@@ -67,10 +67,11 @@ Run the tool from the command line as follows:
 stack exec jbeam-tool -- [options] <input-file>
 #+end_src
 
-The tool will:  
-• Parse the provided jbeam file.  
-• Format it according to the default or user-defined rules.  
-• Automatically sort nodes, rename them sequentially, and update all related references.
+The tool will:
+
+- Parse the provided jbeam file.  
+- Format it according to the default or user-defined rules.  
+- Automatically sort nodes, rename them sequentially, and update all related references.
 
 For full usage details and configuration options, please refer to [[EXPLANATION_OF_SOURCE_CODE.org][EXPLANATION_OF_SOURCE_CODE.org]]
 
