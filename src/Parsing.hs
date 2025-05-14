@@ -79,7 +79,7 @@ formatErrors bundle =
         case err of
           (MP.TrivialError pos unexpToks expToks) ->
             formatTrivialErrors pos inputNotParsed expToks unexpToks
-          (MP.FancyError pos err) -> formatFancyErrors pos inputNotParsed err
+          (MP.FancyError pos err') -> formatFancyErrors pos inputNotParsed err'
    in T.intercalate "\n" . map formatBundleError . LV.toList $ bunErrs
 
 parseNodes :: ByteString -> Either Text Node

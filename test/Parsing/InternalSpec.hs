@@ -28,8 +28,10 @@ singlelineCommentSpec :: [(String, Node)]
 singlelineCommentSpec = [("// test \n", SinglelineComment "test")]
 
 arraySpec :: [(String, Node)]
-arraySpec = [("[1,2,3]", Array (fromList [Number 1, Number 2, Number 3]))
-            ,("[1\n 2\n 3]", Array (fromList [Number 1, Number 2, Number 3]))]
+arraySpec =
+  [ ("[1,2,3]", Array (fromList [Number 1, Number 2, Number 3]))
+  , ("[1\n 2\n 3]", Array (fromList [Number 1, Number 2, Number 3]))
+  ]
 
 objectSpec :: [(String, Node)]
 objectSpec =
@@ -39,7 +41,7 @@ objectSpec =
            [ ObjectKey (String "test", Number 1)
            , ObjectKey (String "test2", Number 2)
            ]))
-  ,( "{\"test\" : 1\n \"test2\" : 2}"
+  , ( "{\"test\" : 1\n \"test2\" : 2}"
     , Object
         (fromList
            [ ObjectKey (String "test", Number 1)
