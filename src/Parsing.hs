@@ -7,7 +7,7 @@ import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
 import Data.Function (on)
 import Data.List.NonEmpty qualified as LV
-import Data.Text.Encoding (decodeUtf8)
+import Data.Text.Encoding (decodeUtf8Lenient)
 import Data.Void (Void)
 import Parsing.Internal (charNotEqWord8, toChar, toWord8, topNodeParser)
 import Text.Megaparsec qualified as MP
@@ -44,7 +44,8 @@ errorAreaAndLineNumber pos inputNotParsed =
       fstPartOfLine = BS.takeWhileEnd (charNotEqWord8 '\n') begin
       sndPartOfLine = BS.takeWhile (charNotEqWord8 '\n') end
       lineNumber = BS.count (toWord8 '\n') begin
-      errorArea = T.strip $ on (<>) decodeUtf8 fstPartOfLine sndPartOfLine
+      errorArea =
+        T.strip $ on (<>) decodeUtf8Lenient fstPartOfLine sndPartOfLine
    in (errorArea, T.pack $ show lineNumber)
 
 wrap :: Semigroup a => a -> a -> a -> a
