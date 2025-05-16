@@ -13,7 +13,7 @@ import Data.Char (chr, isSpace, ord)
 import Data.Functor (($>), (<&>))
 import Data.List.NonEmpty qualified as LV (fromList)
 import Data.Set qualified as S
-import Data.Text.Encoding (decodeUtf8)
+import Data.Text.Encoding (decodeUtf8')
 import Data.Vector qualified as V (fromList)
 import Data.Void (Void)
 import Text.Megaparsec ((<?>))
@@ -57,6 +57,13 @@ separatorParser =
     commaSeparator = skipWhiteSpace *> byteChar ','
     whitespaceSeparator = B.spaceChar
 
+parseWord8s :: (T.Text -> a) -> Parser [Word8] -> Parser a
+parseWord8s f bsParser = do
+  bs' <- bsParser
+  case decodeUtf8' (BS.pack bs') of
+    Right text' -> pure (f text')
+    Left _ -> empty
+
 ---
 --- selectors for numbers, comments, strings and bools
 ---
@@ -68,15 +75,15 @@ numberParser = fmap Number signedScientific
 
 multilineCommentParser :: Parser Node
 multilineCommentParser =
-  C.string "/*" *> MP.manyTill B.asciiChar (B.string "*/") <&> parseComment
+  C.string "/*" >> parseComment (MP.manyTill B.asciiChar (B.string "*/"))
   where
-    parseComment = MultilineComment . T.strip . decodeUtf8 . BS.pack
+    parseComment = parseWord8s (MultilineComment . T.strip)
 
 singlelineCommentParser :: Parser Node
 singlelineCommentParser =
-  C.string "//" *> MP.some (MP.satisfy (charNotEqWord8 '\n')) <&> parseComment
+  C.string "//" *> parseComment (MP.some (MP.satisfy (charNotEqWord8 '\n')))
   where
-    parseComment = SinglelineComment . T.strip . decodeUtf8 . BS.pack
+    parseComment = parseWord8s (SinglelineComment . T.strip)
 
 commentParser :: Parser Node
 commentParser =
@@ -90,7 +97,7 @@ boolParser =
   MP.choice [C.string "true", C.string "false"] <&> Bool . (== "true")
 
 stringParser :: Parser Node
-stringParser = string <&> String . decodeUtf8 . BS.pack
+stringParser = parseWord8s String string
   where
     validString =
       byteChar '"' *> MP.some (MP.satisfy (charNotEqWord8 '"')) <* byteChar '"'
