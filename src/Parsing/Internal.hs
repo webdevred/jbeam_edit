@@ -1,12 +1,19 @@
 module Parsing.Internal
   ( topNodeParser
+  , failingParser
+  , nodeParser
+  , byteChar
   , charNotEqWord8
   , toChar
   , toWord8
-  , nodeParser
+  , parseWord8s
+  , tryParsers
+  , skipWhiteSpace
+  , Parser
   ) where
 
 import Control.Applicative (Alternative(..), (<|>), asum, optional)
+
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
 import Data.Char (chr, isSpace, ord)
@@ -64,6 +71,17 @@ parseWord8s f bsParser = do
     Right text' -> pure (f text')
     Left _ -> empty
 
+failingParser :: [String] -> Parser a
+failingParser expLabels = unexpTok >>= flip MP.failure expToks
+  where
+    unexpTok =
+      Just . MP.Tokens . LV.fromList . BS.unpack
+        <$> MP.takeWhile1P Nothing isNotFinalChar
+    expToks = S.fromList . map (MP.Label . LV.fromList) $ expLabels
+    isNotFinalChar w =
+      let c = toChar w
+       in not (isSpace c) && notElem c [',', ']', '}']
+
 ---
 --- selectors for numbers, comments, strings and bools
 ---
@@ -104,19 +122,6 @@ stringParser = parseWord8s String string
     emptyString = C.string "\"\"" >> pure []
     string = emptyString <|> validString
 
-failingScalarParser :: Parser Node
-failingScalarParser = unexpTok >>= flip MP.failure expToks
-  where
-    unexpTok =
-      Just . MP.Tokens . LV.fromList . BS.unpack
-        <$> MP.takeWhile1P Nothing isNotFinalChar
-    expToks =
-      S.fromList . map (MP.Label . LV.fromList)
-        $ ["a valid scalar", "object", "array"]
-    isNotFinalChar w =
-      let c = toChar w
-       in not (isSpace c) && notElem c [',', ']', '}']
-
 scalarParser :: Parser Node
 scalarParser =
   tryScalarParsers
@@ -125,8 +130,9 @@ scalarParser =
     tryScalarParsers = MP.try . tryParsers . map MP.hidden
 
 nodeParser :: Parser Node
-nodeParser = skipWhiteSpace *> (anyNode <|> failingScalarParser)
+nodeParser = skipWhiteSpace *> (anyNode <|> failingParser expLabels)
   where
+    expLabels = ["a valid scalar", "object", "array"]
     anyNode = MP.try (tryParsers [arrayParser, objectParser, scalarParser])
 
 ---
