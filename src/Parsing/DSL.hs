@@ -1,0 +1,43 @@
+module Parsing.DSL
+  (
+  )
+-- import Core.NodePath (NodeSelector(..))
+-- import Data.Char (chr, isSpace, ord)
+-- import Parsing.Common
+-- import Control.Applicative ((<|>))
+-- import Text.Megaparsec qualified as MP
+-- import Text.Megaparsec.Byte qualified as B
+-- import Text.Megaparsec.Byte.Lexer qualified as L (decimal)
+-- import Text.Megaparsec.Char qualified as C
+-- data NodePatternSelector
+--   = AnyKey
+--   | AnyIndex
+--   | Selector NodeSelector
+--   deriving (Eq, Ord)
+-- newtype NodePattern =
+--   NodePattern [NodePatternSelector]
+--   deriving (Eq, Ord)
+-- keyParser :: Parser NodePatternSelector
+-- keyParser = byteChar '.' *> key
+--   where
+--     key = parseWord8s (Selector . ObjectKey) (MP.some . MP.satisfy $ p)
+--     p w =
+--       let c = toChar w
+--        in not (isSpace c) && c `notElem` ['[', '.']
+-- indexParser :: Parser NodePatternSelector
+-- indexParser = byteChar '[' *> index <* byteChar ']'
+--   where
+--     index = Selector . ArrayIndex <$> L.decimal
+-- anyIndexParser :: Parser NodePatternSelector
+-- anyIndexParser = AnyIndex <$ B.string "[*]"
+-- anyKeyParser :: Parser NodePatternSelector
+-- anyKeyParser = AnyKey <$ B.string ".*"
+-- patternSelectorParser :: Parser NodePatternSelector
+-- patternSelectorParser = skipWhiteSpace *> anySel <* skipWhiteSpace
+--   where
+--     expLabels = ["\\[[0-9]+\\]", "\\.[a-zA-Z]+", "\\[*\\]", "\\.\\*"]
+--     anySel =
+--       tryParsers [keyParser, indexParser, anyIndexParser, anyKeyParser]
+--         <|> failingParser expLabels
+-- patternParser = MP.some patternSelectorParser
+ where

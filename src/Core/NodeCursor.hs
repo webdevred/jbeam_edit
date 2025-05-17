@@ -1,4 +1,4 @@
-module NodeCursor
+module Core.NodeCursor
   ( NodeCursor(..)
   , NodeBreadcrumb(..)
   , applyCrumb
@@ -7,12 +7,12 @@ module NodeCursor
   , newCursor
   ) where
 
+import Core.Node (Node(..))
+import Core.NodePath qualified as NP
 import Data.Sequence (Seq(..))
 import Data.Sequence qualified as Seq (empty, null)
 import Data.Text (Text)
 import Data.Text qualified as T
-import Node (Node(..))
-import NodePath qualified as NP
 
 data NodeBreadcrumb
   = ArrayIndex Int

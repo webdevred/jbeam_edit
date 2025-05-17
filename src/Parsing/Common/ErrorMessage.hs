@@ -1,15 +1,14 @@
-module Parsing
-  ( parseNodes
+module Parsing.Common.ErrorMessage
+  ( formatErrors
   ) where
 
-import Data.Bifunctor (first)
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
 import Data.Function (on)
 import Data.List.NonEmpty qualified as LV
 import Data.Text.Encoding (decodeUtf8Lenient)
 import Data.Void (Void)
-import Parsing.Internal (charNotEqWord8, toChar, toWord8, topNodeParser)
+import Parsing.Common.Helpers (charNotEqWord8, toChar, toWord8)
 import Text.Megaparsec qualified as MP
 
 import Data.Set (Set)
@@ -18,8 +17,6 @@ import Data.Set qualified as S
 import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Word (Word8)
-
-import Node (Node(..))
 
 joinAndFormatToks :: Set (MP.ErrorItem Word8) -> Text
 joinAndFormatToks = T.concat . reverse . f [] . S.elems
@@ -82,6 +79,3 @@ formatErrors bundle =
             formatTrivialErrors pos inputNotParsed expToks unexpToks
           (MP.FancyError pos err') -> formatFancyErrors pos inputNotParsed err'
    in T.intercalate "\n" . map formatBundleError . LV.toList $ bunErrs
-
-parseNodes :: ByteString -> Either Text Node
-parseNodes = first formatErrors . MP.parse topNodeParser "<input>"

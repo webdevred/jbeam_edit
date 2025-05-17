@@ -24,12 +24,15 @@ source-repository head
 
 library
   exposed-modules:
+      Core.Node
+      Core.NodeCursor
+      Core.NodePath
       Formatting
-      Node
-      NodeCursor
-      NodePath
-      Parsing
-      Parsing.Internal
+      Parsing.Common
+      Parsing.Common.ErrorMessage
+      Parsing.Common.Helpers
+      Parsing.DSL
+      Parsing.Jbeam
       Transformation
   other-modules:
       Paths_jbeam_edit
@@ -78,7 +81,7 @@ test-suite jbeam-edit-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
-      Parsing.InternalSpec
+      Parsing.JbeamSpec
       SpecHelper
       Paths_jbeam_edit
   autogen-modules:

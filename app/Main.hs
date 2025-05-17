@@ -2,17 +2,17 @@ module Main
   ( main
   ) where
 
+import Core.NodeCursor (newCursor)
 import qualified Data.ByteString.Lazy as BL (readFile, toStrict, writeFile)
 import qualified Data.List as L (uncons)
 import qualified Data.Text.IO as TIO (putStrLn)
 import qualified Data.Text.Lazy as TL (fromStrict)
 import Data.Text.Lazy.Encoding (encodeUtf8)
-import NodeCursor (newCursor)
 import System.Environment (getArgs)
 import Transformation (transform)
 
 import Formatting
-import Parsing
+import Parsing.Jbeam qualified as J
 
 main :: IO ()
 main = do
@@ -20,7 +20,7 @@ main = do
   case L.uncons args of
     Just (filename, _) -> do
       contents <- BL.readFile filename
-      let nodes = parseNodes (BL.toStrict contents)
+      let nodes = J.parseNodes (BL.toStrict contents)
       case nodes of
         Right nodes' ->
           BL.writeFile "hewwu.jbeam"

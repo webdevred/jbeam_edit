@@ -1,10 +1,11 @@
-module Parsing.InternalSpec
+module Parsing.JbeamSpec
   ( spec
   ) where
 
 import Data.String (fromString)
 import Data.Vector (fromList)
-import Parsing.Internal
+import Parsing.Common.Helpers
+import Parsing.Jbeam
 import SpecHelper
 import Test.Hspec.Megaparsec
 import Text.Megaparsec

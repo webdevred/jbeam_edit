@@ -20,9 +20,9 @@ import Data.Vector (Vector, (!), (!?), (//))
 import Data.Vector qualified as V
 import GHC.IsList (fromList)
 
-import Node (Node(..), isCommentNode)
-import NodeCursor qualified as NC
-import NodePath qualified as NP
+import Core.Node (Node(..), isCommentNode)
+import Core.NodeCursor qualified as NC
+import Core.NodePath qualified as NP
 
 data VertexGroupType
   = LeftGroup

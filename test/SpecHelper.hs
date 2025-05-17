@@ -1,11 +1,11 @@
 module SpecHelper
   ( applySpecOnInput
   , works
-  , module Node
+  , module Core.Node
   , module Test.Hspec
   ) where
 
-import Node
+import Core.Node
 import Test.Hspec
 
 type DescribeFun = (String -> String -> String)

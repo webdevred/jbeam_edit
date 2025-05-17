@@ -1,4 +1,4 @@
-module Node
+module Core.Node
   ( isCommentNode
   , Node(..)
   ) where

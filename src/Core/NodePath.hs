@@ -1,24 +1,25 @@
 {-# LANGUAGE TypeFamilies #-}
 
-module NodePath
+module Core.NodePath
   ( NodePath(..)
   , NodeSelector(..)
   , queryNodes
   , select
   ) where
 
+import Core.Node qualified as N (Node(..))
 import Data.Sequence (Seq(..))
 import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Vector ((!?))
 import Data.Vector qualified as V
 import GHC.IsList (IsList(..))
-import Node qualified as N (Node(..))
 
 data NodeSelector
   = ArrayIndex Int
   | ObjectKey Text
   | ObjectIndex Int
+  deriving (Ord, Eq)
 
 instance Show NodeSelector where
   show (ArrayIndex i) = "[" <> show i <> "]"
