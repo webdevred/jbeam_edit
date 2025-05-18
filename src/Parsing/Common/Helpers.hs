@@ -8,13 +8,14 @@ module Parsing.Common.Helpers
   , parseWord8s
   , tryParsers
   , skipWhiteSpace
+  , parseBool
   ) where
 
 import Control.Applicative (Alternative(..), asum)
-
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
 import Data.Char (chr, isSpace, ord)
+import Data.Functor (($>), (<&>))
 import Data.List.NonEmpty qualified as LV (fromList)
 import Data.Set qualified as S
 import Data.Text.Encoding (decodeUtf8')
@@ -65,3 +66,6 @@ failingParser expLabels = unexpTok >>= flip MP.failure expToks
     isNotFinalChar w =
       let c = toChar w
        in not (isSpace c) && notElem c [',', ']', '}']
+
+parseBool :: Parser Bool
+parseBool = MP.choice [B.string "true", B.string "false"] <&> (== "true")

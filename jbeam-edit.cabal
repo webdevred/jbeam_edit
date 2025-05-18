@@ -28,6 +28,7 @@ library
       Core.NodeCursor
       Core.NodePath
       Formatting
+      Formatting.Rules
       Parsing.Common
       Parsing.Common.ErrorMessage
       Parsing.Common.Helpers

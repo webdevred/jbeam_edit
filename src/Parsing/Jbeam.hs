@@ -7,7 +7,7 @@ import Control.Applicative (Alternative(..), (<|>), optional)
 
 import Data.Bifunctor (first)
 import Data.ByteString (ByteString)
-import Data.Functor (($>), (<&>))
+import Data.Functor (($>))
 import Data.Vector qualified as V (fromList)
 import Text.Megaparsec ((<?>))
 import Text.Megaparsec qualified as MP
@@ -35,8 +35,7 @@ separatorParser =
 numberParser :: Parser Node
 numberParser = fmap Number signedScientific
   where
-    scientific = L.scientific
-    signedScientific = L.signed B.space scientific
+    signedScientific = L.signed B.space L.scientific
 
 multilineCommentParser :: Parser Node
 multilineCommentParser =
@@ -58,8 +57,7 @@ nullParser :: Parser Node
 nullParser = C.string "null" $> Null
 
 boolParser :: Parser Node
-boolParser =
-  MP.choice [C.string "true", C.string "false"] <&> Bool . (== "true")
+boolParser = Bool <$> parseBool
 
 stringParser :: Parser Node
 stringParser = parseWord8s String string
