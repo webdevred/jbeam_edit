@@ -3,6 +3,7 @@ module Core.NodeCursor
   , NodeBreadcrumb(..)
   , applyCrumb
   , applyObjCrumb
+  , compareSB
   , comparePathAndCursor
   , newCursor
   ) where

@@ -7,7 +7,6 @@ import Data.ByteString qualified as BS
 import Data.Function (on)
 import Data.List.NonEmpty qualified as LV
 import Data.Text.Encoding (decodeUtf8Lenient)
-import Data.Void (Void)
 import Parsing.Common.Helpers (charNotEqWord8, toChar, toWord8)
 import Text.Megaparsec qualified as MP
 
@@ -67,7 +66,7 @@ formatTrivialErrors pos inputNotParsed expToks unexpTok =
 
 formatFancyErrors = undefined
 
-formatErrors :: MP.ParseErrorBundle ByteString Void -> Text
+formatErrors :: MP.ParseErrorBundle ByteString e -> Text
 formatErrors bundle =
   let MP.ParseErrorBundle { MP.bundleErrors = bunErrs
                           , MP.bundlePosState = posState

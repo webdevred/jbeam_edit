@@ -4,6 +4,7 @@ module Main
 
 import Core.NodeCursor (newCursor)
 import qualified Data.ByteString.Lazy as BL (readFile, toStrict, writeFile)
+import Data.Functor (($>))
 import qualified Data.List as L (uncons)
 import qualified Data.Text.IO as TIO (putStrLn)
 import qualified Data.Text.Lazy as TL (fromStrict)
@@ -12,11 +13,13 @@ import System.Environment (getArgs)
 import Transformation (transform)
 
 import Formatting
+import Parsing.DSL
 import Parsing.Jbeam qualified as J
 
 main :: IO ()
 main = do
   args <- getArgs
+  formattingConfig <- readFormattingConfig
   case L.uncons args of
     Just (filename, _) -> do
       contents <- BL.readFile filename
@@ -26,8 +29,15 @@ main = do
           BL.writeFile "hewwu.jbeam"
             . encodeUtf8
             . TL.fromStrict
-            . formatNode newCursor
+            . formatNode formattingConfig newCursor
             . transform
             $ nodes'
         Left err -> TIO.putStrLn err
     Nothing -> TIO.putStrLn "missing arg filename"
+
+readFormattingConfig :: IO RuleSet
+readFormattingConfig = do
+  contents <- BL.readFile "rules.jbfl"
+  case parseDSL (BL.toStrict contents) of
+    Right rs -> pure rs
+    Left err -> TIO.putStrLn err $> newRuleSet

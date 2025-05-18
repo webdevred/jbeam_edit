@@ -15,7 +15,7 @@ import Control.Applicative (Alternative(..), asum)
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
 import Data.Char (chr, isSpace, ord)
-import Data.Functor (($>), (<&>))
+import Data.Functor ((<&>))
 import Data.List.NonEmpty qualified as LV (fromList)
 import Data.Set qualified as S
 import Data.Text.Encoding (decodeUtf8')
