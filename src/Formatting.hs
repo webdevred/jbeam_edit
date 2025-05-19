@@ -18,6 +18,7 @@ import Formatting.Rules
   , applyPadLogic
   , findPropertiesForCursor
   , newRuleSet
+  , noComplexNewLine
   )
 
 addDelimiters ::
@@ -69,7 +70,8 @@ doFormatNode rs cursor nodes =
         then T.unlines . map indent . concatMap T.lines $ formatted
         else T.concat formatted
   where
-    complexChildren = any isComplexNode nodes
+    complexChildren =
+      any isComplexNode nodes && not (noComplexNewLine rs cursor)
 
 padLogic :: (Node -> Text) -> Int -> Bool -> Node -> Text
 padLogic f padAmount padZeros n

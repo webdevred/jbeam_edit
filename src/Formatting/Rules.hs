@@ -15,6 +15,7 @@ module Formatting.Rules
   , keyName
   , applyPadLogic
   , comparePatternAndCursor
+  , noComplexNewLine
   , newRuleSet
   , findPropertiesForCursor
   ) where
@@ -53,7 +54,7 @@ instance Show NodePattern where
   show (NodePattern Empty) = ""
 
 data PropertyKey a where
-  ComplexChildrenSameLine :: PropertyKey Bool
+  NoComplexNewLine :: PropertyKey Bool
   PadZeros :: PropertyKey Bool
   PadAmount :: PropertyKey Int
 
@@ -70,7 +71,7 @@ instance Eq SomeKey where
 eqKey :: PropertyKey a -> PropertyKey b -> Maybe (a :~: b)
 eqKey PadAmount PadAmount = Just Refl
 eqKey PadZeros PadZeros = Just Refl
-eqKey ComplexChildrenSameLine ComplexChildrenSameLine = Just Refl
+eqKey NoComplexNewLine NoComplexNewLine = Just Refl
 eqKey _ _ = Nothing
 
 instance Ord SomeKey where
@@ -84,7 +85,7 @@ instance Show SomeProperty where
   show (SomeProperty key val) = T.unpack (propertyName key) <> " = " <> show val
 
 propertyName :: PropertyKey a -> Text
-propertyName ComplexChildrenSameLine = "ComplexChildrenSameLine"
+propertyName NoComplexNewLine = "NoComplexNewLine"
 propertyName PadZeros = "PadZeros"
 propertyName PadAmount = "PadAmount"
 
@@ -95,7 +96,7 @@ lookupKey :: Text -> [SomeKey] -> Maybe SomeKey
 lookupKey txt = find (\(SomeKey k) -> propertyName k == txt)
 
 boolProperties :: [SomeKey]
-boolProperties = map SomeKey [ComplexChildrenSameLine, PadZeros]
+boolProperties = map SomeKey [NoComplexNewLine, PadZeros]
 
 intProperties :: [SomeKey]
 intProperties = [SomeKey PadAmount]
@@ -132,6 +133,12 @@ applyPadLogic f rs n =
   let padAmount = sum $ lookupProp PadAmount rs
       padZeros = fromMaybe False $ lookupProp PadZeros rs
    in f padAmount padZeros n
+
+noComplexNewLine :: RuleSet -> NC.NodeCursor -> Bool
+noComplexNewLine rs cursor =
+  let ps = findPropertiesForCursor cursor rs
+      maybeProp = lookupProp NoComplexNewLine ps
+   in fromMaybe False maybeProp
 
 comparePC :: NodePatternSelector -> NC.NodeBreadcrumb -> Bool
 comparePC AnyKey (NC.ObjectIndexAndKey (_, _)) = True

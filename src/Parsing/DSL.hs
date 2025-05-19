@@ -70,7 +70,7 @@ propertyParser (SomeKey key) = do
    in pure (SomeKey key, prop val)
 
 parseValueForKey :: PropertyKey a -> Parser a
-parseValueForKey ComplexChildrenSameLine = parseBool <?> "bool"
+parseValueForKey NoComplexNewLine = parseBool <?> "bool"
 parseValueForKey PadZeros = parseBool <?> "bool"
 parseValueForKey PadAmount = L.decimal <?> "integer"
 
