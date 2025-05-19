@@ -1,0 +1,135 @@
+
+* Configuration Documentation: Value Formatting Rules
+
+This documentation describes the rule-based system for formatting values inside JBeam. It explains how to use pattern matching to target specific nodes and apply formatting settings during export.
+
+* Overview
+
+This configuration system allows users to define formatting rules for values inside nested objects and arrays. Rules consist of:
+
+- Patterns - that specify which data elements to match.
+- Settings - that define how matched values are formatted.
+
+Typical use cases include:
+
+- Fixed-width data export
+- Consistent floating-point number formatting
+- Flattening nested arrays for output
+
+* Pattern Syntax
+|---------+--------------------------------------------------------------------------------|
+| Pattern | Description                                                                    |
+|---------+--------------------------------------------------------------------------------|
+| .*      | Matches *any key* at the current object level, regardless of name.             |
+| [*]     | Matches *all elements* in a list (1D array).                                   |
+| [*][*]  | Matches *all elements in the innermost lists* of 2D arrays (arrays of arrays). |
+|---------+--------------------------------------------------------------------------------|
+
+* Settings Overview
+|------------------+--------------------------------------------------------------------------------------------+--------------------------------|
+| Setting Name     | Description                                                                                | Applies To                     |
+|------------------+--------------------------------------------------------------------------------------------+--------------------------------|
+| PadZeros         | When true, numeric values are padded with *trailing zeros* after the decimal point.        | Numeric values                 |
+| PadAmount        | Specifies the *total length* (number of characters) the formatted value should occupy.     | Any scalar except for comments |
+| NoComplexNewLine | When true, disables multiline or indented formatting for arrays, outputting values inline. | Any complex data structure     |
+|------------------+--------------------------------------------------------------------------------------------+--------------------------------|
+
+* How Matching Works
+
+- Patterns traverse nested objects and arrays.
+- .* matches all keys at the current level.
+- [*] matches all elements of an array.
+- Combinations like .*.nodes[*][*] match all elements inside inner lists under nodes keys.
+- Settings apply *to each matched value individually*.
+- Matching is agnostic to the data type; however, settings may behave differently based on type.
+
+* Detailed Rules Examples
+
+** Pattern: .*.nodes[*][*]
+#+BEGIN_SRC
+.*.nodes[*][*] {
+    PadZeros: true;
+    PadAmount: 8;
+}
+#+END_SRC
+
+- Matches all values in the innermost arrays under the key nodes, where:
+    - The top-level element is an object with arbitrary keys.
+    - Each key references an object containing a key named nodes.
+    - The value of nodes is a 2D array (array of arrays).
+    - The rule applies to all numeric values in the innermost arrays of this 2D array.
+- Settings:
+    - PadZeros: true
+    - PadAmount: 8
+- Behavior: Format floats as fixed-width strings of length 8, padding with trailing zeros after the decimal point.
+
+Examples
+|----------------|-----------------|
+| Original Value | Exported String |
+|----------------|-----------------|
+| 1.2            | 1.200000        |
+| 3.14           | 3.140000        |
+| 12.0           | 12.00000        |
+|----------------|-----------------|
+
+** Pattern: .*.beams[*][*]
+
+#+BEGIN_SRC
+.*.beams[*][*] {
+    PadAmount: 8;
+}
+#+END_SRC
+
+- Matches values in the innermost arrays under the key beams, where:
+    - The top-level element is an object with arbitrary keys.
+    - Each key references an object containing a key named beams.
+    - The value of beams is a 2D array (array of arrays).
+    - The rule applies to all numeric values in the innermost arrays of this 2D array.
+- Settings:
+    - PadAmount: 8
+    - PadZeros: false (implicitly)
+- Behavior: Format floats as fixed-width strings of length 8, *padded with leading spaces* to align right.
+
+Examples:
+|----------------+----------------------------------|
+| Original Value | Exported String                  |
+|----------------+----------------------------------|
+|              5 | 5.0 with 5 spaces before         |
+|         0.1234 | 0.1234 with 2 spaces before      |
+|           7.89 | 7.89 with spaces 5 spaces before |
+|----------------+----------------------------------|
+
+* Padding Behavior on Scalar Values
+
+- Padding applies to *all scalar types* (numbers, strings, booleans).
+- If the length of the representation of the scalar is *less than PadAmount*, the value is padded:
+  - With *trailing zeros* if PadZeros: true and the value is numeric.
+  - With *leading spaces* otherwise (including when PadZeros is false or not set).
+- If the length is *equal to or greater than PadAmount*, *no padding or truncation occurs*; the full string is output as-is.
+
+* Examples
+|-----------+----------+-----------+----------------------------|
+| Value     | PadZeros | PadAmount | Output                     |
+|-----------+----------+-----------+----------------------------|
+| 3.14      | true     |         8 | 3.140000                   |
+| 3.14      | false    |         8 | 3.14 with 5 spaces before  |
+| "abc"     | true     |         8 | "abc" with 3 spaces before |
+| "abc"     | false    |         8 | "abc" with 3 spaces before |
+| true      | false    |         6 | true with 2 spaces before  |
+| 123456789 | false    |         5 | 123456789                  |
+|-----------+----------+-----------+----------------------------|
+
+* Summary Table
+|----------------+---------------------------------+------------------------------+------------------|
+| Pattern        | Targeted Data                   | Settings                     | Padding Behavior |
+|----------------+---------------------------------+------------------------------+------------------|
+| .*.nodes[*][*] | Innermost float values in nodes | PadZeros: true, PadAmount: 8 | Trailing zeros   |
+| .*.beams[*][*] | Innermost float values in beams | PadAmount: 8                 | Leading spaces   |
+|----------------+---------------------------------+------------------------------+------------------|
+
+* Notes and Tips
+
+- Patterns are powerful and flexible; combine .*, [ * ], and object keys to precisely target values.
+- Settings like PadZeros and PadAmount apply mainly to numeric values.
+- String values receive space padding regardless of PadZeros.
+- Use NoComplexNewLine to simplify output layout when working with complex structures like lists and objects.
