@@ -3,6 +3,10 @@
 
 This documentation describes the rule-based system for formatting values inside JBeam. It explains how to use pattern matching to target specific nodes and apply formatting settings during export.
 
+- Example ruleset file: [[rules.jbfl][rules.jbfl]]
+- Example input [[example_fenders/chevy_impala_fender.jbeam]]
+- Example result after formatting chevy_impala_fender.jbeam [[formatted_chevy_impala.jbeam]]
+
 * Overview
 
 This configuration system allows users to define formatting rules for values inside nested objects and arrays. Rules consist of:
@@ -23,6 +27,8 @@ Typical use cases include:
 | .*      | Matches *any key* at the current object level, regardless of name.             |
 | [*]     | Matches *all elements* in a list (1D array).                                   |
 | [*][*]  | Matches *all elements in the innermost lists* of 2D arrays (arrays of arrays). |
+| .test   | Matches the value with key test in a object                                    |
+| [4]     | Matches the value at index 4 in a array                                        |
 |---------+--------------------------------------------------------------------------------|
 
 * Settings Overview
@@ -112,7 +118,7 @@ Examples:
 | Value     | PadZeros | PadAmount | Output                     |
 |-----------+----------+-----------+----------------------------|
 | 3.14      | true     |         8 | 3.140000                   |
-| 3.14      | false    |         8 | 3.14 with 5 spaces before  |
+| 3.14      | false    |         8 | 3.14 with 4 spaces before  |
 | "abc"     | true     |         8 | "abc" with 3 spaces before |
 | "abc"     | false    |         8 | "abc" with 3 spaces before |
 | true      | false    |         6 | true with 2 spaces before  |
