@@ -78,7 +78,9 @@ keyPropertyPairParser :: Parser (SomeKey, SomeProperty)
 keyPropertyPairParser = do
   skipWhiteSpace
   offset <- MP.getOffset
-  key <- MP.some (MP.satisfy (\c -> toChar c `notElem` [' ', ':']))
+  key <-
+    MP.label "property name"
+      $ MP.some (MP.satisfy (\c -> toChar c `notElem` [' ', ':']))
   skipWhiteSpace
   let unexpTok = pure . Just . MP.Tokens . LV.fromList $ key
       expToks =
