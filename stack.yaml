@@ -17,7 +17,7 @@
 #
 # snapshot: ./custom-snapshot.yaml
 # snapshot: https://example.com/snapshots/2024-01-01.yaml
-snapshot: lts-23.19
+snapshot: lts-23.23
 
 # User packages to be built.
 # Various formats can be used as shown in the example below.
