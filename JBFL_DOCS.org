@@ -70,13 +70,13 @@ Typical use cases include:
 - Behavior: Format floats as fixed-width strings of length 8, padding with trailing zeros after the decimal point.
 
 Examples
-|----------------|-----------------|
-| Original Value | Exported String |
-|----------------|-----------------|
-| 1.2            | 1.200000        |
-| 3.14           | 3.140000        |
-| 12.0           | 12.00000        |
-|----------------|-----------------|
+|---------------+----------------|-----------------|
+| Original Value| Initial width  | Exported String |
+|---------------+----------------|-----------------|
+| 1.2           |             3  | 1.200000        |
+| 3.14          |             3  | 3.140000        |
+| 12.0          |             3  | 12.00000        |
+|---------------+----------------|-----------------|
 
 ** Pattern: .*.beams[*][*]
 
@@ -97,13 +97,13 @@ Examples
 - Behavior: Format floats as fixed-width strings of length 8, *padded with leading spaces* to align right.
 
 Examples:
-|----------------+----------------------------------|
-| Original Value | Exported String                  |
-|----------------+----------------------------------|
-|              5 | 5.0 with 5 spaces before         |
-|         0.1234 | 0.1234 with 2 spaces before      |
-|           7.89 | 7.89 with spaces 5 spaces before |
-|----------------+----------------------------------|
+|----------------+---------------+----------------------------------|
+| Original Value | Initial width | Exported String                  |
+|----------------+---------------+----------------------------------|
+|            5.0 |             3 | 5.0 with 7 spaces before         |
+|         0.1234 |             6 | 0.1234 with 2 spaces before      |
+|           7.89 |             4 | 7.89 with spaces 5 spaces before |
+|----------------+---------------+----------------------------------|
 
 * Padding Behavior on Scalar Values
 
@@ -114,16 +114,16 @@ Examples:
 - If the length is *equal to or greater than PadAmount*, *no padding or truncation occurs*; the full string is output as-is.
 
 * Examples
-|-----------+----------+-----------+----------------------------|
-| Value     | PadZeros | PadAmount | Output                     |
-|-----------+----------+-----------+----------------------------|
-| 3.14      | true     |         8 | 3.140000                   |
-| 3.14      | false    |         8 | 3.14 with 4 spaces before  |
-| "abc"     | true     |         8 | "abc" with 3 spaces before |
-| "abc"     | false    |         8 | "abc" with 3 spaces before |
-| true      | false    |         6 | true with 2 spaces before  |
-| 123456789 | false    |         5 | 123456789                  |
-|-----------+----------+-----------+----------------------------|
+|-------------+---------------+----------+-----------+----------------------------|
+| Value       | Initial width | PadZeros | PadAmount | Output                     |
+|-------------+---------------+----------+-----------+----------------------------|
+| 3.14        |             3 | true     |         8 | 3.140000                   |
+| 3.14        |             3 | false    |         8 | 3.14 with 4 spaces before  |
+| "abc"       |             5 | true     |         8 | "abc" with 3 spaces before |
+| "abc"       |             5 | false    |         8 | "abc" with 3 spaces before |
+| true        |             4 | false    |         6 | true with 2 spaces before  |
+| 123456789.0 |            11 | false    |         5 | 123456789.0                |
+|-------------+---------------+----------+-----------+----------------------------|
 
 * Summary Table
 |----------------+---------------------------------+------------------------------+------------------|
