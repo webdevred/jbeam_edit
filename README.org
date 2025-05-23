@@ -26,7 +26,6 @@ This project is a command-line tool designed to work with jbeam files (the struc
 - Detect support vertices (ie nodes with a high enough amount of beam connections) and move them to a designated VerticeGroup
 - Support files that have meta nodes ie (Objects with keys) interrupting VerticeGroups
 - Support for taking a extra argument and replacing the prefix (in our current example files it is bf) with the command line input for each Vertice in node,beams,triangles and flexbodies
-- In case rules.jbfl is empty or doesnt exist, do not raise a error
 
 ** Why Haskell + Megaparsec
 
