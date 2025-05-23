@@ -2,14 +2,18 @@ module Main
   ( main
   ) where
 
+import Data.Bifunctor (first)
 import Core.NodeCursor (newCursor)
-import qualified Data.ByteString.Lazy as BL (readFile, toStrict, writeFile)
+import qualified Data.ByteString.Lazy as BL (ByteString,readFile, toStrict, writeFile)
 import Data.Functor (($>))
 import qualified Data.List as L (uncons)
 import qualified Data.Text.IO as TIO (putStrLn)
 import qualified Data.Text.Lazy as TL (fromStrict)
+import qualified Data.Text as T (pack)
+import Data.Text (Text)
 import Data.Text.Lazy.Encoding (encodeUtf8)
 import System.Environment (getArgs)
+import Control.Exception
 import Transformation (transform)
 
 import Formatting
@@ -35,9 +39,15 @@ main = do
         Left err -> TIO.putStrLn err
     Nothing -> TIO.putStrLn "missing arg filename"
 
+
+tryReadFile :: FilePath -> IO (Either Text BL.ByteString)
+tryReadFile fp = do
+  possiblyContent <- try (BL.readFile fp) :: IO (Either IOException BL.ByteString)
+  pure $ first (T.pack . show) possiblyContent
+
 readFormattingConfig :: IO RuleSet
 readFormattingConfig = do
-  contents <- BL.readFile "rules.jbfl"
-  case parseDSL (BL.toStrict contents) of
+  contents <- tryReadFile "rules.jbfl"
+  case contents >>= parseDSL . BL.toStrict  of
     Right rs -> pure rs
     Left err -> TIO.putStrLn err $> newRuleSet
