@@ -3,6 +3,7 @@ module Main
   ) where
 
 import Control.Exception
+import Core.Node (Node)
 import Core.NodeCursor (newCursor)
 import qualified Data.ByteString.Lazy as BL
   ( ByteString
@@ -21,9 +22,9 @@ import GHC.IO.Exception (IOErrorType(NoSuchThing), IOException(IOError))
 import System.Environment (getArgs)
 import Transformation (transform)
 
-import Formatting
-import Parsing.DSL
-import Parsing.Jbeam qualified as J
+import Formatting (RuleSet, formatNode, newRuleSet)
+import Parsing.DSL (parseDSL)
+import Parsing.Jbeam (parseNodes)
 
 main :: IO ()
 main = do
@@ -31,18 +32,27 @@ main = do
   formattingConfig <- readFormattingConfig
   case L.uncons args of
     Just (filename, _) -> do
-      contents <- BL.readFile filename
-      let nodes = J.parseNodes (BL.toStrict contents)
-      case nodes of
-        Right nodes' ->
-          BL.writeFile "hewwu.jbeam"
-            . encodeUtf8
-            . TL.fromStrict
-            . formatNode formattingConfig newCursor
-            . transform
-            $ nodes'
+      contents <- tryReadFile [] filename
+      case contents >>= parseNodes . BL.toStrict of
+        Right ns -> processNodes ns formattingConfig
         Left err -> TIO.putStrLn err
     Nothing -> TIO.putStrLn "missing arg filename"
+
+processNodes :: Node -> RuleSet -> IO ()
+processNodes nodes formattingConfig =
+  BL.writeFile "hewwu.jbeam"
+    . encodeUtf8
+    . TL.fromStrict
+    . formatNode formattingConfig newCursor
+    . transform
+    $ nodes
+
+readFormattingConfig :: IO RuleSet
+readFormattingConfig = do
+  contents <- tryReadFile [NoSuchThing] "rules.jbfl"
+  case contents >>= parseDSL . BL.toStrict of
+    Right rs -> pure rs
+    Left err -> TIO.putStrLn err $> newRuleSet
 
 ioErrorMsg ::
      [IOErrorType]
@@ -56,15 +66,8 @@ ioErrorMsg noerrs (Left (IOError _ ioe_type _ ioe_desc _ filename)) =
     appendColon f = T.pack f `T.append` ": "
 ioErrorMsg _ (Right valid) = Right valid
 
-tryReadFile :: FilePath -> IO (Either Text BL.ByteString)
-tryReadFile fp = do
+tryReadFile :: [IOErrorType] -> FilePath -> IO (Either Text BL.ByteString)
+tryReadFile noerrs fp = do
   possiblyContent <-
     try (BL.readFile fp) :: IO (Either IOException BL.ByteString)
-  pure $ ioErrorMsg [NoSuchThing] possiblyContent
-
-readFormattingConfig :: IO RuleSet
-readFormattingConfig = do
-  contents <- tryReadFile "rules.jbfl"
-  case contents >>= parseDSL . BL.toStrict of
-    Right rs -> pure rs
-    Left err -> TIO.putStrLn err $> newRuleSet
+  pure $ ioErrorMsg noerrs possiblyContent
