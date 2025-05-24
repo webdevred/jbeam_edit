@@ -6,12 +6,12 @@ cabal-version: 2.2
 
 name:           jbeam-edit
 version:        0.1.0.0
-description:    Please see the README on GitHub at <https://github.com/githubuser/jbeam-edit#readme>
+description:    Please see the README on GitHub at <https://github.com/webdevred/jbeam-edit#readme>
 homepage:       https://github.com/githubuser/jbeam-edit#readme
 bug-reports:    https://github.com/githubuser/jbeam-edit/issues
-author:         Author name here
+author:         webdevred
 maintainer:     example@example.com
-copyright:      2025 Author name here
+copyright:      2025 webdevred
 license:        BSD-3-Clause
 license-file:   LICENSE
 build-type:     Simple
