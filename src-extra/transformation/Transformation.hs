@@ -51,6 +51,7 @@ data Vertex = Vertex
   }
   deriving (Show)
 
+newVertice :: Node -> Maybe Vertex
 newVertice (Array ns) = f (V.toList ns)
   where
     f [String name, Number x, Number y, Number z] =
@@ -58,16 +59,21 @@ newVertice (Array ns) = f (V.toList ns)
     f _ = Nothing
 newVertice _ = Nothing
 
+isVertice :: Node -> Bool
 isVertice node = isJust (newVertice node)
 
+isNonVertice :: Node -> Bool
 isNonVertice node = isNothing (newVertice node)
 
+hasVerticePrefix :: Text -> Node -> Bool
 hasVerticePrefix verticePrefix node =
   let verticeName = vName <$> newVertice node
    in verticeName == Just verticePrefix
 
-getFirstVerticeName (node : _) = vName . fromJust . newVertice $ node
+getFirstVerticeName :: [Node] -> Text
+getFirstVerticeName (node:_) = vName . fromJust . newVertice $ node
 
+breakVertices :: Text -> [Node] -> ([Node], [Node])
 breakVertices verticePrefix = f []
   where
     typeForVerticeList = mostCommon . NE.map (determineGroup . vX)
@@ -81,6 +87,7 @@ breakVertices verticePrefix = f []
               let (metaNodesNext, currentNodes) = span isNonVertice acc
                in (currentNodes, metaNodesNext ++ (node : rest))
 
+toVertexTreeEntry :: Node -> VertexTreeEntry
 toVertexTreeEntry node
   | isJust vertice = VertexEntry (fromJust vertice)
   | isNothing vertice && isObjectNode node = MetaEntry node
@@ -90,19 +97,16 @@ toVertexTreeEntry node
 
 typeForNodes = undefined
 
-applyIfNonEmpty _ [] = Nothing
-applyIfNonEmpty f xs = f <$> LV.nonEmpty xs
-
 nodesListToTree :: NonEmpty Node -> VertexTree
 nodesListToTree nodes =
-  let (nonVertices, rest) = LV.break isNonVertice nodes
+  let (nonVertices, rest) = NE.break isNonVertice nodes
       verticePrefix = getFirstVerticeName rest
       (vertices, rest') = breakVertices verticePrefix rest
    in VertexTree
         { tNodes =
-            LV.fromList
+            NE.fromList
               (map toVertexTreeEntry (nonVertices ++ reverse vertices))
-        , tRest = applyIfNonEmpty nodesListToTree rest'
+        , tRest = nodesListToTree <$> NE.nonEmpty rest'
         , tType = typeForNodes vertices
         }
 
@@ -111,7 +115,7 @@ getVertexTree node =
   case node of
     Array ns
       | null ns -> Left node
-      | otherwise -> Right . nodesListToTree . LV.fromList . V.toList $ ns
+      | otherwise -> Right . nodesListToTree . NE.fromList . V.toList $ ns
     bad -> Left bad
 
 transform = undefined
