@@ -1,38 +1,39 @@
-{-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE TypeOperators #-}
 
-module Formatting.Rules
-  ( NodePatternSelector(..)
-  , NodePattern(..)
-  , SomeKey(..)
-  , SomeProperty(..)
-  , PropertyKey(..)
-  , RuleSet(..)
-  , lookupKey
-  , allProperties
-  , keyName
-  , applyPadLogic
-  , comparePatternAndCursor
-  , noComplexNewLine
-  , newRuleSet
-  , findPropertiesForCursor
-  ) where
+module Formatting.Rules (
+  NodePatternSelector (..),
+  NodePattern (..),
+  SomeKey (..),
+  SomeProperty (..),
+  PropertyKey (..),
+  RuleSet (..),
+  lookupKey,
+  allProperties,
+  keyName,
+  applyPadLogic,
+  comparePatternAndCursor,
+  noComplexNewLine,
+  newRuleSet,
+  findPropertiesForCursor,
+) where
 
-import Core.Node (Node(..))
-import Core.NodeCursor qualified as NC
-import Core.NodePath (NodeSelector(..))
+import Core.Node (Node (..))
+import Core.NodePath (NodeSelector (..))
 import Data.Function (on)
 import Data.List (find, intercalate)
 import Data.Map (Map)
-import Data.Map qualified as M
 import Data.Maybe (fromMaybe)
-import Data.Sequence (Seq(..))
-import Data.Sequence qualified as Seq (null)
+import Data.Sequence (Seq (..))
 import Data.Text (Text)
+import Data.Type.Equality ((:~:) (Refl))
+
+import Core.NodeCursor qualified as NC
+import Data.Map qualified as M
+import Data.Sequence qualified as Seq (null)
 import Data.Text qualified as T
-import Data.Type.Equality ((:~:)(Refl))
 
 data NodePatternSelector
   = AnyKey
@@ -45,8 +46,8 @@ instance Show NodePatternSelector where
   show AnyKey = ".*"
   show AnyIndex = "[*]"
 
-newtype NodePattern =
-  NodePattern (Seq NodePatternSelector)
+newtype NodePattern
+  = NodePattern (Seq NodePatternSelector)
   deriving (Eq, Ord)
 
 instance Show NodePattern where
@@ -58,9 +59,10 @@ data PropertyKey a where
   PadZeros :: PropertyKey Bool
   PadAmount :: PropertyKey Int
 
-data SomeKey =
-  forall a. Show a =>
-            SomeKey (PropertyKey a)
+data SomeKey
+  = forall a.
+    Show a =>
+    SomeKey (PropertyKey a)
 
 instance Show SomeKey where
   show (SomeKey key) = T.unpack (propertyName key)
@@ -77,9 +79,10 @@ eqKey _ _ = Nothing
 instance Ord SomeKey where
   compare = on compare keyName
 
-data SomeProperty =
-  forall a. Show a =>
-            SomeProperty (PropertyKey a) a
+data SomeProperty
+  = forall a.
+    Show a =>
+    SomeProperty (PropertyKey a) a
 
 instance Show SomeProperty where
   show (SomeProperty key val) = T.unpack (propertyName key) <> " = " <> show val
@@ -106,8 +109,8 @@ allProperties = boolProperties ++ intProperties
 
 type Rule = Map SomeKey SomeProperty
 
-newtype RuleSet =
-  RuleSet (Map NodePattern Rule)
+newtype RuleSet
+  = RuleSet (Map NodePattern Rule)
 
 instance Show RuleSet where
   show (RuleSet rs) = intercalate "\n" . map mapFun . M.assocs $ rs
@@ -151,8 +154,8 @@ comparePatternAndCursor (NodePattern p) (NC.NodeCursor c) = sameBy comparePC p c
 
 type SelCrumbCompFun = NodePatternSelector -> NC.NodeBreadcrumb -> Bool
 
-sameBy ::
-     SelCrumbCompFun -> Seq NodePatternSelector -> Seq NC.NodeBreadcrumb -> Bool
+sameBy
+  :: SelCrumbCompFun -> Seq NodePatternSelector -> Seq NC.NodeBreadcrumb -> Bool
 sameBy f = go
   where
     go (p :<| ps) (b :<| bs) =

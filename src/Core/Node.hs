@@ -1,7 +1,7 @@
-module Core.Node
-  ( isCommentNode
-  , Node(..)
-  ) where
+module Core.Node (
+  isCommentNode,
+  Node (..),
+) where
 
 import Data.Scientific (Scientific)
 import Data.Text (Text)
@@ -23,7 +23,7 @@ data Node
   | SinglelineComment Text
   | MultilineComment Text
   | Null
-  deriving (Show, Eq)
+  deriving (Eq, Show)
 
 isCommentNode :: Node -> Bool
 isCommentNode (MultilineComment _) = True

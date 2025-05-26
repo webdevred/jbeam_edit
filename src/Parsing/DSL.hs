@@ -1,28 +1,29 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
 
-module Parsing.DSL
-  ( parseDSL
-  ) where
+module Parsing.DSL (
+  parseDSL,
+) where
 
 import Core.NodePath
 import Data.Bifunctor (first)
 import Data.ByteString (ByteString)
-import Data.ByteString qualified as BS
-import Data.Char (isSpace, isSpace)
-import Data.Functor (($>), void)
-import Data.List.NonEmpty qualified as LV (fromList)
+import Data.Char (isSpace)
+import Data.Functor (void, ($>))
 import Data.Map (Map)
-import Data.Map qualified as M (fromList, fromListWith, union)
-import Data.Sequence qualified as Seq (fromList)
-import Data.Set qualified as S (fromList)
 import Data.Text (Text)
-import Data.Text qualified as T
 import Data.Text.Encoding (decodeUtf8')
 import Data.Word (Word8)
 import Formatting.Rules
 import Parsing.Common
 import Text.Megaparsec ((<?>))
+
+import Data.ByteString qualified as BS
+import Data.List.NonEmpty qualified as LV (fromList)
+import Data.Map qualified as M (fromList, fromListWith, union)
+import Data.Sequence qualified as Seq (fromList)
+import Data.Set qualified as S (fromList)
+import Data.Text qualified as T
 import Text.Megaparsec qualified as MP
 import Text.Megaparsec.Byte qualified as B
 import Text.Megaparsec.Byte.Lexer qualified as L (decimal)
@@ -79,13 +80,13 @@ keyPropertyPairParser = do
   skipWhiteSpace
   offset <- MP.getOffset
   key <-
-    MP.label "property name"
-      $ MP.some (MP.satisfy (\c -> toChar c `notElem` [' ', ':']))
+    MP.label "property name" $
+      MP.some (MP.satisfy (\c -> toChar c `notElem` [' ', ':']))
   skipWhiteSpace
   let unexpTok = pure . Just . MP.Tokens . LV.fromList $ key
       expToks =
-        S.fromList . map (MP.Label . LV.fromList . T.unpack . keyName)
-          $ allProperties
+        S.fromList . map (MP.Label . LV.fromList . T.unpack . keyName) $
+          allProperties
       failParser u = MP.setOffset offset *> MP.failure u expToks
       key' = tryDecodeKey key (`lookupKey` allProperties)
    in maybe (unexpTok >>= failParser) propertyParser key'
@@ -111,4 +112,5 @@ ruleSetParser = RuleSet . M.fromListWith M.union <$> MP.some singleRuleSet
 parseDSL :: ByteString -> Either Text RuleSet
 parseDSL input
   | BS.null input = pure newRuleSet
-  | otherwise = first formatErrors . MP.parse (ruleSetParser <* MP.eof) "<input>" $ input
+  | otherwise =
+      first formatErrors . MP.parse (ruleSetParser <* MP.eof) "<input>" $ input

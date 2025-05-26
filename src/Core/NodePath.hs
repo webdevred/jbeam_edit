@@ -1,33 +1,34 @@
 {-# LANGUAGE TypeFamilies #-}
 
-module Core.NodePath
-  ( NodePath(..)
-  , NodeSelector(..)
-  , queryNodes
-  , select
-  ) where
+module Core.NodePath (
+  NodePath (..),
+  NodeSelector (..),
+  queryNodes,
+  select,
+) where
 
-import Core.Node qualified as N (Node(..))
-import Data.Sequence (Seq(..))
+import Data.Sequence (Seq (..))
 import Data.Text (Text)
-import Data.Text qualified as T
 import Data.Vector ((!?))
+import GHC.IsList (IsList (..))
+
+import Core.Node qualified as N (Node (..))
+import Data.Text qualified as T
 import Data.Vector qualified as V
-import GHC.IsList (IsList(..))
 
 data NodeSelector
   = ArrayIndex Int
   | ObjectKey Text
   | ObjectIndex Int
-  deriving (Ord, Eq)
+  deriving (Eq, Ord)
 
 instance Show NodeSelector where
   show (ArrayIndex i) = "[" <> show i <> "]"
   show (ObjectKey k) = "." <> T.unpack k
   show (ObjectIndex k) = "." <> show k
 
-newtype NodePath =
-  NodePath (Seq NodeSelector)
+newtype NodePath
+  = NodePath (Seq NodeSelector)
 
 instance Show NodePath where
   show (NodePath (b :<| bs)) = show b <> show (NodePath bs)

@@ -1,18 +1,19 @@
-module Core.NodeCursor
-  ( NodeCursor(..)
-  , NodeBreadcrumb(..)
-  , applyCrumb
-  , applyObjCrumb
-  , compareSB
-  , comparePathAndCursor
-  , newCursor
-  ) where
+module Core.NodeCursor (
+  NodeCursor (..),
+  NodeBreadcrumb (..),
+  applyCrumb,
+  applyObjCrumb,
+  compareSB,
+  comparePathAndCursor,
+  newCursor,
+) where
 
-import Core.Node (Node(..))
-import Core.NodePath qualified as NP
-import Data.Sequence (Seq(..))
-import Data.Sequence qualified as Seq (empty, null)
+import Core.Node (Node (..))
+import Data.Sequence (Seq (..))
 import Data.Text (Text)
+
+import Core.NodePath qualified as NP
+import Data.Sequence qualified as Seq (empty, null)
 import Data.Text qualified as T
 
 data NodeBreadcrumb
@@ -23,8 +24,8 @@ instance Show NodeBreadcrumb where
   show (ArrayIndex i) = "[" <> show i <> "]"
   show (ObjectIndexAndKey (_, k)) = "." <> T.unpack k
 
-newtype NodeCursor =
-  NodeCursor (Seq NodeBreadcrumb)
+newtype NodeCursor
+  = NodeCursor (Seq NodeBreadcrumb)
 
 instance Show NodeCursor where
   show (NodeCursor (b :<| bs)) = show b <> show (NodeCursor bs)
