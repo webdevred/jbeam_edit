@@ -109,4 +109,6 @@ ruleSetParser = RuleSet . M.fromListWith M.union <$> MP.some singleRuleSet
     singleRuleSet = skipWhiteSpace *> ruleParser <* skipWhiteSpace
 
 parseDSL :: ByteString -> Either Text RuleSet
-parseDSL = first formatErrors . MP.parse (ruleSetParser <* MP.eof) "<input>"
+parseDSL input
+  | BS.null input = pure newRuleSet
+  | otherwise = first formatErrors . MP.parse (ruleSetParser <* MP.eof) "<input>" $ input
