@@ -49,6 +49,7 @@ data Vertex = Vertex
   , vZ :: Scientific
   } deriving (Show)
 
+newVertice :: Node -> Maybe Vertex
 newVertice (Array ns) = f (V.toList ns)
   where
     f [String name, Number x, Number y, Number z] =
@@ -56,16 +57,21 @@ newVertice (Array ns) = f (V.toList ns)
     f _ = Nothing
 newVertice _ = Nothing
 
+isVertice :: Node -> Bool
 isVertice node = isJust (newVertice node)
 
+isNonVertice :: Node -> Bool
 isNonVertice node = isNothing (newVertice node)
 
+hasVerticePrefix :: Text -> Node -> Bool
 hasVerticePrefix verticePrefix node =
   let verticeName = vName <$> newVertice node
    in verticeName == Just verticePrefix
 
+getFirstVerticeName :: [Node] -> Text
 getFirstVerticeName (node:_) = vName . fromJust . newVertice $ node
 
+breakVertices :: Text -> [Node] -> ([Node], [Node])
 breakVertices verticePrefix = f []
   where
     f acc nodes =
@@ -78,6 +84,7 @@ breakVertices verticePrefix = f []
             let (metaNodesNext, currentNodes) = span isNonVertice acc
              in (currentNodes, metaNodesNext ++ (node : rest))
 
+toVertexTreeEntry :: Node -> VertexTreeEntry
 toVertexTreeEntry node
   | isJust vertice = VertexEntry (fromJust vertice)
   | isNothing vertice && isObjectNode node = MetaEntry node
@@ -86,9 +93,6 @@ toVertexTreeEntry node
     vertice = newVertice node
 
 typeForNodes = undefined
-
-applyIfNonEmpty _ [] = Nothing
-applyIfNonEmpty f xs = f <$> LV.nonEmpty xs
 
 nodesListToTree :: NonEmpty Node -> VertexTree
 nodesListToTree nodes =
@@ -99,7 +103,7 @@ nodesListToTree nodes =
         { tNodes =
             LV.fromList
               (map toVertexTreeEntry (nonVertices ++ reverse vertices))
-        , tRest = applyIfNonEmpty nodesListToTree rest'
+        , tRest = nodesListToTree <$> LV.nonEmpty rest'
         , tType = typeForNodes vertices
         }
 
