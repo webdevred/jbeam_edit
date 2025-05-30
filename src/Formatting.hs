@@ -1,43 +1,44 @@
-module Formatting
-  ( formatNode
-  , newRuleSet
-  , RuleSet(..)
-  ) where
+module Formatting (
+  formatNode,
+  newRuleSet,
+  RuleSet (..),
+) where
 
-import Core.Node (Node(..), isCommentNode)
-import Core.NodeCursor qualified as NC
+import Core.Node (Node (..), isCommentNode)
 import Data.Bool (bool)
 import Data.Char (isSpace)
-import Data.Scientific (FPFormat(Fixed), formatScientific)
-import Data.Text qualified as T
+import Data.Scientific (FPFormat (Fixed), formatScientific)
 import Data.Text (Text)
 import Data.Vector (Vector)
-import Data.Vector qualified as V (null, toList)
-import Formatting.Rules
-  ( RuleSet(..)
-  , applyPadLogic
-  , findPropertiesForCursor
-  , newRuleSet
-  , noComplexNewLine
-  )
+import Formatting.Rules (
+  RuleSet (..),
+  applyPadLogic,
+  findPropertiesForCursor,
+  newRuleSet,
+  noComplexNewLine,
+ )
 
-addDelimiters ::
-     RuleSet -> Int -> NC.NodeCursor -> Bool -> [Text] -> [Node] -> [Text]
+import Core.NodeCursor qualified as NC
+import Data.Text qualified as T
+import Data.Vector qualified as V (null, toList)
+
+addDelimiters
+  :: RuleSet -> Int -> NC.NodeCursor -> Bool -> [Text] -> [Node] -> [Text]
 addDelimiters _ _ _ _ acc [] = acc
-addDelimiters rs index c complexChildren acc ns@(node:rest)
+addDelimiters rs index c complexChildren acc ns@(node : rest)
   | complexChildren && null acc =
-    addDelimiters rs index c complexChildren ["\n"] ns
+      addDelimiters rs index c complexChildren ["\n"] ns
   | isCommentNode node =
-    addDelimiters
-      rs
-      newIndex
-      c
-      complexChildren
-      (formatNode rs c node <> "\n" : acc)
-      rest
+      addDelimiters
+        rs
+        newIndex
+        c
+        complexChildren
+        (formatNode rs c node <> "\n" : acc)
+        rest
   | otherwise =
-    let new_acc = T.concat [applyCrumbAndFormat, comma, space, newline] : acc
-     in addDelimiters rs newIndex c complexChildren new_acc rest
+      let new_acc = T.concat [applyCrumbAndFormat, comma, space, newline] : acc
+       in addDelimiters rs newIndex c complexChildren new_acc rest
   where
     applyCrumbAndFormat =
       NC.applyCrumb (NC.ArrayIndex index) c (formatNode rs) node
@@ -64,8 +65,8 @@ indent s
 doFormatNode :: RuleSet -> NC.NodeCursor -> Vector Node -> Text
 doFormatNode rs cursor nodes =
   let formatted =
-        reverse . addDelimiters rs 0 cursor complexChildren [] . V.toList
-          $ nodes
+        reverse . addDelimiters rs 0 cursor complexChildren [] . V.toList $
+          nodes
    in if complexChildren
         then T.unlines . map indent . concatMap T.lines $ formatted
         else T.concat formatted
@@ -76,9 +77,9 @@ doFormatNode rs cursor nodes =
 padLogic :: (Node -> Text) -> Int -> Bool -> Node -> Text
 padLogic f padAmount padZeros n
   | not (isComplexNode n) =
-    if padZeros && isNumberNode n
-      then T.justifyLeft padAmount '0' $ f n
-      else T.justifyRight padAmount ' ' $ f n
+      if padZeros && isNumberNode n
+        then T.justifyLeft padAmount '0' $ f n
+        else T.justifyRight padAmount ' ' $ f n
   | otherwise = f n
 
 formatScalarNode :: Node -> Text

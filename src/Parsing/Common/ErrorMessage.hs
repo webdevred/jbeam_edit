@@ -1,21 +1,20 @@
-module Parsing.Common.ErrorMessage
-  ( formatErrors
-  ) where
+module Parsing.Common.ErrorMessage (
+  formatErrors,
+) where
 
 import Data.ByteString (ByteString)
-import Data.ByteString qualified as BS
 import Data.Function (on)
-import Data.List.NonEmpty qualified as LV
-import Data.Text.Encoding (decodeUtf8Lenient)
-import Parsing.Common.Helpers (charNotEqWord8, toChar, toWord8)
-import Text.Megaparsec qualified as MP
-
 import Data.Set (Set)
-import Data.Set qualified as S
-
 import Data.Text (Text)
-import Data.Text qualified as T
+import Data.Text.Encoding (decodeUtf8Lenient)
 import Data.Word (Word8)
+import Parsing.Common.Helpers (charNotEqWord8, toChar, toWord8)
+
+import Data.ByteString qualified as BS
+import Data.List.NonEmpty qualified as LV
+import Data.Set qualified as S
+import Data.Text qualified as T
+import Text.Megaparsec qualified as MP
 
 joinAndFormatToks :: Set (MP.ErrorItem Word8) -> Text
 joinAndFormatToks = T.concat . reverse . f [] . S.elems
@@ -24,7 +23,7 @@ joinAndFormatToks = T.concat . reverse . f [] . S.elems
       case toks of
         [tok] -> pure (formatTok tok)
         [tok, tok2] -> formatTok tok2 : " or " : formatTok tok : acc
-        (tok:toks') -> f (", " : formatTok tok : acc) toks'
+        (tok : toks') -> f (", " : formatTok tok : acc) toks'
         [] -> acc
 
 formatTok :: MP.ErrorItem Word8 -> Text
@@ -47,8 +46,8 @@ errorAreaAndLineNumber pos inputNotParsed =
 wrap :: Semigroup a => a -> a -> a -> a
 wrap l r m = l <> m <> r
 
-formatTrivialErrors ::
-     Int
+formatTrivialErrors
+  :: Int
   -> ByteString
   -> Set (MP.ErrorItem Word8)
   -> Maybe (MP.ErrorItem Word8)
@@ -68,9 +67,10 @@ formatFancyErrors = undefined
 
 formatErrors :: MP.ParseErrorBundle ByteString e -> Text
 formatErrors bundle =
-  let MP.ParseErrorBundle { MP.bundleErrors = bunErrs
-                          , MP.bundlePosState = posState
-                          } = bundle
+  let MP.ParseErrorBundle
+        { MP.bundleErrors = bunErrs
+        , MP.bundlePosState = posState
+        } = bundle
       MP.PosState {MP.pstateInput = inputNotParsed} = posState
       formatBundleError err =
         case err of

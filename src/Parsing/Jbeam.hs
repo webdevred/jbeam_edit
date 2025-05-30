@@ -1,26 +1,23 @@
-module Parsing.Jbeam
-  ( nodeParser
-  , parseNodes
-  ) where
+module Parsing.Jbeam (
+  nodeParser,
+  parseNodes,
+) where
 
-import Control.Applicative (Alternative(..), (<|>), optional)
-
+import Control.Applicative (Alternative (..), optional, (<|>))
+import Core.Node (Node (..))
 import Data.Bifunctor (first)
 import Data.ByteString (ByteString)
 import Data.Functor (($>))
-import Data.Vector qualified as V (fromList)
+import Data.Text (Text)
+import Parsing.Common
 import Text.Megaparsec ((<?>))
+
+import Data.Text qualified as T
+import Data.Vector qualified as V (fromList)
 import Text.Megaparsec qualified as MP
 import Text.Megaparsec.Byte qualified as B
 import Text.Megaparsec.Byte.Lexer qualified as L (scientific, signed)
 import Text.Megaparsec.Char qualified as C
-
-import Data.Text (Text)
-import Data.Text qualified as T
-
-import Core.Node (Node(..))
-
-import Parsing.Common
 
 separatorParser :: Parser ()
 separatorParser =

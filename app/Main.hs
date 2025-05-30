@@ -1,30 +1,30 @@
-module Main
-  ( main
-  ) where
+module Main (
+  main,
+) where
 
 import Control.Exception
 import Core.Node (Node)
 import Core.NodeCursor (newCursor)
-import qualified Data.ByteString.Lazy as BL
-  ( ByteString
-  , readFile
-  , toStrict
-  , writeFile
-  )
 import Data.Functor (($>))
-import qualified Data.List as L (uncons)
-import qualified Data.Text as T (append, pack)
 import Data.Text (Text)
-import qualified Data.Text.IO as TIO (putStrLn)
-import qualified Data.Text.Lazy as TL (fromStrict)
 import Data.Text.Lazy.Encoding (encodeUtf8)
-import GHC.IO.Exception (IOErrorType(NoSuchThing), IOException(IOError))
+import Formatting (RuleSet, formatNode, newRuleSet)
+import GHC.IO.Exception (IOErrorType (NoSuchThing), IOException (IOError))
+import Parsing.DSL (parseDSL)
+import Parsing.Jbeam (parseNodes)
 import System.Environment (getArgs)
 import Transformation (transform)
 
-import Formatting (RuleSet, formatNode, newRuleSet)
-import Parsing.DSL (parseDSL)
-import Parsing.Jbeam (parseNodes)
+import Data.ByteString.Lazy qualified as BL (
+  ByteString,
+  readFile,
+  toStrict,
+  writeFile,
+ )
+import Data.List qualified as L (uncons)
+import Data.Text qualified as T (append, pack)
+import Data.Text.IO qualified as TIO (putStrLn)
+import Data.Text.Lazy qualified as TL (fromStrict)
 
 main :: IO ()
 main = do
@@ -54,8 +54,8 @@ readFormattingConfig = do
     Right rs -> pure rs
     Left err -> TIO.putStrLn err $> newRuleSet
 
-ioErrorMsg ::
-     [IOErrorType]
+ioErrorMsg
+  :: [IOErrorType]
   -> Either IOException BL.ByteString
   -> Either Text BL.ByteString
 ioErrorMsg noerrs (Left (IOError _ ioe_type _ ioe_desc _ filename)) =

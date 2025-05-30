@@ -5,38 +5,57 @@ This project is a command-line tool designed to work with jbeam files (the struc
 
 ** Features
 
-- Complete File Parsing  
-  The tool parses the entire jbeam file—including comments—while ignoring extraneous whitespace. This ensures that even files maintained manually are processed accurately.
+*** Complete File Parsing
+- Parses entire =.jbeam= files, including comments.
+- Ignores irrelevant whitespace.
+- Handles both clean and manually edited files without breaking.
 
-- Consistent Formatting  
-  It automatically formats the whole file with consistent indentation and structure, making even the most chaotic jbeam files readable.
+*** Consistent Formatting
+- Reformats the entire file with uniform indentation, spacing, and layout.
+- Improves readability and maintainability of JBeam data.
 
-- Automatic Node Management  
-  - Sorting & Renaming: All nodes are automatically sorted and sequentially renamed.  
-  - Reference Updates: Every reference to these nodes in the rest of the file is updated, minimizing the risk of inconsistencies and errors.
+*** Automatic Node Management
+- Sorts and sequentially renames all nodes (e.g., =["bf1", ...]= becomes =["bf0", "bf1", "bf2"]=).
+- Updates all references to renamed nodes throughout the file to prevent inconsistencies.
 
-- Configurable Formatting Rules  
-  The tool features a configuration system that allows users to:  
-  - Define custom formatting rules that target specific parts of the data tree (for example, controlling indentation or enforcing line breaks).  
-  - Specify which files should be processed.  
-  - Set default indentation settings and other formatting options.
+*** Configurable Formatting Rules — Powered by JBFL
+=jbeam_edit= supports user-defined rule files in JBFL (JBeam Formatting Language), a declarative mini-language for specifying formatting behavior.
 
-** Planned features / TODO
+**** Example rule file (rules.jbfl)
 
-- Detect support vertices (ie nodes with a high enough amount of beam connections) and move them to a designated VerticeGroup
-- Support files that have meta nodes ie (Objects with keys) interrupting VerticeGroups
-- Support for taking a extra argument and replacing the prefix (in our current example files it is bf) with the command line input for each Vertice in node,beams,triangles and flexbodies
+#+BEGIN_SRC jbfl
+.*.nodes[*][*] {
+    PadZeros: false;
+    PadAmount: 8;
+    PadDecimals: 3;
+}
+
+.*.flexbodies[*] {
+    NoComplexNewLine: true;
+}
+#+END_SRC
+
+**** Capabilities of JBFL
+- Target specific parts of the data tree using wildcard patterns.
+- Control indentation, spacing, padding, and decimal precision.
+- As a maintainer, enforce customized formatting rules to fit your preference.
+
+** Planned Features / TODO
+
+- Detect support vertices (nodes with a high number of beam connections) and group them automatically.
+- Handle cases where meta nodes (e.g., ={"group":"..."}=) interrupt node groups.
+- Allow prefix replacement via command-line arguments (e.g., replace ="bf"= in nodes, beams, triangles, and flexbodies).
+- Introduce =PadDecimals= setting to control numeric precision rather than just padding length.
+- Expand test coverage.
+- Add dedicated, curated example files to demonstrate typical workflows and tool capabilities.
+  (Currently available example =.jbeam= files come from a collaborator's real mod and serve as examples until we produce example files dedicated for the project.)
+- Improve documentation to support new contributors and clarify configuration use.
 
 ** Why Haskell + Megaparsec
 
-- Rapid Prototyping & Robustness  
-  Haskell’s strong type system and expressive syntax allowed for quick development of a reliable prototype.
-
-- Elegant Parser Composition  
-  Utilizing the Parsec family of parser combinators enabled building modular, reusable components that make the parser clear and maintainable.
-
-- Safe Data Transformation  
-  Haskell’s emphasis on immutability and pure functions ensures that even complex transformations of your jbeam files are performed safely and predictably.
+- Rapid Prototyping & Robustness - Haskell’s strong type system and expressive syntax allowed for quick development of a reliable prototype.
+- Elegant Parser Composition - Utilizing the Parsec family of parser combinators enabled building modular, reusable components that make the parser clear and maintainable.
+- Safe Data Transformation - Haskell’s emphasis on immutability and pure functions ensures that even complex transformations of your jbeam files are performed safely and predictably.
 
 ** Future Considerations
 

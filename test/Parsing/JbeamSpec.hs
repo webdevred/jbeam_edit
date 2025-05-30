@@ -1,6 +1,6 @@
-module Parsing.JbeamSpec
-  ( spec
-  ) where
+module Parsing.JbeamSpec (
+  spec,
+) where
 
 import Data.String (fromString)
 import Data.Vector (fromList)
@@ -36,25 +36,31 @@ arraySpec =
 
 objectSpec :: [(String, Node)]
 objectSpec =
-  [ ( "{\"test\" : 1, \"test2\" : 2}"
+  [
+    ( "{\"test\" : 1, \"test2\" : 2}"
     , Object
-        (fromList
-           [ ObjectKey (String "test", Number 1)
-           , ObjectKey (String "test2", Number 2)
-           ]))
-  , ( "{\"test\" : 1\n \"test2\" : 2}"
+        ( fromList
+            [ ObjectKey (String "test", Number 1)
+            , ObjectKey (String "test2", Number 2)
+            ]
+        )
+    )
+  ,
+    ( "{\"test\" : 1\n \"test2\" : 2}"
     , Object
-        (fromList
-           [ ObjectKey (String "test", Number 1)
-           , ObjectKey (String "test2", Number 2)
-           ]))
+        ( fromList
+            [ ObjectKey (String "test", Number 1)
+            , ObjectKey (String "test2", Number 2)
+            ]
+        )
+    )
   ]
 
 invalidSpec :: Spec
 invalidSpec =
-  describe "should fail when input is malformed" . works
-    $ parse nodeParser "" "[1,2,a,4]"
-        `shouldFailWith` err 6 (utok (toWord8 'a') <> expLabels)
+  describe "should fail when input is malformed" . works $
+    parse nodeParser "" "[1,2,a,4]"
+      `shouldFailWith` err 6 (utok (toWord8 'a') <> expLabels)
   where
     expLabels = foldMap elabel ["a valid scalar", "object", "array"]
 
@@ -66,16 +72,16 @@ applyParserSpec = map (uncurry $ applySpecOnInput descFun assertParsesTo)
 
 spec :: Spec
 spec =
-  sequence_
-    $ invalidSpec
-        : concatMap
-            applyParserSpec
-            [ numberSpec
-            , stringSpec
-            , boolSpec
-            , nullSpec
-            , multilineCommentSpec
-            , singlelineCommentSpec
-            , arraySpec
-            , objectSpec
-            ]
+  sequence_ $
+    invalidSpec
+      : concatMap
+        applyParserSpec
+        [ numberSpec
+        , stringSpec
+        , boolSpec
+        , nullSpec
+        , multilineCommentSpec
+        , singlelineCommentSpec
+        , arraySpec
+        , objectSpec
+        ]
