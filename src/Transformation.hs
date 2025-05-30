@@ -1,28 +1,28 @@
-module Transformation
-  ( transform
-  ) where
+module Transformation (
+  transform,
+) where
 
 import Control.Arrow ((&&&))
 import Control.Monad (guard)
+import Core.Node
 import Data.Char (isDigit)
 import Data.Foldable1 (maximumBy)
 import Data.Function (on)
-import Data.List.NonEmpty qualified as LV
 import Data.List.NonEmpty (NonEmpty, (<|))
-import Data.Map qualified as M
 import Data.Map (Map)
-import Data.Maybe (fromJust, fromMaybe, isJust, isNothing)
+import Data.Maybe (fromJust, fromMaybe, isJust, isNothing, mapMaybe)
 import Data.Scientific (Scientific)
-import Data.Sequence (Seq(..))
+import Data.Sequence (Seq (..))
 import Data.Text (Text)
-import Data.Text qualified as T
 import Data.Vector (Vector, (!), (!?), (//))
-import Data.Vector qualified as V
 import GHC.IsList (fromList)
 
-import Core.Node
 import Core.NodeCursor qualified as NC
 import Core.NodePath qualified as NP
+import Data.List.NonEmpty qualified as LV
+import Data.Map qualified as M
+import Data.Text qualified as T
+import Data.Vector qualified as V
 
 data VertexTreeType
   = LeftTree
@@ -47,7 +47,8 @@ data Vertex = Vertex
   , vX :: Scientific
   , vY :: Scientific
   , vZ :: Scientific
-  } deriving (Show)
+  }
+  deriving (Show)
 
 newVertice :: Node -> Maybe Vertex
 newVertice (Array ns) = f (V.toList ns)
@@ -69,7 +70,7 @@ hasVerticePrefix verticePrefix node =
    in verticeName == Just verticePrefix
 
 getFirstVerticeName :: [Node] -> Text
-getFirstVerticeName (node:_) = vName . fromJust . newVertice $ node
+getFirstVerticeName (node : _) = vName . fromJust . newVertice $ node
 
 breakVertices :: Text -> [Node] -> ([Node], [Node])
 breakVertices verticePrefix = f []
@@ -77,12 +78,12 @@ breakVertices verticePrefix = f []
     f acc nodes =
       case nodes of
         [] -> (acc, [])
-        (node:rest)
+        (node : rest)
           | hasVerticePrefix verticePrefix node -> (node : acc, nodes)
           | isNonVertice node -> (node : acc, nodes)
           | isVertice node ->
-            let (metaNodesNext, currentNodes) = span isNonVertice acc
-             in (currentNodes, metaNodesNext ++ (node : rest))
+              let (metaNodesNext, currentNodes) = span isNonVertice acc
+               in (currentNodes, metaNodesNext ++ (node : rest))
 
 toVertexTreeEntry :: Node -> VertexTreeEntry
 toVertexTreeEntry node
@@ -97,7 +98,7 @@ typeForNodes = undefined
 nodesListToTree :: NonEmpty Node -> VertexTree
 nodesListToTree nodes =
   let (nonVertices, rest) = LV.break isNonVertice nodes
-      verticePrefix = getFirstVerticeName rest
+      verticePrefix = T.dropWhileEnd isDigit $ getFirstVerticeName rest
       (vertices, rest') = breakVertices verticePrefix rest
    in VertexTree
         { tNodes =
@@ -107,12 +108,40 @@ nodesListToTree nodes =
         , tType = typeForNodes vertices
         }
 
-getVertexTree :: Node -> Either Node VertexTree
-getVertexTree node =
-  case node of
-    Array ns
-      | null ns -> Left node
-      | otherwise -> Right . nodesListToTree . LV.fromList . V.toList $ ns
-    bad -> Left bad
+getVertexTree :: Node -> VertexTree
+getVertexTree topNode =
+  case NP.queryNodes verticeQuery topNode of
+    Just node -> f node
+    Nothing -> error ("could not find vertices at path " ++ show verticeQuery)
+  where
+    f node =
+      case node of
+        Array ns
+          | null ns -> error $ show node
+          | otherwise -> nodesListToTree . LV.fromList . V.toList $ ns
+        bad -> error $ show bad
 
-transform = undefined
+updateVertices = undefined
+
+verticeQuery :: NP.NodePath
+verticeQuery = fromList [NP.ObjectIndex 0, NP.ObjectKey "nodes"]
+
+possiblyVertice (VertexEntry v) = Just v
+possiblyVertice _ = Nothing
+
+getVertexNamesInTree vertexTree@(VertexTree {tNodes = vs}) =
+  let verticeCordNamePair vertice = ((vX vertice, vY vertice, vZ vertice), vName vertice)
+      getVertexNames =
+        M.fromList . mapMaybe (fmap verticeCordNamePair . possiblyVertice) . LV.toList
+      restNames =
+        case vertexTree of
+          VertexTree {tRest = Just r} -> getVertexNamesInTree r
+          VertexTree {tRest = Nothing} -> M.empty
+   in M.union (getVertexNames vs) restNames
+
+transform topNode =
+  let vertexTree = getVertexTree topNode
+      vertexNames = getVertexNamesInTree vertexTree
+      updatedVertexTree = updateVertices vertexTree
+      updatedVertexNames = getVertexNamesInTree vertexTree
+   in undefined
