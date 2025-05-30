@@ -5,13 +5,12 @@ module Transformation (
 import Control.Arrow ((&&&))
 import Control.Monad (guard)
 import Core.Node
-import Core.Node (Node (..), isCommentNode)
 import Data.Char (isDigit)
 import Data.Foldable1 (maximumBy)
 import Data.Function (on)
 import Data.List.NonEmpty (NonEmpty, (<|))
 import Data.Map (Map)
-import Data.Maybe (fromJust, fromMaybe, isJust, isNothing)
+import Data.Maybe (fromJust, fromMaybe, isJust, isNothing, mapMaybe)
 import Data.Scientific (Scientific)
 import Data.Sequence (Seq (..))
 import Data.Text (Text)
@@ -71,7 +70,7 @@ hasVerticePrefix verticePrefix node =
    in verticeName == Just verticePrefix
 
 getFirstVerticeName :: [Node] -> Text
-getFirstVerticeName (node:_) = vName . fromJust . newVertice $ node
+getFirstVerticeName (node : _) = vName . fromJust . newVertice $ node
 
 breakVertices :: Text -> [Node] -> ([Node], [Node])
 breakVertices verticePrefix = f []
@@ -100,7 +99,7 @@ typeForNodes = undefined
 nodesListToTree :: NonEmpty Node -> VertexTree
 nodesListToTree nodes =
   let (nonVertices, rest) = NE.break isNonVertice nodes
-      verticePrefix = getFirstVerticeName rest
+      verticePrefix = T.dropWhileEnd isDigit $ getFirstVerticeName rest
       (vertices, rest') = breakVertices verticePrefix rest
    in VertexTree
         { tNodes =
@@ -110,12 +109,40 @@ nodesListToTree nodes =
         , tType = typeForNodes vertices
         }
 
-getVertexTree :: Node -> Either Node VertexTree
-getVertexTree node =
-  case node of
-    Array ns
-      | null ns -> Left node
-      | otherwise -> Right . nodesListToTree . NE.fromList . V.toList $ ns
-    bad -> Left bad
+getVertexTree :: Node -> VertexTree
+getVertexTree topNode =
+  case NP.queryNodes verticeQuery topNode of
+    Just node -> f node
+    Nothing -> error ("could not find vertices at path " ++ show verticeQuery)
+  where
+    f node =
+      case node of
+        Array ns
+          | null ns -> error $ show node
+          | otherwise -> nodesListToTree . NE.fromList . V.toList $ ns
+        bad -> error $ show bad
 
-transform = undefined
+updateVertices = undefined
+
+verticeQuery :: NP.NodePath
+verticeQuery = fromList [NP.ObjectIndex 0, NP.ObjectKey "nodes"]
+
+possiblyVertice (VertexEntry v) = Just v
+possiblyVertice _ = Nothing
+
+getVertexNamesInTree vertexTree@(VertexTree {tNodes = vs}) =
+  let verticeCordNamePair vertice = ((vX vertice, vY vertice, vZ vertice), vName vertice)
+      getVertexNames =
+        M.fromList . mapMaybe (fmap verticeCordNamePair . possiblyVertice) . NE.toList
+      restNames =
+        case vertexTree of
+          VertexTree {tRest = Just r} -> getVertexNamesInTree r
+          VertexTree {tRest = Nothing} -> M.empty
+   in M.union (getVertexNames vs) restNames
+
+transform topNode =
+  let vertexTree = getVertexTree topNode
+      vertexNames = getVertexNamesInTree vertexTree
+      updatedVertexTree = updateVertices vertexTree
+      updatedVertexNames = getVertexNamesInTree vertexTree
+   in undefined
