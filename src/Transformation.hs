@@ -19,7 +19,7 @@ import GHC.IsList (fromList)
 
 import Core.NodeCursor qualified as NC
 import Core.NodePath qualified as NP
-import Data.List.NonEmpty qualified as LV
+import Data.List.NonEmpty qualified as NE
 import Data.Map qualified as M
 import Data.Text qualified as T
 import Data.Vector qualified as V
@@ -87,13 +87,13 @@ determineGroup x
   | otherwise = LeftGroup
 
 mostCommon :: NonEmpty VertexGroupType -> VertexGroupType
-mostCommon = LV.head . maximumBy (compare `on` length) . LV.group1 . LV.sort
+mostCommon = NE.head . maximumBy (compare `on` length) . NE.group1 . NE.sort
 
 setGroupAcc :: VertexGroup -> VertexGroupMap -> VertexGroupMap
 setGroupAcc g acc =
   maybe acc (\vs -> M.insert (typeForVerticeList vs) g acc) (gVertices g)
   where
-    typeForVerticeList = mostCommon . LV.map (determineGroup . vX)
+    typeForVerticeList = mostCommon . NE.map (determineGroup . vX)
 
 newVertexGroup :: VertexIndex -> Text -> Vertex -> VertexGroup
 newVertexGroup i name vertice =
@@ -102,7 +102,7 @@ newVertexGroup i name vertice =
     , gStartIndex = i
     , gSize = 1
     , gName = dropIndex name
-    , gVertices = Just $ LV.singleton vertice
+    , gVertices = Just $ NE.singleton vertice
     }
 
 nodeBelongsToGroup :: VertexGroup -> Node -> Bool
@@ -115,7 +115,7 @@ validateNodeVertices state (n : rest) =
     (groups, Nothing)
       | isVertex ->
           validateNodeVertices
-            (groups, Just (LV.singleton xCord, groupName'))
+            (groups, Just (NE.singleton xCord, groupName'))
             rest
       | otherwise -> validateNodeVertices (groups, Nothing) rest
     (groups, Just (xs, currentGroupName))
@@ -128,7 +128,7 @@ validateNodeVertices state (n : rest) =
           validateNodeVertices (groups, Just (xCord <| xs, currentGroupName)) rest
       | otherwise -> False
   where
-    typeForXCordList = mostCommon . LV.map determineGroup
+    typeForXCordList = mostCommon . NE.map determineGroup
     xCord = vX (fromJust vertex)
     groupName' = dropIndex . vName $ fromJust vertex
     vertex = newVertex n
@@ -217,7 +217,7 @@ newGroupName ((_, g1) : (_, g2) : _) groupType =
 newGroupName [] groupType = groupTypeToChar groupType
 
 addVertex :: Vertex -> Maybe (NonEmpty Vertex) -> Maybe (NonEmpty Vertex)
-addVertex vertice Nothing = Just $ LV.singleton vertice
+addVertex vertice Nothing = Just $ NE.singleton vertice
 addVertex vertice (Just vs) = Just $ vertice <| vs
 
 moveVertexToGroup
@@ -239,7 +239,7 @@ rejectVertices :: VertexGroupType -> VertexGroup -> VertexGroup
 rejectVertices t g =
   g
     { gVertices =
-        gVertices g >>= LV.nonEmpty . LV.filter ((==) t . determineGroup . vX)
+        gVertices g >>= NE.nonEmpty . NE.filter ((==) t . determineGroup . vX)
     }
 
 moveVertices
@@ -247,7 +247,7 @@ moveVertices
 moveVertices gType g gs =
   M.mapWithKey rejectVertices
     . foldr (moveVertexToGroup gType) gs
-    . maybe [] LV.toList
+    . maybe [] NE.toList
     $ gVertices g
 
 updateVertexName :: Text -> (VertexIndex, Vertex) -> Vertex
@@ -256,10 +256,10 @@ updateVertexName name (index, vertice) =
 
 updateVertexNames :: VertexGroup -> VertexGroup
 updateVertexNames g =
-  let vertices = LV.sortBy (on compare $ vZ &&& vY) <$> gVertices g
-      indexVertices = LV.zip (LV.fromList [0 ..])
+  let vertices = NE.sortBy (on compare $ vZ &&& vY) <$> gVertices g
+      indexVertices = NE.zip (NE.fromList [0 ..])
       updatedVertices =
-        LV.map (updateVertexName $ gName g) . indexVertices <$> vertices
+        NE.map (updateVertexName $ gName g) . indexVertices <$> vertices
    in g {gVertices = updatedVertices}
 
 updateVerticesInGroup :: VertexGroupMap -> VertexGroupMap
@@ -290,7 +290,7 @@ updateNode (NP.NodePath Empty) g (Array a) =
       beginNodes = V.slice 0 startIndex a
       groupHeader = newGroupHeader g
       verticeNodes =
-        V.fromList (maybe [] (map verticeToNode . LV.toList) vertices)
+        V.fromList (maybe [] (map verticeToNode . NE.toList) vertices)
       endNodes = V.slice endIndex (V.length a - endIndex) a
    in Array $ V.concat [beginNodes, groupHeader, verticeNodes, endNodes]
 updateNode (NP.NodePath ((NP.ArrayIndex i) :<| qrest)) g (Array children) =
@@ -311,7 +311,7 @@ updateNode _ _ a = a
 
 verticeNameMap :: VertexGroup -> UpdateMap -> UpdateMap
 verticeNameMap g acc =
-  let sortKeys = map (\v -> ((vX v, vY v, vZ v), vName v)) . LV.toList
+  let sortKeys = map (\v -> ((vX v, vY v, vZ v), vName v)) . NE.toList
       vertices = gVertices g
    in M.union acc . M.fromList $ maybe [] sortKeys vertices
 

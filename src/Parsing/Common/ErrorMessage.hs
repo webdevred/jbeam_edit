@@ -11,7 +11,7 @@ import Data.Word (Word8)
 import Parsing.Common.Helpers (charNotEqWord8, toChar, toWord8)
 
 import Data.ByteString qualified as BS
-import Data.List.NonEmpty qualified as LV
+import Data.List.NonEmpty qualified as NE
 import Data.Set qualified as S
 import Data.Text qualified as T
 import Text.Megaparsec qualified as MP
@@ -30,8 +30,8 @@ formatTok :: MP.ErrorItem Word8 -> Text
 formatTok toks =
   case toks of
     MP.EndOfInput -> "end of input"
-    MP.Label lab -> T.pack $ LV.toList lab
-    MP.Tokens toks' -> T.pack . wrap "'" "'" . map toChar $ LV.toList toks'
+    MP.Label lab -> T.pack $ NE.toList lab
+    MP.Tokens toks' -> T.pack . wrap "'" "'" . map toChar $ NE.toList toks'
 
 errorAreaAndLineNumber :: Int -> ByteString -> (Text, Text)
 errorAreaAndLineNumber pos inputNotParsed =
@@ -77,4 +77,4 @@ formatErrors bundle =
           (MP.TrivialError pos unexpToks expToks) ->
             formatTrivialErrors pos inputNotParsed expToks unexpToks
           (MP.FancyError pos err') -> formatFancyErrors pos inputNotParsed err'
-   in T.intercalate "\n" . map formatBundleError . LV.toList $ bunErrs
+   in T.intercalate "\n" . map formatBundleError . NE.toList $ bunErrs

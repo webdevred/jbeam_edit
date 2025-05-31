@@ -20,7 +20,7 @@ import Data.Void (Void)
 import Data.Word (Word8)
 
 import Data.ByteString qualified as BS
-import Data.List.NonEmpty qualified as LV (fromList)
+import Data.List.NonEmpty qualified as NE (fromList)
 import Data.Set qualified as S
 import Data.Text qualified as T
 import Text.Megaparsec qualified as MP
@@ -60,9 +60,9 @@ failingParser :: [String] -> Parser a
 failingParser expLabels = unexpTok >>= flip MP.failure expToks
   where
     unexpTok =
-      Just . MP.Tokens . LV.fromList . BS.unpack
+      Just . MP.Tokens . NE.fromList . BS.unpack
         <$> MP.takeWhile1P Nothing isNotFinalChar
-    expToks = S.fromList . map (MP.Label . LV.fromList) $ expLabels
+    expToks = S.fromList . map (MP.Label . NE.fromList) $ expLabels
     isNotFinalChar w =
       let c = toChar w
        in not (isSpace c) && notElem c [',', ']', '}']

@@ -19,7 +19,7 @@ import Parsing.Common
 import Text.Megaparsec ((<?>))
 
 import Data.ByteString qualified as BS
-import Data.List.NonEmpty qualified as LV (fromList)
+import Data.List.NonEmpty qualified as NE (fromList)
 import Data.Map qualified as M (fromList, fromListWith, union)
 import Data.Sequence qualified as Seq (fromList)
 import Data.Set qualified as S (fromList)
@@ -83,9 +83,9 @@ keyPropertyPairParser = do
     MP.label "property name" $
       MP.some (MP.satisfy (\c -> toChar c `notElem` [' ', ':']))
   skipWhiteSpace
-  let unexpTok = pure . Just . MP.Tokens . LV.fromList $ key
+  let unexpTok = pure . Just . MP.Tokens . NE.fromList $ key
       expToks =
-        S.fromList . map (MP.Label . LV.fromList . T.unpack . keyName) $
+        S.fromList . map (MP.Label . NE.fromList . T.unpack . keyName) $
           allProperties
       failParser u = MP.setOffset offset *> MP.failure u expToks
       key' = tryDecodeKey key (`lookupKey` allProperties)
