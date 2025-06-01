@@ -14,11 +14,15 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Install hlint
-      run: sudo apt install -y hlint
+    - name: 'Set up HLint'
+      uses: haskell-actions/hlint-setup@v2
+      with:
+        version: 'latest'
 
     - name: Run hlint
-      run: hlint .
+      uses: haskell-actions/hlint-run@v2.4.10
+      with:
+        fail-on: warning
 
     - name: Run fourmolu
       uses: haskell-actions/run-fourmolu@v11
