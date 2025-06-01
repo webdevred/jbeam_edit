@@ -50,6 +50,34 @@ So a Node can be:
 - a MultilineComment or SinglelineComment which contains a Text
 - a Null meaning that the node is empty
 
+In Backus-Naur form this holds:
+
+#+begin_src
+  (* space is not expressed in Backus-Naur but it is good not note that a separator can be either whitespace or a comma *)
+  <node> ::= <array> | <object> | <string> | <number> | <bool> | <null> | <singlelinecomment> | <multilinecomment>
+  <newline> ::= "\n" | "\r\n"
+  <whitespace-char> ::= <newline> | "\t" | " "
+  <separator> ::= <whitespace-char> | ","
+  (* array *)
+  <array> ::= "[]" | "[" <array_elem> [<separator>] "]"
+  <array_elem> ::= <node> | <node> <separator> <array_elem>
+  (* object *)
+  <object> ::= "{}" | "{" <object_child> [<separator>] "}"
+  <object_child> ::= <node> | <node> <separator> <object_child>
+  (* number scalar *)
+  <digits> ::= <digit> | <digit>
+  <number> ::= <digits> | <digits> "." <digits>
+  (* string scalar *)
+  <chars> ::= <char> | ""
+  <string> ::= "\"" <chars> "\""
+  (* comments *)
+  <singlelinecomment> ::= "//" <chars> <newline>
+  <multilinecomment> ::= "/*" <chars> "*/"
+  (* bool scalar *)
+  <bool> ::= "true" | "false"
+  <null> ::= "null"
+#+end_src
+
 So in fact Node is a recursive data structure, a type which references itself.
 
 Text is yet a another string type in Haskell which is good fit when doing appends or comparisons which I tend to do quite a lot in this codebase.
