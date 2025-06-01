@@ -25,7 +25,6 @@ This project is a command-line tool designed to work with jbeam files (the struc
 
 #+BEGIN_SRC jbfl
 .*.nodes[*][*] {
-    PadZeros: false;
     PadAmount: 8;
     PadDecimals: 3;
 }
@@ -45,7 +44,6 @@ This project is a command-line tool designed to work with jbeam files (the struc
 - Detect support vertices (nodes with a high number of beam connections) and group them automatically.
 - Handle cases where meta nodes (e.g., ={"group":"..."}=) interrupt node groups.
 - Allow prefix replacement via command-line arguments (e.g., replace ="bf"= in nodes, beams, triangles, and flexbodies).
-- Introduce =PadDecimals= setting to control numeric precision rather than just padding length.
 - Expand test coverage.
 - Add dedicated, curated example files to demonstrate typical workflows and tool capabilities.
   (Currently available example =.jbeam= files come from a collaborator's real mod and serve as examples until we produce example files dedicated for the project.)

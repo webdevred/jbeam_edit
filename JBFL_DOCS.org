@@ -31,13 +31,13 @@ Typical use cases include:
 |---------+--------------------------------------------------------------------------------|
 
 * Properties Overview
-|------------------+--------------------------------------------------------------------------------------------+--------------------------------|
-| Setting Name     | Description                                                                                | Applies To                     |
-|------------------+--------------------------------------------------------------------------------------------+--------------------------------|
-| PadZeros         | When true, numeric values are padded with *trailing zeros* after the decimal point.        | Numeric values                 |
-| PadAmount        | Specifies the *total length* (number of characters) the formatted value should occupy.     | Any scalar except for comments |
-| NoComplexNewLine | When true, disables multiline or indented formatting for arrays, outputting values inline. | Any complex data structure     |
-|------------------+--------------------------------------------------------------------------------------------+--------------------------------|
+|------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------------------------------|
+| Setting Name     | Description                                                                                                                                                      | Applies To                     |
+|------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------------------------------|
+| PadDecimals      | When non-zero, numeric values are padded with trailing zeros after the decimal point. The fractional part is extended to match the specified PadDecimals length. | Numeric values                 |
+| PadAmount        | Specifies the *total length* (number of characters) the formatted value should occupy.                                                                           | Any scalar except for comments |
+| NoComplexNewLine | When true, disables multiline or indented formatting for arrays, outputting values inline.                                                                       | Any complex data structure     |
+|------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------------------------------|
 
 * How Matching Works
 
@@ -53,7 +53,7 @@ Typical use cases include:
 ** Pattern: .*.nodes[*][*]
 #+BEGIN_SRC
 .*.nodes[*][*] {
-    PadZeros: true;
+    PadDecimals: 3;
     PadAmount: 8;
 }
 #+END_SRC
@@ -113,28 +113,28 @@ Examples:
 - If the length is *equal to or greater than PadAmount*, *no padding or truncation occurs*; the full string is output as-is.
 
 * Examples
-|-------------+---------------+----------+-----------+----------------------------|
-| Value       | Initial width | PadZeros | PadAmount | Output                     |
-|-------------+---------------+----------+-----------+----------------------------|
-| 3.14        |             3 | true     |         8 | 3.140000                   |
-| 3.14        |             3 | false    |         8 | 3.14 with 4 spaces before  |
-| "abc"       |             5 | true     |         8 | "abc" with 3 spaces before |
-| "abc"       |             5 | false    |         8 | "abc" with 3 spaces before |
-| true        |             4 | false    |         6 | true with 2 spaces before  |
-| 123456789.0 |            11 | false    |         5 | 123456789.0                |
-|-------------+---------------+----------+-----------+----------------------------|
+|-------------+---------------+-------------+-----------+----------------------------|
+| Value       | Initial width | PadDecimals | PadAmount | Output                     |
+|-------------+---------------+-------------+-----------+----------------------------|
+| 3.14        |             3 |           3 |         8 | 3.140                      |
+| 3.14        |             3 |           0 |         8 | 3.14 with 4 spaces before  |
+| "abc"       |             5 |           3 |         8 | "abc" with 3 spaces before |
+| "abc"       |             5 |           0 |         8 | "abc" with 3 spaces before |
+| true        |             4 |           0 |         6 | true with 2 spaces before  |
+| 123456789.0 |            11 |           0 |         5 | 123456789.0                |
+|-------------+---------------+-------------+-----------+----------------------------|
 
 * Summary Table
-|----------------+---------------------------------+------------------------------+------------------|
-| Pattern        | Targeted Data                   | Properties                     | Padding Behavior |
-|----------------+---------------------------------+------------------------------+------------------|
-| .*.nodes[*][*] | Innermost float values in nodes | PadZeros: true, PadAmount: 8 | Trailing zeros   |
-| .*.beams[*][*] | Innermost float values in beams | PadAmount: 8                 | Leading spaces   |
-|----------------+---------------------------------+------------------------------+------------------|
+|----------------+---------------------------------+----------------+--------------------------------------------------------|
+| Pattern        | Targeted Data                   | Properties     | Padding Behavior                                       |
+|----------------+---------------------------------+----------------+--------------------------------------------------------|
+| .*.nodes[*][*] | Innermost float values in nodes | PadDecimals: 3 | Trailing zeros so fractional part is at least 3 digits |
+| .*.beams[*][*] | Innermost float values in beams | PadAmount: 8   | Leading spaces                                         |
+|----------------+---------------------------------+----------------+--------------------------------------------------------|
 
 * Notes and Tips
 
 - Patterns are powerful and flexible; combine .*, [ * ], and object keys to precisely target values.
-- The property PadZeros only apply to Numbers while PadAmount can apply to all non-comment scalar values
-- String values receive space padding regardless of PadZeros.
+- The property PadDecimals only apply to Numbers while PadAmount can apply to all non-comment scalar values
+- String values receive space padding regardless of PadDecimals.
 - Use NoComplexNewLine to simplify output layout when working with complex structures like lists and objects.

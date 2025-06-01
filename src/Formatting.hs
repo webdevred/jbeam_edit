@@ -4,7 +4,7 @@ module Formatting (
   RuleSet (..),
 ) where
 
-import Core.Node (Node (..), isCommentNode)
+import Core.Node (Node (..), isCommentNode, isComplexNode)
 import Data.Bool (bool)
 import Data.Char (isSpace)
 import Data.Scientific (FPFormat (Fixed), formatScientific)
@@ -47,16 +47,6 @@ addDelimiters rs index c complexChildren acc ns@(node : rest)
     space = bool " " "" $ null rest || complexChildren
     newline = bool "" "\n" complexChildren
 
-isComplexNode :: Node -> Bool
-isComplexNode (Object _) = True
-isComplexNode (Array _) = True
-isComplexNode (ObjectKey (_key, val)) = isComplexNode val
-isComplexNode _ = False
-
-isNumberNode :: Node -> Bool
-isNumberNode (Number _) = True
-isNumberNode _ = False
-
 indent :: Text -> Text
 indent s
   | T.all isSpace s = s
@@ -73,14 +63,6 @@ doFormatNode rs cursor nodes =
   where
     complexChildren =
       any isComplexNode nodes && not (noComplexNewLine rs cursor)
-
-padLogic :: (Node -> Text) -> Int -> Bool -> Node -> Text
-padLogic f padAmount padZeros n
-  | not (isComplexNode n) =
-      if padZeros && isNumberNode n
-        then T.justifyLeft padAmount '0' $ f n
-        else T.justifyRight padAmount ' ' $ f n
-  | otherwise = f n
 
 formatScalarNode :: Node -> Text
 formatScalarNode (SinglelineComment c) = "\n// " <> c
@@ -104,4 +86,4 @@ formatNode rs cursor (ObjectKey (k, v)) =
     [formatNode rs cursor k, " : ", NC.applyObjCrumb k cursor (formatNode rs) v]
 formatNode rs cursor n =
   let ps = findPropertiesForCursor cursor rs
-   in applyPadLogic (padLogic formatScalarNode) ps n
+   in applyPadLogic formatScalarNode ps n
