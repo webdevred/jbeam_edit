@@ -55,7 +55,6 @@ instance Show NodePattern where
 
 data PropertyKey a where
   NoComplexNewLine :: PropertyKey Bool
-  PadZeros :: PropertyKey Bool
   PadAmount :: PropertyKey Int
   PadDecimals :: PropertyKey Int
 
@@ -72,7 +71,6 @@ instance Eq SomeKey where
 
 eqKey :: PropertyKey a -> PropertyKey b -> Maybe (a :~: b)
 eqKey PadAmount PadAmount = Just Refl
-eqKey PadZeros PadZeros = Just Refl
 eqKey NoComplexNewLine NoComplexNewLine = Just Refl
 eqKey PadDecimals PadDecimals = Just Refl
 eqKey _ _ = Nothing
@@ -90,7 +88,6 @@ instance Show SomeProperty where
 
 propertyName :: PropertyKey a -> Text
 propertyName NoComplexNewLine = "NoComplexNewLine"
-propertyName PadZeros = "PadZeros"
 propertyName PadAmount = "PadAmount"
 propertyName PadDecimals = "PadDecimals"
 
@@ -101,7 +98,7 @@ lookupKey :: Text -> [SomeKey] -> Maybe SomeKey
 lookupKey txt = find (\(SomeKey k) -> propertyName k == txt)
 
 boolProperties :: [SomeKey]
-boolProperties = map SomeKey [NoComplexNewLine, PadZeros]
+boolProperties = [SomeKey NoComplexNewLine]
 
 intProperties :: [SomeKey]
 intProperties = map SomeKey [PadAmount, PadDecimals]
@@ -144,16 +141,12 @@ applyDecimalPadding padDecimals node =
 applyPadLogic :: (Node -> Text) -> Rule -> Node -> Text
 applyPadLogic f rs n =
   let padAmount = sum $ lookupProp PadAmount rs
-      padZeros = Just True == lookupProp PadZeros rs
       padDecimals = sum $ lookupProp PadDecimals rs
       decimalPaddedText
         | isNumberNode n = applyDecimalPadding padDecimals (f n)
         | otherwise = f n
    in if not (isComplexNode n)
-        then
-          if padZeros && isNumberNode n
-            then T.justifyRight padAmount '0' decimalPaddedText
-            else T.justifyRight padAmount ' ' decimalPaddedText
+        then T.justifyRight padAmount ' ' decimalPaddedText
         else f n
 
 noComplexNewLine :: RuleSet -> NC.NodeCursor -> Bool
