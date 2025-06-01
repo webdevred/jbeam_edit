@@ -37,7 +37,7 @@ jobs:
       run: stack setup
 
     - name: Build project
-      run: stack build --fast
+      run: stack build --fast --ghc-options="-Werror"
 
     - name: Run tests
       run: stack test --fast
