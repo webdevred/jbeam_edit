@@ -73,6 +73,7 @@ parseValueForKey :: PropertyKey a -> Parser a
 parseValueForKey NoComplexNewLine = parseBool <?> "bool"
 parseValueForKey PadZeros = parseBool <?> "bool"
 parseValueForKey PadAmount = L.decimal <?> "integer"
+parseValueForKey PadDecimals = L.decimal <?> "integer"
 
 keyPropertyPairParser :: Parser (SomeKey, SomeProperty)
 keyPropertyPairParser = do

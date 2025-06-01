@@ -20,7 +20,7 @@ module Formatting.Rules (
   findPropertiesForCursor,
 ) where
 
-import Core.Node (Node (..))
+import Core.Node
 import Core.NodePath (NodeSelector (..))
 import Data.Function (on)
 import Data.List (find, intercalate)
@@ -57,6 +57,7 @@ data PropertyKey a where
   NoComplexNewLine :: PropertyKey Bool
   PadZeros :: PropertyKey Bool
   PadAmount :: PropertyKey Int
+  PadDecimals :: PropertyKey Int
 
 data SomeKey
   = forall a.
@@ -73,6 +74,7 @@ eqKey :: PropertyKey a -> PropertyKey b -> Maybe (a :~: b)
 eqKey PadAmount PadAmount = Just Refl
 eqKey PadZeros PadZeros = Just Refl
 eqKey NoComplexNewLine NoComplexNewLine = Just Refl
+eqKey PadDecimals PadDecimals = Just Refl
 eqKey _ _ = Nothing
 
 instance Ord SomeKey where
@@ -90,6 +92,7 @@ propertyName :: PropertyKey a -> Text
 propertyName NoComplexNewLine = "NoComplexNewLine"
 propertyName PadZeros = "PadZeros"
 propertyName PadAmount = "PadAmount"
+propertyName PadDecimals = "PadDecimals"
 
 keyName :: SomeKey -> Text
 keyName (SomeKey key) = propertyName key
@@ -101,7 +104,7 @@ boolProperties :: [SomeKey]
 boolProperties = map SomeKey [NoComplexNewLine, PadZeros]
 
 intProperties :: [SomeKey]
-intProperties = [SomeKey PadAmount]
+intProperties = map SomeKey [PadAmount, PadDecimals]
 
 allProperties :: [SomeKey]
 allProperties = boolProperties ++ intProperties
@@ -130,11 +133,28 @@ lookupProp targetKey m =
         Nothing -> Nothing
     Nothing -> Nothing
 
-applyPadLogic :: (Int -> Bool -> Node -> Text) -> Rule -> Node -> Text
+applyDecimalPadding :: Int -> Text -> Text
+applyDecimalPadding padDecimals node =
+  let (int, frac) = T.breakOnEnd "." node
+      paddedFrac = T.justifyLeft padDecimals '0' frac
+   in if padDecimals /= 0
+        then int <> paddedFrac
+        else node
+
+applyPadLogic :: (Node -> Text) -> Rule -> Node -> Text
 applyPadLogic f rs n =
   let padAmount = sum $ lookupProp PadAmount rs
-      padZeros = (Just True == lookupProp PadZeros rs)
-   in f padAmount padZeros n
+      padZeros = Just True == lookupProp PadZeros rs
+      padDecimals = sum $ lookupProp PadDecimals rs
+      decimalPaddedText
+        | isNumberNode n = applyDecimalPadding padDecimals (f n)
+        | otherwise = f n
+   in if not (isComplexNode n)
+        then
+          if padZeros && isNumberNode n
+            then T.justifyRight padAmount '0' decimalPaddedText
+            else T.justifyRight padAmount ' ' decimalPaddedText
+        else f n
 
 noComplexNewLine :: RuleSet -> NC.NodeCursor -> Bool
 noComplexNewLine rs cursor =
