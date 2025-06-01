@@ -1,6 +1,6 @@
 .*.nodes[*][*] {
-    PadZeros: false;
     PadAmount: 8;
+    PadDecimals: 3;
 }
 
 .*.flexbodies[*] {

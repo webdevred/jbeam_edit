@@ -1,5 +1,7 @@
 module Core.Node (
   isCommentNode,
+  isNumberNode,
+  isComplexNode,
   Node (..),
 ) where
 
@@ -29,3 +31,13 @@ isCommentNode :: Node -> Bool
 isCommentNode (MultilineComment _) = True
 isCommentNode (SinglelineComment _) = True
 isCommentNode _ = False
+
+isComplexNode :: Node -> Bool
+isComplexNode (Object _) = True
+isComplexNode (Array _) = True
+isComplexNode (ObjectKey (_key, val)) = isComplexNode val
+isComplexNode _ = False
+
+isNumberNode :: Node -> Bool
+isNumberNode (Number _) = True
+isNumberNode _ = False
