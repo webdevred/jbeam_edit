@@ -63,7 +63,12 @@ formatTrivialErrors pos inputNotParsed expToks unexpTok =
         <> " on line "
         <> lineNumber
 
-formatFancyErrors = undefined
+formatFancyErrors
+  :: Int
+  -> ByteString
+  -> Set (MP.ErrorFancy e)
+  -> Text
+formatFancyErrors = error "unreachable, we dont do fancy errors so far"
 
 formatErrors :: MP.ParseErrorBundle ByteString e -> Text
 formatErrors bundle =
