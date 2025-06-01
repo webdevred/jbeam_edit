@@ -25,7 +25,6 @@ import Core.NodePath (NodeSelector (..))
 import Data.Function (on)
 import Data.List (find, intercalate)
 import Data.Map (Map)
-import Data.Maybe (fromMaybe)
 import Data.Sequence (Seq (..))
 import Data.Text (Text)
 import Data.Type.Equality ((:~:) (Refl))
@@ -134,14 +133,14 @@ lookupProp targetKey m =
 applyPadLogic :: (Int -> Bool -> Node -> Text) -> Rule -> Node -> Text
 applyPadLogic f rs n =
   let padAmount = sum $ lookupProp PadAmount rs
-      padZeros = fromMaybe False $ lookupProp PadZeros rs
+      padZeros = (Just True == lookupProp PadZeros rs)
    in f padAmount padZeros n
 
 noComplexNewLine :: RuleSet -> NC.NodeCursor -> Bool
 noComplexNewLine rs cursor =
   let ps = findPropertiesForCursor cursor rs
       maybeProp = lookupProp NoComplexNewLine ps
-   in fromMaybe False maybeProp
+   in (Just True == maybeProp)
 
 comparePC :: NodePatternSelector -> NC.NodeBreadcrumb -> Bool
 comparePC AnyKey (NC.ObjectIndexAndKey (_, _)) = True

@@ -56,10 +56,9 @@ patternParser :: Parser NodePattern
 patternParser = NodePattern . Seq.fromList <$> MP.some patternSelectorParser
 
 tryDecodeKey :: [Word8] -> (Text -> Maybe SomeKey) -> Maybe SomeKey
-tryDecodeKey bs f = do
-  case decodeUtf8' (BS.pack bs) of
-    Right text' -> f text'
-    Left _ -> Nothing
+tryDecodeKey bs f = case decodeUtf8' (BS.pack bs) of
+  Right text' -> f text'
+  Left _ -> Nothing
 
 propertyParser :: SomeKey -> Parser (SomeKey, SomeProperty)
 propertyParser (SomeKey key) = do
