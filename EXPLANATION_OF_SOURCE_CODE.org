@@ -1,4 +1,4 @@
-When the application starts in app/Main.hs it reads the jbeam file that I intend to process like this:
+When the application starts in [[app/Main.hs][app/Main.hs]] it reads the jbeam file that I intend to process like this:
 
 #+begin_src haskell
   contents <- BL.readFile filename
@@ -166,8 +166,49 @@ Then I use this function to validate to compare whether all the selectors match 
 
 A Seqeunce is good choice for NodeCursor since I need to compare the first element of the cursor and the path but when transcending the Node tree I need to append the current breadcrumb.
 
+** Transforming and formattinmg the JBeam structure
 
-** Transforming the JBeam structure
+Lets take a lot at [[app/Main.hs][app/Main.hs]] again.
+
+#+begin_src haskell
+main :: IO ()
+main = do
+  args <- getArgs
+  formattingConfig <- readFormattingConfig
+  case L.uncons args of
+    Just (filename, _) -> do
+      contents <- tryReadFile [] filename
+      case contents >>= parseNodes . BL.toStrict of
+        Right ns -> processNodes ns formattingConfig
+        Left err -> TIO.putStrLn err
+    Nothing -> TIO.putStrLn "missing arg filename" 
+
+processNodes :: Node -> RuleSet -> IO ()
+processNodes nodes formattingConfig =
+  BL.writeFile "hewwu.jbeam"
+    . encodeUtf8
+    . TL.fromStrict
+    . formatNode formattingConfig newCursor
+    . transform
+    $ nodes
+    
+readFormattingConfig :: IO RuleSet
+readFormattingConfig = do
+  contents <- tryReadFile [NoSuchThing] "rules.jbfl"
+  case contents >>= parseDSL . BL.toStrict of
+    Right rs -> pure rs
+    Left err -> TIO.putStrLn err $> newRuleSet
+#+end_src haskell
+
+1. So we get the the arguments to the software which contains which contains the filename to process
+2. We read the formatting config which is a JBFL ruleset
+3. Get the filename, fail with "missing arg filename" error message if filename couldnt be retrieved from arguemnt list
+4. Try reading the file. The [] argument to tryReadFile indicates that no failure will be be treated as fine. If any error happens while reading the file, we write a error message.
+5. In case reading the file succeeded, parse the JBeam with parseNodes function.
+6. processNodes transforms and formats the JBeam reprensentation back to text.
+
+We can see that if reading the rule file were to fail reading, then NoSuchThing wouldnt give a error message. The return value from tryReadFile when it fails with a acceptable error is a empty.
+
+*** Transforming the JBeam structure
 
 TODO: Wrote documenation for Transformation. I wrote documenation on the Transformation module earlier but I scrapped it since the Transformation will need to be rewritten.
-
