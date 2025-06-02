@@ -41,6 +41,8 @@ This project is a command-line tool designed to work with jbeam files (the struc
 
 ** Planned Features / TODO
 
+- Integration with editors via Language Server Protocol (LSP)
+- Indent JBFL property to specify number of spaces for indentation
 - Detect support vertices (nodes with a high number of beam connections) and group them automatically.
 - Handle cases where meta nodes (e.g., ={"group":"..."}=) interrupt node groups.
 - Allow prefix replacement via command-line arguments (e.g., replace ="bf"= in nodes, beams, triangles, and flexbodies).
