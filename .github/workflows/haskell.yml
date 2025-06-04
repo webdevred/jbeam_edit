@@ -7,7 +7,7 @@ on:
   pull_request:
 
 jobs:
-  build:
+  lint-and-format:
     runs-on: ubuntu-latest
 
     steps:
@@ -29,6 +29,13 @@ jobs:
       with:
         version: "latest"
 
+  build-with-stack:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
     - name: Cache Stack and binaries
       uses: actions/cache@v3
       with:
@@ -42,6 +49,21 @@ jobs:
 
     - name: Build project
       run: stack build --fast --ghc-options="-Werror"
+
+    - name: Check that .cabal file has not changed except hpack comment
+      run: |
+        CABAL_FILE=jbeam-edit.cabal"
+        git show HEAD:$CABAL_FILE > committed.cabal
+        cp $CABAL_FILE current.cabal
+        tail -n +2 committed.cabal > committed_trimmed.cabal
+        tail -n +2 current.cabal > current_trimmed.cabal
+        if ! diff -q committed_trimmed.cabal current_trimmed.cabal > /dev/null; then
+          echo "Error: .cabal file has changed beyond the expected hpack comment line."
+          echo "Please commit the updated .cabal file if this is intentional."
+          exit 1
+        else
+          echo ".cabal file is unchanged except for the first comment line."
+        fi
 
     - name: Run tests
       run: stack test --fast
