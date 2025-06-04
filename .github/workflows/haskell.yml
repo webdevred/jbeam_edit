@@ -12,7 +12,7 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: 'Set up HLint'
       uses: haskell-actions/hlint-setup@v2
@@ -69,3 +69,34 @@ jobs:
 
     - name: Run tests
       run: stack test --fast
+
+  build-with-cabal:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up GHC and Cabal (GHC 9.4.7)
+      uses: haskell-actions/setup@v2
+      with:
+        ghc-version: 9.4.7
+        cabal-version: latest
+        cabal-update: true
+
+    - name: Cache Cabal build and dependencies
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cabal
+          dist-newstyle
+        key: ${{ runner.os }}-cabal-${{ hashFiles('**/jbeam-edit.cabal') }}
+
+    - name: Configure build
+      run: cabal configure --enable-tests --disable-documentation
+
+    - name: Build project
+      run: cabal build
+
+    - name: Run tests
+      run: cabal test
