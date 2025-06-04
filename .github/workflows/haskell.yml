@@ -85,8 +85,6 @@ jobs:
           ~/.cabal
           dist-newstyle
         key: ${{ runner.os }}-cabal-ghc947-${{ hashFiles('**/package.yaml') }}
-        restore-keys: |
-          ${{ runner.os }}-cabal-ghc947-
 
     - name: Set up GHC and Cabal (GHC 9.4.7)
       uses: haskell-actions/setup@v2.8.0
