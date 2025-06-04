@@ -77,13 +77,16 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Cache Cabal build and dependencies
+    - name: Cache GHC, Cabal, and build artifacts
       uses: actions/cache@v4.2.3
       with:
         path: |
-          ~/.cabal
-          dist-newstyle
-        key: ${{ runner.os }}-cabal-${{ hashFiles('**/jbeam-edit.cabal') }}
+          /usr/local/.ghcup        # GHCup, GHC, Cabal binaries
+          ~/.cabal                 # downloaded Hackage deps
+          dist-newstyle            # build artifacts
+        key: ${{ runner.os }}-cabal-ghc947-${{ hashFiles('**/jbeam-edit.cabal') }}
+        restore-keys: |
+          ${{ runner.os }}-cabal-ghc947-
 
     - name: Set up GHC and Cabal (GHC 9.4.7)
       uses: haskell-actions/setup@v2.8.0
