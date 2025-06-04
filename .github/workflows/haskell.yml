@@ -81,10 +81,10 @@ jobs:
       uses: actions/cache@v4.2.3
       with:
         path: |
-          /usr/local/.ghcup        # GHCup, GHC, Cabal binaries
-          ~/.cabal                 # downloaded Hackage deps
-          dist-newstyle            # build artifacts
-        key: ${{ runner.os }}-cabal-ghc947-${{ hashFiles('**/jbeam-edit.cabal') }}
+          /usr/local/.ghcup
+          ~/.cabal
+          dist-newstyle
+        key: ${{ runner.os }}-cabal-ghc947-${{ hashFiles('**/package.yaml') }}
         restore-keys: |
           ${{ runner.os }}-cabal-ghc947-
 
