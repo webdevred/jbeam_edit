@@ -52,7 +52,7 @@ jobs:
 
     - name: Check that .cabal file has not changed except hpack comment
       run: |
-        CABAL_FILE=jbeam-edit.cabal"
+        CABAL_FILE="jbeam-edit.cabal"
         git show HEAD:$CABAL_FILE > committed.cabal
         cp $CABAL_FILE current.cabal
         tail -n +2 committed.cabal > committed_trimmed.cabal
