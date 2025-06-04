@@ -34,10 +34,10 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Cache Stack and binaries
-      uses: actions/cache@v3
+      uses: actions/cache@v4.2.3
       with:
         path: |
           ~/.stack
@@ -77,26 +77,23 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Set up GHC and Cabal (GHC 9.4.7)
-      uses: haskell-actions/setup@v2
-      with:
-        ghc-version: 9.4.7
-        cabal-version: latest
-        cabal-update: true
-
     - name: Cache Cabal build and dependencies
-      uses: actions/cache@v3
+      uses: actions/cache@v4.2.3
       with:
         path: |
           ~/.cabal
           dist-newstyle
         key: ${{ runner.os }}-cabal-${{ hashFiles('**/jbeam-edit.cabal') }}
 
-    - name: Configure build
-      run: cabal configure --enable-tests --disable-documentation
+    - name: Set up GHC and Cabal (GHC 9.4.7)
+      uses: haskell-actions/setup@v2.8.0
+      with:
+        ghc-version: 9.4.7
+        cabal-version: latest
+        cabal-update: true
 
     - name: Build project
-      run: cabal build
+      run: cabal build --ghc-options="-Werror"
 
     - name: Run tests
-      run: cabal test
+      run: cabal test --test-show-details=direct
