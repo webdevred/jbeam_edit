@@ -49,6 +49,7 @@ library
       base >=4.7 && <5
     , bytestring
     , containers
+    , foldable1-classes-compat
     , megaparsec
     , scientific
     , text
@@ -71,6 +72,7 @@ executable jbeam-edit-exe
       base >=4.7 && <5
     , bytestring
     , containers
+    , foldable1-classes-compat
     , jbeam-edit
     , megaparsec
     , scientific
@@ -97,6 +99,7 @@ test-suite jbeam-edit-test
       base >=4.7 && <5
     , bytestring
     , containers
+    , foldable1-classes-compat
     , hspec
     , hspec-megaparsec
     , jbeam-edit
@@ -104,4 +107,6 @@ test-suite jbeam-edit-test
     , scientific
     , text
     , vector
+  build-tool-depends:
+      hspec-discover:hspec-discover
   default-language: Haskell2010

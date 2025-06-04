@@ -7,12 +7,12 @@ on:
   pull_request:
 
 jobs:
-  build:
+  lint-and-format:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: 'Set up HLint'
       uses: haskell-actions/hlint-setup@v2
@@ -29,8 +29,15 @@ jobs:
       with:
         version: "latest"
 
+  build-with-stack:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
     - name: Cache Stack and binaries
-      uses: actions/cache@v3
+      uses: actions/cache@v4.2.3
       with:
         path: |
           ~/.stack
@@ -43,5 +50,53 @@ jobs:
     - name: Build project
       run: stack build --fast --ghc-options="-Werror"
 
+    - name: Check that .cabal file has not changed except hpack comment
+      run: |
+        CABAL_FILE=jbeam-edit.cabal
+        TMP_DIR=$(mktemp -d)
+        git show HEAD:$CABAL_FILE > $TMP_DIR/committed.cabal
+        cp $CABAL_FILE $TMP_DIR/current.cabal
+        tail -n +2 $TMP_DIR/committed.cabal > $TMP_DIR/committed_trimmed.cabal
+        tail -n +2 $TMP_DIR/current.cabal > $TMP_DIR/current_trimmed.cabal
+
+        if ! diff -q $TMP_DIR/committed_trimmed.cabal $TMP_DIR/current_trimmed.cabal > /dev/null; then
+        echo "Error: .cabal file has changed beyond the expected hpack comment line."
+        echo "Please commit the updated .cabal file if this is intentional."
+        exit 1
+        else
+        echo ".cabal file is unchanged except for the first comment line."
+        fi
+
     - name: Run tests
       run: stack test --fast
+
+  build-with-cabal:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Cache GHC, Cabal, and build artifacts
+      uses: actions/cache@v4.2.3
+      with:
+        path: |
+          /usr/local/.ghcup
+          ~/.cabal
+          dist-newstyle
+        key: ${{ runner.os }}-cabal-ghc947-${{ hashFiles('**/package.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-cabal-ghc947-
+
+    - name: Set up GHC and Cabal (GHC 9.4.7)
+      uses: haskell-actions/setup@v2.8.0
+      with:
+        ghc-version: 9.4.7
+        cabal-version: latest
+        cabal-update: true
+
+    - name: Build project
+      run: cabal build --ghc-options="-Werror"
+
+    - name: Run tests
+      run: cabal test --test-show-details=direct

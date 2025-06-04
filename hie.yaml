@@ -1,0 +1,22 @@
+cradle:
+  multi:
+    - path: "./Setup.hs"
+      config:
+        cradle:
+          direct:
+            arguments: ["Setup.hs"]
+    - path: "./src"
+      config:
+        cradle:
+          cabal:
+            component: "lib:jbeam-edit"
+    - path: "./app"
+      config:
+        cradle:
+          cabal:
+            component: "exe:jbeam-edit-exe"
+    - path: "./test"
+      config:
+        cradle:
+          cabal:
+            component: "test:jbeam-edit-test"

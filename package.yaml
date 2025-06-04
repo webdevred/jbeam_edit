@@ -27,6 +27,7 @@ dependencies:
 - megaparsec
 - text
 - scientific
+- foldable1-classes-compat
 
 default-extensions:
 - OverloadedStrings
@@ -69,3 +70,5 @@ tests:
     - jbeam-edit
     - hspec
     - hspec-megaparsec
+    build-tools:
+    - hspec-discover
