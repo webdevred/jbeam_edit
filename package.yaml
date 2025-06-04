@@ -70,3 +70,5 @@ tests:
     - jbeam-edit
     - hspec
     - hspec-megaparsec
+    build-tools:
+    - hspec-discover
