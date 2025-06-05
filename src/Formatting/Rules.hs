@@ -53,7 +53,7 @@ instance Ord NodePatternSelector where
 
 newtype NodePattern
   = NodePattern (Seq NodePatternSelector)
-    deriving stock (Eq, Read, Show)
+  deriving stock (Eq, Read, Show)
 
 instance Ord NodePattern where
   compare (NodePattern a) (NodePattern b) =
