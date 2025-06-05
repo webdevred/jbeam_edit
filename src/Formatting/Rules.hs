@@ -66,8 +66,7 @@ instance Ord NodePattern where
       c -> c
 
 instance Show NodePattern where
-  show (NodePattern (b :<| bs)) = show b <> show (NodePattern bs)
-  show (NodePattern Empty) = ""
+  show (NodePattern ps) = concatMap show ps
 
 data PropertyKey a where
   NoComplexNewLine :: PropertyKey Bool

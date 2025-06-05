@@ -31,8 +31,7 @@ newtype NodePath
   = NodePath (Seq NodeSelector)
 
 instance Show NodePath where
-  show (NodePath (b :<| bs)) = show b <> show (NodePath bs)
-  show (NodePath Empty) = ""
+  show (NodePath ps) = concatMap show ps
 
 instance IsList NodePath where
   type Item NodePath = NodeSelector

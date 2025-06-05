@@ -28,8 +28,7 @@ newtype NodeCursor
   = NodeCursor (Seq NodeBreadcrumb)
 
 instance Show NodeCursor where
-  show (NodeCursor (b :<| bs)) = show b <> show (NodeCursor bs)
-  show (NodeCursor Empty) = ""
+  show (NodeCursor bs) = concatMap show bs
 
 newCursor :: NodeCursor
 newCursor = NodeCursor Seq.empty
