@@ -80,10 +80,12 @@ isVertice node = isJust (newVertice node)
 isNonVertice :: Node -> Bool
 isNonVertice node = isNothing (newVertice node)
 
+dropIndex :: Text -> Text
+dropIndex = T.dropWhileEnd isDigit
+
 hasVerticePrefix :: Text -> Node -> Bool
 hasVerticePrefix verticePrefix node =
-  let dropIndex = T.dropWhileEnd isDigit
-      verticeName = dropIndex . vName <$> newVertice node
+  let verticeName = dropIndex . vName <$> newVertice node
    in verticeName == Just (dropIndex verticePrefix)
 
 getFirstVerticeName :: [Node] -> Maybe Text
@@ -185,6 +187,17 @@ moveVertices vsToMove (VertexTree nodes restTree ttype) =
         , tType = ttype
         }
 
+updateVertexNames
+  :: Int -> [VertexTreeEntry] -> [VertexTreeEntry] -> [VertexTreeEntry]
+updateVertexNames index acc ((VertexEntry vertex) : rest) =
+  let newIndex = index + 1
+      vertexPrefix = dropIndex . vName $ vertex
+      vertexName = vertexPrefix <> T.pack (show index)
+      renamedVertex = VertexEntry (vertex {vName = vertexName})
+   in updateVertexNames newIndex (renamedVertex : acc) rest
+updateVertexNames index acc (entry : input) = updateVertexNames index (entry : acc) input
+updateVertexNames _ acc [] = acc
+
 updateVertices :: VertexTree -> VertexTree
 updateVertices vertexTree =
   let (vsToMove, vertexTree') = filterVerticesToMove vertexTree
@@ -234,7 +247,7 @@ sortVertices (VertexTree nodes maybeRest ttype) =
       processedGroups = map processGroup groups
       nodesSorted = concat processedGroups
    in VertexTree
-        { tNodes = NE.fromList nodesSorted
+        { tNodes = NE.fromList . reverse . updateVertexNames 0 [] $ nodesSorted
         , tRest = sortVertices <$> maybeRest
         , tType = ttype
         }

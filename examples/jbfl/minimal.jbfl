@@ -2,6 +2,7 @@
     PadDecimals: 3;
     PadAmount: 6;
 }
+
 .*.nodes[*][0] {
     PadAmount: 8;
 }
