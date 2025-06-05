@@ -5,7 +5,7 @@ module Transformation (
 import Core.Node
 import Data.Char (isDigit)
 import Data.Function (on)
-import Data.List (partition)
+import Data.List (partition, sortOn)
 import Data.List.NonEmpty (NonEmpty, toList)
 import Data.Maybe (fromJust, isJust, isNothing, mapMaybe)
 import Data.Scientific (Scientific)
@@ -30,6 +30,7 @@ data VertexTreeType
 
 data VertexTreeEntry
   = VertexEntry Vertex
+  | CommentEntry Node
   | MetaEntry Node
   | HeaderEntry Node
   deriving (Show)
@@ -46,6 +47,12 @@ data Vertex = Vertex
   , vX :: Scientific
   , vY :: Scientific
   , vZ :: Scientific
+  }
+  deriving (Show)
+
+data CommentGroup = CommentGroup
+  { cComments :: [VertexTreeEntry]
+  , cVertex :: Vertex
   }
   deriving (Show)
 
@@ -170,7 +177,39 @@ moveVertices vsToMove (VertexTree nodes restTree ttype) =
 updateVertices :: VertexTree -> VertexTree
 updateVertices vertexTree =
   let (vsToMove, vertexTree') = filterVerticesToMove vertexTree
-   in moveVertices vsToMove (fromJust vertexTree')
+   in sortVertices . moveVertices vsToMove $ fromJust vertexTree'
+
+entryIsNonVertice :: VertexTreeEntry -> Bool
+entryIsNonVertice (VertexEntry _) = False
+entryIsNonVertice _ = True
+
+groupVertexWithLeadingComments :: [VertexTreeEntry] -> [CommentGroup]
+groupVertexWithLeadingComments = go []
+  where
+    go _ [] = []
+    go acc (entry : rest) =
+      case entry of
+        CommentEntry _ -> go (acc ++ [entry]) rest
+        VertexEntry v -> CommentGroup {cComments = acc, cVertex = v} : go [] rest
+        _ -> go [] rest
+
+sortCommentGroups :: [CommentGroup] -> [CommentGroup]
+sortCommentGroups = sortOn (\cg -> (vZ (cVertex cg), vY (cVertex cg)))
+
+ungroupCommentGroups :: [CommentGroup] -> [VertexTreeEntry]
+ungroupCommentGroups = concatMap (\cg -> cComments cg ++ [VertexEntry (cVertex cg)])
+
+sortVertices :: VertexTree -> VertexTree
+sortVertices (VertexTree nodes maybeRest ttype) =
+  let (metaNodes, vertexAndComments) = NE.span entryIsNonVertice nodes
+      commentGroups = groupVertexWithLeadingComments vertexAndComments
+      sortedGroups = sortCommentGroups commentGroups
+      sortedEntries = ungroupCommentGroups sortedGroups
+   in VertexTree
+        { tNodes = NE.fromList (metaNodes <> sortedEntries)
+        , tRest = sortVertices <$> maybeRest
+        , tType = ttype
+        }
 
 verticeQuery :: NP.NodePath
 verticeQuery = fromList [NP.ObjectIndex 0, NP.ObjectKey "nodes"]
@@ -202,6 +241,7 @@ vertexTreeToNodeVector (VertexTree {tNodes = nodes, tRest = maybeOtherTree}) =
       otherNodes = maybe V.empty vertexTreeToNodeVector maybeOtherTree
       vertexEntryToNode entry =
         case entry of
+          (CommentEntry node) -> node
           (HeaderEntry node) -> node
           (MetaEntry node) -> node
           (VertexEntry vertex) ->
