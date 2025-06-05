@@ -224,16 +224,6 @@ moveVertices treeTypes@(vtype : otherTreeTypes) templVertexTree (VertexTree meta
               templVertexTree
               (VertexTree metas vertices Nothing ttype)
 
-updateVertexNames
-  :: Int -> VertexTreeEntry -> (Int, VertexTreeEntry)
-updateVertexNames index (VertexEntry vertex) =
-  let newIndex = index + 1
-      vertexPrefix = dropIndex . vName $ vertex
-      vertexName = vertexPrefix <> T.pack (show index)
-      renamedVertex = VertexEntry (vertex {vName = vertexName})
-   in (newIndex, renamedVertex)
-updateVertexNames index entry = (index, entry)
-
 entryIsNonVertice :: VertexTreeEntry -> Bool
 entryIsNonVertice (VertexEntry _) = False
 entryIsNonVertice _ = True
@@ -254,6 +244,16 @@ getVertexTreeGlobals (VertexTree metas vertices restTree ttype) =
         Nothing -> subMetas
 
 mergeVertexTree = undefined
+
+updateVertexNames
+  :: Int -> VertexTreeEntry -> (Int, VertexTreeEntry)
+updateVertexNames index (VertexEntry vertex) =
+  let newIndex = index + 1
+      vertexPrefix = dropIndex . vName $ vertex
+      vertexName = vertexPrefix <> T.pack (show index)
+      renamedVertex = VertexEntry (vertex {vName = vertexName})
+   in (newIndex, renamedVertex)
+updateVertexNames index entry = (index, entry)
 
 updateVertices :: VertexTree -> VertexTree
 updateVertices vertexTree =
