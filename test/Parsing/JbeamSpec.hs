@@ -38,10 +38,13 @@ nullSpec :: [(String, Node)]
 nullSpec = [("null", Null)]
 
 multilineCommentSpec :: [(String, Node)]
-multilineCommentSpec = [("/* test */", Comment (InternalComment {cText = "test", cMultiline = True}))]
+multilineCommentSpec =
+  [("/* test */", Comment (InternalComment {cText = "test", cMultiline = True}))]
 
 singlelineCommentSpec :: [(String, Node)]
-singlelineCommentSpec = [("// test \n", Comment  (InternalComment {cText = "test", cMultiline = False}))]
+singlelineCommentSpec =
+  [ ("// test \n", Comment (InternalComment {cText = "test", cMultiline = False}))
+  ]
 
 arraySpec :: [(String, Node)]
 arraySpec =
