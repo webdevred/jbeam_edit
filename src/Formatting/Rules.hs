@@ -39,7 +39,8 @@ import Data.Text qualified as T
 data NodePatternSelector
   = AnyKey
   | AnyIndex
-  | Selector NodeSelector deriving stock Eq
+  | Selector NodeSelector
+  deriving stock (Eq)
 
 instance Ord NodePatternSelector where
   compare a b = compare (rank a) (rank b)
