@@ -7,7 +7,12 @@ import Data.Char (isDigit)
 import Data.Function (on)
 import Data.List (partition, sortOn)
 import Data.List.NonEmpty (NonEmpty, toList)
-import Data.Maybe (fromJust, isJust, isNothing, mapMaybe)
+import Data.Maybe (
+  fromJust,
+  isJust,
+  isNothing,
+  mapMaybe,
+ )
 import Data.Scientific (Scientific)
 import Data.Sequence (Seq (..))
 import Data.Text (Text)
@@ -47,6 +52,7 @@ data Vertex = Vertex
   , vX :: Scientific
   , vY :: Scientific
   , vZ :: Scientific
+  , vMeta :: Maybe Object
   }
   deriving (Show)
 
@@ -59,8 +65,10 @@ data CommentGroup = CommentGroup
 newVertice :: Node -> Maybe Vertex
 newVertice (Array ns) = f (V.toList ns)
   where
+    f [String name, Number x, Number y, Number z, Object m] =
+      Just (Vertex {vName = name, vX = x, vY = y, vZ = z, vMeta = Just m})
     f [String name, Number x, Number y, Number z] =
-      Just (Vertex {vName = name, vX = x, vY = y, vZ = z})
+      Just (Vertex {vName = name, vX = x, vY = y, vZ = z, vMeta = Nothing})
     f _ = Nothing
 newVertice _ = Nothing
 
@@ -249,7 +257,8 @@ vertexTreeToNodeVector (VertexTree {tNodes = nodes, tRest = maybeOtherTree}) =
                 x = Number . vX $ vertex
                 y = Number . vY $ vertex
                 z = Number . vZ $ vertex
-             in Array . fromList $ [name, x, y, z]
+                possiblyMeta = maybe [] (pure . Object) (vMeta vertex)
+             in Array . fromList $ [name, x, y, z] ++ possiblyMeta
    in currentNodes <> otherNodes
 
 updateVerticesInNode :: NP.NodePath -> VertexTree -> Node -> Node
