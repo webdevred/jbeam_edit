@@ -16,6 +16,8 @@ import Parsing.Jbeam (parseNodes)
 import System.Directory (copyFile)
 import System.Environment (getArgs)
 
+import Core.NodeCursor qualified as NC
+
 #ifdef ENABLE_TRANSFORMATION
 import Transformation (transform)
 #endif
@@ -58,12 +60,13 @@ processNodes outFile nodes formattingConfig =
     . encodeUtf8
     . TL.fromStrict
     . formatNode formattingConfig newCursor
-    $ applyTransform nodes
+    . applyTransform newCursor
+    $ nodes
 
 #ifdef ENABLE_TRANSFORMATION
-applyTransform :: Node -> Node
+applyTransform :: NC.NodeCursor -> Node -> Node
 applyTransform = transform
 #else
-applyTransform :: Node -> Node
-applyTransform = id
+applyTransform :: NC.NodeCursor -> Node -> Node
+applyTransform _ node = node
 #endif
