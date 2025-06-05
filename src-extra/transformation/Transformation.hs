@@ -7,6 +7,7 @@ import Data.Char (isDigit)
 import Data.Function (on)
 import Data.List (partition, sortOn)
 import Data.List.NonEmpty (NonEmpty, toList)
+import Data.Map (Map)
 import Data.Maybe (
   fromJust,
   isJust,
@@ -19,6 +20,7 @@ import Data.Text (Text)
 import Data.Vector (Vector, (!), (!?), (//))
 import GHC.IsList (fromList)
 
+import Core.NodeCursor qualified as NC
 import Core.NodePath qualified as NP
 import Data.Foldable qualified as F (foldr, maximumBy)
 import Data.List.NonEmpty qualified as NE
@@ -297,10 +299,28 @@ updateVerticesInNode (NP.NodePath (k@(NP.ObjectKey _) :<| qrest)) g (Object chil
 updateVerticesInNode query g (ObjectKey (k, v)) = ObjectKey (k, updateVerticesInNode query g v)
 updateVerticesInNode _ _ a = a
 
-transform :: Node -> Node
-transform topNode =
+findAndUpdateTextInNode :: Map Text Text -> NC.NodeCursor -> Node -> Node
+findAndUpdateTextInNode m cursor node =
+  case node of
+    Array arr
+      | NC.comparePathAndCursor verticeQuery cursor -> Array arr
+      | otherwise -> Array $ V.imap applyBreadcrumbAndUpdateText arr
+    Object obj -> Object $ V.imap applyBreadcrumbAndUpdateText obj
+    ObjectKey (key, value) ->
+      ObjectKey
+        (key, NC.applyObjCrumb key cursor (findAndUpdateTextInNode m) value)
+    String s -> String $ M.findWithDefault s s m
+    _ -> node
+  where
+    applyBreadcrumbAndUpdateText index =
+      NC.applyCrumb (NC.ArrayIndex index) cursor (findAndUpdateTextInNode m)
+
+transform :: NC.NodeCursor -> Node -> Node
+transform cursor topNode =
   let vertexTree = getVertexTree verticeQuery topNode
       vertexNames = getVertexNamesInTree vertexTree
       updatedVertexTree = updateVertices vertexTree
       updatedVertexNames = getVertexNamesInTree updatedVertexTree
-   in error $ show updatedVertexTree
+      updateMap = M.fromList $ on zip M.elems vertexNames updatedVertexNames
+   in findAndUpdateTextInNode updateMap cursor $
+        updateVerticesInNode verticeQuery updatedVertexTree topNode
