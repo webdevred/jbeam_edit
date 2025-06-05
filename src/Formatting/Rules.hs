@@ -55,7 +55,7 @@ instance Ord NodePatternSelector where
 
 newtype NodePattern
   = NodePattern (Seq NodePatternSelector)
-  deriving stock (Eq, Read, Show)
+    deriving stock (Eq, Read, Show)
 
 instance Ord NodePattern where
   compare (NodePattern a) (NodePattern b) =
@@ -223,8 +223,8 @@ sameBy f = go
 
 findPropertiesForCursor :: NC.NodeCursor -> RuleSet -> Rule
 findPropertiesForCursor cursor (RuleSet rs) =
-  case find patPointsToCursor (M.assocs rs) of
-    Just (_, m) -> m
-    Nothing -> M.empty
+  case filter patPointsToCursor (M.assocs rs) of
+    [] -> M.empty
+    ms -> M.unions (map snd ms)
   where
     patPointsToCursor (pat, _) = pat `comparePatternAndCursor` cursor
