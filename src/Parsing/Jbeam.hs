@@ -5,7 +5,7 @@ module Parsing.Jbeam (
 ) where
 
 import Control.Applicative (Alternative (..), optional, (<|>))
-import Core.Node (Node (..))
+import Core.Node (InternalComment (..), Node (..))
 import Data.Bifunctor (first)
 import Data.ByteString (ByteString)
 import Data.Functor (($>))
@@ -40,21 +40,25 @@ numberParser = do
       else
         L.scientific
 
-multilineCommentParser :: Parser Node
+multilineCommentParser :: Parser InternalComment
 multilineCommentParser =
   C.string "/*" >> parseComment (MP.manyTill B.asciiChar (B.string "*/"))
   where
-    parseComment = parseWord8s (MultilineComment . T.strip)
+    multilineComment text = InternalComment {cText = text, cMultiline = True}
+    parseComment = parseWord8s (multilineComment . T.strip)
 
-singlelineCommentParser :: Parser Node
+singlelineCommentParser :: Parser InternalComment
 singlelineCommentParser =
   C.string "//" *> parseComment (MP.some (MP.satisfy (charNotEqWord8 '\n')))
   where
-    parseComment = parseWord8s (SinglelineComment . T.strip)
+    singlelineComment text = InternalComment {cText = text, cMultiline = False}
+    parseComment = parseWord8s (singlelineComment . T.strip)
 
 commentParser :: Parser Node
 commentParser =
-  tryParsers [multilineCommentParser, singlelineCommentParser] <?> "comment"
+  MP.label
+    "comment"
+    (Comment <$> tryParsers [multilineCommentParser, singlelineCommentParser])
 
 nullParser :: Parser Node
 nullParser = C.string "null" $> Null
