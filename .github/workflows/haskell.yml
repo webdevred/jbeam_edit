@@ -36,6 +36,7 @@ jobs:
         uses: actions/cache@v4.2.3
         with:
           path: |
+            ~/.ghcup
             ~/.stack
             .stack-work
           key: ${{ runner.os }}-stack-${{ hashFiles('**/stack.yaml.lock', '**/package.yaml') }}
