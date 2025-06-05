@@ -4,6 +4,9 @@ module Core.Node (
   isNumberNode,
   isComplexNode,
   Node (..),
+  InternalComment (..),
+  Object,
+  Array,
 ) where
 
 import Data.Scientific (Scientific)
@@ -16,6 +19,12 @@ type ObjectKey = (Node, Node)
 
 type Array = Vector Node
 
+data InternalComment = InternalComment
+  { cText :: Text
+  , cMultiline :: Bool
+  }
+  deriving (Eq, Show)
+
 data Node
   = Array Array
   | Object Object
@@ -23,14 +32,12 @@ data Node
   | String Text
   | Number Scientific
   | Bool Bool
-  | SinglelineComment Text
-  | MultilineComment Text
+  | Comment InternalComment
   | Null
   deriving (Eq, Read, Show)
 
 isCommentNode :: Node -> Bool
-isCommentNode (MultilineComment _) = True
-isCommentNode (SinglelineComment _) = True
+isCommentNode (Comment _) = True
 isCommentNode _ = False
 
 isObjectNode :: Node -> Bool

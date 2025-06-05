@@ -4,7 +4,7 @@ module Formatting (
   RuleSet (..),
 ) where
 
-import Core.Node (Node (..), isCommentNode, isComplexNode)
+import Core.Node (InternalComment (..), Node (..), isCommentNode, isComplexNode)
 import Data.Bool (bool)
 import Data.Char (isSpace)
 import Data.Scientific (FPFormat (Fixed), formatScientific)
@@ -68,9 +68,12 @@ doFormatNode rs cursor nodes =
     complexChildren =
       any isComplexNode nodes && not (noComplexNewLine rs cursor)
 
+formatComment :: InternalComment -> Text
+formatComment (InternalComment {cMultiline = True, cText = c}) = T.concat ["/* ", c, " */"]
+formatComment (InternalComment {cMultiline = False, cText = c}) = "\n// " <> c
+
 formatScalarNode :: Node -> Text
-formatScalarNode (SinglelineComment c) = "\n// " <> c
-formatScalarNode (MultilineComment c) = T.concat ["/* ", c, " */"]
+formatScalarNode (Comment c) = formatComment c
 formatScalarNode (String s) = T.concat ["\"", s, "\""]
 formatScalarNode (Number n) = T.pack . formatScientific Fixed Nothing $ n
 formatScalarNode (Bool True) = "true"
