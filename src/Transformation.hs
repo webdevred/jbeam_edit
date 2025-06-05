@@ -9,7 +9,9 @@ import Data.List (partition)
 import Data.List.NonEmpty (NonEmpty, toList)
 import Data.Maybe (fromJust, isJust, isNothing, mapMaybe)
 import Data.Scientific (Scientific)
+import Data.Sequence (Seq (..))
 import Data.Text (Text)
+import Data.Vector (Vector, (!), (!?), (//))
 import GHC.IsList (fromList)
 
 import Core.NodePath qualified as NP
@@ -63,8 +65,9 @@ isNonVertice node = isNothing (newVertice node)
 
 hasVerticePrefix :: Text -> Node -> Bool
 hasVerticePrefix verticePrefix node =
-  let verticeName = vName <$> newVertice node
-   in verticeName == Just verticePrefix
+  let dropIndex = T.dropWhileEnd isDigit
+      verticeName = dropIndex . vName <$> newVertice node
+   in verticeName == Just (dropIndex verticePrefix)
 
 getFirstVerticeName :: [Node] -> Maybe Text
 getFirstVerticeName (node : _) = vName <$> newVertice node
@@ -111,9 +114,9 @@ nodesListToTree nodes =
             , tType = mostCommon $ NE.map (determineGroup . vX) vs
             }
 
-getVertexTree :: Node -> VertexTree
-getVertexTree topNode =
-  case NP.queryNodes verticeQuery topNode of
+getVertexTree :: NP.NodePath -> Node -> VertexTree
+getVertexTree np topNode =
+  case NP.queryNodes np topNode of
     Just node -> f node
     Nothing -> error ("could not find vertices at path " ++ show verticeQuery)
   where
@@ -189,9 +192,47 @@ getVertexNamesInTree vertexTree@(VertexTree {tNodes = vs}) =
           VertexTree {tRest = Nothing} -> M.empty
    in M.union (getVertexNames vs) restNames
 
+isObjectKeyEqual :: NP.NodeSelector -> Node -> Bool
+isObjectKeyEqual (NP.ObjectKey a) (ObjectKey (String b, _)) = a == b
+isObjectKeyEqual _ _ = False
+
+vertexTreeToNodeVector :: VertexTree -> Vector Node
+vertexTreeToNodeVector (VertexTree {tNodes = nodes, tRest = maybeOtherTree}) =
+  let currentNodes = V.fromList . NE.toList . NE.map vertexEntryToNode $ nodes
+      otherNodes = maybe V.empty vertexTreeToNodeVector maybeOtherTree
+      vertexEntryToNode entry =
+        case entry of
+          (HeaderEntry node) -> node
+          (MetaEntry node) -> node
+          (VertexEntry vertex) ->
+            let name = String . vName $ vertex
+                x = Number . vX $ vertex
+                y = Number . vY $ vertex
+                z = Number . vZ $ vertex
+             in Array . fromList $ [name, x, y, z]
+   in currentNodes <> otherNodes
+
+updateVerticesInNode :: NP.NodePath -> VertexTree -> Node -> Node
+updateVerticesInNode (NP.NodePath Empty) g (Array _) = Array (vertexTreeToNodeVector g)
+updateVerticesInNode (NP.NodePath ((NP.ArrayIndex i) :<| qrest)) g (Array children) =
+  let updateInNode nodeToUpdate =
+        children // [(i, updateVerticesInNode (NP.NodePath qrest) g nodeToUpdate)]
+   in Array $ maybe children updateInNode (children !? i)
+updateVerticesInNode (NP.NodePath ((NP.ObjectIndex i) :<| qrest)) g (Object children) =
+  let updateInNode _ =
+        children // [(i, updateVerticesInNode (NP.NodePath qrest) g (children ! i))]
+   in Object $ maybe children updateInNode (children !? i)
+updateVerticesInNode (NP.NodePath (k@(NP.ObjectKey _) :<| qrest)) g (Object children) =
+  let updateInNode i =
+        children // [(i, updateVerticesInNode (NP.NodePath qrest) g (children ! i))]
+   in Object . maybe children updateInNode $
+        V.findIndex (isObjectKeyEqual k) children
+updateVerticesInNode query g (ObjectKey (k, v)) = ObjectKey (k, updateVerticesInNode query g v)
+updateVerticesInNode _ _ a = a
+
 transform :: Node -> Node
 transform topNode =
-  let vertexTree = getVertexTree topNode
+  let vertexTree = getVertexTree verticeQuery topNode
       vertexNames = getVertexNamesInTree vertexTree
       updatedVertexTree = updateVertices vertexTree
       updatedVertexNames = getVertexNamesInTree updatedVertexTree
