@@ -89,8 +89,8 @@ formatNode rs cursor (Object o)
   | V.null o = "{}"
   | otherwise = T.concat ["{", doFormatNode rs cursor o, "}"]
 formatNode rs cursor (ObjectKey (k, v)) =
-  T.concat
-    [formatNode rs cursor k, " : ", NC.applyObjCrumb k cursor (formatNode rs) v]
+  let formatWithKeyContext = NC.applyObjCrumb k cursor (formatNode rs)
+  in T.concat [formatWithKeyContext k, " : ", formatWithKeyContext v]
 formatNode rs cursor n =
   let ps = findPropertiesForCursor cursor rs
    in applyPadLogic formatScalarNode ps n
