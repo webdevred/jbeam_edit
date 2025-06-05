@@ -41,7 +41,7 @@ data NodePatternSelector
   = AnyObjectKey
   | AnyArrayIndex
   | Selector NodeSelector
-  deriving (Eq, Read, Show)
+  deriving stock (Eq, Read, Show)
 
 instance Ord NodePatternSelector where
   compare a b = compare (rank a) (rank b)
