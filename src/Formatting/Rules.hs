@@ -25,20 +25,29 @@ import Core.NodePath (NodeSelector (..))
 import Data.Function (on)
 import Data.List (find, intercalate)
 import Data.Map (Map)
+import Data.Ord (Down (..))
 import Data.Sequence (Seq (..))
 import Data.Text (Text)
 import Data.Type.Equality ((:~:) (Refl))
 
 import Core.NodeCursor qualified as NC
 import Data.Map qualified as M
-import Data.Sequence qualified as Seq (null)
+import Data.Sequence qualified as Seq
 import Data.Text qualified as T
 
 data NodePatternSelector
   = AnyKey
   | AnyIndex
   | Selector NodeSelector
-  deriving (Eq, Ord)
+  deriving (Eq)
+
+instance Ord NodePatternSelector where
+  compare a b = compare (rank a) (rank b)
+    where
+      rank :: NodePatternSelector -> (Int, Maybe NodeSelector)
+      rank AnyIndex = (2, Nothing)
+      rank AnyKey = (1, Nothing)
+      rank (Selector s) = (0, Just s)
 
 instance Show NodePatternSelector where
   show (Selector ps) = show ps
@@ -47,7 +56,13 @@ instance Show NodePatternSelector where
 
 newtype NodePattern
   = NodePattern (Seq NodePatternSelector)
-  deriving (Eq, Ord)
+  deriving (Eq)
+
+instance Ord NodePattern where
+  compare (NodePattern a) (NodePattern b) =
+    case on compare (Down . Seq.length) a b of
+      EQ -> compare a b
+      c -> c
 
 instance Show NodePattern where
   show (NodePattern (b :<| bs)) = show b <> show (NodePattern bs)
@@ -177,8 +192,8 @@ sameBy f = go
 
 findPropertiesForCursor :: NC.NodeCursor -> RuleSet -> Rule
 findPropertiesForCursor cursor (RuleSet rs) =
-  case find patPointsToCursor (M.assocs rs) of
-    Just (_, m) -> m
-    Nothing -> M.empty
+  case filter patPointsToCursor (M.assocs rs) of
+    [] -> M.empty
+    ms -> M.unions (map snd ms)
   where
     patPointsToCursor (pat, _) = pat `comparePatternAndCursor` cursor
