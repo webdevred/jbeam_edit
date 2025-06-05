@@ -109,6 +109,7 @@ toVertexTreeEntry node =
     Just vertice -> VertexEntry vertice
     Nothing
       | isObjectNode node -> MetaEntry node
+      | isCommentNode node -> CommentEntry node
       | otherwise -> HeaderEntry node
 
 mostCommon :: NonEmpty VertexTreeType -> VertexTreeType
@@ -187,19 +188,29 @@ updateVertices vertexTree =
   let (vsToMove, vertexTree') = filterVerticesToMove vertexTree
    in sortVertices . moveVertices vsToMove $ fromJust vertexTree'
 
-entryIsNonVertice :: VertexTreeEntry -> Bool
-entryIsNonVertice (VertexEntry _) = False
-entryIsNonVertice _ = True
+groupByMeta :: [VertexTreeEntry] -> [[VertexTreeEntry]]
+groupByMeta [] = []
+groupByMeta (x : xs)
+  | isMetaOrHeader x =
+      let (grp, rest) = break isMetaOrHeader xs
+       in (x : grp) : groupByMeta rest
+  | otherwise = case groupByMeta xs of
+      [] -> [[x]]
+      (g : gs) -> (x : g) : gs
+
+isMetaOrHeader :: VertexTreeEntry -> Bool
+isMetaOrHeader (MetaEntry _) = True
+isMetaOrHeader (HeaderEntry _) = True
+isMetaOrHeader _ = False
 
 groupVertexWithLeadingComments :: [VertexTreeEntry] -> [CommentGroup]
 groupVertexWithLeadingComments = go []
   where
     go _ [] = []
-    go acc (entry : rest) =
-      case entry of
-        CommentEntry _ -> go (acc ++ [entry]) rest
-        VertexEntry v -> CommentGroup {cComments = acc, cVertex = v} : go [] rest
-        _ -> go [] rest
+    go acc (entry : rest) = case entry of
+      CommentEntry _ -> go (acc ++ [entry]) rest
+      VertexEntry v -> CommentGroup {cComments = acc, cVertex = v} : go [] rest
+      _ -> go [] rest
 
 sortCommentGroups :: [CommentGroup] -> [CommentGroup]
 sortCommentGroups = sortOn (\cg -> (vZ (cVertex cg), vY (cVertex cg)))
@@ -207,14 +218,21 @@ sortCommentGroups = sortOn (\cg -> (vZ (cVertex cg), vY (cVertex cg)))
 ungroupCommentGroups :: [CommentGroup] -> [VertexTreeEntry]
 ungroupCommentGroups = concatMap (\cg -> cComments cg ++ [VertexEntry (cVertex cg)])
 
+processGroup :: [VertexTreeEntry] -> [VertexTreeEntry]
+processGroup [] = []
+processGroup (metaOrHeader : rest) =
+  let commentGroups = groupVertexWithLeadingComments rest
+      sortedGroups = sortCommentGroups commentGroups
+      entriesSorted = ungroupCommentGroups sortedGroups
+   in metaOrHeader : entriesSorted
+
 sortVertices :: VertexTree -> VertexTree
 sortVertices (VertexTree nodes maybeRest ttype) =
-  let (metaNodes, vertexAndComments) = NE.span entryIsNonVertice nodes
-      commentGroups = groupVertexWithLeadingComments vertexAndComments
-      sortedGroups = sortCommentGroups commentGroups
-      sortedEntries = ungroupCommentGroups sortedGroups
+  let groups = groupByMeta (NE.toList nodes)
+      processedGroups = map processGroup groups
+      nodesSorted = concat processedGroups
    in VertexTree
-        { tNodes = NE.fromList (metaNodes <> sortedEntries)
+        { tNodes = NE.fromList nodesSorted
         , tRest = sortVertices <$> maybeRest
         , tType = ttype
         }
