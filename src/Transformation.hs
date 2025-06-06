@@ -2,15 +2,18 @@ module Transformation (
   transform,
 ) where
 
-import Control.Arrow ((&&&))
-import Control.Monad (guard)
-import Core.Node (Node (..), isCommentNode)
+import Core.Node
 import Data.Char (isDigit)
-import Data.Foldable1 (maximumBy)
 import Data.Function (on)
-import Data.List.NonEmpty (NonEmpty, (<|))
+import Data.List (partition, sortOn)
+import Data.List.NonEmpty (NonEmpty, toList)
 import Data.Map (Map)
-import Data.Maybe (fromJust, fromMaybe, isJust, isNothing)
+import Data.Maybe (
+  fromJust,
+  isJust,
+  isNothing,
+  mapMaybe,
+ )
 import Data.Scientific (Scientific)
 import Data.Sequence (Seq (..))
 import Data.Text (Text)
@@ -19,35 +22,30 @@ import GHC.IsList (fromList)
 
 import Core.NodeCursor qualified as NC
 import Core.NodePath qualified as NP
+import Data.Foldable qualified as F (foldr, maximumBy)
 import Data.List.NonEmpty qualified as NE
 import Data.Map qualified as M
 import Data.Text qualified as T
 import Data.Vector qualified as V
 
-data VertexGroupType
-  = LeftGroup
-  | MiddleGroup
-  | RightGroup
+data VertexTreeType
+  = LeftTree
+  | MiddleTree
+  | RightTree
+  | SupportTree
   deriving (Eq, Ord, Show)
 
-type VertexIndex = Int
-
-type VertexGroupMap = Map VertexGroupType VertexGroup
-
-type UpdateMap = Map (Scientific, Scientific, Scientific) Text
-
-data VertexBlock = VertexBlock
-  { bPreNodes :: [Node]
-  , bVertices :: Maybe (NonEmpty Vertex)
-  }
+data VertexTreeEntry
+  = VertexEntry Vertex
+  | CommentEntry Node
+  | MetaEntry Node
+  | HeaderEntry Node
   deriving (Show)
 
-data VertexGroup = VertexGroup
-  { gName :: Text
-  , gStartIndex :: VertexIndex
-  , gSize :: VertexIndex
-  , gVertices :: Maybe (NonEmpty Vertex)
-  , gFresh :: Bool
+data VertexTree = VertexTree
+  { tNodes :: NonEmpty VertexTreeEntry
+  , tRest :: Maybe VertexTree
+  , tType :: VertexTreeType
   }
   deriving (Show)
 
@@ -56,117 +54,263 @@ data Vertex = Vertex
   , vX :: Scientific
   , vY :: Scientific
   , vZ :: Scientific
+  , vMeta :: Maybe Object
   }
   deriving (Show)
 
-verticeQuery :: NP.NodePath
-verticeQuery = fromList [NP.ObjectIndex 0, NP.ObjectKey "nodes"]
+data CommentGroup = CommentGroup
+  { cComments :: [VertexTreeEntry]
+  , cVertex :: Vertex
+  }
+  deriving (Show)
+
+newVertice :: Node -> Maybe Vertex
+newVertice (Array ns) = f (V.toList ns)
+  where
+    f [String name, Number x, Number y, Number z, Object m] =
+      Just (Vertex {vName = name, vX = x, vY = y, vZ = z, vMeta = Just m})
+    f [String name, Number x, Number y, Number z] =
+      Just (Vertex {vName = name, vX = x, vY = y, vZ = z, vMeta = Nothing})
+    f _ = Nothing
+newVertice _ = Nothing
+
+isVertice :: Node -> Bool
+isVertice node = isJust (newVertice node)
+
+isNonVertice :: Node -> Bool
+isNonVertice node = isNothing (newVertice node)
 
 dropIndex :: Text -> Text
 dropIndex = T.dropWhileEnd isDigit
 
-groupName :: Node -> Maybe Text
-groupName n =
-  case NP.select (NP.ArrayIndex 0) n of
-    Just (String s) -> Just $ dropIndex s
-    _ -> Nothing
+hasVerticePrefix :: Text -> Node -> Bool
+hasVerticePrefix verticePrefix node =
+  let verticeName = dropIndex . vName <$> newVertice node
+   in verticeName == Just (dropIndex verticePrefix)
 
-newVertex :: Node -> Maybe Vertex
-newVertex (Array n) = f . V.toList $ n
+getFirstVerticeName :: [Node] -> Maybe Text
+getFirstVerticeName (node : _) = vName <$> newVertice node
+getFirstVerticeName _ = Nothing
+
+breakVertices :: Maybe Text -> [Node] -> ([Node], [Node])
+breakVertices Nothing = error "expected at least one Vertex"
+breakVertices (Just verticePrefix) = go []
   where
-    f [String name, Number x, Number y, Number z] =
-      guard (isDigit $ T.last name)
-        >> Just (Vertex {vName = name, vX = x, vY = y, vZ = z})
-    f _ = Nothing
-newVertex _ = Nothing
+    go acc [] = (reverse acc, [])
+    go acc (node : rest)
+      | isNonVertice node = go (node : acc) rest
+      | hasVerticePrefix verticePrefix node = go (node : acc) rest
+      | isVertice node =
+          let (metaBefore, currentTree) = span isNonVertice acc
+           in if null currentTree
+                then ([node], reverse metaBefore ++ rest)
+                else (reverse currentTree, reverse metaBefore ++ (node : rest))
+      | otherwise = go (node : acc) rest
 
-determineGroup :: Scientific -> VertexGroupType
+toVertexTreeEntry :: Node -> VertexTreeEntry
+toVertexTreeEntry node =
+  case newVertice node of
+    Just vertice -> VertexEntry vertice
+    Nothing
+      | isObjectNode node -> MetaEntry node
+      | isCommentNode node -> CommentEntry node
+      | otherwise -> HeaderEntry node
+
+mostCommon :: NonEmpty VertexTreeType -> VertexTreeType
+mostCommon = NE.head . F.maximumBy (compare `on` length) . NE.group1 . NE.sort
+
+nodesListToTree :: NonEmpty Node -> VertexTree
+nodesListToTree nodes =
+  let (nonVertices, rest) = NE.span isNonVertice nodes
+      verticePrefix = T.dropWhileEnd isDigit <$> getFirstVerticeName rest
+      (vertexNodes, rest') = breakVertices verticePrefix rest
+      vertices = mapMaybe newVertice vertexNodes
+   in case NE.nonEmpty vertices of
+        Nothing -> error "expected at least one Vertex"
+        Just vs ->
+          VertexTree
+            { tNodes = NE.fromList (map toVertexTreeEntry (nonVertices ++ vertexNodes))
+            , tRest = nodesListToTree <$> NE.nonEmpty rest'
+            , tType = mostCommon $ NE.map (determineGroup . vX) vs
+            }
+
+getVertexTree :: NP.NodePath -> Node -> VertexTree
+getVertexTree np topNode =
+  case NP.queryNodes np topNode of
+    Just node -> f node
+    Nothing -> error ("could not find vertices at path " ++ show verticeQuery)
+  where
+    f node =
+      case node of
+        Array ns
+          | null ns -> error $ show node
+          | otherwise -> nodesListToTree . NE.fromList . V.toList $ ns
+        bad -> error $ show bad
+
+vertexInCorrectTree :: VertexTreeType -> Vertex -> Bool
+vertexInCorrectTree ttype vertex =
+  ttype == determineGroup (vX vertex)
+
+determineGroup :: Scientific -> VertexTreeType
 determineGroup x
-  | x < -0.09 = RightGroup
-  | x < 0.09 = MiddleGroup
-  | otherwise = LeftGroup
+  | x < -0.09 = RightTree
+  | x < 0.09 = MiddleTree
+  | otherwise = LeftTree
 
-mostCommon :: NonEmpty VertexGroupType -> VertexGroupType
-mostCommon = NE.head . maximumBy (compare `on` length) . NE.group1 . NE.sort
+filterVerticesToMove :: VertexTree -> ([Vertex], Maybe VertexTree)
+filterVerticesToMove (VertexTree entries maybeRest ttype) =
+  let (removedHere, keptHere) = F.foldr step ([], []) (toList entries)
+      step entry (remAcc, keepAcc) = case entry of
+        VertexEntry v ->
+          if vertexInCorrectTree ttype v
+            then (remAcc, entry : keepAcc)
+            else (v : remAcc, keepAcc)
+        _ -> (remAcc, entry : keepAcc)
+      (removedRest, newRest) = case maybeRest of
+        Nothing -> ([], Nothing)
+        Just subTree ->
+          let (rs, newSub) = filterVerticesToMove subTree
+           in (rs, newSub)
+      allRemoved = removedHere ++ removedRest
+   in case NE.nonEmpty keptHere of
+        Nothing -> (allRemoved, newRest)
+        Just kept -> (allRemoved, Just (VertexTree kept newRest ttype))
 
-setGroupAcc :: VertexGroup -> VertexGroupMap -> VertexGroupMap
-setGroupAcc g acc =
-  maybe acc (\vs -> M.insert (typeForVerticeList vs) g acc) (gVertices g)
+moveVertices :: [Vertex] -> VertexTree -> VertexTree
+moveVertices vsToMove (VertexTree nodes restTree ttype) =
+  let sameTreeType vertex = determineGroup (vX vertex) == ttype
+      (toThisGroup, toOtherGroup) = partition sameTreeType vsToMove
+      vertexEntries = map VertexEntry toThisGroup
+   in VertexTree
+        { tNodes = nodes `NE.appendList` vertexEntries
+        , tRest = moveVertices toOtherGroup <$> restTree
+        , tType = ttype
+        }
+
+updateVertexNames
+  :: Int -> [VertexTreeEntry] -> [VertexTreeEntry] -> [VertexTreeEntry]
+updateVertexNames index acc ((VertexEntry vertex) : rest) =
+  let newIndex = index + 1
+      vertexPrefix = dropIndex . vName $ vertex
+      vertexName = vertexPrefix <> T.pack (show index)
+      renamedVertex = VertexEntry (vertex {vName = vertexName})
+   in updateVertexNames newIndex (renamedVertex : acc) rest
+updateVertexNames index acc (entry : input) = updateVertexNames index (entry : acc) input
+updateVertexNames _ acc [] = acc
+
+updateVertices :: VertexTree -> VertexTree
+updateVertices vertexTree =
+  let (vsToMove, vertexTree') = filterVerticesToMove vertexTree
+   in sortVertices . moveVertices vsToMove $ fromJust vertexTree'
+
+groupByMeta :: [VertexTreeEntry] -> [[VertexTreeEntry]]
+groupByMeta [] = []
+groupByMeta (x : xs)
+  | isMetaOrHeader x =
+      let (grp, rest) = break isMetaOrHeader xs
+       in (x : grp) : groupByMeta rest
+  | otherwise = case groupByMeta xs of
+      [] -> [[x]]
+      (g : gs) -> (x : g) : gs
+
+isMetaOrHeader :: VertexTreeEntry -> Bool
+isMetaOrHeader (MetaEntry _) = True
+isMetaOrHeader (HeaderEntry _) = True
+isMetaOrHeader _ = False
+
+groupVertexWithLeadingComments :: [VertexTreeEntry] -> [CommentGroup]
+groupVertexWithLeadingComments = go []
   where
-    typeForVerticeList = mostCommon . NE.map (determineGroup . vX)
+    go _ [] = []
+    go acc (entry : rest) = case entry of
+      CommentEntry _ -> go (acc ++ [entry]) rest
+      VertexEntry v -> CommentGroup {cComments = acc, cVertex = v} : go [] rest
+      _ -> go [] rest
 
-newVertexGroup :: VertexIndex -> Text -> Vertex -> VertexGroup
-newVertexGroup i name vertice =
-  VertexGroup
-    { gFresh = False
-    , gStartIndex = i
-    , gSize = 1
-    , gName = dropIndex name
-    , gVertices = Just $ NE.singleton vertice
-    }
+sortCommentGroups :: [CommentGroup] -> [CommentGroup]
+sortCommentGroups = sortOn (\cg -> (vZ (cVertex cg), vY (cVertex cg)))
 
-nodeBelongsToGroup :: VertexGroup -> Node -> Bool
-nodeBelongsToGroup (VertexGroup {gName = name}) n = Just name == groupName n
+ungroupCommentGroups :: [CommentGroup] -> [VertexTreeEntry]
+ungroupCommentGroups = concatMap (\cg -> cComments cg ++ [VertexEntry (cVertex cg)])
 
-validateNodeVertices
-  :: ([VertexGroupType], Maybe (NonEmpty Scientific, Text)) -> [Node] -> Bool
-validateNodeVertices state (n : rest) =
-  case state of
-    (groups, Nothing)
-      | isVertex ->
-          validateNodeVertices
-            (groups, Just (NE.singleton xCord, groupName'))
-            rest
-      | otherwise -> validateNodeVertices (groups, Nothing) rest
-    (groups, Just (xs, currentGroupName))
-      | isNeitherVertexNorComment && typeForXCordList xs `elem` groups -> False
-      | isNeitherVertexNorComment ->
-          validateNodeVertices (typeForXCordList xs : groups, Nothing) rest
-      | isCommentNode n ->
-          validateNodeVertices (groups, Just (xs, currentGroupName)) rest
-      | Just currentGroupName == groupName n ->
-          validateNodeVertices (groups, Just (xCord <| xs, currentGroupName)) rest
-      | otherwise -> False
-  where
-    typeForXCordList = mostCommon . NE.map determineGroup
-    xCord = vX (fromJust vertex)
-    groupName' = dropIndex . vName $ fromJust vertex
-    vertex = newVertex n
-    isVertex = isJust vertex
-    isNeitherVertexNorComment = isNothing vertex && not (isCommentNode n)
-validateNodeVertices _ [] = True
+processGroup :: [VertexTreeEntry] -> [VertexTreeEntry]
+processGroup [] = []
+processGroup (metaOrHeader : rest) =
+  let commentGroups = groupVertexWithLeadingComments rest
+      sortedGroups = sortCommentGroups commentGroups
+      entriesSorted = ungroupCommentGroups sortedGroups
+   in metaOrHeader : entriesSorted
 
-nodeToVertexGroupList :: [VertexGroup] -> Int -> Node -> [VertexGroup]
-nodeToVertexGroupList acc i n =
-  case newVertex n of
-    Just vertice ->
-      case acc of
-        [] -> [newVertexGroup i (vName vertice) vertice]
-        (first : accRest) ->
-          if nodeBelongsToGroup first n
-            then
-              first
-                { gSize = i - gStartIndex first
-                , gVertices = (vertice <|) <$> gVertices first
-                }
-                : accRest
-            else newVertexGroup i (vName vertice) vertice : acc
-    Nothing -> acc
+sortVertices :: VertexTree -> VertexTree
+sortVertices (VertexTree nodes maybeRest ttype) =
+  let groups = groupByMeta (NE.toList nodes)
+      processedGroups = map processGroup groups
+      nodesSorted = concat processedGroups
+   in VertexTree
+        { tNodes = NE.fromList . reverse . updateVertexNames 0 [] $ nodesSorted
+        , tRest = sortVertices <$> maybeRest
+        , tType = ttype
+        }
 
-getVertexGroups :: NP.NodePath -> Node -> VertexGroupMap
-getVertexGroups q n =
-  case NP.queryNodes q n of
-    Just (Array n')
-      | validateNodeVertices ([], Nothing) (V.toList n') ->
-          foldr setGroupAcc M.empty . V.ifoldl' nodeToVertexGroupList [] $ n'
-      | otherwise ->
-          error
-            "the nodes needs to restructured but restructuring is not implemented"
-    _ -> error "cannot find node with vertices"
+verticeQuery :: NP.NodePath
+verticeQuery = fromList [NP.ObjectIndex 0, NP.ObjectKey "nodes"]
+
+possiblyVertice :: VertexTreeEntry -> Maybe Vertex
+possiblyVertice (VertexEntry v) = Just v
+possiblyVertice _ = Nothing
+
+getVertexNamesInTree
+  :: VertexTree
+  -> M.Map (Scientific, Scientific, Scientific) Text
+getVertexNamesInTree vertexTree@(VertexTree {tNodes = vs}) =
+  let verticeCordNamePair vertice = ((vX vertice, vY vertice, vZ vertice), vName vertice)
+      getVertexNames =
+        M.fromList . mapMaybe (fmap verticeCordNamePair . possiblyVertice) . NE.toList
+      restNames =
+        case vertexTree of
+          VertexTree {tRest = Just r} -> getVertexNamesInTree r
+          VertexTree {tRest = Nothing} -> M.empty
+   in M.union (getVertexNames vs) restNames
 
 isObjectKeyEqual :: NP.NodeSelector -> Node -> Bool
 isObjectKeyEqual (NP.ObjectKey a) (ObjectKey (String b, _)) = a == b
 isObjectKeyEqual _ _ = False
+
+vertexTreeToNodeVector :: VertexTree -> Vector Node
+vertexTreeToNodeVector (VertexTree {tNodes = nodes, tRest = maybeOtherTree}) =
+  let currentNodes = V.fromList . NE.toList . NE.map vertexEntryToNode $ nodes
+      otherNodes = maybe V.empty vertexTreeToNodeVector maybeOtherTree
+      vertexEntryToNode entry =
+        case entry of
+          (CommentEntry node) -> node
+          (HeaderEntry node) -> node
+          (MetaEntry node) -> node
+          (VertexEntry vertex) ->
+            let name = String . vName $ vertex
+                x = Number . vX $ vertex
+                y = Number . vY $ vertex
+                z = Number . vZ $ vertex
+                possiblyMeta = maybe [] (pure . Object) (vMeta vertex)
+             in Array . fromList $ [name, x, y, z] ++ possiblyMeta
+   in currentNodes <> otherNodes
+
+updateVerticesInNode :: NP.NodePath -> VertexTree -> Node -> Node
+updateVerticesInNode (NP.NodePath Empty) g (Array _) = Array (vertexTreeToNodeVector g)
+updateVerticesInNode (NP.NodePath ((NP.ArrayIndex i) :<| qrest)) g (Array children) =
+  let updateInNode nodeToUpdate =
+        children // [(i, updateVerticesInNode (NP.NodePath qrest) g nodeToUpdate)]
+   in Array $ maybe children updateInNode (children !? i)
+updateVerticesInNode (NP.NodePath ((NP.ObjectIndex i) :<| qrest)) g (Object children) =
+  let updateInNode _ =
+        children // [(i, updateVerticesInNode (NP.NodePath qrest) g (children ! i))]
+   in Object $ maybe children updateInNode (children !? i)
+updateVerticesInNode (NP.NodePath (k@(NP.ObjectKey _) :<| qrest)) g (Object children) =
+  let updateInNode i =
+        children // [(i, updateVerticesInNode (NP.NodePath qrest) g (children ! i))]
+   in Object . maybe children updateInNode $
+        V.findIndex (isObjectKeyEqual k) children
+updateVerticesInNode query g (ObjectKey (k, v)) = ObjectKey (k, updateVerticesInNode query g v)
+updateVerticesInNode _ _ a = a
 
 findAndUpdateTextInNode :: Map Text Text -> NC.NodeCursor -> Node -> Node
 findAndUpdateTextInNode m cursor node =
@@ -184,143 +328,12 @@ findAndUpdateTextInNode m cursor node =
     applyBreadcrumbAndUpdateText index =
       NC.applyCrumb (NC.ArrayIndex index) cursor (findAndUpdateTextInNode m)
 
-newGroupIndex
-  :: [(VertexGroupType, VertexGroup)] -> VertexGroupType -> VertexIndex
-newGroupIndex groups newGroupType =
-  case newGroupType of
-    LeftGroup ->
-      case groups of
-        ((_, g) : _) -> gStartIndex g - 1
-        _ -> error "expected to find MiddleGroup or RightGroup in groups"
-    RightGroup ->
-      case reverse groups of
-        ((_, g) : _) -> gStartIndex g + gSize g + 1
-        _ -> error "expected to find LeftGroup or MiddleGroup in groups"
-    MiddleGroup ->
-      case groups of
-        ((LeftGroup, g) : _) -> gStartIndex g + gSize g + 1
-        [(RightGroup, g)] -> gStartIndex g - 1
-        [_, (RightGroup, g)] -> gStartIndex g - 1
-        _ -> error "expected to find LeftGroup or RightGroup in groups"
-
-groupTypeToChar :: VertexGroupType -> Text
-groupTypeToChar LeftGroup = "l"
-groupTypeToChar MiddleGroup = "m"
-groupTypeToChar RightGroup = "r"
-
-newGroupName :: [(VertexGroupType, VertexGroup)] -> VertexGroupType -> Text
-newGroupName [(_, g)] groupType = gName g <> groupTypeToChar groupType
-newGroupName ((_, g1) : (_, g2) : _) groupType =
-  case on T.commonPrefixes gName g1 g2 of
-    Just (prefix, _, _) -> prefix <> groupTypeToChar groupType
-    _ -> gName g1 <> groupTypeToChar groupType
-newGroupName [] groupType = groupTypeToChar groupType
-
-addVertex :: Vertex -> Maybe (NonEmpty Vertex) -> Maybe (NonEmpty Vertex)
-addVertex vertice Nothing = Just $ NE.singleton vertice
-addVertex vertice (Just vs) = Just $ vertice <| vs
-
-moveVertexToGroup
-  :: VertexGroupType -> Vertex -> VertexGroupMap -> VertexGroupMap
-moveVertexToGroup gType vert gs
-  | gType == destGroup = gs
-  | M.member destGroup gs = M.update addVertexToGroup destGroup gs
-  | otherwise =
-      let currentGroupList = M.toList gs
-          i = newGroupIndex currentGroupList destGroup
-          name = newGroupName currentGroupList destGroup
-          group = newVertexGroup i name vert
-       in M.insert destGroup group {gFresh = True, gSize = 0} gs
-  where
-    destGroup = determineGroup . vX $ vert
-    addVertexToGroup g = Just g {gVertices = addVertex vert $ gVertices g}
-
-rejectVertices :: VertexGroupType -> VertexGroup -> VertexGroup
-rejectVertices t g =
-  g
-    { gVertices =
-        gVertices g >>= NE.nonEmpty . NE.filter ((==) t . determineGroup . vX)
-    }
-
-moveVertices
-  :: VertexGroupType -> VertexGroup -> VertexGroupMap -> VertexGroupMap
-moveVertices gType g gs =
-  M.mapWithKey rejectVertices
-    . foldr (moveVertexToGroup gType) gs
-    . maybe [] NE.toList
-    $ gVertices g
-
-updateVertexName :: Text -> (VertexIndex, Vertex) -> Vertex
-updateVertexName name (index, vertice) =
-  vertice {vName = name <> T.pack (show index)}
-
-updateVertexNames :: VertexGroup -> VertexGroup
-updateVertexNames g =
-  let vertices = NE.sortBy (on compare $ vZ &&& vY) <$> gVertices g
-      indexVertices = NE.zip (NE.fromList [0 ..])
-      updatedVertices =
-        NE.map (updateVertexName $ gName g) . indexVertices <$> vertices
-   in g {gVertices = updatedVertices}
-
-updateVerticesInGroup :: VertexGroupMap -> VertexGroupMap
-updateVerticesInGroup gs =
-  M.map updateVertexNames $ M.foldrWithKey moveVertices gs gs
-
-verticeToNode :: Vertex -> Node
-verticeToNode (Vertex {vName = name, vX = x, vY = y, vZ = z}) =
-  Array $ V.fromList [String name, Number x, Number y, Number z]
-
-newGroupHeader :: VertexGroup -> Vector Node
-newGroupHeader (VertexGroup {gFresh = True}) =
-  V.fromList [SinglelineComment "ny grupp", Object objKey]
-  where
-    objKey = V.singleton $ ObjectKey (String "group", String "new_group")
-newGroupHeader _ = V.empty
-
-succIfNonZero :: Int -> Int
-succIfNonZero 0 = 0
-succIfNonZero i = i + 1
-
-updateNode :: NP.NodePath -> VertexGroup -> Node -> Node
-updateNode (NP.NodePath Empty) g (Array a) =
-  let vertices = gVertices g
-      startIndex =
-        fromMaybe (gStartIndex g) $ V.findIndex (nodeBelongsToGroup g) a
-      endIndex = startIndex + succIfNonZero (gSize g)
-      beginNodes = V.slice 0 startIndex a
-      groupHeader = newGroupHeader g
-      verticeNodes =
-        V.fromList (maybe [] (map verticeToNode . NE.toList) vertices)
-      endNodes = V.slice endIndex (V.length a - endIndex) a
-   in Array $ V.concat [beginNodes, groupHeader, verticeNodes, endNodes]
-updateNode (NP.NodePath ((NP.ArrayIndex i) :<| qrest)) g (Array children) =
-  let updateInNode nodeToUpdate =
-        children // [(i, updateNode (NP.NodePath qrest) g nodeToUpdate)]
-   in Array $ maybe children updateInNode (children !? i)
-updateNode (NP.NodePath ((NP.ObjectIndex i) :<| qrest)) g (Object children) =
-  let updateInNode _ =
-        children // [(i, updateNode (NP.NodePath qrest) g (children ! i))]
-   in Object $ maybe children updateInNode (children !? i)
-updateNode (NP.NodePath (k@(NP.ObjectKey _) :<| qrest)) g (Object children) =
-  let updateInNode i =
-        children // [(i, updateNode (NP.NodePath qrest) g (children ! i))]
-   in Object . maybe children updateInNode $
-        V.findIndex (isObjectKeyEqual k) children
-updateNode query g (ObjectKey (k, v)) = ObjectKey (k, updateNode query g v)
-updateNode _ _ a = a
-
-verticeNameMap :: VertexGroup -> UpdateMap -> UpdateMap
-verticeNameMap g acc =
-  let sortKeys = map (\v -> ((vX v, vY v, vZ v), vName v)) . NE.toList
-      vertices = gVertices g
-   in M.union acc . M.fromList $ maybe [] sortKeys vertices
-
-transform :: Node -> Node
-transform ns =
-  let verticeGroups = getVertexGroups verticeQuery ns
-      verticeNames = M.foldr verticeNameMap M.empty verticeGroups
-      updatedGroups = updateVerticesInGroup verticeGroups
-      updatedVertexNames = M.foldr verticeNameMap M.empty updatedGroups
-      updateMap = M.fromList $ on zip M.elems verticeNames updatedVertexNames
-   in findAndUpdateTextInNode updateMap NC.newCursor $
-        foldr (updateNode verticeQuery) ns updatedGroups
+transform :: NC.NodeCursor -> Node -> Node
+transform cursor topNode =
+  let vertexTree = getVertexTree verticeQuery topNode
+      vertexNames = getVertexNamesInTree vertexTree
+      updatedVertexTree = updateVertices vertexTree
+      updatedVertexNames = getVertexNamesInTree updatedVertexTree
+      updateMap = M.fromList $ on zip M.elems vertexNames updatedVertexNames
+   in findAndUpdateTextInNode updateMap cursor $
+        updateVerticesInNode verticeQuery updatedVertexTree topNode
