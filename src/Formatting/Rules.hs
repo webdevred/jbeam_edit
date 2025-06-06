@@ -40,7 +40,7 @@ data NodePatternSelector
   = AnyKey
   | AnyIndex
   | Selector NodeSelector
-  deriving stock (Eq)
+  deriving (Eq)
 
 instance Ord NodePatternSelector where
   compare a b = compare (rank a) (rank b)
@@ -57,7 +57,7 @@ instance Show NodePatternSelector where
 
 newtype NodePattern
   = NodePattern (Seq NodePatternSelector)
-  deriving (Eq)
+  deriving stock (Eq)
 
 instance Ord NodePattern where
   compare (NodePattern a) (NodePattern b) =

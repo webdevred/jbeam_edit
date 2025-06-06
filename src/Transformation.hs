@@ -333,7 +333,7 @@ transform cursor topNode =
   let vertexTree = getVertexTree verticeQuery topNode
       vertexNames = getVertexNamesInTree vertexTree
       updatedVertexTree = updateVertices vertexTree
-      updatedVertexNames = getVertexNamesInTree vertexTree
+      updatedVertexNames = getVertexNamesInTree updatedVertexTree
       updateMap = M.fromList $ on zip M.elems vertexNames updatedVertexNames
    in findAndUpdateTextInNode updateMap cursor $
         updateVerticesInNode verticeQuery updatedVertexTree topNode
