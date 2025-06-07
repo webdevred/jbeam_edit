@@ -28,16 +28,21 @@ import Text.Megaparsec qualified as MP
 import Text.Megaparsec.Byte qualified as B
 import Text.Megaparsec.Byte.Lexer qualified as L (decimal)
 
-keyParser :: Parser NodePatternSelector
-keyParser = byteChar '.' *> key
+objectKeyParser :: Parser NodePatternSelector
+objectKeyParser = byteChar '.' *> key
   where
     key = parseWord8s (Selector . ObjectKey) (MP.some . MP.satisfy $ p)
     p w =
       let c = toChar w
        in not (isSpace c) && c `notElem` ['[', '.']
 
-indexParser :: Parser NodePatternSelector
-indexParser = byteChar '[' *> index <* byteChar ']'
+objectIndexParser :: Parser NodePatternSelector
+objectIndexParser = byteChar '.' *> index
+  where
+    index = Selector . ObjectIndex <$> L.decimal
+
+arrayIndexParser :: Parser NodePatternSelector
+arrayIndexParser = byteChar '[' *> index <* byteChar ']'
   where
     index = Selector . ArrayIndex <$> L.decimal
 
@@ -48,17 +53,19 @@ patternSelectorParser = skipWhiteSpace *> anySel <* skipWhiteSpace
       tryParsers
         [ B.string ".*" $> AnyKey
         , B.string "[*]" $> AnyIndex
-        , keyParser <?> "key"
-        , indexParser <?> "index"
+        , objectKeyParser <?> "object key"
+        , objectIndexParser <?> "object index"
+        , arrayIndexParser <?> "array index"
         ]
 
 patternParser :: Parser NodePattern
 patternParser = NodePattern . Seq.fromList <$> MP.some patternSelectorParser
 
 tryDecodeKey :: [Word8] -> (Text -> Maybe SomeKey) -> Maybe SomeKey
-tryDecodeKey bs f = case decodeUtf8' (BS.pack bs) of
-  Right text' -> f text'
-  Left _ -> Nothing
+tryDecodeKey bs f =
+  case decodeUtf8' (BS.pack bs) of
+    Right text' -> f text'
+    Left _ -> Nothing
 
 propertyParser :: SomeKey -> Parser (SomeKey, SomeProperty)
 propertyParser (SomeKey key) = do
