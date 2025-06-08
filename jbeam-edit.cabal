@@ -1,6 +1,6 @@
 cabal-version: 2.2
 
--- This file has been generated from package.yaml by hpack version 0.35.2.
+-- This file has been generated from package.yaml by hpack version 0.37.0.
 --
 -- see: https://github.com/sol/hpack
 
@@ -84,6 +84,7 @@ test-suite jbeam-edit-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      Parsing.DSLSpec
       Parsing.JbeamSpec
       SpecHelper
       Paths_jbeam_edit

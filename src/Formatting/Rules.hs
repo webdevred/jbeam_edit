@@ -60,7 +60,7 @@ data PropertyKey a where
 
 data SomeKey
   = forall a.
-    Show a =>
+    (Eq a, Show a) =>
     SomeKey (PropertyKey a)
 
 instance Show SomeKey where
@@ -80,11 +80,17 @@ instance Ord SomeKey where
 
 data SomeProperty
   = forall a.
-    Show a =>
+    (Eq a, Show a) =>
     SomeProperty (PropertyKey a) a
 
 instance Show SomeProperty where
   show (SomeProperty key val) = T.unpack (propertyName key) <> " = " <> show val
+
+instance Eq SomeProperty where
+  SomeProperty k1 v1 == SomeProperty k2 v2 =
+    case eqKey k1 k2 of
+      Just Refl -> v1 == v2
+      Nothing -> False
 
 propertyName :: PropertyKey a -> Text
 propertyName NoComplexNewLine = "NoComplexNewLine"
@@ -121,7 +127,7 @@ instance Show RuleSet where
 newRuleSet :: RuleSet
 newRuleSet = RuleSet M.empty
 
-lookupProp :: Show a => PropertyKey a -> Rule -> Maybe a
+lookupProp :: (Eq a, Show a) => PropertyKey a -> Rule -> Maybe a
 lookupProp targetKey m =
   case M.lookup (SomeKey targetKey) m of
     Just (SomeProperty key val) ->

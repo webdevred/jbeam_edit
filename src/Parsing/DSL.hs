@@ -3,6 +3,7 @@
 
 module Parsing.DSL (
   parseDSL,
+  keyPropertyPairParser,
 ) where
 
 import Core.NodePath
