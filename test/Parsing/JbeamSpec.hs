@@ -2,10 +2,10 @@ module Parsing.JbeamSpec (
   spec,
 ) where
 
-import Data.String (fromString)
 import Data.Vector (fromList)
 import Parsing.Common.Helpers
 import Parsing.Jbeam
+import Parsing.ParsingTestHelpers
 import SpecHelper
 import Test.Hspec.Megaparsec
 import Text.Megaparsec
@@ -64,18 +64,11 @@ invalidSpec =
   where
     expLabels = foldMap elabel ["a valid scalar", "object", "array"]
 
-applyParserSpec :: [(String, Node)] -> [Spec]
-applyParserSpec = map (uncurry $ applySpecOnInput descFun assertParsesTo)
-  where
-    assertParsesTo input = shouldParse . parse nodeParser "" $ fromString input
-    descFun input expResult = "should parse " <> input <> " to " <> expResult
-
 spec :: Spec
-spec =
-  sequence_ $
-    invalidSpec
-      : concatMap
-        applyParserSpec
+spec = sequence_ $ invalidSpec : map (applyParserSpec nodeParser) specs
+  where
+    specs =
+      concat
         [ numberSpec
         , stringSpec
         , boolSpec
