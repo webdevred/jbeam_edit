@@ -143,7 +143,7 @@ The tool will:
 - Format it according to the default or user-defined rules.
 - Automatically sort nodes, rename them sequentially, and update all related references.
 - By default, write the formatted output back to the file and create a backup file named <input-file>.bak.
-- Use the `-i` or `--in-place` option to modify files directly **without** creating a backup.
+- Use the =-i= or =--in-place= option to modify files directly *without* creating a backup.
 
 Example:
 
@@ -151,7 +151,7 @@ Example:
 jbeam-edit -i example.jbeam
 #+END_SRC
 
-This will update `example.jbeam` in place, skipping the backup creation step.
+This will update =example.jbeam= in place, skipping the backup creation step.
 
 For full usage details and configuration options, please refer to [[EXPLANATION_OF_SOURCE_CODE.org][EXPLANATION_OF_SOURCE_CODE.org]]
 
