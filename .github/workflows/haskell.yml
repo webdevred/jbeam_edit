@@ -40,6 +40,7 @@ jobs:
       uses: actions/cache@v4.2.3
       with:
         path: |
+          ~/.ghcup
           ~/.stack
           .stack-work
         key: ${{ runner.os }}-stack-${{ hashFiles('**/stack.yaml.lock') }}
@@ -48,7 +49,7 @@ jobs:
       run: stack setup
 
     - name: Build project
-      run: stack build --fast --ghc-options="-Werror"
+      run: stack build --fast --lock-file=error-on-write --ghc-options="-Werror"
 
     - name: Check that .cabal file has not changed except hpack comment
       run: |
@@ -85,8 +86,6 @@ jobs:
           ~/.cabal
           dist-newstyle
         key: ${{ runner.os }}-cabal-ghc947-${{ hashFiles('**/package.yaml') }}
-        restore-keys: |
-          ${{ runner.os }}-cabal-ghc947-
 
     - name: Set up GHC and Cabal (GHC 9.4.7)
       uses: haskell-actions/setup@v2.8.0

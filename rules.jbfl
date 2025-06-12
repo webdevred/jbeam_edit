@@ -1,6 +1,14 @@
 .*.nodes[*][*] {
-    PadAmount: 8;
     PadDecimals: 3;
+    PadAmount: 6;
+}
+
+.*.nodes[*][0] {
+    PadAmount: 8;
+}
+
+.*.nodes[*] {
+    NoComplexNewLine : true;
 }
 
 .*.flexbodies[*] {
