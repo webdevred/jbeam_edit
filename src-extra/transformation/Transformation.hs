@@ -8,7 +8,7 @@ import Data.Function (on)
 import Data.List (nub, partition, sort, sortOn)
 import Data.List.NonEmpty (NonEmpty, toList)
 import Data.Map (Map)
-import Data.Maybe (fromJust, isJust, isNothing, mapMaybe)
+import Data.Maybe (isJust, isNothing, mapMaybe)
 import Data.Scientific (Scientific)
 import Data.Sequence (Seq (..))
 import Data.Text (Text)
@@ -21,6 +21,7 @@ import Data.Foldable qualified as F (foldr, maximumBy)
 import Data.List.NonEmpty qualified as NE
 import Data.Map qualified as M
 import Data.Text qualified as T
+import Data.Traversable qualified as TR (mapAccumL)
 import Data.Vector qualified as V
 
 data VertexTreeType
@@ -221,16 +222,14 @@ moveVertices treeTypes@(vtype : otherTreeTypes) (VertexTree nodes maybeRestTree 
           Just $ moveVertices otherTreeTypes (VertexTree nodes Nothing ttype)
 
 updateVertexNames
-  :: Int -> [VertexTreeEntry] -> [VertexTreeEntry] -> [VertexTreeEntry]
-updateVertexNames index acc ((VertexEntry vertex) : rest) =
+  :: Int -> VertexTreeEntry -> (Int, VertexTreeEntry)
+updateVertexNames index (VertexEntry vertex) =
   let newIndex = index + 1
       vertexPrefix = dropIndex . vName $ vertex
       vertexName = vertexPrefix <> T.pack (show index)
       renamedVertex = VertexEntry (vertex {vName = vertexName})
-   in updateVertexNames newIndex (renamedVertex : acc) rest
-updateVertexNames index acc (entry : input) =
-  updateVertexNames index (entry : acc) input
-updateVertexNames _ acc [] = acc
+   in (newIndex, renamedVertex)
+updateVertexNames index entry = (index, entry)
 
 entryIsNonVertice :: VertexTreeEntry -> Bool
 entryIsNonVertice (VertexEntry _) = False
@@ -311,8 +310,9 @@ sortVertices (VertexTree nodes maybeRest ttype) =
   let groups = groupByMeta (NE.toList nodes)
       processedGroups = map processGroup groups
       nodesSorted = concat processedGroups
+      (_, nodes') = TR.mapAccumL updateVertexNames 0 (NE.fromList nodesSorted)
    in VertexTree
-        { tNodes = NE.fromList . reverse . updateVertexNames 0 [] $ nodesSorted
+        { tNodes = nodes'
         , tRest = sortVertices <$> maybeRest
         , tType = ttype
         }
