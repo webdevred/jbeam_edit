@@ -115,6 +115,7 @@ toVertexTreeEntry node =
 mostCommon :: NonEmpty VertexTreeType -> VertexTreeType
 mostCommon = NE.head . F.maximumBy (compare `on` length) . NE.group1 . NE.sort
 
+-- TODO: refactor to use not NE.fromList
 nodesListToTree :: NonEmpty Node -> VertexTree
 nodesListToTree nodes =
   let (nonVertices, rest) = NE.span isNonVertice nodes
@@ -131,6 +132,7 @@ nodesListToTree nodes =
             , tType = mostCommon $ NE.map (determineGroup . vX) vs
             }
 
+-- TODO: refactor to use not NE.fromList
 getVertexTree :: NP.NodePath -> Node -> VertexTree
 getVertexTree np topNode =
   case NP.queryNodes np topNode of
@@ -179,6 +181,7 @@ isMetaOrVertexHasTreeType vtype (VertexEntry vertex) =
   determineGroup (vX vertex) == vtype
 isMetaOrVertexHasTreeType _ _ = True
 
+-- TODO: refactor to use not NE.fromList
 moveVertices :: [VertexTreeType] -> VertexTree -> VertexTree
 moveVertices [] (VertexTree nodes restTree ttype) =
   VertexTree
@@ -235,6 +238,7 @@ entryIsNonVertice :: VertexTreeEntry -> Bool
 entryIsNonVertice (VertexEntry _) = False
 entryIsNonVertice _ = True
 
+-- TODO: refactor to use not NE.fromList
 getVertexTreeGlobals :: VertexTree -> ([VertexTreeEntry], VertexTree)
 getVertexTreeGlobals (VertexTree nodes restTree ttype) =
   let (metas, vertices) = NE.span entryIsNonVertice nodes
@@ -273,6 +277,7 @@ groupByMeta (x : xs)
       case groupByMeta xs of
         [] -> [[x]]
         (g : gs) -> (x : g) : gs
+-- TODO: reimplement to use NonEmpty
 
 isMetaOrHeader :: VertexTreeEntry -> Bool
 isMetaOrHeader (MetaEntry _) = True
@@ -289,6 +294,7 @@ groupVertexWithLeadingComments = go []
         VertexEntry v ->
           CommentGroup {cComments = acc, cVertex = v} : go [] rest
         _ -> go [] rest
+-- TODO: reimplement to use NonEmpty
 
 sortCommentGroups :: [CommentGroup] -> [CommentGroup]
 sortCommentGroups = sortOn (\cg -> (vZ (cVertex cg), vY (cVertex cg)))
