@@ -13,7 +13,7 @@ import SpecHelper
 import Test.Hspec.Megaparsec
 import Text.Megaparsec
 
-import Core.NodePath qualified as F (NodeSelector (..))
+import Core.NodePath qualified as NP (NodeSelector (..))
 
 patternSelectorSpecs :: [Spec]
 patternSelectorSpecs =
@@ -21,9 +21,9 @@ patternSelectorSpecs =
     (applyParserSpec patternSelectorParser)
     [ (".*", AnyObjectKey)
     , ("[*]", AnyArrayIndex)
-    , (".test", Selector (F.ObjectKey "test"))
-    , (".3", Selector (F.ObjectIndex 3))
-    , ("[3]", Selector (F.ArrayIndex 3))
+    , (".test", Selector (NP.ObjectKey "test"))
+    , (".3", Selector (NP.ObjectIndex 3))
+    , ("[3]", Selector (NP.ArrayIndex 3))
     ]
 
 intProperties :: [(String, (SomeKey, SomeProperty))]
