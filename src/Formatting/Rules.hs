@@ -35,15 +35,15 @@ import Data.Sequence qualified as Seq (null)
 import Data.Text qualified as T
 
 data NodePatternSelector
-  = AnyKey
-  | AnyIndex
+  = AnyObjectKey
+  | AnyArrayIndex
   | Selector NodeSelector
   deriving (Eq, Ord)
 
 instance Show NodePatternSelector where
   show (Selector ps) = show ps
-  show AnyKey = ".*"
-  show AnyIndex = "[*]"
+  show AnyObjectKey = ".*"
+  show AnyArrayIndex = "[*]"
 
 newtype NodePattern
   = NodePattern (Seq NodePatternSelector)
@@ -60,7 +60,7 @@ data PropertyKey a where
 
 data SomeKey
   = forall a.
-    Show a =>
+    (Eq a, Show a) =>
     SomeKey (PropertyKey a)
 
 instance Show SomeKey where
@@ -80,11 +80,17 @@ instance Ord SomeKey where
 
 data SomeProperty
   = forall a.
-    Show a =>
+    (Eq a, Show a) =>
     SomeProperty (PropertyKey a) a
 
 instance Show SomeProperty where
   show (SomeProperty key val) = T.unpack (propertyName key) <> " = " <> show val
+
+instance Eq SomeProperty where
+  SomeProperty k1 v1 == SomeProperty k2 v2 =
+    case eqKey k1 k2 of
+      Just Refl -> v1 == v2
+      Nothing -> False
 
 propertyName :: PropertyKey a -> Text
 propertyName NoComplexNewLine = "NoComplexNewLine"
@@ -121,7 +127,7 @@ instance Show RuleSet where
 newRuleSet :: RuleSet
 newRuleSet = RuleSet M.empty
 
-lookupProp :: Show a => PropertyKey a -> Rule -> Maybe a
+lookupProp :: (Eq a, Show a) => PropertyKey a -> Rule -> Maybe a
 lookupProp targetKey m =
   case M.lookup (SomeKey targetKey) m of
     Just (SomeProperty key val) ->
@@ -156,8 +162,8 @@ noComplexNewLine rs cursor =
    in (Just True == maybeProp)
 
 comparePC :: NodePatternSelector -> NC.NodeBreadcrumb -> Bool
-comparePC AnyKey (NC.ObjectIndexAndKey (_, _)) = True
-comparePC AnyIndex (NC.ArrayIndex _) = True
+comparePC AnyObjectKey (NC.ObjectIndexAndKey (_, _)) = True
+comparePC AnyArrayIndex (NC.ArrayIndex _) = True
 comparePC (Selector s) bc = NC.compareSB s bc
 comparePC _ _ = False
 
