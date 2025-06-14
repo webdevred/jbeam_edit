@@ -35,11 +35,11 @@ data VertexTreeEntry
   = VertexEntry Vertex
   | CommentEntry Node
   | MetaEntry Node
-  | HeaderEntry Node
   deriving (Eq, Show)
 
 data VertexTree = VertexTree
-  { tNodes :: NonEmpty VertexTreeEntry
+  { tMetaNodes :: [Node]
+  , tVertexNodes :: NonEmpty VertexTreeEntry
   , tRest :: Maybe VertexTree
   , tType :: VertexTreeType
   }
@@ -109,8 +109,7 @@ toVertexTreeEntry node =
     Just vertice -> VertexEntry vertice
     Nothing
       | isObjectNode node -> MetaEntry node
-      | isCommentNode node -> CommentEntry node
-      | otherwise -> HeaderEntry node
+      | otherwise -> CommentEntry node
 
 mostCommon :: NonEmpty VertexTreeType -> VertexTreeType
 mostCommon = NE.head . F.maximumBy (compare `on` length) . NE.group1 . NE.sort
@@ -126,7 +125,8 @@ nodesListToTree nodes =
         Nothing -> error "expected at least one Vertex"
         Just vs ->
           VertexTree
-            { tNodes =
+            { tMetaNodes = nonVertices
+            , tVertexNodes =
                 NE.fromList (map toVertexTreeEntry (nonVertices ++ vertexNodes))
             , tRest = nodesListToTree <$> NE.nonEmpty rest'
             , tType = mostCommon $ NE.map (determineGroup . vX) vs
@@ -156,8 +156,8 @@ determineGroup x
   | otherwise = LeftTree
 
 filterVerticesToMove :: VertexTree -> ([Vertex], Maybe VertexTree)
-filterVerticesToMove (VertexTree entries maybeRest ttype) =
-  let (removedHere, keptHere) = F.foldr step ([], []) (toList entries)
+filterVerticesToMove (VertexTree meta vertices maybeRest ttype) =
+  let (removedHere, keptHere) = F.foldr step ([], []) (toList vertices)
       step entry (remAcc, keepAcc) =
         case entry of
           VertexEntry v ->
@@ -174,7 +174,7 @@ filterVerticesToMove (VertexTree entries maybeRest ttype) =
       allRemoved = removedHere ++ removedRest
    in case NE.nonEmpty keptHere of
         Nothing -> (allRemoved, newRest)
-        Just kept -> (allRemoved, Just (VertexTree kept newRest ttype))
+        Just kept -> (allRemoved, Just (VertexTree meta kept newRest ttype))
 
 isMetaOrVertexHasTreeType :: VertexTreeType -> VertexTreeEntry -> Bool
 isMetaOrVertexHasTreeType vtype (VertexEntry vertex) =
@@ -182,47 +182,47 @@ isMetaOrVertexHasTreeType vtype (VertexEntry vertex) =
 isMetaOrVertexHasTreeType _ _ = True
 
 -- TODO: refactor to use not NE.fromList
-moveVertices :: [VertexTreeType] -> VertexTree -> VertexTree
-moveVertices [] (VertexTree nodes restTree ttype) =
+moveVertices :: [VertexTreeType] -> VertexTree -> VertexTree -> VertexTree
+moveVertices [] templVertexTree (VertexTree metas vertices restTree ttype) =
   VertexTree
-    (NE.fromList $ filter (isMetaOrVertexHasTreeType ttype) (NE.toList nodes))
-    (moveVertices [] <$> restTree)
+    metas
+    (NE.fromList $ filter (isMetaOrVertexHasTreeType ttype) (NE.toList vertices))
+    (moveVertices [] templVertexTree <$> restTree)
     ttype
-moveVertices treeTypes@(vtype : otherTreeTypes) (VertexTree nodes maybeRestTree ttype)
+moveVertices treeTypes@(vtype : otherTreeTypes) templVertexTree (VertexTree metas vertices maybeRestTree ttype)
   | vtype > ttype =
       VertexTree
-        (NE.fromList $ filter (isMetaOrVertexHasTreeType ttype) (NE.toList nodes))
-        (moveVertices treeTypes <$> maybeRestTree)
+        metas
+        (NE.fromList $ filter (isMetaOrVertexHasTreeType ttype) (NE.toList vertices))
+        (moveVertices treeTypes templVertexTree <$> maybeRestTree)
         ttype
+  | vtype == ttype =
+      VertexTree
+        metas
+        (NE.fromList $ filter (isMetaOrVertexHasTreeType vtype) (NE.toList vertices))
+        moveVertices'
+        vtype
   | otherwise =
-      if vtype == ttype
-        then
-          VertexTree
-            { tNodes =
-                NE.fromList $
-                  filter (isMetaOrVertexHasTreeType vtype) (NE.toList nodes)
-            , tRest = moveVertices'
-            , tType = vtype
-            }
-        else
-          VertexTree
-            { tNodes =
-                newComment
-                  `NE.appendList` filter
-                    (isMetaOrVertexHasTreeType vtype)
-                    (NE.toList nodes)
-            , tRest = moveVertices'
-            , tType = vtype
-            }
+      VertexTree
+        metas
+        ( newComment
+            `NE.appendList` filter (isMetaOrVertexHasTreeType vtype) (NE.toList vertices)
+        )
+        moveVertices'
+        vtype
   where
     newComment =
       NE.singleton . CommentEntry . Comment $
         InternalComment {cText = T.pack $ show vtype, cMultiline = False}
     moveVertices' =
       case maybeRestTree of
-        Just restTree -> Just $ moveVertices otherTreeTypes restTree
+        Just restTree -> Just $ moveVertices otherTreeTypes templVertexTree restTree
         Nothing ->
-          Just $ moveVertices otherTreeTypes (VertexTree nodes Nothing ttype)
+          Just $
+            moveVertices
+              otherTreeTypes
+              templVertexTree
+              (VertexTree metas vertices Nothing ttype)
 
 updateVertexNames
   :: Int -> VertexTreeEntry -> (Int, VertexTreeEntry)
@@ -239,23 +239,21 @@ entryIsNonVertice (VertexEntry _) = False
 entryIsNonVertice _ = True
 
 -- TODO: refactor to use not NE.fromList
-getVertexTreeGlobals :: VertexTree -> ([VertexTreeEntry], VertexTree)
-getVertexTreeGlobals (VertexTree nodes restTree ttype) =
-  let (metas, vertices) = NE.span entryIsNonVertice nodes
-      existsInRestTree meta =
+getVertexTreeGlobals :: VertexTree -> ([Node], VertexTree)
+getVertexTreeGlobals (VertexTree metas vertices restTree ttype) =
+  let existsInRestTree meta =
         any
           (\restEntries -> meta `elem` subNodesInRestTree restEntries)
           restTree
       (localMetas, globalMetas) = partition existsInRestTree metas
-   in ( globalMetas
-      , VertexTree (NE.fromList $ localMetas <> vertices) restTree ttype
-      )
+   in (globalMetas, VertexTree localMetas vertices restTree ttype)
   where
-    subNodesInRestTree (VertexTree nodes' restTree' _) =
-      let subMetas = NE.takeWhile entryIsNonVertice nodes'
-       in case restTree' of
-            Just subNodes -> subNodesInRestTree subNodes <> subMetas
-            Nothing -> subMetas
+    subNodesInRestTree (VertexTree subMetas _ restTree' _) =
+      case restTree' of
+        Just restSubMetas -> subNodesInRestTree restSubMetas <> subMetas
+        Nothing -> subMetas
+
+mergeVertexTree = undefined
 
 updateVertices :: VertexTree -> VertexTree
 updateVertices vertexTree =
@@ -263,26 +261,27 @@ updateVertices vertexTree =
       vsToMove =
         sort . nub . map (determineGroup . vX) . fst . filterVerticesToMove $
           vertexTree'
-      addGlobalMetas (VertexTree nodes restTree ttype) =
-        VertexTree (globalMetas `NE.prependList` nodes) restTree ttype
-   in sortVertices . addGlobalMetas . moveVertices vsToMove $ vertexTree'
+      templVertices = mergeVertexTree vertexTree'
+      addGlobalMetas (VertexTree metas vertices restTree ttype) =
+        VertexTree (globalMetas ++ metas) vertices restTree ttype
+   in sortVertices . addGlobalMetas . moveVertices vsToMove templVertices $
+        vertexTree'
 
+-- TODO: reimplement to use NonEmpty
 groupByMeta :: [VertexTreeEntry] -> [[VertexTreeEntry]]
 groupByMeta [] = []
 groupByMeta (x : xs)
-  | isMetaOrHeader x =
-      let (grp, rest) = break isMetaOrHeader xs
+  | isMeta x =
+      let (grp, rest) = break isMeta xs
        in (x : grp) : groupByMeta rest
   | otherwise =
       case groupByMeta xs of
         [] -> [[x]]
         (g : gs) -> (x : g) : gs
--- TODO: reimplement to use NonEmpty
 
-isMetaOrHeader :: VertexTreeEntry -> Bool
-isMetaOrHeader (MetaEntry _) = True
-isMetaOrHeader (HeaderEntry _) = True
-isMetaOrHeader _ = False
+isMeta :: VertexTreeEntry -> Bool
+isMeta (VertexEntry _) = False
+isMeta _ = True
 
 groupVertexWithLeadingComments :: [VertexTreeEntry] -> [CommentGroup]
 groupVertexWithLeadingComments = go []
@@ -294,6 +293,7 @@ groupVertexWithLeadingComments = go []
         VertexEntry v ->
           CommentGroup {cComments = acc, cVertex = v} : go [] rest
         _ -> go [] rest
+
 -- TODO: reimplement to use NonEmpty
 
 sortCommentGroups :: [CommentGroup] -> [CommentGroup]
@@ -312,16 +312,12 @@ processGroup (metaOrHeader : rest) =
    in metaOrHeader : entriesSorted
 
 sortVertices :: VertexTree -> VertexTree
-sortVertices (VertexTree nodes maybeRest ttype) =
+sortVertices (VertexTree metas nodes maybeRest ttype) =
   let groups = groupByMeta (NE.toList nodes)
       processedGroups = map processGroup groups
       nodesSorted = concat processedGroups
       (_, nodes') = TR.mapAccumL updateVertexNames 0 (NE.fromList nodesSorted)
-   in VertexTree
-        { tNodes = nodes'
-        , tRest = sortVertices <$> maybeRest
-        , tType = ttype
-        }
+   in VertexTree metas nodes' (sortVertices <$> maybeRest) ttype
 
 verticeQuery :: NP.NodePath
 verticeQuery = fromList [NP.ObjectIndex 0, NP.ObjectKey "nodes"]
@@ -332,7 +328,7 @@ possiblyVertice _ = Nothing
 
 getVertexNamesInTree
   :: VertexTree -> M.Map (Scientific, Scientific, Scientific) Text
-getVertexNamesInTree vertexTree@(VertexTree {tNodes = vs}) =
+getVertexNamesInTree vertexTree@(VertexTree {tVertexNodes = vs}) =
   let verticeCordNamePair vertice =
         ((vX vertice, vY vertice, vZ vertice), vName vertice)
       getVertexNames =
@@ -350,13 +346,12 @@ isObjectKeyEqual (NP.ObjectKey a) (ObjectKey (String b, _)) = a == b
 isObjectKeyEqual _ _ = False
 
 vertexTreeToNodeVector :: VertexTree -> Vector Node
-vertexTreeToNodeVector (VertexTree {tNodes = nodes, tRest = maybeOtherTree}) =
-  let currentNodes = V.fromList . NE.toList . NE.map vertexEntryToNode $ nodes
+vertexTreeToNodeVector (VertexTree metas vertices maybeOtherTree ttype) =
+  let currentNodes = V.fromList . NE.toList . NE.map vertexEntryToNode $ vertices
       otherNodes = maybe V.empty vertexTreeToNodeVector maybeOtherTree
       vertexEntryToNode entry =
         case entry of
           (CommentEntry node) -> node
-          (HeaderEntry node) -> node
           (MetaEntry node) -> node
           (VertexEntry vertex) ->
             let name = String . vName $ vertex
