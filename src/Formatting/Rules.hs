@@ -35,15 +35,15 @@ import Data.Sequence qualified as Seq (null)
 import Data.Text qualified as T
 
 data NodePatternSelector
-  = AnyKey
-  | AnyIndex
+  = AnyObjectKey
+  | AnyArrayIndex
   | Selector NodeSelector
   deriving (Eq, Ord)
 
 instance Show NodePatternSelector where
   show (Selector ps) = show ps
-  show AnyKey = ".*"
-  show AnyIndex = "[*]"
+  show AnyObjectKey = ".*"
+  show AnyArrayIndex = "[*]"
 
 newtype NodePattern
   = NodePattern (Seq NodePatternSelector)
@@ -162,8 +162,8 @@ noComplexNewLine rs cursor =
    in (Just True == maybeProp)
 
 comparePC :: NodePatternSelector -> NC.NodeBreadcrumb -> Bool
-comparePC AnyKey (NC.ObjectIndexAndKey (_, _)) = True
-comparePC AnyIndex (NC.ArrayIndex _) = True
+comparePC AnyObjectKey (NC.ObjectIndexAndKey (_, _)) = True
+comparePC AnyArrayIndex (NC.ArrayIndex _) = True
 comparePC (Selector s) bc = NC.compareSB s bc
 comparePC _ _ = False
 

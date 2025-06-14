@@ -13,6 +13,19 @@ import SpecHelper
 import Test.Hspec.Megaparsec
 import Text.Megaparsec
 
+import Core.NodePath qualified as F (NodeSelector (..))
+
+patternSelectorSpecs :: [Spec]
+patternSelectorSpecs =
+  map
+    (applyParserSpec patternSelectorParser)
+    [ (".*", AnyObjectKey)
+    , ("[*]", AnyArrayIndex)
+    , (".test", Selector (F.ObjectKey "test"))
+    , (".3", Selector (F.ObjectIndex 3))
+    , ("[3]", Selector (F.ArrayIndex 3))
+    ]
+
 intProperties :: [(String, (SomeKey, SomeProperty))]
 intProperties =
   [ ("PadDecimals : 3;", (SomeKey PadDecimals, SomeProperty PadDecimals 3))
@@ -70,4 +83,6 @@ assertParserFailure parser (input, expError) =
     desc = "should parse on invalid " <> input
 
 spec :: Spec
-spec = sequence_ $ keyPropertyPairSpecs ++ invalidKeyPropertySpecs
+spec =
+  sequence_ $
+    keyPropertyPairSpecs ++ invalidKeyPropertySpecs ++ patternSelectorSpecs

@@ -3,6 +3,7 @@
 
 module Parsing.DSL (
   parseDSL,
+  patternSelectorParser,
   keyPropertyPairParser,
 ) where
 
@@ -52,10 +53,10 @@ patternSelectorParser = skipWhiteSpace *> anySel <* skipWhiteSpace
   where
     anySel =
       tryParsers
-        [ B.string ".*" $> AnyKey
-        , B.string "[*]" $> AnyIndex
-        , objectKeyParser <?> "object key"
+        [ B.string ".*" $> AnyObjectKey
+        , B.string "[*]" $> AnyArrayIndex
         , objectIndexParser <?> "object index"
+        , objectKeyParser <?> "object key"
         , arrayIndexParser <?> "array index"
         ]
 
