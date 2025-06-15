@@ -39,11 +39,11 @@ data NodePatternSelector
   = AnyObjectKey
   | AnyArrayIndex
   | Selector NodeSelector
-  deriving (Eq, Ord, Show)
+  deriving (Eq, Ord, Read, Show)
 
 newtype NodePattern
   = NodePattern (Seq NodePatternSelector)
-  deriving stock (Eq, Ord, Show)
+  deriving stock (Eq, Ord, Read, Show)
 
 data PropertyKey a where
   NoComplexNewLine :: PropertyKey Bool
@@ -57,6 +57,12 @@ data SomeKey
 
 instance Show SomeKey where
   show (SomeKey key) = T.unpack (propertyName key)
+
+instance Read SomeKey where
+  readsPrec _ key =
+    case lookupKey (T.pack key) allProperties of
+      Nothing -> error ("invalid " ++ key)
+      Just key' -> [(key', "")]
 
 instance Eq SomeKey where
   p1 == p2 = on (==) keyName p1 p2
@@ -76,7 +82,7 @@ data SomeProperty
     SomeProperty (PropertyKey a) a
 
 instance Show SomeProperty where
-  show (SomeProperty key val) = T.unpack (propertyName key) <> " = " <> show val
+  show (SomeProperty key val) = "SomeProperty " <> T.unpack (propertyName key) <> " " <> show val
 
 instance Eq SomeProperty where
   SomeProperty k1 v1 == SomeProperty k2 v2 =

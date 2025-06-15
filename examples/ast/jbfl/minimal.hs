@@ -12,7 +12,7 @@ RuleSet
             , fromList
                 [
                     ( NoComplexNewLine
-                    , NoComplexNewLine = True
+                    , SomeProperty NoComplexNewLine True
                     )
                 ]
             )
@@ -29,11 +29,11 @@ RuleSet
             , fromList
                 [
                     ( PadAmount
-                    , PadAmount = 8
+                    , SomeProperty PadAmount 8
                     )
                 ,
                     ( PadDecimals
-                    , PadDecimals = 3
+                    , SomeProperty PadDecimals 3
                     )
                 ]
             )

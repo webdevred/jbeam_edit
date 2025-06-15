@@ -20,11 +20,11 @@ data NodeSelector
   = ArrayIndex Int
   | ObjectKey Text
   | ObjectIndex Int
-  deriving (Eq, Ord, Show)
+  deriving (Eq, Ord, Read, Show)
 
 newtype NodePath
   = NodePath (Seq NodeSelector)
-  deriving stock (Show)
+  deriving stock (Read, Show)
 
 instance IsList NodePath where
   type Item NodePath = NodeSelector

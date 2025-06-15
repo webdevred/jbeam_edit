@@ -27,6 +27,9 @@ jobs:
     - name: Run fourmolu
       uses: haskell-actions/run-fourmolu@v11
       with:
+        patterns: |
+          **/*.hs
+          examples/ast/*/*.hs
         version: "latest"
 
   build-with-stack:
