@@ -56,7 +56,7 @@ library
     , vector
   default-language: Haskell2010
 
-executable jbeam-edit-exe
+executable jbeam-edit
   main-is: Main.hs
   other-modules:
       Paths_jbeam_edit

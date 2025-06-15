@@ -48,7 +48,7 @@ library:
   source-dirs: src
 
 executables:
-  jbeam-edit-exe:
+  jbeam-edit:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
