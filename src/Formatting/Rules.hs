@@ -2,6 +2,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeOperators #-}
 
 module Formatting.Rules (
@@ -84,6 +85,32 @@ data SomeProperty
 instance Show SomeProperty where
   show (SomeProperty key val) = "SomeProperty " <> T.unpack (propertyName key) <> " " <> show val
 
+instance Read SomeProperty where
+  readsPrec _ input =
+    case words input of
+      ["SomeProperty", keyStr, valStr] ->
+        case lookupKey (T.pack keyStr) allProperties of
+          Just (SomeKey key@(_ :: PropertyKey a)) ->
+            case parseValue key valStr of
+              Just val -> [(SomeProperty key val, "")]
+              Nothing -> []
+          Nothing -> []
+      _ -> []
+
+parseValue :: PropertyKey a -> String -> Maybe a
+parseValue NoComplexNewLine str =
+  case reads str of
+    [(v, "")] -> Just v
+    _ -> Nothing
+parseValue PadAmount str =
+  case reads str of
+    [(v, "")] -> Just v
+    _ -> Nothing
+parseValue PadDecimals str =
+  case reads str of
+    [(v, "")] -> Just v
+    _ -> Nothing
+
 instance Eq SomeProperty where
   SomeProperty k1 v1 == SomeProperty k2 v2 =
     case eqKey k1 k2 of
@@ -114,7 +141,7 @@ type Rule = Map SomeKey SomeProperty
 
 newtype RuleSet
   = RuleSet (Map NodePattern Rule)
-  deriving stock (Show)
+  deriving stock (Read, Show)
 
 newRuleSet :: RuleSet
 newRuleSet = RuleSet M.empty
