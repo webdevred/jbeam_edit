@@ -113,7 +113,8 @@ allProperties = boolProperties ++ intProperties
 type Rule = Map SomeKey SomeProperty
 
 newtype RuleSet
-  = RuleSet (Map NodePattern Rule) deriving Show
+  = RuleSet (Map NodePattern Rule)
+  deriving stock (Show)
 
 newRuleSet :: RuleSet
 newRuleSet = RuleSet M.empty
