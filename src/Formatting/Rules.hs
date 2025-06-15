@@ -1,3 +1,4 @@
+{-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE RankNTypes #-}
@@ -23,7 +24,7 @@ module Formatting.Rules (
 import Core.Node
 import Core.NodePath (NodeSelector (..))
 import Data.Function (on)
-import Data.List (find, intercalate)
+import Data.List (find)
 import Data.Map (Map)
 import Data.Sequence (Seq (..))
 import Data.Text (Text)
@@ -38,20 +39,11 @@ data NodePatternSelector
   = AnyObjectKey
   | AnyArrayIndex
   | Selector NodeSelector
-  deriving (Eq, Ord)
-
-instance Show NodePatternSelector where
-  show (Selector ps) = show ps
-  show AnyObjectKey = ".*"
-  show AnyArrayIndex = "[*]"
+  deriving (Eq, Ord, Show)
 
 newtype NodePattern
   = NodePattern (Seq NodePatternSelector)
-  deriving (Eq, Ord)
-
-instance Show NodePattern where
-  show (NodePattern (b :<| bs)) = show b <> show (NodePattern bs)
-  show (NodePattern Empty) = ""
+  deriving stock (Eq, Ord, Show)
 
 data PropertyKey a where
   NoComplexNewLine :: PropertyKey Bool

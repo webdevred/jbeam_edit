@@ -1,3 +1,4 @@
+{-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE TypeFamilies #-}
 
 module Core.NodePath (
@@ -13,26 +14,16 @@ import Data.Vector ((!?))
 import GHC.IsList (IsList (..))
 
 import Core.Node qualified as N (Node (..))
-import Data.Text qualified as T
 import Data.Vector qualified as V
 
 data NodeSelector
   = ArrayIndex Int
   | ObjectKey Text
   | ObjectIndex Int
-  deriving (Eq, Ord)
-
-instance Show NodeSelector where
-  show (ArrayIndex i) = "[" <> show i <> "]"
-  show (ObjectKey k) = "." <> T.unpack k
-  show (ObjectIndex k) = "." <> show k
+  deriving (Eq, Ord, Show)
 
 newtype NodePath
-  = NodePath (Seq NodeSelector)
-
-instance Show NodePath where
-  show (NodePath (b :<| bs)) = show b <> show (NodePath bs)
-  show (NodePath Empty) = ""
+  = NodePath (Seq NodeSelector) deriving stock Show
 
 instance IsList NodePath where
   type Item NodePath = NodeSelector
