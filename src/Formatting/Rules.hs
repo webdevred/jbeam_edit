@@ -107,14 +107,7 @@ allProperties = boolProperties ++ intProperties
 type Rule = Map SomeKey SomeProperty
 
 newtype RuleSet
-  = RuleSet (Map NodePattern Rule)
-
-instance Show RuleSet where
-  show (RuleSet rs) = intercalate "\n" . map mapFun . M.assocs $ rs
-    where
-      mapFun (pat, props) = show pat <> " {\n" <> concatProps props <> "\n}"
-      concatProps =
-        intercalate "\n" . M.elems . M.map (\prop -> "  " <> show prop ++ ";")
+  = RuleSet (Map NodePattern Rule) deriving Show
 
 newRuleSet :: RuleSet
 newRuleSet = RuleSet M.empty

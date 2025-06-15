@@ -23,7 +23,8 @@ data NodeSelector
   deriving (Eq, Ord, Show)
 
 newtype NodePath
-  = NodePath (Seq NodeSelector) deriving stock Show
+  = NodePath (Seq NodeSelector)
+  deriving stock (Show)
 
 instance IsList NodePath where
   type Item NodePath = NodeSelector
