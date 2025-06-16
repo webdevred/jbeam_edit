@@ -8,7 +8,7 @@ cradle:
     - path: ./examples/ast
       config:
         cradle:
-          none:
+          none: null
     - path: ./src
       config:
         cradle:
@@ -19,6 +19,11 @@ cradle:
         cradle:
           cabal:
             component: exe:jbeam-edit
+    - path: ./tools/dump_ast
+      config:
+        cradle:
+          cabal:
+            component: exe:jbeam-edit-dump-ast
     - path: ./test
       config:
         cradle:
