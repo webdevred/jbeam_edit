@@ -25,6 +25,12 @@ main =
         mapM_ (dumpJbflAST jbflInputDir) jbflFiles
         mapM_ (dumpJbeamAST jbeamInputDir) jbeamFiles
 
+saveDump :: Show a => String -> a -> IO ()
+saveDump outFile contents =
+  let formatted = pStringOpt defaultOutputOptionsNoColor (show contents ++ "\n")
+   in putStrLn ("creating " ++ outFile)
+        >> TLIO.writeFile outFile formatted
+
 dumpJbflAST :: String -> String -> IO ()
 dumpJbflAST dir filename = do
   contents <- BL.readFile (dir ++ "/" ++ filename)
@@ -34,8 +40,7 @@ dumpJbflAST dir filename = do
   where
     dump contents =
       let outFile = "examples/ast/jbfl/" ++ takeWhile (/= '.') filename ++ ".hs"
-       in TLIO.writeFile outFile $
-            pStringOpt defaultOutputOptionsNoColor (show contents ++ "\n")
+       in saveDump outFile contents
 
 dumpJbeamAST :: String -> String -> IO ()
 dumpJbeamAST dir filename = do
@@ -46,5 +51,4 @@ dumpJbeamAST dir filename = do
   where
     dump contents =
       let outFile = "examples/ast/jbeam/" ++ takeWhile (/= '.') filename ++ ".hs"
-       in TLIO.writeFile outFile $
-            pStringOpt defaultOutputOptionsNoColor (show contents ++ "\n")
+       in saveDump outFile contents

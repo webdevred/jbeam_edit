@@ -8,24 +8,17 @@ cradle:
     - path: ./examples/ast
       config:
         cradle:
-          none: null
-    - path: ./src
+          none:
+    - path: ./
       config:
         cradle:
           cabal:
-            component: lib:jbeam-edit
-    - path: ./app
-      config:
-        cradle:
-          cabal:
-            component: exe:jbeam-edit
-    - path: ./tools/dump_ast
-      config:
-        cradle:
-          cabal:
-            component: exe:jbeam-edit-dump-ast
-    - path: ./test
-      config:
-        cradle:
-          cabal:
-            component: test:jbeam-edit-test
+            components:
+              - path: ./src
+                component: lib:jbeam-edit
+              - path: ./app
+                component: exe:jbeam-edit
+              - path: ./tools/dump_ast
+                component: exe:jbeam-edit-dump-ast
+              - path: ./test
+                component: test:jbeam-edit-test

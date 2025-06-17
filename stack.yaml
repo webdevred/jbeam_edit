@@ -29,7 +29,8 @@ snapshot: lts-23.24
 #   - auto-update
 #   - wai
 packages:
-- .
+  - .
+
 # Dependency packages to be pulled from upstream that are not in the snapshot.
 # These entries can reference officially published versions as well as
 # forks / in-progress versions pinned to a git hash. For example:
@@ -51,7 +52,7 @@ packages:
 # system-ghc: true
 #
 # Require a specific version of Stack, using version ranges
-# require-stack-version: -any # Default
+# require-stack-version: -any  # Default
 # require-stack-version: ">=3.1"
 #
 # Override the architecture used by Stack, especially useful on Windows

@@ -80,7 +80,7 @@ assertParserFailure parser (input, expError) =
   describe desc . works $
     parse parser "" (fromString input) `shouldFailWith` expError
   where
-    desc = "should parse on invalid " <> input
+    desc = "should fail parsing " <> show input
 
 spec :: Spec
 spec =
