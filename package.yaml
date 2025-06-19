@@ -1,13 +1,13 @@
-name:                jbeam-edit
-version:             0.1.0.0
-github:              "webdevred/jbeam-edit"
-license:             BSD-3-Clause
-author:              "webdevred"
-maintainer:          "example@example.com"
-copyright:           "2025 webdevred"
+name: jbeam-edit
+version: 0.1.0.0
+github: webdevred/jbeam-edit
+license: BSD-3-Clause
+author: webdevred
+maintainer: example@example.com
+copyright: 2025 webdevred
 
 extra-source-files:
-- README.org
+  - README.org
 
 # Metadata used when publishing your package
 # synopsis:            Short description of your package
@@ -16,33 +16,31 @@ extra-source-files:
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
-description:         Please see the README on GitHub at <https://github.com/webdevred/jbeam-edit#readme>
+description: Please see the README on GitHub at <https://github.com/webdevred/jbeam-edit#readme>
 
 dependencies:
-- base >= 4.7 && < 5
-- bytestring
-- vector
-- text
-- containers
-- megaparsec
-- text
-- scientific
-- foldable1-classes-compat
+  - base >= 4.7 && < 5
+  - bytestring
+  - vector
+  - text
+  - containers
+  - megaparsec
+  - text
+  - scientific
+  - foldable1-classes-compat
 
-default-extensions:
-- OverloadedStrings
-- ImportQualifiedPost
+default-extensions: [OverloadedStrings, ImportQualifiedPost]
 
 ghc-options:
-- -Wall
-- -Wcompat
-- -Widentities
-- -Wincomplete-record-updates
-- -Wincomplete-uni-patterns
-- -Wmissing-export-lists
-- -Wmissing-home-modules
-- -Wpartial-fields
-- -Wredundant-constraints
+  - -Wall
+  - -Wcompat
+  - -Widentities
+  - -Wincomplete-record-updates
+  - -Wincomplete-uni-patterns
+  - -Wmissing-export-lists
+  - -Wmissing-home-modules
+  - -Wpartial-fields
+  - -Wredundant-constraints
 
 library:
   source-dirs: src
@@ -55,15 +53,10 @@ flags:
 
 executables:
   jbeam-edit:
-    main:                Main.hs
-    source-dirs:         app
-    ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
-    dependencies:
-    - jbeam-edit
-
+    main: Main.hs
+    source-dirs: app
+    ghc-options: [-threaded, -rtsopts, -with-rtsopts=-N]
+    dependencies: [jbeam-edit]
   jbeam-edit-dump-ast:
     when:
       condition: flag(dump-ast)
@@ -78,16 +71,8 @@ executables:
 
 tests:
   jbeam-edit-test:
-    main:                Spec.hs
-    source-dirs:         test
-    ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
-    dependencies:
-    - jbeam-edit
-    - directory
-    - hspec
-    - hspec-megaparsec
-    build-tools:
-    - hspec-discover
+    main: Spec.hs
+    source-dirs: test
+    ghc-options: [-threaded, -rtsopts, -with-rtsopts=-N]
+    dependencies: [jbeam-edit, directory, hspec, hspec-megaparsec]
+    build-tools: [hspec-discover]
