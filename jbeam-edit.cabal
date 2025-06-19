@@ -136,6 +136,7 @@ test-suite jbeam-edit-test
       base >=4.7 && <5
     , bytestring
     , containers
+    , directory
     , foldable1-classes-compat
     , hspec
     , hspec-megaparsec

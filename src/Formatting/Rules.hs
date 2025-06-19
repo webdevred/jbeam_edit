@@ -53,17 +53,23 @@ data PropertyKey a where
 
 data SomeKey
   = forall a.
-    (Eq a, Show a) =>
+    (Eq a, Read a, Show a) =>
     SomeKey (PropertyKey a)
 
 instance Show SomeKey where
-  show (SomeKey key) = T.unpack (propertyName key)
+  show (SomeKey key) = "SomeKey " ++ T.unpack (propertyName key)
 
 instance Read SomeKey where
-  readsPrec _ key =
-    case lookupKey (T.pack key) allProperties of
-      Nothing -> error ("invalid " ++ key)
-      Just key' -> [(key', "")]
+  readsPrec _ s =
+    case lex s of
+      [("SomeKey", rest1)] ->
+        case lex rest1 of
+          [(keyStr, rest2)] ->
+            case lookupKey (T.pack keyStr) allProperties of
+              Just theKey -> [(theKey, rest2)]
+              Nothing -> error ("invalid key: " ++ keyStr)
+          _ -> []
+      _ -> []
 
 instance Eq SomeKey where
   p1 == p2 = on (==) keyName p1 p2
@@ -86,30 +92,19 @@ instance Show SomeProperty where
   show (SomeProperty key val) = "SomeProperty " <> T.unpack (propertyName key) <> " " <> show val
 
 instance Read SomeProperty where
-  readsPrec _ input =
-    case words input of
-      ["SomeProperty", keyStr, valStr] ->
-        case lookupKey (T.pack keyStr) allProperties of
-          Just (SomeKey key@(_ :: PropertyKey a)) ->
-            case parseValue key valStr of
-              Just val -> [(SomeProperty key val, "")]
+  readsPrec _ s =
+    case lex s of
+      [("SomeProperty", rest1)] ->
+        case lex rest1 of
+          (keyStr, rest2) : _ ->
+            case lookupKey (T.pack keyStr) allProperties of
+              Just (SomeKey (key :: PropertyKey a)) ->
+                case reads rest2 of
+                  [(val, rest3)] -> [(SomeProperty key val, rest3)]
+                  _ -> []
               Nothing -> []
-          Nothing -> []
+          _ -> []
       _ -> []
-
-parseValue :: PropertyKey a -> String -> Maybe a
-parseValue NoComplexNewLine str =
-  case reads str of
-    [(v, "")] -> Just v
-    _ -> Nothing
-parseValue PadAmount str =
-  case reads str of
-    [(v, "")] -> Just v
-    _ -> Nothing
-parseValue PadDecimals str =
-  case reads str of
-    [(v, "")] -> Just v
-    _ -> Nothing
 
 instance Eq SomeProperty where
   SomeProperty k1 v1 == SomeProperty k2 v2 =
@@ -141,12 +136,12 @@ type Rule = Map SomeKey SomeProperty
 
 newtype RuleSet
   = RuleSet (Map NodePattern Rule)
-  deriving stock (Read, Show)
+  deriving stock (Eq, Read, Show)
 
 newRuleSet :: RuleSet
 newRuleSet = RuleSet M.empty
 
-lookupProp :: (Eq a, Show a) => PropertyKey a -> Rule -> Maybe a
+lookupProp :: (Eq a, Read a, Show a) => PropertyKey a -> Rule -> Maybe a
 lookupProp targetKey m =
   case M.lookup (SomeKey targetKey) m of
     Just (SomeProperty key val) ->

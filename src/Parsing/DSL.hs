@@ -5,6 +5,7 @@ module Parsing.DSL (
   parseDSL,
   patternSelectorParser,
   keyPropertyPairParser,
+  ruleSetParser,
 ) where
 
 import Core.NodePath
