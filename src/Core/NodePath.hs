@@ -36,12 +36,24 @@ extractValInKey (N.ObjectKey (_, val)) = Just val
 extractValInKey _ = Nothing
 
 select :: NodeSelector -> N.Node -> Maybe N.Node
-select (ArrayIndex i) (N.Array ns) = ns !? i
+select (ArrayIndex i) (N.Array ns) = getNthElem 0 (toList ns)
+  where
+    getNthElem _ [] = Nothing
+    getNthElem curIndex ((N.Comment _) : rest) = getNthElem curIndex rest
+    getNthElem curIndex (curElem : rest)
+      | curIndex == i = Just curElem
+      | otherwise = getNthElem (curIndex + 1) rest
 select (ObjectKey k) (N.Object ns) = extractValInKey =<< V.find compareKey ns
   where
     compareKey (N.ObjectKey (N.String keyText, _)) = keyText == k
     compareKey _ = False
-select (ObjectIndex i) (N.Object a) = extractValInKey =<< a !? i
+select (ObjectIndex i) (N.Object a) = getNthKey 0 (toList a)
+  where
+    getNthKey _ [] = Nothing
+    getNthKey curIndex ((N.ObjectKey (_, value)) : rest)
+      | curIndex == i = Just value
+      | otherwise = getNthKey (curIndex + 1) rest
+    getNthKey curIndex (_ : obj_elems) = getNthKey curIndex obj_elems
 select _ _ = Nothing
 
 queryNodes :: NodePath -> N.Node -> Maybe N.Node

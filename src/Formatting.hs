@@ -32,7 +32,7 @@ addDelimiters rs index c complexChildren acc ns@(node : rest)
   | isCommentNode node =
       addDelimiters
         rs
-        newIndex
+        index
         c
         complexChildren
         (formatNode rs c node <> "\n" : acc)
