@@ -1,6 +1,6 @@
 name:                jbeam-edit
 version:             0.1.0.0
-github:              "githubuser/jbeam-edit"
+github:              "webdevred/jbeam-edit"
 license:             BSD-3-Clause
 author:              "webdevred"
 maintainer:          "example@example.com"
@@ -47,8 +47,14 @@ ghc-options:
 library:
   source-dirs: src
 
+flags:
+  dump-ast:
+    description: Enable building the dump-ast executable
+    manual: true
+    default: false
+
 executables:
-  jbeam-edit-exe:
+  jbeam-edit:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
@@ -57,6 +63,18 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - jbeam-edit
+
+  jbeam-edit-dump-ast:
+    when:
+      condition: flag(dump-ast)
+      then:
+        buildable: true
+      else:
+        buildable: false
+    main: Main.hs
+    source-dirs: tools/dump_ast
+    ghc-options: [-threaded, -rtsopts, -with-rtsopts=-N]
+    dependencies: [directory, pretty-simple, jbeam-edit]
 
 tests:
   jbeam-edit-test:
@@ -68,6 +86,7 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - jbeam-edit
+    - directory
     - hspec
     - hspec-megaparsec
     build-tools:

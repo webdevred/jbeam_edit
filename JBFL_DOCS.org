@@ -2,8 +2,8 @@
 
 This documentation describes the rule-based system for formatting values inside JBeam. It explains how to use pattern matching to target specific nodes and apply formatting settings during export.
 
-- Example ruleset file: [[rules.jbfl][rules.jbfl]]
-- Example input [[example_fenders/chevy_impala_fender.jbeam]]
+- Example ruleset file: [[file:examples/jbfl/minimal.jbfl][minimal.jbfl]]
+- Example input: [[file:examples/jbeam/minimal.jbeam][minimal.jbeam]]
 - Example result after formatting chevy_impala_fender.jbeam [[formatted_chevy_impala.jbeam]]
 
 * Overview

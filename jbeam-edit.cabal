@@ -1,14 +1,14 @@
 cabal-version: 2.2
 
--- This file has been generated from package.yaml by hpack version 0.35.2.
+-- This file has been generated from package.yaml by hpack version 0.37.0.
 --
 -- see: https://github.com/sol/hpack
 
 name:           jbeam-edit
 version:        0.1.0.0
 description:    Please see the README on GitHub at <https://github.com/webdevred/jbeam-edit#readme>
-homepage:       https://github.com/githubuser/jbeam-edit#readme
-bug-reports:    https://github.com/githubuser/jbeam-edit/issues
+homepage:       https://github.com/webdevred/jbeam-edit#readme
+bug-reports:    https://github.com/webdevred/jbeam-edit/issues
 author:         webdevred
 maintainer:     example@example.com
 copyright:      2025 webdevred
@@ -20,7 +20,12 @@ extra-source-files:
 
 source-repository head
   type: git
-  location: https://github.com/githubuser/jbeam-edit
+  location: https://github.com/webdevred/jbeam-edit
+
+flag dump-ast
+  description: Enable building the dump-ast executable
+  manual: True
+  default: False
 
 library
   exposed-modules:
@@ -56,7 +61,7 @@ library
     , vector
   default-language: Haskell2010
 
-executable jbeam-edit-exe
+executable jbeam-edit
   main-is: Main.hs
   other-modules:
       Paths_jbeam_edit
@@ -80,11 +85,43 @@ executable jbeam-edit-exe
     , vector
   default-language: Haskell2010
 
+executable jbeam-edit-dump-ast
+  main-is: Main.hs
+  other-modules:
+      Paths_jbeam_edit
+  autogen-modules:
+      Paths_jbeam_edit
+  hs-source-dirs:
+      tools/dump_ast
+  default-extensions:
+      OverloadedStrings
+      ImportQualifiedPost
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , bytestring
+    , containers
+    , directory
+    , foldable1-classes-compat
+    , jbeam-edit
+    , megaparsec
+    , pretty-simple
+    , scientific
+    , text
+    , vector
+  default-language: Haskell2010
+  if flag(dump-ast)
+    buildable: True
+  else
+    buildable: False
+
 test-suite jbeam-edit-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      Parsing.DSLSpec
       Parsing.JbeamSpec
+      Parsing.ParsingTestHelpers
       SpecHelper
       Paths_jbeam_edit
   autogen-modules:
@@ -99,6 +136,7 @@ test-suite jbeam-edit-test
       base >=4.7 && <5
     , bytestring
     , containers
+    , directory
     , foldable1-classes-compat
     , hspec
     , hspec-megaparsec

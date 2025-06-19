@@ -1,6 +1,8 @@
+{-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeOperators #-}
 
 module Formatting.Rules (
@@ -23,7 +25,7 @@ module Formatting.Rules (
 import Core.Node
 import Core.NodePath (NodeSelector (..))
 import Data.Function (on)
-import Data.List (find, intercalate)
+import Data.List (find)
 import Data.Map (Map)
 import Data.Sequence (Seq (..))
 import Data.Text (Text)
@@ -35,23 +37,14 @@ import Data.Sequence qualified as Seq (null)
 import Data.Text qualified as T
 
 data NodePatternSelector
-  = AnyKey
-  | AnyIndex
+  = AnyObjectKey
+  | AnyArrayIndex
   | Selector NodeSelector
-  deriving (Eq, Ord)
-
-instance Show NodePatternSelector where
-  show (Selector ps) = show ps
-  show AnyKey = ".*"
-  show AnyIndex = "[*]"
+  deriving (Eq, Ord, Read, Show)
 
 newtype NodePattern
   = NodePattern (Seq NodePatternSelector)
-  deriving (Eq, Ord)
-
-instance Show NodePattern where
-  show (NodePattern (b :<| bs)) = show b <> show (NodePattern bs)
-  show (NodePattern Empty) = ""
+  deriving stock (Eq, Ord, Read, Show)
 
 data PropertyKey a where
   NoComplexNewLine :: PropertyKey Bool
@@ -60,11 +53,23 @@ data PropertyKey a where
 
 data SomeKey
   = forall a.
-    Show a =>
+    (Eq a, Read a, Show a) =>
     SomeKey (PropertyKey a)
 
 instance Show SomeKey where
-  show (SomeKey key) = T.unpack (propertyName key)
+  show (SomeKey key) = "SomeKey " ++ T.unpack (propertyName key)
+
+instance Read SomeKey where
+  readsPrec _ s =
+    case lex s of
+      [("SomeKey", rest1)] ->
+        case lex rest1 of
+          [(keyStr, rest2)] ->
+            case lookupKey (T.pack keyStr) allProperties of
+              Just theKey -> [(theKey, rest2)]
+              Nothing -> error ("invalid key: " ++ keyStr)
+          _ -> []
+      _ -> []
 
 instance Eq SomeKey where
   p1 == p2 = on (==) keyName p1 p2
@@ -80,11 +85,32 @@ instance Ord SomeKey where
 
 data SomeProperty
   = forall a.
-    Show a =>
+    (Eq a, Show a) =>
     SomeProperty (PropertyKey a) a
 
 instance Show SomeProperty where
-  show (SomeProperty key val) = T.unpack (propertyName key) <> " = " <> show val
+  show (SomeProperty key val) = "SomeProperty " <> T.unpack (propertyName key) <> " " <> show val
+
+instance Read SomeProperty where
+  readsPrec _ s =
+    case lex s of
+      [("SomeProperty", rest1)] ->
+        case lex rest1 of
+          (keyStr, rest2) : _ ->
+            case lookupKey (T.pack keyStr) allProperties of
+              Just (SomeKey (key :: PropertyKey a)) ->
+                case reads rest2 of
+                  [(val, rest3)] -> [(SomeProperty key val, rest3)]
+                  _ -> []
+              Nothing -> []
+          _ -> []
+      _ -> []
+
+instance Eq SomeProperty where
+  SomeProperty k1 v1 == SomeProperty k2 v2 =
+    case eqKey k1 k2 of
+      Just Refl -> v1 == v2
+      Nothing -> False
 
 propertyName :: PropertyKey a -> Text
 propertyName NoComplexNewLine = "NoComplexNewLine"
@@ -110,18 +136,12 @@ type Rule = Map SomeKey SomeProperty
 
 newtype RuleSet
   = RuleSet (Map NodePattern Rule)
-
-instance Show RuleSet where
-  show (RuleSet rs) = intercalate "\n" . map mapFun . M.assocs $ rs
-    where
-      mapFun (pat, props) = show pat <> " {\n" <> concatProps props <> "\n}"
-      concatProps =
-        intercalate "\n" . M.elems . M.map (\prop -> "  " <> show prop ++ ";")
+  deriving stock (Eq, Read, Show)
 
 newRuleSet :: RuleSet
 newRuleSet = RuleSet M.empty
 
-lookupProp :: Show a => PropertyKey a -> Rule -> Maybe a
+lookupProp :: (Eq a, Read a, Show a) => PropertyKey a -> Rule -> Maybe a
 lookupProp targetKey m =
   case M.lookup (SomeKey targetKey) m of
     Just (SomeProperty key val) ->
@@ -156,8 +176,8 @@ noComplexNewLine rs cursor =
    in (Just True == maybeProp)
 
 comparePC :: NodePatternSelector -> NC.NodeBreadcrumb -> Bool
-comparePC AnyKey (NC.ObjectIndexAndKey (_, _)) = True
-comparePC AnyIndex (NC.ArrayIndex _) = True
+comparePC AnyObjectKey (NC.ObjectIndexAndKey (_, _)) = True
+comparePC AnyArrayIndex (NC.ArrayIndex _) = True
 comparePC (Selector s) bc = NC.compareSB s bc
 comparePC _ _ = False
 
