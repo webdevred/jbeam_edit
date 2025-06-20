@@ -1,16 +1,10 @@
 .*.nodes[*][*] {
-    PadDecimals: 3;
-    PadAmount: 6;
-}
-
-.*.nodes[*][0] {
+    // Pad all node values to 8 chars and force 3 decimals (e.g., 1.000)
     PadAmount: 8;
+    PadDecimals: 3;
 }
 
-.*.nodes[*] {
-    NoComplexNewLine : true;
-}
-
+// Keep flexbodies inline (no extra newlines for nested content)
 .*.flexbodies[*] {
     NoComplexNewLine : true;
 }
