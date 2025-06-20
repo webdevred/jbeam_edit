@@ -29,7 +29,11 @@ import Data.Set qualified as S (fromList)
 import Data.Text qualified as T
 import Text.Megaparsec qualified as MP
 import Text.Megaparsec.Byte qualified as B
-import Text.Megaparsec.Byte.Lexer qualified as L (decimal)
+import Text.Megaparsec.Byte.Lexer qualified as L (
+  decimal,
+  skipBlockComment,
+  skipLineComment,
+ )
 
 objectKeyParser :: Parser NodePatternSelector
 objectKeyParser = byteChar '.' *> key
@@ -50,19 +54,19 @@ arrayIndexParser = byteChar '[' *> index <* byteChar ']'
     index = Selector . ArrayIndex <$> L.decimal
 
 patternSelectorParser :: Parser NodePatternSelector
-patternSelectorParser = skipWhiteSpace *> anySel <* skipWhiteSpace
-  where
-    anySel =
-      tryParsers
-        [ B.string ".*" $> AnyObjectKey
-        , B.string "[*]" $> AnyArrayIndex
-        , objectIndexParser <?> "object index"
-        , objectKeyParser <?> "object key"
-        , arrayIndexParser <?> "array index"
-        ]
+patternSelectorParser =
+  tryParsers
+    [ B.string ".*" $> AnyObjectKey
+    , B.string "[*]" $> AnyArrayIndex
+    , objectIndexParser <?> "object index"
+    , objectKeyParser <?> "object key"
+    , arrayIndexParser <?> "array index"
+    ]
 
 patternParser :: Parser NodePattern
-patternParser = NodePattern . Seq.fromList <$> MP.some patternSelectorParser
+patternParser = skipWhiteSpace *> patternSelectors <* skipWhiteSpace
+  where
+    patternSelectors = NodePattern . Seq.fromList <$> MP.some patternSelectorParser
 
 tryDecodeKey :: [Word8] -> (Text -> Maybe SomeKey) -> Maybe SomeKey
 tryDecodeKey bs f =
@@ -76,6 +80,7 @@ propertyParser (SomeKey key) = do
   skipWhiteSpace
   val <- parseValueForKey key
   separatorParser
+  skipComment
   let prop = SomeProperty key
    in pure (SomeKey key, prop val)
 
@@ -84,9 +89,14 @@ parseValueForKey NoComplexNewLine = parseBool <?> "bool"
 parseValueForKey PadAmount = L.decimal <?> "integer"
 parseValueForKey PadDecimals = L.decimal <?> "integer"
 
+skipComment :: Parser ()
+skipComment = void . MP.many $ comment <* skipWhiteSpace
+  where
+    comment = tryParsers [L.skipLineComment "//", L.skipBlockComment "/*" "*/"]
+
 keyPropertyPairParser :: Parser (SomeKey, SomeProperty)
 keyPropertyPairParser = do
-  skipWhiteSpace
+  skipComment
   offset <- MP.getOffset
   key <-
     MP.label "property name" $
@@ -111,12 +121,13 @@ ruleParser = do
   skipWhiteSpace
   props <- MP.some (MP.try keyPropertyPairParser)
   _ <- byteChar '}'
+  skipWhiteSpace
   pure (pat, M.fromList props)
 
 ruleSetParser :: Parser RuleSet
 ruleSetParser = RuleSet . M.fromListWith M.union <$> MP.some singleRuleSet
   where
-    singleRuleSet = skipWhiteSpace *> ruleParser <* skipWhiteSpace
+    singleRuleSet = skipComment *> ruleParser <* skipComment
 
 parseDSL :: ByteString -> Either Text RuleSet
 parseDSL input

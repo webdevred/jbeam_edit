@@ -1,16 +1,35 @@
+// Apply default padding and decimal formatting to all node elements
 .*.nodes[*][*] {
+    // Show numbers with exactly 3 decimal places (e.g., 1.000)
     PadDecimals: 3;
+
+    // Pad numeric values to 6 characters wide for alignment
     PadAmount: 6;
 }
 
+// Special padding for the first element in each node list (vertex names)
 .*.nodes[*][0] {
+    /*
+      Vertex names can be up to 8 characters long,
+      so we pad them to width 8 for neat column alignment.
+      This improves readability by lining up numeric columns.
+    */
     PadAmount: 8;
 }
 
 .*.nodes[*] {
-    NoComplexNewLine : true;
+    /*
+      Prevent inserting newlines inside node elements with complex children.
+      Disable complex newlines here to keep nested structures inline.
+      This avoids cluttering the output with unnecessary line breaks,
+      making it easier to scan.
+    */
+    NoComplexNewLine: true;
 }
 
+// Flexbodies typically contain nested lists representing grouped geometry or materials
+// Keep complex nested content inline rather than breaking into multiple lines
+// This makes output more compact and easier to scan given typical data patterns
 .*.flexbodies[*] {
-    NoComplexNewLine : true;
+    NoComplexNewLine: true;
 }
