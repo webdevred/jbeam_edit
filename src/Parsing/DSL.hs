@@ -54,19 +54,19 @@ arrayIndexParser = byteChar '[' *> index <* byteChar ']'
     index = Selector . ArrayIndex <$> L.decimal
 
 patternSelectorParser :: Parser NodePatternSelector
-patternSelectorParser = skipWhiteSpace *> anySel <* skipWhiteSpace
-  where
-    anySel =
-      tryParsers
-        [ B.string ".*" $> AnyObjectKey
-        , B.string "[*]" $> AnyArrayIndex
-        , objectIndexParser <?> "object index"
-        , objectKeyParser <?> "object key"
-        , arrayIndexParser <?> "array index"
-        ]
+patternSelectorParser =
+  tryParsers
+    [ B.string ".*" $> AnyObjectKey
+    , B.string "[*]" $> AnyArrayIndex
+    , objectIndexParser <?> "object index"
+    , objectKeyParser <?> "object key"
+    , arrayIndexParser <?> "array index"
+    ]
 
 patternParser :: Parser NodePattern
-patternParser = NodePattern . Seq.fromList <$> MP.some patternSelectorParser
+patternParser = skipWhiteSpace *> patternSelectors <* skipWhiteSpace
+  where
+    patternSelectors = NodePattern . Seq.fromList <$> MP.some patternSelectorParser
 
 tryDecodeKey :: [Word8] -> (Text -> Maybe SomeKey) -> Maybe SomeKey
 tryDecodeKey bs f =
