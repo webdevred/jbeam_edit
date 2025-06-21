@@ -5,6 +5,7 @@ license: BSD-3-Clause
 author: webdevred
 maintainer: example@example.com
 copyright: 2025 webdevred
+data-files: examples/jbfl/*.jbfl
 
 extra-source-files:
   - README.org
@@ -46,6 +47,7 @@ ghc-options:
 
 library:
   source-dirs: src
+  generated-other-modules: Paths_jbeam_edit
 
 flags:
   dump-ast:

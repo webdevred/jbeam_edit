@@ -17,6 +17,9 @@ license-file:   LICENSE
 build-type:     Simple
 extra-source-files:
     README.org
+data-files:
+    examples/jbfl/complex.jbfl
+    examples/jbfl/minimal.jbfl
 
 source-repository head
   type: git
