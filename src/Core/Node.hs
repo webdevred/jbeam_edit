@@ -23,7 +23,7 @@ data InternalComment = InternalComment
   { cText :: Text
   , cMultiline :: Bool
   }
-  deriving (Eq, Show)
+  deriving (Eq, Read, Show)
 
 data Node
   = Array Array
