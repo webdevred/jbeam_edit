@@ -25,7 +25,7 @@ data Node
   | SinglelineComment Text
   | MultilineComment Text
   | Null
-  deriving (Eq, Show)
+  deriving (Eq, Read, Show)
 
 isCommentNode :: Node -> Bool
 isCommentNode (MultilineComment _) = True

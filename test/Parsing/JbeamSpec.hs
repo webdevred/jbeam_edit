@@ -2,13 +2,19 @@ module Parsing.JbeamSpec (
   spec,
 ) where
 
+import Data.List (isSuffixOf)
 import Data.Vector (fromList)
 import Parsing.Common.Helpers
 import Parsing.Jbeam
 import Parsing.ParsingTestHelpers
 import SpecHelper
+import System.Directory (getDirectoryContents)
 import Test.Hspec.Megaparsec
 import Text.Megaparsec
+
+import Data.ByteString qualified as BS (
+  readFile,
+ )
 
 numberSpec :: [(String, Node)]
 numberSpec = [("123", Number 123), ("123.123", Number 123.123)]
@@ -64,8 +70,28 @@ invalidSpec =
   where
     expLabels = foldMap elabel ["a valid scalar", "object", "array"]
 
+topNodeSpec :: FilePath -> FilePath -> Spec
+topNodeSpec inFilename outFilename = do
+  let inputPath = "examples/jbeam/" ++ inFilename
+  input <- runIO $ BS.readFile inputPath
+  output <- runIO $ readFile outFilename
+  let desc = "should parse contents of " ++ inFilename ++ " to AST in " ++ outFilename
+  describe desc . works $
+    parseNodes input `shouldBe` Right (read output)
+
+topNodeSpecs :: Spec
+topNodeSpecs = do
+  inputFiles <-
+    runIO $ filter (isSuffixOf ".jbeam") <$> getDirectoryContents "examples/jbeam"
+  let outputFile inFile = "examples/ast/jbeam/" ++ takeWhile (/= '.') inFile ++ ".hs"
+      testInputFile inFile = topNodeSpec inFile (outputFile inFile)
+  mapM_ testInputFile inputFiles
+
 spec :: Spec
-spec = sequence_ $ invalidSpec : map (applyParserSpec nodeParser) specs
+spec = do
+  mapM_ (applyParserSpec nodeParser) specs
+  invalidSpec
+  topNodeSpecs
   where
     specs =
       concat
