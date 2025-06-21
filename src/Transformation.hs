@@ -228,12 +228,20 @@ entryIsNonVertice :: VertexTreeEntry -> Bool
 entryIsNonVertice (VertexEntry _) = False
 entryIsNonVertice _ = True
 
+metaKey (ObjectKey (key, _)) = Just key
+metaKey _ = Nothing
+
 -- TODO: refactor to use not NE.fromList
 getVertexTreeGlobals :: VertexTree -> ([Node], VertexTree)
 getVertexTreeGlobals (VertexTree metas vertices restTree ttype) =
-  let existsInRestTree meta =
+  let metaElem meta metas' =
+        let maybeKey = metaKey meta
+         in case maybeKey of
+              Nothing -> False
+              _ -> maybeKey `elem` map metaKey metas'
+      existsInRestTree meta =
         any
-          (\restEntries -> meta `elem` subNodesInRestTree restEntries)
+          (\restEntries -> meta `metaElem` subNodesInRestTree restEntries)
           restTree
       (localMetas, globalMetas) = partition existsInRestTree metas
    in (globalMetas, VertexTree localMetas vertices restTree ttype)
