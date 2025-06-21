@@ -2,7 +2,6 @@ module Parsing.DSLSpec (
   spec,
 ) where
 
-import Control.Monad (forM_)
 import Data.ByteString (ByteString)
 import Data.List (isSuffixOf)
 import Data.String (fromString)
@@ -59,10 +58,9 @@ ruleSetSpecs :: Spec
 ruleSetSpecs = do
   inputFiles <-
     runIO $ filter (isSuffixOf ".jbfl") <$> getDirectoryContents "examples/jbfl"
-  let outputFile f = "examples/ast/jbfl/" ++ takeWhile (/= '.') f ++ ".hs"
-  forM_ inputFiles $ \inFile -> do
-    let outFile = outputFile inFile
-    ruleSetSpec inFile outFile
+  let outputFile inFile = "examples/ast/jbfl/" ++ takeWhile (/= '.') inFile ++ ".hs"
+      testInputFile inFile = ruleSetSpec inFile (outputFile inFile)
+  mapM_ testInputFile inputFiles
 
 expLabels :: [String] -> ET ByteString
 expLabels = foldMap elabel
