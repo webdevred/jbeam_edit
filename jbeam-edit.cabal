@@ -33,7 +33,9 @@ library
       Core.NodeCursor
       Core.NodePath
       Formatting
+      Formatting.Config
       Formatting.Rules
+      IOUtils
       Parsing.Common
       Parsing.Common.ErrorMessage
       Parsing.Common.Helpers
@@ -54,6 +56,8 @@ library
       base >=4.7 && <5
     , bytestring
     , containers
+    , directory
+    , filepath
     , foldable1-classes-compat
     , megaparsec
     , scientific
@@ -77,6 +81,8 @@ executable jbeam-edit
       base >=4.7 && <5
     , bytestring
     , containers
+    , directory
+    , filepath
     , foldable1-classes-compat
     , jbeam-edit
     , megaparsec
@@ -102,6 +108,7 @@ executable jbeam-edit-dump-ast
     , bytestring
     , containers
     , directory
+    , filepath
     , foldable1-classes-compat
     , jbeam-edit
     , megaparsec
@@ -137,6 +144,7 @@ test-suite jbeam-edit-test
     , bytestring
     , containers
     , directory
+    , filepath
     , foldable1-classes-compat
     , hspec
     , hspec-megaparsec
