@@ -5,22 +5,6 @@ RuleSet
                 ( fromList
                     [ AnyObjectKey
                     , Selector
-                        ( ObjectKey "flexbodies" )
-                    , AnyArrayIndex
-                    ]
-                )
-            , fromList
-                [
-                    ( SomeKey NoComplexNewLine
-                    , SomeProperty NoComplexNewLine True
-                    )
-                ]
-            )
-        ,
-            ( NodePattern
-                ( fromList
-                    [ AnyObjectKey
-                    , Selector
                         ( ObjectKey "nodes" )
                     , AnyArrayIndex
                     , AnyArrayIndex
@@ -34,6 +18,22 @@ RuleSet
                 ,
                     ( SomeKey PadDecimals
                     , SomeProperty PadDecimals 3
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
+                        ( ObjectKey "flexbodies" )
+                    , AnyArrayIndex
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey NoComplexNewLine
+                    , SomeProperty NoComplexNewLine True
                     )
                 ]
             )

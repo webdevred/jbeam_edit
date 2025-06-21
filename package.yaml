@@ -5,6 +5,7 @@ license: BSD-3-Clause
 author: webdevred
 maintainer: example@example.com
 copyright: 2025 webdevred
+data-files: examples/jbfl/*.jbfl
 
 extra-source-files:
   - README.org
@@ -28,6 +29,8 @@ dependencies:
   - text
   - scientific
   - foldable1-classes-compat
+  - directory
+  - filepath
 
 default-extensions: [OverloadedStrings, ImportQualifiedPost]
 
@@ -44,6 +47,7 @@ ghc-options:
 
 library:
   source-dirs: src
+  generated-other-modules: Paths_jbeam_edit
 
 flags:
   dump-ast:
@@ -67,12 +71,12 @@ executables:
     main: Main.hs
     source-dirs: tools/dump_ast
     ghc-options: [-threaded, -rtsopts, -with-rtsopts=-N]
-    dependencies: [directory, pretty-simple, jbeam-edit]
+    dependencies: [pretty-simple, jbeam-edit]
 
 tests:
   jbeam-edit-test:
     main: Spec.hs
     source-dirs: test
     ghc-options: [-threaded, -rtsopts, -with-rtsopts=-N]
-    dependencies: [jbeam-edit, directory, hspec, hspec-megaparsec]
+    dependencies: [jbeam-edit, hspec, hspec-megaparsec]
     build-tools: [hspec-discover]

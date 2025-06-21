@@ -5,30 +5,16 @@ RuleSet
                 ( fromList
                     [ AnyObjectKey
                     , Selector
-                        ( ObjectKey "flexbodies" )
-                    , AnyArrayIndex
-                    ]
-                )
-            , fromList
-                [
-                    ( SomeKey NoComplexNewLine
-                    , SomeProperty NoComplexNewLine True
-                    )
-                ]
-            )
-        ,
-            ( NodePattern
-                ( fromList
-                    [ AnyObjectKey
-                    , Selector
                         ( ObjectKey "nodes" )
                     , AnyArrayIndex
+                    , Selector
+                        ( ArrayIndex 0 )
                     ]
                 )
             , fromList
                 [
-                    ( SomeKey NoComplexNewLine
-                    , SomeProperty NoComplexNewLine True
+                    ( SomeKey PadAmount
+                    , SomeProperty PadAmount 8
                     )
                 ]
             )
@@ -58,16 +44,30 @@ RuleSet
                 ( fromList
                     [ AnyObjectKey
                     , Selector
-                        ( ObjectKey "nodes" )
+                        ( ObjectKey "flexbodies" )
                     , AnyArrayIndex
-                    , Selector
-                        ( ArrayIndex 0 )
                     ]
                 )
             , fromList
                 [
-                    ( SomeKey PadAmount
-                    , SomeProperty PadAmount 8
+                    ( SomeKey NoComplexNewLine
+                    , SomeProperty NoComplexNewLine True
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
+                        ( ObjectKey "nodes" )
+                    , AnyArrayIndex
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey NoComplexNewLine
+                    , SomeProperty NoComplexNewLine True
                     )
                 ]
             )

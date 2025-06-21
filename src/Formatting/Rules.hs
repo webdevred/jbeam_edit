@@ -27,24 +27,39 @@ import Core.NodePath (NodeSelector (..))
 import Data.Function (on)
 import Data.List (find)
 import Data.Map (Map)
+import Data.Ord (Down (..))
 import Data.Sequence (Seq (..))
 import Data.Text (Text)
 import Data.Type.Equality ((:~:) (Refl))
 
 import Core.NodeCursor qualified as NC
 import Data.Map qualified as M
-import Data.Sequence qualified as Seq (null)
+import Data.Sequence qualified as Seq (length, null)
 import Data.Text qualified as T
 
 data NodePatternSelector
   = AnyObjectKey
   | AnyArrayIndex
   | Selector NodeSelector
-  deriving (Eq, Ord, Read, Show)
+  deriving (Eq, Read, Show)
+
+instance Ord NodePatternSelector where
+  compare a b = compare (rank a) (rank b)
+    where
+      rank :: NodePatternSelector -> (Int, Maybe NodeSelector)
+      rank AnyArrayIndex = (2, Nothing)
+      rank AnyObjectKey = (1, Nothing)
+      rank (Selector s) = (0, Just s)
 
 newtype NodePattern
   = NodePattern (Seq NodePatternSelector)
-  deriving stock (Eq, Ord, Read, Show)
+  deriving stock (Eq, Read, Show)
+
+instance Ord NodePattern where
+  compare (NodePattern a) (NodePattern b) =
+    case on compare (Down . Seq.length) a b of
+      EQ -> compare a b
+      c -> c
 
 data PropertyKey a where
   NoComplexNewLine :: PropertyKey Bool
