@@ -36,7 +36,7 @@ dumpJbflAST dir filename = do
   contents <- BL.readFile (dir ++ "/" ++ filename)
   case parseDSL (BL.toStrict contents) of
     Right rs -> dump rs
-    Left _ -> error "error :("
+    Left _ -> error $ "error " ++ filename
   where
     dump contents =
       let outFile = "examples/ast/jbfl/" ++ takeWhile (/= '.') filename ++ ".hs"
@@ -47,7 +47,7 @@ dumpJbeamAST dir filename = do
   contents <- BL.readFile (dir ++ "/" ++ filename)
   case parseNodes (BL.toStrict contents) of
     Right rs -> dump rs
-    Left _ -> error "error :("
+    Left _ -> error $ "error " ++ filename
   where
     dump contents =
       let outFile = "examples/ast/jbeam/" ++ takeWhile (/= '.') filename ++ ".hs"
