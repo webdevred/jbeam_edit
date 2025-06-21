@@ -38,5 +38,5 @@ processNodes nodes formattingConfig =
     . encodeUtf8
     . TL.fromStrict
     . formatNode formattingConfig newCursor
-    . transform
+    . transform newCursor
     $ nodes
