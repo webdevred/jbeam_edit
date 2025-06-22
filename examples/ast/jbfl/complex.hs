@@ -6,6 +6,24 @@ RuleSet
                     [ AnyObjectKey
                     , Selector
                         ( ObjectKey "nodes" )
+                    , Selector
+                        ( ArrayIndex 0 )
+                    , AnyArrayIndex
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey PadAmount
+                    , SomeProperty PadAmount 0
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
+                        ( ObjectKey "nodes" )
                     , AnyArrayIndex
                     , Selector
                         ( ArrayIndex 0 )
