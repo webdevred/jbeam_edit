@@ -2,6 +2,7 @@ module Main (
   main,
 ) where
 
+import CommandLineOptions
 import Core.Node (Node)
 import Core.NodeCursor (newCursor)
 import Data.Text.Lazy.Encoding (encodeUtf8)
@@ -16,16 +17,23 @@ import Data.ByteString.Lazy qualified as BL (
   toStrict,
   writeFile,
  )
-import Data.List qualified as L (uncons)
 import Data.Text.IO qualified as TIO (putStrLn)
 import Data.Text.Lazy qualified as TL (fromStrict)
 
 main :: IO ()
 main = do
   args <- getArgs
+  opts <- parseOptions args
+  configDir <- getConfigDir
+  case opts of
+    Options { optCopyJbflConfig = Just configType } -> copyConfigFile configDir configType
+    _ -> editFile opts
+
+editFile :: Options -> IO ()
+editFile opts = do
   formattingConfig <- readFormattingConfig
-  case L.uncons args of
-    Just (filename, _) -> do
+  case optInputFile opts of
+    Just filename -> do
       contents <- tryReadFile [] filename
       case contents >>= parseNodes . BL.toStrict of
         Right ns -> processNodes ns formattingConfig
