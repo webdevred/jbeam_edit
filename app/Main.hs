@@ -24,9 +24,8 @@ main :: IO ()
 main = do
   args <- getArgs
   opts <- parseOptions args
-  configDir <- getConfigDir
   case opts of
-    Options { optCopyJbflConfig = Just configType } -> copyConfigFile configDir configType
+    Options {optCopyJbflConfig = Just configType} -> copyToConfigDir configType
     _ -> editFile opts
 
 editFile :: Options -> IO ()

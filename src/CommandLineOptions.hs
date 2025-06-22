@@ -9,13 +9,13 @@ import Paths_jbeam_edit (version)
 import System.Console.GetOpt
 import System.Environment
 import System.Exit
-import System.IO
 
 data Options = Options
   { optInPlace :: Bool
   , optCopyJbflConfig :: Maybe ConfigType
   , optInputFile :: Maybe FilePath
-  } deriving Show
+  }
+  deriving (Show)
 
 startOptions :: Options
 startOptions =
@@ -69,11 +69,12 @@ options =
       ( NoArg
           ( \_ -> do
               prg <- getProgName
-              let header = unlines
-                    [ "Usage:"
-                    , "  " ++ prg ++ " [OPTIONS] [INPUT-FILE]"
-                    , ""
-                    ]
+              let header =
+                    unlines
+                      [ "Usage:"
+                      , "  " ++ prg ++ " [OPTIONS] [INPUT-FILE]"
+                      , ""
+                      ]
               putStrLn (usageInfo header options)
               exitSuccess
           )

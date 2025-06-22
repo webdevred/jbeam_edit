@@ -55,21 +55,21 @@ This will create a file named =rules.jbfl= in your XDG config directory:
 - On **Linux/macOS**: =$HOME/.config/jbeam-edit/rules.jbfl=
 - On **Windows**: =%APPDATA%\jbeam-edit\rules.jbfl=
 
-This configuration will be used automatically when formatting files, unless a local =jbeam-edit.jbfl= file is present in the current working directory.
+This configuration will be used automatically when formatting files, unless a local =.jbeam_edit.jbfl= file is present in the current working directory.
 
 *** Project-Specific Configuration
 
-You can override the global configuration on a per-project basis by placing a =jbeam-edit.jbfl= file in the root of your project.
+You can override the global configuration on a per-project basis by placing a .jbeam_edit.jbfl= file in the root of your project.
 After creating the user configuration with =jbeam-edit -cminimal= or =jbeam-edit -ccomplex=, you can copy that to your project if you want to apply specific rules on a per-project basis.
 
 #+BEGIN_SRC bash
-cp ~/.config/jbeam-edit/rules.jbfl ./jbeam-edit.jbfl
+cp ~/.config/jbeam-edit/rules.jbfl ./.jbeam_edit.jbfl
 #+END_SRC
 
 On Windows:
 
 #+BEGIN_SRC powershell
-copy "%APPDATA%\jbeam-edit\rules.jbfl" .\jbeam-edit.jbfl
+copy "%APPDATA%\jbeam-edit\rules.jbfl" .\.jbeam_edit.jbfl
 #+END_SRC
 
 The presence of this file takes precedence over the global configuration and allows for project-specific formatting preferences.

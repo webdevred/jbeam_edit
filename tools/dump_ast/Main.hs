@@ -7,7 +7,7 @@ import Parsing.DSL (parseDSL)
 import Parsing.Jbeam (parseNodes)
 import System.Directory (getDirectoryContents)
 import System.FilePath ((</>))
-import Text.Pretty.Simple(pStringOpt, defaultOutputOptionsNoColor)
+import Text.Pretty.Simple (defaultOutputOptionsNoColor, pStringOpt)
 
 import Data.ByteString.Lazy qualified as BL (
   readFile,

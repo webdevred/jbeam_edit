@@ -1,4 +1,4 @@
-module Formatting.Config (readFormattingConfig, getConfigDir, copyConfigFile, ConfigType (..)) where
+module Formatting.Config (readFormattingConfig, copyToConfigDir, ConfigType (..)) where
 
 import Control.Monad (when)
 import Data.ByteString.Lazy as BL
@@ -9,7 +9,7 @@ import IOUtils
 import Parsing.DSL (parseDSL)
 import Paths_jbeam_edit
 import System.Directory
-import System.FilePath ((</>),takeDirectory)
+import System.FilePath (takeDirectory, (</>))
 
 import Data.Text.IO qualified as TIO (putStrLn)
 
@@ -38,6 +38,11 @@ copyConfigFile dest configType = do
   source <- getDataFileName (getJbflSourcePath configType)
   putStrLn ("installing " ++ show configType ++ " config file to " ++ dest)
   copyFile source dest
+
+copyToConfigDir :: ConfigType -> IO ()
+copyToConfigDir configType = do
+  configDir <- getConfigDir
+  copyConfigFile configDir configType
 
 createRuleFileIfDoesNotExist :: FilePath -> IO ()
 createRuleFileIfDoesNotExist configPath = do
