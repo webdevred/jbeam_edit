@@ -42,7 +42,7 @@ copyConfigFile dest configType = do
 copyToConfigDir :: ConfigType -> IO ()
 copyToConfigDir configType = do
   configDir <- getConfigDir
-  copyConfigFile configDir configType
+  copyConfigFile (configDir </> "rules.jbfl") configType
 
 createRuleFileIfDoesNotExist :: FilePath -> IO ()
 createRuleFileIfDoesNotExist configPath = do
