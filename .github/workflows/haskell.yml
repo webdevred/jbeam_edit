@@ -73,13 +73,11 @@ jobs:
             ~/.ghcup
             ~/.cabal
             dist-newstyle
-          key: ${{ runner.os }}-cabal-ghc947-${{ hashFiles('**/package.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-cabal-ghc947-
-      - name: Set up GHC and Cabal (GHC 9.4.7)
+          key: ${{ runner.os }}-cabal-ghc966-${{ hashFiles('**/package.yaml') }}
+      - name: Set up GHC and Cabal (GHC 9.6.6)
         uses: haskell-actions/setup@v2.8.0
         with:
-          ghc-version: 9.4.7
+          ghc-version: 9.6.6
           cabal-version: latest
           cabal-update: true
       - name: Build project
