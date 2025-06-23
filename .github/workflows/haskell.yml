@@ -49,15 +49,15 @@ jobs:
           TMP_DIR=$(mktemp -d)
           git show HEAD:$CABAL_FILE > $TMP_DIR/committed.cabal
           cp $CABAL_FILE $TMP_DIR/current.cabal
-          tail -n +2 $TMP_DIR/committed.cabal > $TMP_DIR/committed_trimmed.cabal
-          tail -n +2 $TMP_DIR/current.cabal > $TMP_DIR/current_trimmed.cabal
-          if ! diff -q $TMP_DIR/committed_trimmed.cabal $TMP_DIR/current_trimmed.cabal > /dev/null; then
+          sed '/^-- This file has been generated from package.yaml by hpack/d' $TMP_DIR/committed.cabal > $TMP_DIR/committed_filtered.cabal
+          sed '/^-- This file has been generated from package.yaml by hpack/d' $TMP_DIR/current.cabal > $TMP_DIR/current_filtered.cabal
+          if ! diff -q $TMP_DIR/committed_filtered.cabal $TMP_DIR/current_filtered.cabal > /dev/null; then
           echo "Error: .cabal file changed beyond the expected hpack comment line."
           echo "Only package.yaml should be edited. Regenerate the .cabal file with hpack."
           echo "Manual changes to the .cabal file are not allowed and must be reverted."
           exit 1
           else
-          echo ".cabal file is unchanged except for the first comment line."
+          echo ".cabal file is unchanged except for the hpack comment line."
           fi
       - name: Run tests
         run: stack test --fast
