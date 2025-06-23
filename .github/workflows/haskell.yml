@@ -38,7 +38,7 @@ jobs:
           path: |
             ~/.stack
             .stack-work
-          key: ${{ runner.os }}-stack-${{ hashFiles('**/stack.yaml.lock') }}
+          key: ${{ runner.os }}-stack-${{ hashFiles('**/stack.yaml.lock', '**/package.yaml') }}
       - name: Set up GHC with Stack
         run: stack setup
       - name: Build project
@@ -97,7 +97,7 @@ jobs:
           path: |
             ${{ env.APPDATA }}\stack
             .stack-work
-          key: ${{ runner.os }}-stack-${{ hashFiles('**/stack.yaml.lock') }}
+          key: ${{ runner.os }}-stack-${{ hashFiles('**/stack.yaml.lock', '**/package.yaml') }}
       - name: Set up GHC with Stack
         run: stack setup
       - name: Build project
