@@ -3,7 +3,7 @@ A Parser, Formatter, and Editor for jbeam Files
 
 This project is a command-line tool designed to work with jbeam files (the structured, JSON-like format used in BeamNG to define vehicles, physics, and structures). Initially implemented in Haskell as a fast and robust demo, it has grown into a comprehensive utility for manipulating jbeam data.
 
-** Features
+** Features at a glance
 
 *** Complete File Parsing
 - Parses entire =.jbeam= files, including comments.
@@ -18,8 +18,8 @@ This project is a command-line tool designed to work with jbeam files (the struc
 - Sorts and sequentially renames all nodes (e.g., =["bf1", ...]= becomes =["bf0", "bf1", "bf2"]=).
 - Updates all references to renamed nodes throughout the file to prevent inconsistencies.
 
-*** Configurable Formatting Rules — Powered by JBFL
-=jbeam_edit= supports user-defined rule files in JBFL (JBeam Formatting Language), a declarative mini-language for specifying formatting behavior.
+*** Configurable Formatting Rules, Powered by JBFL
+=jbeam-edit= supports user-defined rule files in JBFL (JBeam Formatting Language), a declarative mini-language for specifying formatting behavior.
 
 **** Example rule file (rules.jbfl)
 
@@ -38,6 +38,49 @@ This project is a command-line tool designed to work with jbeam files (the struc
 - Target specific parts of the data tree using wildcard patterns.
 - Control indentation, spacing, padding, and decimal precision.
 - As a maintainer, enforce customized formatting rules to fit your preference.
+
+** Configuration
+
+When using =jbeam-edit= for the first time, you should generate a default formatting configuration file.
+
+Run one of the following:
+
+#+BEGIN_SRC bash
+jbeam-edit -cminimal   # Generates a simple, clean formatting config
+jbeam-edit -ccomplex   # Generates a more detailed and explicit config
+#+END_SRC
+
+This will create a file named =rules.jbfl= in your XDG config directory:
+
+- On **Linux/macOS**: =$HOME/.config/jbeam-edit/rules.jbfl=
+- On **Windows**: =%APPDATA%\jbeam-edit\rules.jbfl=
+
+This configuration will be used automatically when formatting files, unless a local =.jbeam_edit.jbfl= file is present in the current working directory.
+
+*** Project-Specific Configuration
+
+You can override the global configuration on a per-project basis by placing a .jbeam_edit.jbfl= file in the root of your project.
+After creating the user configuration with =jbeam-edit -cminimal= or =jbeam-edit -ccomplex=, you can copy that to your project if you want to apply specific rules on a per-project basis.
+
+#+BEGIN_SRC bash
+cp ~/.config/jbeam-edit/rules.jbfl ./.jbeam_edit.jbfl
+#+END_SRC
+
+On Windows:
+
+#+BEGIN_SRC powershell
+copy "%APPDATA%\jbeam-edit\rules.jbfl" .\.jbeam_edit.jbfl
+#+END_SRC
+
+The presence of this file takes precedence over the global configuration and allows for project-specific formatting preferences.
+
+** Examples
+
+For detailed example files and usage instructions, please see the dedicated examples documentation:
+
+[[examples/README.org][Examples Directory README]]
+
+This contains sample =.jbeam= files and formatting rules to help you explore and test jbeam-edit’s features
 
 ** Planned Features / TODO
 
@@ -73,32 +116,45 @@ For now, the project remains a Haskell-based tool, but the idea of a C/C++ port 
 
 *** Prerequisites
 
-- Haskell Compiler: GHC (https://www.haskell.org/ghc/)  
+- Haskell Compiler: GHC (https://www.haskell.org/ghc/)
 - Build Tool: Stack (https://docs.haskellstack.org)
 
 *** Installation
 
 Clone the repository and build the project using your preferred Haskell build tool:
 
-git clone https://github.com/webdevred/jbeam-tool.git  
-cd jbeam-tool  
+#+BEGIN_SRC bash
+git clone https://github.com/webdevred/jbeam-tool.git
+cd jbeam-tool
 stack build
+#+END_SRC
 
 *** Usage
 
 Run the tool from the command line as follows:
 
-#+begin_src 
+#+BEGIN_SRC bash
 stack exec jbeam-tool -- [options] <input-file>
-#+end_src
+#+END_SRC
 
 The tool will:
 
-- Parse the provided jbeam file.  
-- Format it according to the default or user-defined rules.  
+- Parse the provided jbeam file.
+- Format it according to the default or user-defined rules.
 - Automatically sort nodes, rename them sequentially, and update all related references.
+- By default, write the formatted output back to the file and create a backup file named <input-file>.bak.
+- Use the `-i` or `--in-place` option to modify files directly **without** creating a backup.
+
+Example:
+
+#+BEGIN_SRC bash
+jbeam-edit -i example.jbeam
+#+END_SRC
+
+This will update `example.jbeam` in place, skipping the backup creation step.
 
 For full usage details and configuration options, please refer to [[EXPLANATION_OF_SOURCE_CODE.org][EXPLANATION_OF_SOURCE_CODE.org]]
+
 
 *** Contributing
 

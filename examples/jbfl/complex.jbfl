@@ -1,35 +1,27 @@
-// Apply default padding and decimal formatting to all node elements
-.*.nodes[*][*] {
-    // Show numbers with exactly 3 decimal places (e.g., 1.000)
-    PadDecimals: 3;
-
-    // Pad numeric values to 6 characters wide for alignment
-    PadAmount: 6;
+// Disable padding for header row (column names)
+.*.nodes[0][*] {
+    PadAmount: 0; // no padding here
+    // This row has string headers, so no numeric formatting needed
 }
 
-// Special padding for the first element in each node list (vertex names)
+/* Default formatting for all numeric node values */
+.*.nodes[*][*] {
+    PadDecimals: 3;  // Show 3 decimal places for uniformity
+    PadAmount: 6;    // Align numeric columns
+}
+
+// Padding for vertex names (first element in nodes Array)
 .*.nodes[*][0] {
-    /*
-      Vertex names can be up to 8 characters long,
-      so we pad them to width 8 for neat column alignment.
-      This improves readability by lining up numeric columns.
-    */
     PadAmount: 8;
+    // Wider for typical vertex IDs
 }
 
 .*.nodes[*] {
-    /*
-      Prevent inserting newlines inside node elements with complex children.
-      Disable complex newlines here to keep nested structures inline.
-      This avoids cluttering the output with unnecessary line breaks,
-      making it easier to scan.
-    */
     NoComplexNewLine: true;
+    // Keep nodes inline for easier reading
 }
 
-// Flexbodies typically contain nested lists representing grouped geometry or materials
-// Keep complex nested content inline rather than breaking into multiple lines
-// This makes output more compact and easier to scan given typical data patterns
+// Flexbodies usually contain nested data structures
 .*.flexbodies[*] {
-    NoComplexNewLine: true;
+    NoComplexNewLine: true; /* compact formatting for flexbodies */
 }
