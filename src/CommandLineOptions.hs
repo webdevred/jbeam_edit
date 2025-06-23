@@ -41,7 +41,7 @@ maybeConfigType _ = Nothing
 options :: [OptDescr (Options -> IO Options)]
 options =
   [ Option
-      "I"
+      "i"
       ["in-place"]
       (NoArg (\opt -> pure opt {optInPlace = True}))
       "Perform editing in-place"

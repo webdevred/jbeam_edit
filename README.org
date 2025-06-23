@@ -116,7 +116,7 @@ For now, the project remains a Haskell-based tool, but the idea of a C/C++ port 
 
 *** Prerequisites
 
-- Haskell Compiler: GHC (https://www.haskell.org/ghc/)  
+- Haskell Compiler: GHC (https://www.haskell.org/ghc/)
 - Build Tool: Stack (https://docs.haskellstack.org)
 
 *** Installation
@@ -124,8 +124,8 @@ For now, the project remains a Haskell-based tool, but the idea of a C/C++ port 
 Clone the repository and build the project using your preferred Haskell build tool:
 
 #+BEGIN_SRC bash
-git clone https://github.com/webdevred/jbeam-tool.git  
-cd jbeam-tool  
+git clone https://github.com/webdevred/jbeam-tool.git
+cd jbeam-tool
 stack build
 #+END_SRC
 
@@ -139,11 +139,22 @@ stack exec jbeam-tool -- [options] <input-file>
 
 The tool will:
 
-- Parse the provided jbeam file.  
-- Format it according to the default or user-defined rules.  
+- Parse the provided jbeam file.
+- Format it according to the default or user-defined rules.
 - Automatically sort nodes, rename them sequentially, and update all related references.
+- By default, write the formatted output back to the file and create a backup file named <input-file>.bak.
+- Use the `-i` or `--in-place` option to modify files directly **without** creating a backup.
+
+Example:
+
+#+BEGIN_SRC bash
+jbeam-edit -i example.jbeam
+#+END_SRC
+
+This will update `example.jbeam` in place, skipping the backup creation step.
 
 For full usage details and configuration options, please refer to [[EXPLANATION_OF_SOURCE_CODE.org][EXPLANATION_OF_SOURCE_CODE.org]]
+
 
 *** Contributing
 
