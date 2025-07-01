@@ -20,5 +20,6 @@ cradle:
                 component: exe:jbeam-edit
               - path: ./tools/dump_ast
                 component: exe:jbeam-edit-dump-ast
+                cabalProject: ./cabal.project.dev
               - path: ./test
                 component: test:jbeam-edit-test

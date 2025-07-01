@@ -1,0 +1,4 @@
+packages: .
+
+package jbeam-edit
+  flags: +dump-ast
