@@ -1,4 +1,3 @@
 ((haskell-mode
-  . ((haskell-process-args-cabal-repl . ("jbeam-edit:test:jbeam-edit-test")))))
-
-
+  . ((eval . (setq-local haskell-process-args-cabal-repl
+                     (append '("jbeam-edit:test:jbeam-edit-test") haskell-process-args-cabal-repl))))))

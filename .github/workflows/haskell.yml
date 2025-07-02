@@ -108,6 +108,7 @@ jobs:
         uses: actions/cache@v4.2.3
         with:
           path: |
+            ${{ env.LOCALAPPDATA }}\Programs\stack
             ${{ env.APPDATA }}\stack
             .stack-work
           key: >-
