@@ -4,7 +4,7 @@ module Main (
 
 import Core.NodeCursor
 import Data.List (isSuffixOf)
-import Data.Text.Lazy (fromStrict)
+import Data.Text (Text)
 import Formatting
 import Parsing.DSL (parseDSL)
 import Parsing.Jbeam (parseNodes)
@@ -16,8 +16,8 @@ import Data.ByteString.Lazy qualified as BL (
   readFile,
   toStrict,
  )
-import Data.Text.Lazy qualified as L
-import Data.Text.Lazy.IO qualified as TLIO (writeFile)
+import Data.Text.IO qualified as TIO (writeFile)
+import Data.Text.Lazy qualified as TL (toStrict)
 
 main :: IO ()
 main =
@@ -44,17 +44,17 @@ main =
           , jbflAST <- jbflASTs
           ]
 
-saveDump :: String -> L.Text -> IO ()
+saveDump :: String -> Text -> IO ()
 saveDump outFile formatted =
   putStrLn ("creating " ++ outFile)
-    >> TLIO.writeFile outFile formatted
+    >> TIO.writeFile outFile formatted
 
 saveAstDump :: Show a => String -> a -> IO ()
 saveAstDump outFile contents =
   let formatted = pStringOpt defaultOutputOptionsNoColor (show contents ++ "\n")
-   in saveDump outFile formatted
+   in saveDump outFile (TL.toStrict formatted)
 
-dumpJbflAST :: FilePath -> [Char] -> [Char] -> IO ()
+dumpJbflAST :: FilePath -> String -> String -> IO ()
 dumpJbflAST dir outDir filename = do
   contents <- BL.readFile (dir </> filename)
   case parseDSL (BL.toStrict contents) of
@@ -62,10 +62,10 @@ dumpJbflAST dir outDir filename = do
     Left _ -> error $ "error " ++ filename
   where
     dump contents =
-      let outFile = outDir </> takeWhile (/= '.') filename ++ ".hs"
+      let outFile = outDir </> takeBaseName filename ++ ".hs"
        in saveAstDump outFile contents
 
-dumpJbeamAST :: FilePath -> [Char] -> [Char] -> IO ()
+dumpJbeamAST :: FilePath -> String -> String -> IO ()
 dumpJbeamAST dir outDir filename = do
   contents <- BL.readFile (dir </> filename)
   case parseNodes (BL.toStrict contents) of
@@ -73,7 +73,7 @@ dumpJbeamAST dir outDir filename = do
     Left _ -> error $ "error " ++ filename
   where
     dump contents =
-      let outFile = outDir </> takeWhile (/= '.') filename ++ ".hs"
+      let outFile = outDir </> takeBaseName filename ++ ".hs"
        in saveAstDump outFile contents
 
 dumpFormattedJbeam :: String -> (FilePath, FilePath) -> IO ()
@@ -85,4 +85,4 @@ dumpFormattedJbeam outDir (jbeamFile, ruleFile) = do
   where
     dump filename contents =
       let outFile = outDir </> filename
-       in saveDump outFile (fromStrict contents)
+       in saveDump outFile contents
