@@ -1,5 +1,6 @@
 module Parsing.Jbeam (
   nodeParser,
+  numberParser,
   parseNodes,
 ) where
 
@@ -16,7 +17,7 @@ import Data.Text qualified as T
 import Data.Vector qualified as V (fromList)
 import Text.Megaparsec qualified as MP
 import Text.Megaparsec.Byte qualified as B
-import Text.Megaparsec.Byte.Lexer qualified as L (scientific, signed)
+import Text.Megaparsec.Byte.Lexer qualified as L (scientific)
 import Text.Megaparsec.Char qualified as C
 
 separatorParser :: Parser ()
@@ -30,9 +31,14 @@ separatorParser =
 --- selectors for numbers, comments, strings and bools
 ---
 numberParser :: Parser Node
-numberParser = fmap Number signedScientific
-  where
-    signedScientific = L.signed B.space L.scientific
+numberParser = do
+  char <- MP.lookAhead B.asciiChar
+  Number
+    <$> if char == toWord8 '-'
+      then
+        negate <$> (byteChar '-' *> L.scientific)
+      else
+        L.scientific
 
 multilineCommentParser :: Parser Node
 multilineCommentParser =
