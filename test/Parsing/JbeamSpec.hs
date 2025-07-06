@@ -17,7 +17,16 @@ import Data.ByteString qualified as BS (
  )
 
 numberSpec :: [(String, Node)]
-numberSpec = [("123", Number 123), ("123.123", Number 123.123)]
+numberSpec =
+  [ ("123", Number 123)
+  , ("123.123", Number 123.123)
+  , ("-123", Number (-123))
+  , ("-123.123", Number (-123.123))
+  , ("0", Number 0)
+  , ("0.0", Number 0.0)
+  , ("-0", Number 0)
+  , ("-0.0", Number 0.0)
+  ]
 
 stringSpec :: [(String, Node)]
 stringSpec = [("\"test\"", String "test"), ("\"\"", String "")]
@@ -70,6 +79,14 @@ invalidSpec =
   where
     expLabels = foldMap elabel ["a valid scalar", "object", "array"]
 
+invalidNumberSpec :: Spec
+invalidNumberSpec =
+  describe
+    "should fail parsing Number when there is space after the negative sign"
+    . works
+    $ parse numberParser "" "- 0.3"
+      `shouldFailWith` err 1 (utok (toWord8 ' ') <> elabel "digit")
+
 topNodeSpec :: FilePath -> FilePath -> Spec
 topNodeSpec inFilename outFilename = do
   let inputPath = "examples/jbeam/" ++ inFilename
@@ -91,6 +108,7 @@ spec :: Spec
 spec = do
   mapM_ (applyParserSpec nodeParser) specs
   invalidSpec
+  invalidNumberSpec
   topNodeSpecs
   where
     specs =
