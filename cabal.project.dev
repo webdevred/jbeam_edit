@@ -1,4 +1,7 @@
 packages: .
 
+package *
+  ghc-options: -haddock
+
 package jbeam-edit
   flags: +dump-ast
