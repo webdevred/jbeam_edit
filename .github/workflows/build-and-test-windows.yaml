@@ -1,0 +1,33 @@
+name: Build and test on Windows
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  build-with-stack-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Cache Stack and binaries
+        uses: actions/cache@v4.2.3
+        with:
+          path: |
+            ${{ env.LOCALAPPDATA }}\Programs\stack
+            ${{ env.APPDATA }}\stack
+            .stack-work
+          key: >-
+            ${{ runner.os }}-stack-${{ hashFiles(
+              '**/stack.yaml.lock',
+              '**/package.yaml'
+            ) }}
+      - name: Set up GHC with Stack
+        run: stack setup
+      - name: Build project
+        run: >
+          stack build --fast --hpack-force --lock-file=error-on-write
+          --ghc-options="-Werror"
+      - name: Run tests
+        run: stack test --fast
