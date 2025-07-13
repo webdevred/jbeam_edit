@@ -65,7 +65,7 @@ library
     , foldable1-classes-compat
     , megaparsec
     , scientific
-    , text
+    , text >=2.0
     , vector
   default-language: Haskell2010
 
@@ -91,7 +91,7 @@ executable jbeam-edit
     , jbeam-edit
     , megaparsec
     , scientific
-    , text
+    , text >=2.0
     , vector
   default-language: Haskell2010
 
@@ -118,7 +118,7 @@ executable jbeam-edit-dump-ast
     , megaparsec
     , pretty-simple
     , scientific
-    , text
+    , text >=2.0
     , vector
   default-language: Haskell2010
   if flag(dump-ast)
@@ -155,7 +155,7 @@ test-suite jbeam-edit-test
     , jbeam-edit
     , megaparsec
     , scientific
-    , text
+    , text >=2.0
     , vector
   build-tool-depends:
       hspec-discover:hspec-discover
