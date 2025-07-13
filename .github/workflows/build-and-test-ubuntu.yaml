@@ -54,7 +54,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        ghc: [8.8.4, 9.4.7, 9.6.6]
+        ghc: [9.2.7, 9.4.7, 9.6.6]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
