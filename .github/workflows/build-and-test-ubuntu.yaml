@@ -52,27 +52,31 @@ jobs:
         run: stack test --fast
   build-with-cabal:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        ghc: [8.8.4, 9.4.7, 9.6.6]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Cache GHC, Cabal, and build artifacts
+      - name: Cache GHC, Cabal store, and build artifacts
         uses: actions/cache@v4.2.3
         with:
           path: |
             ~/.ghcup
-            ~/.cabal
+            ~/.cabal/store
             dist-newstyle
           key: >-
-            ${{ runner.os }}-cabal-ghc966-${{ hashFiles(
-              '**/package.yaml'
-            ) }}
-      - name: Set up GHC and Cabal (GHC 9.6.6)
+            ${{ runner.os }}-ghc-${{ matrix.ghc }}-store-${{ hashFiles('**/*.cabal',
+            '**/package.yaml', 'cabal.project') }}
+          restore-keys: |
+            ${{ runner.os }}-ghc-${{ matrix.ghc }}-store-
+      - name: Set up GHC ${{ matrix.ghc }} and Cabal
         uses: haskell-actions/setup@v2.8.0
         with:
-          ghc-version: 9.6.6
+          ghc-version: ${{ matrix.ghc }}
           cabal-version: latest
           cabal-update: true
-      - name: Build project
+      - name: Build project (GHC ${{ matrix.ghc }})
         run: cabal build --ghc-options="-Werror"
-      - name: Run tests
+      - name: Run tests (GHC ${{ matrix.ghc }})
         run: cabal test --test-show-details=direct
