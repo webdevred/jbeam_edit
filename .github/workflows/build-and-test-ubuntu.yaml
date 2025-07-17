@@ -17,6 +17,7 @@ jobs:
           path: |
             ~/.ghcup
             ~/.stack
+            ~/.ghc
             .stack-work
           key: >-
             ${{ runner.os }}-stack-${{ hashFiles(
@@ -63,20 +64,53 @@ jobs:
         with:
           path: |
             ~/.ghcup
+            ~/.ghc
             ~/.cabal/store
             dist-newstyle
-          key: >-
-            ${{ runner.os }}-ghc-${{ matrix.ghc }}-store-${{ hashFiles('**/*.cabal',
-            '**/package.yaml', 'cabal.project') }}
+          key: ${{ runner.os }}-cabal-${{ matrix.ghc }}-${{ hashFiles('**/package.yaml')
+            }}
           restore-keys: |
-            ${{ runner.os }}-ghc-${{ matrix.ghc }}-store-
+            ${{ runner.os }}-cabal-${{ matrix.ghc }}-
+            ${{ runner.os }}-cabal-
       - name: Set up GHC ${{ matrix.ghc }} and Cabal
         uses: haskell-actions/setup@v2.8.0
         with:
           ghc-version: ${{ matrix.ghc }}
           cabal-version: latest
           cabal-update: true
+      - run: cabal configure --enable-tests
       - name: Build project (GHC ${{ matrix.ghc }})
         run: cabal build --ghc-options="-Werror"
       - name: Run tests (GHC ${{ matrix.ghc }})
+        run: cabal test --test-show-details=direct
+  build-on-latest:
+    name: Build-and-and-test-with-ghc-latest
+    needs: build-with-cabal
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Cache GHC, Cabal store, and build artifacts
+        uses: actions/cache@v4.2.3
+        with:
+          path: |
+            ~/.ghcup
+            ~/.ghc
+            ~/.cabal/store
+            dist-newstyle
+          key: ${{ runner.os }}-cabal-latest-store-${{ hashFiles('**/package.yaml')}}
+          restore-keys: |
+            ${{ runner.os }}-cabal-latest-store-
+            ${{ runner.os }}-cabal-
+      - name: Set up GHC latest and Cabal
+        uses: haskell-actions/setup@v2.8.0
+        with:
+          ghc-version: latest
+          cabal-version: latest
+          cabal-update: true
+      - name: Configure with dump-ast flag
+        run: cabal configure --enable-test --allow-newer=base --flags=dump-ast
+      - name: Build
+        run: cabal build
+      - name: Run tests
         run: cabal test --test-show-details=direct
