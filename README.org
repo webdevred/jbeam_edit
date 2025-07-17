@@ -90,8 +90,7 @@ This contains sample =.jbeam= files and formatting rules to help you explore and
 - Handle cases where meta nodes (e.g., ={"group":"..."}=) interrupt node groups.
 - Allow prefix replacement via command-line arguments (e.g., replace ="bf"= in nodes, beams, triangles, and flexbodies).
 - Expand test coverage.
-- Add dedicated, curated example files to demonstrate typical workflows and tool capabilities.
-  (Currently available example =.jbeam= files come from a collaborator's real mod and serve as examples until we produce example files dedicated for the project.)
+- Maintain and expand curated example files (=fender.jbeam=, =suspension.jbeam=) to demonstrate typical workflows and tool capabilities
 - Improve documentation to support new contributors and clarify configuration use.
 
 ** Why Haskell + Megaparsec
