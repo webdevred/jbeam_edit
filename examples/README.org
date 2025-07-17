@@ -4,7 +4,7 @@ This file guides you through example files and formatting rules to help you lear
 
 ** Example JBeam Files
 
-- =minimal.jbeam=
+- =fender.jbeam=
   - A simple, clean example JBeam file demonstrating basic parsing and formatting. Running jbeam-edit on this file will:
     - Parse the entire structure including comments
     - Format the file with consistent indentation and spacing
@@ -36,7 +36,7 @@ To format an example file with the minimal configuration:
 
 #+BEGIN_SRC bash
 jbeam-edit -cminimal
-stack exec jbeam-edit -- examples/jbeam/minimal.jbeam
+stack exec jbeam-edit -- examples/jbeam/fender.jbeam
 #+END_SRC
 
 To try the complex configuration, generate it first and run:
