@@ -5,10 +5,10 @@ module Transformation (
 import Core.Node
 import Data.Char (isDigit)
 import Data.Function (on)
-import Data.List (nub, partition, sort, sortOn)
-import Data.List.NonEmpty (NonEmpty, toList)
+import Data.List (partition, sortOn)
+import Data.List.NonEmpty (NonEmpty)
 import Data.Map (Map)
-import Data.Maybe (isJust, isNothing, mapMaybe)
+import Data.Maybe (fromMaybe, isJust, isNothing, mapMaybe)
 import Data.Scientific (Scientific)
 import Data.Sequence (Seq (..))
 import Data.Text (Text)
@@ -17,7 +17,7 @@ import GHC.IsList (fromList)
 
 import Core.NodeCursor qualified as NC
 import Core.NodePath qualified as NP
-import Data.Foldable qualified as F (foldr, maximumBy)
+import Data.Foldable qualified as F (maximumBy)
 import Data.List.NonEmpty qualified as NE
 import Data.Map qualified as M
 import Data.Text qualified as T
@@ -42,6 +42,24 @@ data VertexTree = VertexTree
   , tVertexNodes :: NonEmpty VertexTreeEntry
   , tRest :: Maybe VertexTree
   , tType :: VertexTreeType
+  }
+  deriving (Show)
+
+data VertexTreeContext = VertexTreeContext
+  { ctxAboveMeta :: [Node]
+  , ctxBefore :: [VertexTreeEntry]
+  , ctxAfter :: [VertexTreeEntry]
+  , ctxParentType :: VertexTreeType
+  , ctxRest :: Maybe VertexTree
+  , ctxAbove :: [VertexTreeContext]
+  }
+  deriving (Show)
+
+data VertexTreeZipper = VertexTreeZipper
+  { zFocus :: VertexTreeEntry
+  , zMeta :: [Node]
+  , zType :: VertexTreeType
+  , zContext :: VertexTreeContext
   }
   deriving (Show)
 
@@ -155,74 +173,35 @@ determineGroup x
   | x < 0.09 = MiddleTree
   | otherwise = LeftTree
 
-filterVerticesToMove :: VertexTree -> ([Vertex], Maybe VertexTree)
-filterVerticesToMove (VertexTree meta vertices maybeRest ttype) =
-  let (removedHere, keptHere) = F.foldr step ([], []) (toList vertices)
-      step entry (remAcc, keepAcc) =
-        case entry of
-          VertexEntry v ->
-            if vertexInCorrectTree ttype v
-              then (remAcc, entry : keepAcc)
-              else (v : remAcc, keepAcc)
-          _ -> (remAcc, entry : keepAcc)
-      (removedRest, newRest) =
-        case maybeRest of
-          Nothing -> ([], Nothing)
-          Just subTree ->
-            let (rs, newSub) = filterVerticesToMove subTree
-             in (rs, newSub)
-      allRemoved = removedHere ++ removedRest
-   in case NE.nonEmpty keptHere of
-        Nothing -> (allRemoved, newRest)
-        Just kept -> (allRemoved, Just (VertexTree meta kept newRest ttype))
-
 isMetaOrVertexHasTreeType :: VertexTreeType -> VertexTreeEntry -> Bool
 isMetaOrVertexHasTreeType vtype (VertexEntry vertex) =
   determineGroup (vX vertex) == vtype
 isMetaOrVertexHasTreeType _ _ = True
 
+zipperToVertexTree :: VertexTreeZipper -> VertexTree
+zipperToVertexTree (VertexTreeZipper _ _ _ ctx) =
+  fromMaybe (error "zipperToVertexTree: missing tree") (ctxRest ctx)
+
 -- TODO: refactor to use not NE.fromList
-moveVertices :: [VertexTreeType] -> VertexTree -> VertexTree -> VertexTree
-moveVertices [] templVertexTree (VertexTree metas vertices restTree ttype) =
-  VertexTree
-    metas
-    (NE.fromList $ filter (isMetaOrVertexHasTreeType ttype) (NE.toList vertices))
-    (moveVertices [] templVertexTree <$> restTree)
-    ttype
-moveVertices treeTypes@(vtype : otherTreeTypes) templVertexTree (VertexTree metas vertices maybeRestTree ttype)
-  | vtype > ttype =
-      VertexTree
-        metas
-        (NE.fromList $ filter (isMetaOrVertexHasTreeType ttype) (NE.toList vertices))
-        (moveVertices treeTypes templVertexTree <$> maybeRestTree)
-        ttype
-  | vtype == ttype =
-      VertexTree
-        metas
-        (NE.fromList $ filter (isMetaOrVertexHasTreeType vtype) (NE.toList vertices))
-        moveVertices'
-        vtype
-  | otherwise =
-      VertexTree
-        metas
-        ( newComment
-            `NE.appendList` filter (isMetaOrVertexHasTreeType vtype) (NE.toList vertices)
-        )
-        moveVertices'
-        vtype
-  where
-    newComment =
-      NE.singleton . CommentEntry . Comment $
-        InternalComment {cText = T.pack $ show vtype, cMultiline = False}
-    moveVertices' =
-      case maybeRestTree of
-        Just restTree -> Just $ moveVertices otherTreeTypes templVertexTree restTree
-        Nothing ->
-          Just $
-            moveVertices
-              otherTreeTypes
-              templVertexTree
-              (VertexTree metas vertices Nothing ttype)
+vertexTreeToZipper :: VertexTree -> VertexTreeZipper
+vertexTreeToZipper vt =
+  let entries = tVertexNodes vt
+      metas = tMetaNodes vt
+      t = tType vt
+   in VertexTreeZipper
+        { zFocus = NE.head entries
+        , zMeta = metas
+        , zType = t
+        , zContext =
+            VertexTreeContext
+              { ctxAboveMeta = []
+              , ctxBefore = []
+              , ctxAfter = NE.tail entries
+              , ctxParentType = t
+              , ctxRest = Just vt
+              , ctxAbove = []
+              }
+        }
 
 entryIsNonVertice :: VertexTreeEntry -> Bool
 entryIsNonVertice (VertexEntry _) = False
@@ -251,8 +230,6 @@ getVertexTreeGlobals (VertexTree metas vertices restTree ttype) =
         Just restSubMetas -> subNodesInRestTree restSubMetas <> subMetas
         Nothing -> subMetas
 
-mergeVertexTree = undefined
-
 updateVertexNames
   :: Int -> VertexTreeEntry -> (Int, VertexTreeEntry)
 updateVertexNames index (VertexEntry vertex) =
@@ -263,17 +240,44 @@ updateVertexNames index (VertexEntry vertex) =
    in (newIndex, renamedVertex)
 updateVertexNames index entry = (index, entry)
 
-updateVertices :: VertexTree -> VertexTree
-updateVertices vertexTree =
+moveVerticesInZipper :: VertexTreeZipper -> VertexTreeZipper
+moveVerticesInZipper z@(VertexTreeZipper _ _ _ ctx) =
+  let Just orig = ctxRest ctx
+      metas = tMetaNodes orig
+      entries = NE.toList (tVertexNodes orig)
+
+      classify (VertexEntry v) = determineGroup (vX v)
+      classify _ = SupportTree
+
+      grouped =
+        foldr
+          ( \e m ->
+              let t = classify e
+               in M.insertWith (++) t [e] m
+          )
+          M.empty
+          entries
+
+      mkTree t = VertexTree metas (NE.fromList (M.findWithDefault [] t grouped)) Nothing t
+
+      leftT = mkTree LeftTree
+      midT = mkTree MiddleTree
+      rightT = mkTree RightTree
+      supportT = mkTree SupportTree
+
+      newRoot =
+        leftT
+          { tRest = Just (midT {tRest = Just (rightT {tRest = Just supportT})})
+          }
+   in z {zContext = ctx {ctxRest = Just newRoot}}
+
+updateVertexTree :: VertexTree -> VertexTree
+updateVertexTree vertexTree =
   let (globalMetas, vertexTree') = getVertexTreeGlobals vertexTree
-      vsToMove =
-        sort . nub . map (determineGroup . vX) . fst . filterVerticesToMove $
-          vertexTree'
-      templVertices = mergeVertexTree vertexTree'
+      updatedVertexTree = zipperToVertexTree . moveVerticesInZipper . vertexTreeToZipper $ vertexTree'
       addGlobalMetas (VertexTree metas vertices restTree ttype) =
         VertexTree (globalMetas ++ metas) vertices restTree ttype
-   in sortVertices . addGlobalMetas . moveVertices vsToMove templVertices $
-        vertexTree'
+   in sortVertices . addGlobalMetas $ updatedVertexTree
 
 -- TODO: reimplement to use NonEmpty
 groupByMeta :: [VertexTreeEntry] -> [[VertexTreeEntry]]
@@ -413,7 +417,7 @@ transform :: NC.NodeCursor -> Node -> Node
 transform cursor topNode =
   let vertexTree = getVertexTree verticeQuery topNode
       vertexNames = getVertexNamesInTree vertexTree
-      updatedVertexTree = updateVertices vertexTree
+      updatedVertexTree = updateVertexTree vertexTree
       updatedVertexNames = getVertexNamesInTree updatedVertexTree
       updateMap = M.fromList $ on zip M.elems vertexNames updatedVertexNames
    in findAndUpdateTextInNode updateMap cursor $
