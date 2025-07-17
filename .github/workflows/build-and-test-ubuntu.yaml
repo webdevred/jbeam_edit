@@ -80,3 +80,33 @@ jobs:
         run: cabal build --ghc-options="-Werror"
       - name: Run tests (GHC ${{ matrix.ghc }})
         run: cabal test --test-show-details=direct
+  build-on-latest:
+    name: Build-and-and-test-with-ghc-latest
+    needs: build-with-cabal
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Cache GHC, Cabal store, and build artifacts
+        uses: actions/cache@v4.2.3
+        with:
+          path: |
+            ~/.ghcup
+            ~/.cabal/store
+            dist-newstyle
+          key: ${{ runner.os }}-ghc-latest-store-${{ hashFiles('**/*.cabal','**/package.yaml','cabal.project')
+            }}
+          restore-keys: |
+            ${{ runner.os }}-ghc-latest-store-
+      - name: Set up GHC latest and Cabal
+        uses: haskell-actions/setup@v2.8.0
+        with:
+          ghc-version: latest
+          cabal-version: latest
+          cabal-update: true
+      - name: Configure with dump-ast flag
+        run: cabal configure --enable-test --allow-newer=base --flags=dump-ast
+      - name: Build
+        run: cabal build
+      - name: Run tests
+        run: cabal test --test-show-details=direct
