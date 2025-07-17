@@ -17,6 +17,7 @@ jobs:
           path: |
             ~/.ghcup
             ~/.stack
+            ~/.ghc
             .stack-work
           key: >-
             ${{ runner.os }}-stack-${{ hashFiles(
@@ -63,19 +64,21 @@ jobs:
         with:
           path: |
             ~/.ghcup
+            ~/.ghc
             ~/.cabal/store
             dist-newstyle
-          key: >-
-            ${{ runner.os }}-ghc-${{ matrix.ghc }}-store-${{ hashFiles('**/*.cabal',
-            '**/package.yaml', 'cabal.project') }}
+          key: ${{ runner.os }}-cabal-${{ matrix.ghc }}-${{ hashFiles('**/package.yaml')
+            }}
           restore-keys: |
-            ${{ runner.os }}-ghc-${{ matrix.ghc }}-store-
+            ${{ runner.os }}-cabal-${{ matrix.ghc }}-
+            ${{ runner.os }}-cabal-
       - name: Set up GHC ${{ matrix.ghc }} and Cabal
         uses: haskell-actions/setup@v2.8.0
         with:
           ghc-version: ${{ matrix.ghc }}
           cabal-version: latest
           cabal-update: true
+      - run: cabal configure --enable-tests
       - name: Build project (GHC ${{ matrix.ghc }})
         run: cabal build --ghc-options="-Werror"
       - name: Run tests (GHC ${{ matrix.ghc }})
@@ -92,12 +95,13 @@ jobs:
         with:
           path: |
             ~/.ghcup
+            ~/.ghc
             ~/.cabal/store
             dist-newstyle
-          key: ${{ runner.os }}-ghc-latest-store-${{ hashFiles('**/*.cabal','**/package.yaml','cabal.project')
-            }}
+          key: ${{ runner.os }}-cabal-latest-store-${{ hashFiles('**/package.yaml')}}
           restore-keys: |
-            ${{ runner.os }}-ghc-latest-store-
+            ${{ runner.os }}-cabal-latest-store-
+            ${{ runner.os }}-cabal-
       - name: Set up GHC latest and Cabal
         uses: haskell-actions/setup@v2.8.0
         with:
