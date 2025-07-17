@@ -24,6 +24,8 @@ jobs:
               '**/stack.yaml.lock',
               '**/package.yaml'
             ) }}
+          restore-keys: |
+            ${{ runner.os }}-stack-
       - name: Set up GHC with Stack
         run: stack setup
       - name: Build project
@@ -67,7 +69,9 @@ jobs:
             ~/.ghc
             ~/.cabal/store
             dist-newstyle
-          key: ${{ runner.os }}-cabal-${{ matrix.ghc }}-${{ hashFiles('**/package.yaml')
+          key: >-
+            ${{ runner.os }}-cabal-${{ matrix.ghc }}-${{
+              hashFiles('**/package.yaml')
             }}
           restore-keys: |
             ${{ runner.os }}-cabal-${{ matrix.ghc }}-
