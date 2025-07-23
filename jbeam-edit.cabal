@@ -16,7 +16,8 @@ license:        BSD-3-Clause
 license-file:   LICENSE
 build-type:     Simple
 extra-source-files:
-    README.org
+    README.md
+    JBFL_DOCS.md
 data-files:
     examples/jbfl/complex.jbfl
     examples/jbfl/minimal.jbfl
