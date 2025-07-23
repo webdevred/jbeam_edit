@@ -1,5 +1,13 @@
 # Examples Directory
 
+<!--toc:start-->
+- [Examples Directory](#examples-directory)
+  - [Example JBeam Files](#example-jbeam-files)
+  - [JBFL Configuration Files](#jbfl-configuration-files)
+  - [How JBFL Affects Formatting](#how-jbfl-affects-formatting)
+  - [Using These Examples](#using-these-examples)
+<!--toc:end-->
+
 This file guides you through example files and formatting rules to help you learn and test jbeam-edit's features hands-on. It includes example JBeam files and JBFL rule files to explore the tool's capabilities.
 
 ## Example JBeam Files

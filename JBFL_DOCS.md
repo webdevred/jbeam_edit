@@ -1,3 +1,18 @@
+<!--toc:start-->
+- [Configuration Documentation: Value Formatting Rules](#configuration-documentation-value-formatting-rules)
+- [Overview](#overview)
+- [Pattern Syntax](#pattern-syntax)
+- [Properties Overview](#properties-overview)
+- [How Matching Works](#how-matching-works)
+- [Detailed Rules Examples](#detailed-rules-examples)
+  - [Pattern: `.*.nodes[*][*]`](#pattern-nodes)
+  - [Pattern: `.*.beams[*][*]`](#pattern-beams)
+- [Padding Behavior on Scalar Values](#padding-behavior-on-scalar-values)
+- [Examples](#examples)
+- [Summary Table](#summary-table)
+- [Notes and Tips](#notes-and-tips)
+<!--toc:end-->
+
 # Configuration Documentation: Value Formatting Rules
 
 This documentation describes the rule-based system for formatting values inside JBeam. It explains how to use pattern matching to target specific nodes and apply formatting settings during export.

@@ -1,5 +1,19 @@
 # JBeam Tool in Haskell
 
+<!--toc:start-->
+- [JBeam Tool in Haskell](#jbeam-tool-in-haskell)
+  - [Features](#features)
+  - [Configuration](#configuration)
+  - [Usage](#usage)
+  - [Examples](#examples)
+  - [Explanation of Source Code](#explanation-of-source-code)
+  - [Planned Features / TODO](#planned-features-todo)
+  - [Why Haskell + Megaparsec?](#why-haskell-megaparsec)
+  - [Future Considerations](#future-considerations)
+  - [Prerequisites](#prerequisites)
+  - [Contributing & License](#contributing-license)
+<!--toc:end-->
+
 A fast, robust command-line parser, formatter, and editor for JBeam files, the JSON-like format used by BeamNG to define vehicles and physics structures.
 
 ## Features
