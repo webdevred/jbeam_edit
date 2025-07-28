@@ -1,5 +1,8 @@
 # JBeam Tool in Haskell
 
+[![Build and test on Windows](https://github.com/webdevred/jbeam_edit/actions/workflows/build-and-test-windows.yaml/badge.svg?branch=master)](https://github.com/webdevred/jbeam_edit/actions/workflows/build-and-test-windows.yaml)
+[![Build and test on Ubuntu](https://github.com/webdevred/jbeam_edit/actions/workflows/build-and-test-ubuntu.yaml/badge.svg?branch=master)](https://github.com/webdevred/jbeam_edit/actions/workflows/build-and-test-ubuntu.yaml)
+
 <!--toc:start-->
 - [JBeam Tool in Haskell](#jbeam-tool-in-haskell)
   - [Features](#features)
