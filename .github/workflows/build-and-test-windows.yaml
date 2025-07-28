@@ -19,11 +19,13 @@ jobs:
             ~\AppData\Roaming\stack
             .stack-work
           key: >-
-            ${{ runner.os }}-stack-${{ hashFiles(
-              '**/stack.yaml.lock',
-              '**/package.yaml'
-            )}}
+            ${{ runner.os }}-stack-${{
+              hashFiles('**/stack.yaml.lock')
+            }}-${{
+              hashFiles('**/package.yaml')
+            }}
           restore-keys: |
+            ${{ runner.os }}-stack-${{ hashFiles('**/stack.yaml.lock') }}-
             ${{ runner.os }}-stack-
       - name: Set up GHC with Stack
         run: stack setup
