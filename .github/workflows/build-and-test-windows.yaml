@@ -7,6 +7,7 @@ on:
 
 jobs:
   build-with-stack-windows:
+    name: Build and test with Stack
     runs-on: windows-latest
     steps:
       - name: Checkout code
@@ -24,13 +25,13 @@ jobs:
             }}-${{
               hashFiles('**/package.yaml')
             }}
-          restore-keys: |
+          restore-keys: |-
             ${{ runner.os }}-stack-${{ hashFiles('**/stack.yaml.lock') }}-
             ${{ runner.os }}-stack-
       - name: Set up GHC with Stack
         run: stack setup
       - name: Build project
-        run: >
+        run: >-
           stack build --fast --hpack-force --lock-file=error-on-write
           --ghc-options="-Werror"
       - name: Run tests
