@@ -108,6 +108,6 @@ jobs:
           fi
           cabal configure --enable-tests --flags=dump-ast $FLAGS --ghc-options="-Werror"
       - name: Build project (GHC ${{ steps.setup-ghc.outputs.ghc-version }})
-        run: cabal build
+        run: cabal build all
       - name: Run tests (GHC ${{ steps.setup-ghc.outputs.ghc-version }})
-        run: cabal test --test-show-details=direct
+        run: cabal test --test-show-details=direct all
