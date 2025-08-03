@@ -36,7 +36,7 @@ jobs:
           --ghc-options="-Werror"
       - name: Check that .cabal file has not changed except hpack comment
         run: |
-          CABAL_FILE=jbeam-edit.cabal
+          CABAL_FILE=$(find . -maxdepth 1 -name '*.cabal' | head -n 1)
           TMP_DIR=$(mktemp -d)
           git show HEAD:$CABAL_FILE > $TMP_DIR/committed.cabal
           cp $CABAL_FILE $TMP_DIR/current.cabal
