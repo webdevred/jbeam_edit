@@ -78,7 +78,7 @@ jobs:
         with:
           ghc-version: ${{ matrix.ghc }}
           cabal-version: latest
-          cabal-update: true
+          cabal-update: false
       - name: Log GHC and Cabal outputs
         run: |
           echo "GHC Version: ${{ steps.setup-ghc.outputs.ghc-version }}"
@@ -98,6 +98,8 @@ jobs:
             }}
           restore-keys: |
             ${{ runner.os }}-cabal-${{ steps.setup-ghc.outputs.ghc-version }}-
+      - name: Update Cabal package index
+        run: cabal update
       - name: Configure project
         run: |
           FLAGS=""
