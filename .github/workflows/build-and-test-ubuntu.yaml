@@ -66,7 +66,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        ghc: [9.4.7, 9.6.6, latest]
+        ghc: [9.4.7, 9.6.6]
     env:
       MATRIX_GHC: ${{ matrix.ghc }}
     steps:

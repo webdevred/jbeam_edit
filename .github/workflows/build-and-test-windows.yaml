@@ -4,10 +4,13 @@ on:
   push:
     branches: [master]
   pull_request:
+  schedule:
+    - cron: 0 5 * * 0  # every sunday 05:00 UTC
 
 jobs:
   build-with-stack-windows:
     name: Build and test with Stack
+    if: github.event_name != 'schedule'
     runs-on: windows-latest
     steps:
       - name: Checkout code
@@ -36,42 +39,3 @@ jobs:
           --ghc-options="-Werror"
       - name: Run tests
         run: stack test --fast
-  build-with-cabal-windows:
-    name: Build and test with Cabal (GHC latest, future-proof)
-    runs-on: windows-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Set up GHC latest and Cabal
-        id: setup-ghc
-        uses: haskell-actions/setup@v2.8.0
-        with:
-          ghc-version: latest
-          cabal-version: latest
-          cabal-update: true
-      - name: Log GHC and Cabal outputs
-        run: |
-          echo "GHC Version: ${{ steps.setup-ghc.outputs.ghc-version }}"
-          echo "Cabal Store Path: ${{ steps.setup-ghc.outputs.cabal-store }}"
-      - name: Cache GHC, Cabal store, and build artifacts
-        uses: actions/cache@v4.2.3
-        with:
-          path: |
-            dist-newstyle
-            ${{ steps.setup-ghc.outputs.cabal-store }}
-          key: >-
-            ${{ runner.os }}-cabal-${{
-               steps.setup-ghc.outputs.ghc-version
-            }}-${{
-              hashFiles('**/package.yaml')
-            }}
-          restore-keys: |
-            ${{ runner.os }}-cabal-${{ steps.setup-ghc.outputs.ghc-version }}-
-      - name: Configure project
-        shell: pwsh
-        run: |
-          cabal configure --enable-tests --flags=dump-ast --allow-newer=base --ghc-options="-Werror"
-      - name: Build project (GHC latest)
-        run: cabal build
-      - name: Run tests (GHC latest)
-        run: cabal test --test-show-details=direct
