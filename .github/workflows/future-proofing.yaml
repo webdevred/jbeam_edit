@@ -15,16 +15,19 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      - name: Get latest supported GHC version
+        id: get-ghc
+        uses: webdevred/get-supported-ghc@v0.0.1
       - name: Set up GHC latest and Cabal
         id: setup-ghc
         uses: haskell-actions/setup@v2.8.0
         with:
-          ghc-version: latest
+          ghc-version: "${{ steps.get-ghc.outputs.ghc-version }}"
           cabal-version: latest
-          cabal-update: false
+          cabal-update: true
       - name: Log GHC and Cabal outputs
         run: |
-          echo "GHC Version: ${{ steps.setup-ghc.outputs.ghc-version }}"
+          echo "GHC Version: ${{ steps.get-ghc.outputs.ghc-version }}"
           echo "Cabal Store Path: ${{ steps.setup-ghc.outputs.cabal-store }}"
       - name: Cache GHC, Cabal store, and build artifacts
         uses: actions/cache@v4.2.3
@@ -34,18 +37,16 @@ jobs:
             ${{ steps.setup-ghc.outputs.cabal-store }}
           key: >-
             ${{ runner.os }}-cabal-${{
-              steps.setup-ghc.outputs.ghc-version
+              steps.get-ghc.outputs.ghc-version
             }}-${{
               hashFiles('**/package.yaml')
             }}
           restore-keys: |
-            ${{ runner.os }}-cabal-${{ steps.setup-ghc.outputs.ghc-version }}-
-      - name: Update Cabal package index
-        run: cabal update
+            ${{ runner.os }}-cabal-${{ steps.get-ghc.outputs.ghc-version }}-
       - name: Configure project
         shell: bash
         run: |
-          cabal configure --enable-tests --flags=dump-ast --allow-newer=base --ghc-options="-Werror"
+          cabal configure --enable-tests --flags=dump-ast --ghc-options="-Werror"
       - name: Build project (GHC latest)
         run: cabal build all
       - name: Run tests (GHC latest)
