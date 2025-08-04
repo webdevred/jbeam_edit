@@ -1,7 +1,6 @@
 # JBeam Tool in Haskell
 
-[![Build and test on Windows](https://github.com/webdevred/jbeam_edit/actions/workflows/build-and-test-windows.yaml/badge.svg?branch=master)](https://github.com/webdevred/jbeam_edit/actions/workflows/build-and-test-windows.yaml)
-[![Build and test on Ubuntu](https://github.com/webdevred/jbeam_edit/actions/workflows/build-and-test-ubuntu.yaml/badge.svg?branch=master)](https://github.com/webdevred/jbeam_edit/actions/workflows/build-and-test-ubuntu.yaml)
+[![Build and test](https://github.com/webdevred/jbeam_edit/actions/workflows/build-and-test.yaml/badge.svg)](https://github.com/webdevred/jbeam_edit/actions/workflows/build-and-test.yaml)
 [![Build and test with latest GHC](https://github.com/webdevred/jbeam_edit/actions/workflows/future-proofing.yaml/badge.svg?branch=master)](https://github.com/webdevred/jbeam_edit/actions/workflows/future-proofing.yaml)
 
 <!--toc:start-->
