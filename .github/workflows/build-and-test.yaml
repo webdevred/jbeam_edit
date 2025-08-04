@@ -6,7 +6,6 @@ on:
   pull_request:
 
 jobs:
-  build-with-stack:
   build-with-stack-windows:
     name: Build and test with Stack on Windows
     runs-on: windows-latest
@@ -37,6 +36,7 @@ jobs:
           --ghc-options="-Werror"
       - name: Run tests
         run: stack test --fast
+  build-with-stack-ubuntu:
     name: Build and test with Stack
     runs-on: ubuntu-latest
     steps:
