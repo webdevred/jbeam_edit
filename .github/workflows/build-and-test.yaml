@@ -1,4 +1,4 @@
-name: Build and test on Ubuntu
+name: Build and test
 
 on:
   push:
@@ -7,6 +7,36 @@ on:
 
 jobs:
   build-with-stack:
+  build-with-stack-windows:
+    name: Build and test with Stack on Windows
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Cache Stack state and GHC install
+        uses: actions/cache@v4.2.3
+        with:
+          path: |
+            ~\AppData\Local\Programs\stack
+            ~\AppData\Roaming\stack
+            .stack-work
+          key: >-
+            ${{ runner.os }}-stack-${{
+              hashFiles('**/stack.yaml.lock')
+            }}-${{
+              hashFiles('**/package.yaml')
+            }}
+          restore-keys: |-
+            ${{ runner.os }}-stack-${{ hashFiles('**/stack.yaml.lock') }}-
+            ${{ runner.os }}-stack-
+      - name: Set up GHC with Stack on Windows
+        run: stack setup
+      - name: Build project
+        run: >-
+          stack build --fast --hpack-force --lock-file=error-on-write
+          --ghc-options="-Werror"
+      - name: Run tests
+        run: stack test --fast
     name: Build and test with Stack
     runs-on: ubuntu-latest
     steps:
