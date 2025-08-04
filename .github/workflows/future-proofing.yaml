@@ -1,3 +1,5 @@
+name: Build and test with latest GHC
+
 on:
   push:
     branches: [master]

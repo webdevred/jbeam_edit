@@ -89,8 +89,6 @@ jobs:
     # Cabal matrix build:
     # This job builds and tests the project using multiple GHC versions.
     # - Ensures compatibility with stable compiler versions (e.g. 9.4.7, 9.6.6).
-    # - Tests with 'latest' GHC to catch breaking changes early.
-    # - Uses '--allow-newer=base' with 'latest' to relax bounds for future compatibility.
     # - Enables the 'dump-ast' flag to ensure internal tooling builds correctly.
     name: Build and test with Cabal (GHC ${{ matrix.ghc }})
     runs-on: ubuntu-latest
@@ -117,26 +115,22 @@ jobs:
         uses: actions/cache@v4.2.3
         with:
           path: |
-            ~/.ghc
-            ~/.cabal/store
+            ${{ steps.setup-ghc.outputs.cabal-store }}
+            ~/.cabal/packages
             dist-newstyle
           key: >-
             ${{ runner.os }}-cabal-${{
-              steps.setup-ghc.outputs.ghc-version
+              matrix.ghc
             }}-${{
               hashFiles('**/package.yaml')
             }}
           restore-keys: |
-            ${{ runner.os }}-cabal-${{ steps.setup-ghc.outputs.ghc-version }}-
+            ${{ runner.os }}-cabal-${{ matrix.ghc }}-
       - name: Update Cabal package index
         run: cabal update
       - name: Configure project
         run: |
-          FLAGS=""
-          if [ "${MATRIX_GHC}" = "latest" ]; then
-            FLAGS="--allow-newer=base"
-          fi
-          cabal configure --enable-tests --flags=dump-ast $FLAGS --ghc-options="-Werror"
+          cabal configure --enable-tests --flags=dump-ast --ghc-options="-Werror"
       - name: Build project (GHC ${{ steps.setup-ghc.outputs.ghc-version }})
         run: cabal build all
       - name: Run tests (GHC ${{ steps.setup-ghc.outputs.ghc-version }})
