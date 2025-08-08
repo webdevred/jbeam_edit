@@ -222,8 +222,9 @@ getVertexTreeGlobals (VertexTree metas vertices restTree ttype) =
         any
           (\restEntries -> meta `metaElem` subNodesInRestTree restEntries)
           restTree
-      (localMetas, globalMetas) = partition existsInRestTree metas
-   in (globalMetas, VertexTree localMetas vertices restTree ttype)
+      header : metasWithoutHeader = metas
+      (localMetas, globalMetas) = partition existsInRestTree metasWithoutHeader
+   in (header : globalMetas, VertexTree localMetas vertices restTree ttype)
   where
     subNodesInRestTree (VertexTree subMetas _ restTree' _) =
       case restTree' of
@@ -359,7 +360,7 @@ isObjectKeyEqual _ _ = False
 
 vertexTreeToNodeVector :: VertexTree -> Vector Node
 vertexTreeToNodeVector (VertexTree metas vertices maybeOtherTree ttype) =
-  let currentNodes = V.fromList . NE.toList . NE.map vertexEntryToNode $ vertices
+  let currentNodes = V.fromList $ metas ++ (NE.toList . NE.map vertexEntryToNode $ vertices)
       otherNodes = maybe V.empty vertexTreeToNodeVector maybeOtherTree
       vertexEntryToNode entry =
         case entry of
