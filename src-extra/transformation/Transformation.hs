@@ -78,32 +78,32 @@ data CommentGroup = CommentGroup
   }
   deriving (Show)
 
-newVertice :: Node -> Maybe Vertex
-newVertice (Array ns) = f (V.toList ns)
+newVertex :: Node -> Maybe Vertex
+newVertex (Array ns) = f (V.toList ns)
   where
     f [String name, Number x, Number y, Number z, Object m] =
       Just (Vertex {vName = name, vX = x, vY = y, vZ = z, vMeta = Just m})
     f [String name, Number x, Number y, Number z] =
       Just (Vertex {vName = name, vX = x, vY = y, vZ = z, vMeta = Nothing})
     f _ = Nothing
-newVertice _ = Nothing
+newVertex _ = Nothing
 
-isVertice :: Node -> Bool
-isVertice node = isJust (newVertice node)
+isVertex :: Node -> Bool
+isVertex node = isJust (newVertex node)
 
-isNonVertice :: Node -> Bool
-isNonVertice node = isNothing (newVertice node)
+isNonVertex :: Node -> Bool
+isNonVertex node = isNothing (newVertex node)
 
 dropIndex :: Text -> Text
 dropIndex = T.dropWhileEnd isDigit
 
 hasVerticePrefix :: Text -> Node -> Bool
 hasVerticePrefix verticePrefix node =
-  let verticeName = dropIndex . vName <$> newVertice node
+  let verticeName = dropIndex . vName <$> newVertex node
    in verticeName == Just (dropIndex verticePrefix)
 
 getFirstVerticeName :: [Node] -> Maybe Text
-getFirstVerticeName (node : _) = vName <$> newVertice node
+getFirstVerticeName (node : _) = vName <$> newVertex node
 getFirstVerticeName _ = Nothing
 
 breakVertices :: Maybe Text -> [Node] -> ([Node], [Node])
@@ -112,10 +112,10 @@ breakVertices (Just verticePrefix) = go []
   where
     go acc [] = (reverse acc, [])
     go acc (node : rest)
-      | isNonVertice node = go (node : acc) rest
+      | isNonVertex node = go (node : acc) rest
       | hasVerticePrefix verticePrefix node = go (node : acc) rest
-      | isVertice node =
-          let (metaBefore, currentTree) = span isNonVertice acc
+      | isVertex node =
+          let (metaBefore, currentTree) = span isNonVertex acc
            in if null currentTree
                 then ([node], reverse metaBefore ++ rest)
                 else (reverse currentTree, reverse metaBefore ++ (node : rest))
@@ -123,8 +123,8 @@ breakVertices (Just verticePrefix) = go []
 
 toVertexTreeEntry :: Node -> VertexTreeEntry
 toVertexTreeEntry node =
-  case newVertice node of
-    Just vertice -> VertexEntry vertice
+  case newVertex node of
+    Just vertex -> VertexEntry vertex
     Nothing
       | isObjectNode node -> MetaEntry node
       | otherwise -> CommentEntry node
@@ -135,10 +135,10 @@ mostCommon = NE.head . F.maximumBy (compare `on` length) . NE.group1 . NE.sort
 -- TODO: refactor to use not NE.fromList
 nodesListToTree :: NonEmpty Node -> VertexTree
 nodesListToTree nodes =
-  let (nonVertices, rest) = NE.span isNonVertice nodes
+  let (nonVertices, rest) = NE.span isNonVertex nodes
       verticePrefix = T.dropWhileEnd isDigit <$> getFirstVerticeName rest
       (vertexNodes, rest') = breakVertices verticePrefix rest
-      vertices = mapMaybe newVertice vertexNodes
+      vertices = mapMaybe newVertex vertexNodes
    in case NE.nonEmpty vertices of
         Nothing -> error "expected at least one Vertex"
         Just vs ->
@@ -203,9 +203,9 @@ vertexTreeToZipper vt =
               }
         }
 
-entryIsNonVertice :: VertexTreeEntry -> Bool
-entryIsNonVertice (VertexEntry _) = False
-entryIsNonVertice _ = True
+entryIsNonVertex :: VertexTreeEntry -> Bool
+entryIsNonVertex (VertexEntry _) = False
+entryIsNonVertex _ = True
 
 metaKey (ObjectKey (key, _)) = Just key
 metaKey _ = Nothing
@@ -334,18 +334,18 @@ sortVertices (VertexTree metas nodes maybeRest ttype) =
 verticeQuery :: NP.NodePath
 verticeQuery = fromList [NP.ObjectIndex 0, NP.ObjectKey "nodes"]
 
-possiblyVertice :: VertexTreeEntry -> Maybe Vertex
-possiblyVertice (VertexEntry v) = Just v
-possiblyVertice _ = Nothing
+possiblyVertex :: VertexTreeEntry -> Maybe Vertex
+possiblyVertex (VertexEntry v) = Just v
+possiblyVertex _ = Nothing
 
 getVertexNamesInTree
   :: VertexTree -> M.Map (Scientific, Scientific, Scientific) Text
 getVertexNamesInTree vertexTree@(VertexTree {tVertexNodes = vs}) =
-  let verticeCordNamePair vertice =
-        ((vX vertice, vY vertice, vZ vertice), vName vertice)
+  let verticeCordNamePair vertex =
+        ((vX vertex, vY vertex, vZ vertex), vName vertex)
       getVertexNames =
         M.fromList
-          . mapMaybe (fmap verticeCordNamePair . possiblyVertice)
+          . mapMaybe (fmap verticeCordNamePair . possiblyVertex)
           . NE.toList
       restNames =
         case vertexTree of
