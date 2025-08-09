@@ -1,4 +1,5 @@
-{-# OPTIONS_GHC -Wno-incomplete-uni-patterns #-}
+-- TDOO: remove this
+{-# OPTIONS_GHC -w #-}
 
 module Transformation (
   transform,
