@@ -211,8 +211,7 @@ link (Just t) (Just rest) = Just t {tRest = Just rest}
 
 moveVerticesInVertexTree :: VertexTree -> Maybe VertexTree
 moveVerticesInVertexTree (VertexTree meta entries rest ttype) =
-  let
-      fixedRest :: Maybe VertexTree
+  let fixedRest :: Maybe VertexTree
       fixedRest = rest >>= moveVerticesInVertexTree
 
       groupsHere = groupVertexWithLeadingComments (NE.toList entries)
@@ -277,9 +276,9 @@ groupVertexWithLeadingComments = go []
     go _ [] = []
     go acc (entry : rest) =
       case entry of
-        CommentEntry _ -> go (acc ++ [entry]) rest
+        CommentEntry _ -> go (entry : acc) rest
         VertexEntry v ->
-          CommentGroup {cComments = acc, cVertex = v} : go [] rest
+          CommentGroup {cComments = reverse acc, cVertex = v} : go [] rest
         _ -> go [] rest
 
 sortCommentGroups :: [CommentGroup] -> [CommentGroup]
