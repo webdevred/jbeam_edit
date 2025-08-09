@@ -31,6 +31,11 @@ flag dump-ast
   manual: True
   default: False
 
+flag transformation
+  description: Enable transformation (experimental)
+  manual: True
+  default: False
+
 library
   exposed-modules:
       CommandLineOptions
@@ -46,7 +51,6 @@ library
       Parsing.Common.Helpers
       Parsing.DSL
       Parsing.Jbeam
-      Transformation
   other-modules:
       Paths_jbeam_edit
   autogen-modules:
@@ -69,6 +73,11 @@ library
     , text >=2.0
     , vector
   default-language: Haskell2010
+  if flag(transformation)
+    exposed-modules:
+        Transformation
+    hs-source-dirs:
+        src-extra/transformation
 
 executable jbeam-edit
   main-is: Main.hs
@@ -95,6 +104,8 @@ executable jbeam-edit
     , text >=2.0
     , vector
   default-language: Haskell2010
+  if flag(transformation)
+    cpp-options: -DENABLE_TRANSFORMATION
 
 executable jbeam-edit-dump-ast
   main-is: Main.hs

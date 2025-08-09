@@ -48,10 +48,18 @@ ghc-options:
 library:
   source-dirs: src
   generated-other-modules: Paths_jbeam_edit
+  when:
+    condition: flag(transformation)
+    source-dirs: [src-extra/transformation]
+    exposed-modules: [Transformation]
 
 flags:
   dump-ast:
     description: Enable building the dump-ast executable
+    manual: true
+    default: false
+  transformation:
+    description: Enable transformation (experimental)
     manual: true
     default: false
 
@@ -61,6 +69,9 @@ executables:
     source-dirs: app
     ghc-options: [-threaded, -rtsopts, -with-rtsopts=-N]
     dependencies: [jbeam-edit]
+    when:
+      condition: flag(transformation)
+      cpp-options: -DENABLE_TRANSFORMATION
   jbeam-edit-dump-ast:
     when:
       condition: flag(dump-ast)

@@ -1,7 +1,8 @@
 packages: .
+tests: True
 
-package *
-  ghc-options: -haddock
+program-options
+  ghc-options: -Werror
 
 package jbeam-edit
   flags: +dump-ast +transformation
