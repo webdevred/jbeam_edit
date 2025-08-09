@@ -1,3 +1,5 @@
+{-# LANGUAGE CPP #-}
+
 module Main (
   main,
 ) where
@@ -13,7 +15,10 @@ import IOUtils
 import Parsing.Jbeam (parseNodes)
 import System.Directory (copyFile)
 import System.Environment (getArgs)
+
+#ifdef ENABLE_TRANSFORMATION
 import Transformation (transform)
+#endif
 
 import Data.ByteString.Lazy qualified as BL (
   toStrict,
@@ -53,5 +58,12 @@ processNodes outFile nodes formattingConfig =
     . encodeUtf8
     . TL.fromStrict
     . formatNode formattingConfig newCursor
-    . transform
-    $ nodes
+    $ applyTransform nodes
+
+#ifdef ENABLE_TRANSFORMATION
+applyTransform :: Node -> Node
+applyTransform = transform
+#else
+applyTransform :: Node -> Node
+applyTransform = id
+#endif

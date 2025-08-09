@@ -4,4 +4,4 @@ package *
   ghc-options: -haddock
 
 package jbeam-edit
-  flags: +dump-ast
+  flags: +dump-ast +transformation
