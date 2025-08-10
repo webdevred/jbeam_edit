@@ -67,7 +67,7 @@ library
         -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
 
     build-depends:
-        base >=4.7 && <5,
+        base >=4.17 && <5,
         bytestring,
         containers,
         directory,
@@ -96,7 +96,7 @@ executable jbeam-edit
         -threaded -rtsopts -with-rtsopts=-N
 
     build-depends:
-        base >=4.7 && <5,
+        base >=4.17 && <5,
         bytestring,
         containers,
         directory,
@@ -125,7 +125,7 @@ executable jbeam-edit-dump-ast
         -threaded -rtsopts -with-rtsopts=-N
 
     build-depends:
-        base >=4.7 && <5,
+        base >=4.17 && <5,
         bytestring,
         containers,
         directory,
@@ -165,7 +165,7 @@ test-suite jbeam-edit-test
         -threaded -rtsopts -with-rtsopts=-N
 
     build-depends:
-        base >=4.7 && <5,
+        base >=4.17 && <5,
         bytestring,
         containers,
         directory,
