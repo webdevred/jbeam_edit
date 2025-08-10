@@ -16,7 +16,7 @@ jobs:
         os: [ubuntu-latest, windows-latest]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.2.2
       - name: Get latest supported GHC version
         id: get-ghc
         uses: webdevred/get-supported-ghc@v0.0.1
@@ -24,7 +24,7 @@ jobs:
         id: setup-ghc
         uses: haskell-actions/setup@v2.8.0
         with:
-          ghc-version: "${{ steps.get-ghc.outputs.ghc-version }}"
+          ghc-version: ${{ steps.get-ghc.outputs.ghc-version }}
           cabal-version: latest
           cabal-update: true
       - name: Log GHC and Cabal outputs
@@ -48,4 +48,4 @@ jobs:
       - name: Build project (GHC latest)
         run: cabal build --project-file cabal.project.ci all
       - name: Run tests (GHC latest)
-        run: cabal test --project-file cabal.project.ci --test-show-details=direct all
+        run: cabal test --project-file cabal.project.ci

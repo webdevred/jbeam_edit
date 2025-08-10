@@ -6,58 +6,57 @@ on:
   pull_request:
 
 jobs:
-  build-with-stack-windows:
-    name: Build and test with Stack on Windows
-    runs-on: windows-latest
+  build-with-stack:
+    name: Build and test on ${{ matrix.os }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            runner: ubuntu-latest
+            stack-paths: |
+              ~/.stack
+              ~/.ghc
+          - os: windows-latest
+            runner: windows-latest
+            stack-paths: |
+              ~\AppData\Roaming\stack
+              ~\AppData\Local\Programs\stack\x86_64-windows
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Cache Stack state and GHC install
+        uses: actions/checkout@v4.2.2
+      - name: Extract resolver
+        id: extract
+        shell: bash
+        run: |
+          RESOLVER=$(grep -E '^(snapshot|resolver):' stack.yaml | awk '{ print $2 }')
+          echo "resolver=$RESOLVER" >> $GITHUB_OUTPUT
+      - name: Cache global Stack dependencies
         uses: actions/cache@v4.2.3
         with:
-          path: |
-            ~\AppData\Local\Programs\stack
-            ~\AppData\Roaming\stack
-            .stack-work
+          path: ${{ matrix.stack-paths }}
           key: >-
-            ${{ runner.os }}-stack-${{
-              hashFiles('**/stack.yaml.lock')
+            stack-global-${{ matrix.os }}-${{
+              steps.extract.outputs.resolver
             }}-${{
-              hashFiles('**/package.yaml')
+              hashFiles('stack.yaml.lock')
             }}
-          restore-keys: |-
-            ${{ runner.os }}-stack-${{ hashFiles('**/stack.yaml.lock') }}-
-            ${{ runner.os }}-stack-
-      - name: Set up GHC with Stack on Windows
-        run: stack setup
-      - name: Build project
-        run: >-
-          stack build --fast --hpack-force --lock-file=error-on-write
-          --ghc-options="-Werror"
-      - name: Run tests
-        run: stack test --fast
-  build-with-stack-ubuntu:
-    name: Build and test with Stack
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Cache Stack and binaries
+          restore-keys: |
+            stack-global-${{ matrix.os }}-${{ steps.extract.outputs.resolver }}-
+            stack-global-${{ matrix.os }}-
+      - name: Cache .stack-work build artifacts
         uses: actions/cache@v4.2.3
         with:
-          path: |
-            ~/.stack
-            ~/.ghc
-            .stack-work
+          path: .stack-work
           key: >-
-            ${{ runner.os }}-stack-${{
-              hashFiles('**/stack.yaml.lock')
+            stack-local-${{ matrix.os }}-${{
+              steps.extract.outputs.resolver
             }}-${{
-              hashFiles('**/package.yaml')
+              hashFiles('**/stack.yaml.lock', '**/package.yaml')
             }}
-          restore-keys: |-
-            ${{ runner.os }}-stack-${{ hashFiles('**/stack.yaml.lock') }}-
-            ${{ runner.os }}-stack-
+          restore-keys: |
+            stack-local-${{ matrix.os }}-${{ steps.extract.outputs.resolver }}-
+            stack-local-${{ matrix.os }}-
       - name: Set up GHC with Stack
         run: stack setup
       - name: Build project
@@ -65,41 +64,32 @@ jobs:
           stack build --fast --hpack-force --lock-file=error-on-write
           --ghc-options="-Werror"
       - name: Check that .cabal file has not changed except hpack comment
-        run: |
-          CABAL_FILE=$(find . -maxdepth 1 -name '*.cabal' | head -n 1)
-          TMP_DIR=$(mktemp -d)
-          git show HEAD:$CABAL_FILE > $TMP_DIR/committed.cabal
-          cp $CABAL_FILE $TMP_DIR/current.cabal
-          sed '/^-- This file has been generated from package.yaml by hpack/d' \
-            $TMP_DIR/committed.cabal > $TMP_DIR/committed_filtered.cabal
-          sed '/^-- This file has been generated from package.yaml by hpack/d' \
-            $TMP_DIR/current.cabal > $TMP_DIR/current_filtered.cabal
-          if ! diff -q $TMP_DIR/committed_filtered.cabal \
-                $TMP_DIR/current_filtered.cabal > /dev/null; then
-            echo "Error: .cabal file changed beyond the expected hpack comment line."
-            echo "Only package.yaml should be edited. Regenerate the .cabal file with hpack."
-            echo "Manual changes to the .cabal file are not allowed and must be reverted."
-            exit 1
-          else
-            echo ".cabal file is unchanged except for the hpack comment line."
-          fi
+        shell: bash
+        run: bash .github/scripts/check-cabal-file.sh
       - name: Run tests
         run: stack test --fast
+  generate-matrix:
+    name: "Generate matrix from cabal"
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Extract the tested GHC versions
+        id: set-matrix
+        uses: kleidukos/get-tested@v0.1.7.1
+        with:
+          cabal-file: jbeam-edit.cabal
+          ubuntu-version: "latest"
+          version: 0.1.7.1
   build-with-cabal:
-    # Cabal matrix build:
-    # This job builds and tests the project using multiple GHC versions.
-    # - Ensures compatibility with stable compiler versions (e.g. 9.4.7, 9.6.6).
-    # - Enables the 'dump-ast' flag to ensure internal tooling builds correctly.
     name: Build and test with Cabal (GHC ${{ matrix.ghc }})
+    needs: generate-matrix
     runs-on: ubuntu-latest
     strategy:
-      matrix:
-        ghc: [9.4.7, 9.6.6]
-    env:
-      MATRIX_GHC: ${{ matrix.ghc }}
+      matrix: ${{ fromJSON(needs.generate-matrix.outputs.matrix) }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.2.2
       - name: Set up GHC ${{ matrix.ghc }} and Cabal
         id: setup-ghc
         uses: haskell-actions/setup@v2.8.0
@@ -111,7 +101,7 @@ jobs:
         run: |
           echo "GHC Version: ${{ steps.setup-ghc.outputs.ghc-version }}"
           echo "Cabal Store Path: ${{ steps.setup-ghc.outputs.cabal-store }}"
-      - name: Cache GHC, Cabal store, and build artifacts
+      - name: Cache Cabal store and build artifacts
         uses: actions/cache@v4.2.3
         with:
           path: |
@@ -119,10 +109,7 @@ jobs:
             ~/.cabal/packages
             dist-newstyle
           key: >-
-            ${{ runner.os }}-cabal-${{
-              matrix.ghc
-            }}-${{
-              hashFiles('**/package.yaml')
+            ${{ runner.os }}-cabal-${{ matrix.ghc }}-${{ hashFiles('**/package.yaml')
             }}
           restore-keys: |
             ${{ runner.os }}-cabal-${{ matrix.ghc }}-
@@ -131,4 +118,4 @@ jobs:
       - name: Build project (GHC ${{ steps.setup-ghc.outputs.ghc-version }})
         run: cabal build --project-file cabal.project.ci all
       - name: Run tests (GHC ${{ steps.setup-ghc.outputs.ghc-version }})
-        run: cabal test --project-file cabal.project.ci --test-show-details=direct all
+        run: cabal test --project-file cabal.project.ci
