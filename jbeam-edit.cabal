@@ -1,174 +1,179 @@
-cabal-version: 2.2
+cabal-version:      2.2
 
 -- This file has been generated from package.yaml by hpack version 0.37.0.
 --
 -- see: https://github.com/sol/hpack
 
-name:           jbeam-edit
-version:        0.1.0.0
-description:    Please see the README on GitHub at <https://github.com/webdevred/jbeam-edit#readme>
-homepage:       https://github.com/webdevred/jbeam-edit#readme
-bug-reports:    https://github.com/webdevred/jbeam-edit/issues
-author:         webdevred
-maintainer:     example@example.com
-copyright:      2025 webdevred
-license:        BSD-3-Clause
-license-file:   LICENSE
-build-type:     Simple
-extra-source-files:
-    README.md
-    JBFL_DOCS.md
+name:               jbeam-edit
+version:            0.1.0.0
+license:            BSD-3-Clause
+license-file:       LICENSE
+copyright:          2025 webdevred
+maintainer:         example@example.com
+author:             webdevred
+homepage:           https://github.com/webdevred/jbeam-edit#readme
+bug-reports:        https://github.com/webdevred/jbeam-edit/issues
+description:
+    Please see the README on GitHub at <https://github.com/webdevred/jbeam-edit#readme>
+
+build-type:         Simple
 data-files:
     examples/jbfl/complex.jbfl
     examples/jbfl/minimal.jbfl
 
+extra-source-files:
+    README.md
+    JBFL_DOCS.md
+
 source-repository head
-  type: git
-  location: https://github.com/webdevred/jbeam-edit
+    type:     git
+    location: https://github.com/webdevred/jbeam-edit
 
 flag dump-ast
-  description: Enable building the dump-ast executable
-  manual: True
-  default: False
+    description: Enable building the dump-ast executable
+    default:     False
+    manual:      True
 
 flag transformation
-  description: Enable transformation (experimental)
-  manual: True
-  default: False
+    description: Enable transformation (experimental)
+    default:     False
+    manual:      True
 
 library
-  exposed-modules:
-      CommandLineOptions
-      Core.Node
-      Core.NodeCursor
-      Core.NodePath
-      Formatting
-      Formatting.Config
-      Formatting.Rules
-      IOUtils
-      Parsing.Common
-      Parsing.Common.ErrorMessage
-      Parsing.Common.Helpers
-      Parsing.DSL
-      Parsing.Jbeam
-  other-modules:
-      Paths_jbeam_edit
-  autogen-modules:
-      Paths_jbeam_edit
-  hs-source-dirs:
-      src
-  default-extensions:
-      OverloadedStrings
-      ImportQualifiedPost
-  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
-  build-depends:
-      base >=4.7 && <5
-    , bytestring
-    , containers
-    , directory
-    , filepath
-    , foldable1-classes-compat
-    , megaparsec
-    , scientific
-    , text >=2.0
-    , vector
-  default-language: Haskell2010
-  if flag(transformation)
     exposed-modules:
-        Transformation
-    hs-source-dirs:
-        src-extra/transformation
+        CommandLineOptions
+        Core.Node
+        Core.NodeCursor
+        Core.NodePath
+        Formatting
+        Formatting.Config
+        Formatting.Rules
+        IOUtils
+        Parsing.Common
+        Parsing.Common.ErrorMessage
+        Parsing.Common.Helpers
+        Parsing.DSL
+        Parsing.Jbeam
+
+    hs-source-dirs:     src
+    other-modules:      Paths_jbeam_edit
+    autogen-modules:    Paths_jbeam_edit
+    default-language:   Haskell2010
+    default-extensions: OverloadedStrings ImportQualifiedPost
+    ghc-options:
+        -Wall -Wcompat -Widentities -Wincomplete-record-updates
+        -Wincomplete-uni-patterns -Wmissing-export-lists
+        -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
+
+    build-depends:
+        base >=4.7 && <5,
+        bytestring,
+        containers,
+        directory,
+        filepath,
+        foldable1-classes-compat,
+        megaparsec,
+        scientific,
+        text >=2.0,
+        vector
+
+    if flag(transformation)
+        exposed-modules: Transformation
+        hs-source-dirs:  src-extra/transformation
 
 executable jbeam-edit
-  main-is: Main.hs
-  other-modules:
-      Paths_jbeam_edit
-  autogen-modules:
-      Paths_jbeam_edit
-  hs-source-dirs:
-      app
-  default-extensions:
-      OverloadedStrings
-      ImportQualifiedPost
-  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
-  build-depends:
-      base >=4.7 && <5
-    , bytestring
-    , containers
-    , directory
-    , filepath
-    , foldable1-classes-compat
-    , jbeam-edit
-    , megaparsec
-    , scientific
-    , text >=2.0
-    , vector
-  default-language: Haskell2010
-  if flag(transformation)
-    cpp-options: -DENABLE_TRANSFORMATION
+    main-is:            Main.hs
+    hs-source-dirs:     app
+    other-modules:      Paths_jbeam_edit
+    autogen-modules:    Paths_jbeam_edit
+    default-language:   Haskell2010
+    default-extensions: OverloadedStrings ImportQualifiedPost
+    ghc-options:
+        -Wall -Wcompat -Widentities -Wincomplete-record-updates
+        -Wincomplete-uni-patterns -Wmissing-export-lists
+        -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
+        -threaded -rtsopts -with-rtsopts=-N
+
+    build-depends:
+        base >=4.7 && <5,
+        bytestring,
+        containers,
+        directory,
+        filepath,
+        foldable1-classes-compat,
+        jbeam-edit,
+        megaparsec,
+        scientific,
+        text >=2.0,
+        vector
+
+    if flag(transformation)
+        cpp-options: -DENABLE_TRANSFORMATION
 
 executable jbeam-edit-dump-ast
-  main-is: Main.hs
-  other-modules:
-      Paths_jbeam_edit
-  autogen-modules:
-      Paths_jbeam_edit
-  hs-source-dirs:
-      tools/dump_ast
-  default-extensions:
-      OverloadedStrings
-      ImportQualifiedPost
-  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
-  build-depends:
-      base >=4.7 && <5
-    , bytestring
-    , containers
-    , directory
-    , filepath
-    , foldable1-classes-compat
-    , jbeam-edit
-    , megaparsec
-    , pretty-simple
-    , scientific
-    , text >=2.0
-    , vector
-  default-language: Haskell2010
-  if flag(dump-ast)
-    buildable: True
-  else
-    buildable: False
+    main-is:            Main.hs
+    hs-source-dirs:     tools/dump_ast
+    other-modules:      Paths_jbeam_edit
+    autogen-modules:    Paths_jbeam_edit
+    default-language:   Haskell2010
+    default-extensions: OverloadedStrings ImportQualifiedPost
+    ghc-options:
+        -Wall -Wcompat -Widentities -Wincomplete-record-updates
+        -Wincomplete-uni-patterns -Wmissing-export-lists
+        -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
+        -threaded -rtsopts -with-rtsopts=-N
+
+    build-depends:
+        base >=4.7 && <5,
+        bytestring,
+        containers,
+        directory,
+        filepath,
+        foldable1-classes-compat,
+        jbeam-edit,
+        megaparsec,
+        pretty-simple,
+        scientific,
+        text >=2.0,
+        vector
+
+    if flag(dump-ast)
+
+    else
+        buildable: False
 
 test-suite jbeam-edit-test
-  type: exitcode-stdio-1.0
-  main-is: Spec.hs
-  other-modules:
-      Parsing.DSLSpec
-      Parsing.JbeamSpec
-      Parsing.ParsingTestHelpers
-      SpecHelper
-      Paths_jbeam_edit
-  autogen-modules:
-      Paths_jbeam_edit
-  hs-source-dirs:
-      test
-  default-extensions:
-      OverloadedStrings
-      ImportQualifiedPost
-  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
-  build-depends:
-      base >=4.7 && <5
-    , bytestring
-    , containers
-    , directory
-    , filepath
-    , foldable1-classes-compat
-    , hspec
-    , hspec-megaparsec
-    , jbeam-edit
-    , megaparsec
-    , scientific
-    , text >=2.0
-    , vector
-  build-tool-depends:
-      hspec-discover:hspec-discover
-  default-language: Haskell2010
+    type:               exitcode-stdio-1.0
+    main-is:            Spec.hs
+    build-tool-depends: hspec-discover:hspec-discover
+    hs-source-dirs:     test
+    other-modules:
+        Parsing.DSLSpec
+        Parsing.JbeamSpec
+        Parsing.ParsingTestHelpers
+        SpecHelper
+        Paths_jbeam_edit
+
+    autogen-modules:    Paths_jbeam_edit
+    default-language:   Haskell2010
+    default-extensions: OverloadedStrings ImportQualifiedPost
+    ghc-options:
+        -Wall -Wcompat -Widentities -Wincomplete-record-updates
+        -Wincomplete-uni-patterns -Wmissing-export-lists
+        -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
+        -threaded -rtsopts -with-rtsopts=-N
+
+    build-depends:
+        base >=4.7 && <5,
+        bytestring,
+        containers,
+        directory,
+        filepath,
+        foldable1-classes-compat,
+        hspec,
+        hspec-megaparsec,
+        jbeam-edit,
+        megaparsec,
+        scientific,
+        text >=2.0,
+        vector

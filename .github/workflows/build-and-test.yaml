@@ -69,6 +69,7 @@ jobs:
           CABAL_FILE=$(find . -maxdepth 1 -name '*.cabal' | head -n 1)
           TMP_DIR=$(mktemp -d)
           git show HEAD:$CABAL_FILE > $TMP_DIR/committed.cabal
+          cabal format
           cp $CABAL_FILE $TMP_DIR/current.cabal
           sed '/^-- This file has been generated from package.yaml by hpack/d' \
             $TMP_DIR/committed.cabal > $TMP_DIR/committed_filtered.cabal
