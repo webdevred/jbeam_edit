@@ -24,7 +24,7 @@ jobs:
         id: setup-ghc
         uses: haskell-actions/setup@v2.8.0
         with:
-          ghc-version: "${{ steps.get-ghc.outputs.ghc-version }}"
+          ghc-version: ${{ steps.get-ghc.outputs.ghc-version }}
           cabal-version: latest
           cabal-update: true
       - name: Log GHC and Cabal outputs
@@ -48,4 +48,4 @@ jobs:
       - name: Build project (GHC latest)
         run: cabal build --project-file cabal.project.ci all
       - name: Run tests (GHC latest)
-        run: cabal test --project-file cabal.project.ci --test-show-details=direct all
+        run: cabal test --project-file cabal.project.ci
