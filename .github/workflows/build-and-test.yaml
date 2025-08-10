@@ -65,25 +65,7 @@ jobs:
           --ghc-options="-Werror"
       - name: Check that .cabal file has not changed except hpack comment
         shell: bash
-        run: |
-          CABAL_FILE=$(find . -maxdepth 1 -name '*.cabal' | head -n 1)
-          TMP_DIR=$(mktemp -d)
-          git show HEAD:$CABAL_FILE > $TMP_DIR/committed.cabal
-          cabal format
-          cp $CABAL_FILE $TMP_DIR/current.cabal
-          sed '/^-- This file has been generated from package.yaml by hpack/d' \
-            $TMP_DIR/committed.cabal > $TMP_DIR/committed_filtered.cabal
-          sed '/^-- This file has been generated from package.yaml by hpack/d' \
-            $TMP_DIR/current.cabal > $TMP_DIR/current_filtered.cabal
-          if ! diff -q $TMP_DIR/committed_filtered.cabal \
-                $TMP_DIR/current_filtered.cabal > /dev/null; then
-            echo "Error: .cabal file changed beyond the expected hpack comment line."
-            echo "Only package.yaml should be edited. Regenerate the .cabal file with hpack."
-            echo "Manual changes to the .cabal file are not allowed and must be reverted."
-            exit 1
-          else
-            echo ".cabal file is unchanged except for the hpack comment line."
-          fi
+        run: bash .github/scripts/check-cabal-file.sh
       - name: Run tests
         run: stack test --fast
   generate-matrix:
