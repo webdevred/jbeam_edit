@@ -100,7 +100,7 @@ jobs:
       MATRIX_GHC: ${{ matrix.ghc }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.2.2
       - name: Set up GHC ${{ matrix.ghc }} and Cabal
         id: setup-ghc
         uses: haskell-actions/setup@v2.8.0
