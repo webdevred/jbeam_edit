@@ -8,6 +8,7 @@ copyright: 2025 webdevred
 data-files: examples/jbfl/*.jbfl
 extra-source-files: [README.md, JBFL_DOCS.md]
 description: Please see the README on GitHub at <https://github.com/webdevred/jbeam-edit#readme>
+tested-with: [GHC == 9.4.7, GHC == 9.6.6]
 
 dependencies:
   - base >= 4.7 && < 5

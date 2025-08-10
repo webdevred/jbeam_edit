@@ -86,18 +86,25 @@ jobs:
           fi
       - name: Run tests
         run: stack test --fast
+  generate-matrix:
+    name: "Generate matrix from cabal"
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Extract the tested GHC versions
+        id: set-matrix
+        uses: kleidukos/get-tested@v0.1.7.1
+        with:
+          cabal-file: jbeam-edit.cabal
+          ubuntu-version: "latest"
+          version: 0.1.7.1
   build-with-cabal:
-    # Cabal matrix build:
-    # This job builds and tests the project using multiple GHC versions.
-    # - Ensures compatibility with stable compiler versions (e.g. 9.4.7, 9.6.6).
-    # - Enables the 'dump-ast' flag to ensure internal tooling builds correctly.
     name: Build and test with Cabal (GHC ${{ matrix.ghc }})
+    needs: generate-matrix
     runs-on: ubuntu-latest
     strategy:
-      matrix:
-        ghc: [9.4.7, 9.6.6]
-    env:
-      MATRIX_GHC: ${{ matrix.ghc }}
+      matrix: ${{ fromJSON(needs.generate-matrix.outputs.matrix) }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4.2.2
@@ -112,7 +119,7 @@ jobs:
         run: |
           echo "GHC Version: ${{ steps.setup-ghc.outputs.ghc-version }}"
           echo "Cabal Store Path: ${{ steps.setup-ghc.outputs.cabal-store }}"
-      - name: Cache GHC, Cabal store, and build artifacts
+      - name: Cache Cabal store and build artifacts
         uses: actions/cache@v4.2.3
         with:
           path: |
@@ -120,10 +127,7 @@ jobs:
             ~/.cabal/packages
             dist-newstyle
           key: >-
-            ${{ runner.os }}-cabal-${{
-              matrix.ghc
-            }}-${{
-              hashFiles('**/package.yaml')
+            ${{ runner.os }}-cabal-${{ matrix.ghc }}-${{ hashFiles('**/package.yaml')
             }}
           restore-keys: |
             ${{ runner.os }}-cabal-${{ matrix.ghc }}-

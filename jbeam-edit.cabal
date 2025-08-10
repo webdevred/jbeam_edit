@@ -11,6 +11,7 @@ license-file:       LICENSE
 copyright:          2025 webdevred
 maintainer:         example@example.com
 author:             webdevred
+tested-with:        ghc ==9.4.7 ghc ==9.6.6
 homepage:           https://github.com/webdevred/jbeam-edit#readme
 bug-reports:        https://github.com/webdevred/jbeam-edit/issues
 description:
