@@ -198,7 +198,7 @@ metaKey :: Node -> Maybe Node
 metaKey (ObjectKey (key, _)) = Just key
 metaKey _ = Nothing
 
-getVertexTreeGlobals :: VertexTree -> ([Node], VertexTree)
+getVertexTreeGlobals :: VertexTree -> Either Text ([Node], VertexTree)
 getVertexTreeGlobals (VertexTree metas vertices restTree ttype) =
   let metaElem meta metas' =
         let maybeKey = metaKey meta
@@ -209,9 +209,11 @@ getVertexTreeGlobals (VertexTree metas vertices restTree ttype) =
         any
           (\restEntries -> meta `metaElem` subNodesInRestTree restEntries)
           restTree
-      header : metasWithoutHeader = metas
-      (localMetas, globalMetas) = partition existsInRestTree metasWithoutHeader
-   in (header : globalMetas, VertexTree localMetas vertices restTree ttype)
+   in case metas of
+        header@(Array _) : metasWithoutHeader ->
+          let (localMetas, globalMetas) = partition existsInRestTree metasWithoutHeader
+           in Right (header : globalMetas, VertexTree localMetas vertices restTree ttype)
+        _ -> Left "invalid or missing vertex header"
   where
     subNodesInRestTree (VertexTree subMetas _ restTree' _) =
       case restTree' of
@@ -303,13 +305,13 @@ moveVerticesInVertexTree root =
         z' <- processZipperFocus startZ
         pure $ toVertexTreeFromZ z'
 
-updateVertexTree :: VertexTree -> VertexTree
-updateVertexTree vertexTree =
-  let (globalMetas, vertexTree') = getVertexTreeGlobals vertexTree
-      Just updatedVertexTree = moveVerticesInVertexTree vertexTree'
-      addGlobalMetas (VertexTree metas vertices restTree ttype) =
-        VertexTree (globalMetas ++ metas) vertices restTree ttype
-   in sortVertices . addGlobalMetas $ updatedVertexTree
+updateVertexTree :: VertexTree -> Either Text VertexTree
+updateVertexTree vertexTree = getVertexTreeGlobals vertexTree >>= go
+  where
+    go (globalMetas, vertexTree') =
+      let Just updatedVertexTree = moveVerticesInVertexTree vertexTree'
+          addGlobalMetas (VertexTree metas vertices restTree ttype) = VertexTree (globalMetas ++ metas) vertices restTree ttype
+       in Right . sortVertices . addGlobalMetas $ updatedVertexTree
 
 groupByMeta :: [VertexTreeEntry] -> [[VertexTreeEntry]]
 groupByMeta [] = []
@@ -443,12 +445,13 @@ findAndUpdateTextInNode m cursor node =
       NC.applyCrumb (NC.ArrayIndex index) cursor (findAndUpdateTextInNode m)
 
 transform :: NC.NodeCursor -> Node -> Either Text Node
-transform cursor topNode = getVertexTree verticesQuery topNode >>= go
+transform cursor topNode = getVertexTree verticesQuery topNode >>= getNamesAndUpdateTree
   where
-    go vertexTree =
+    getNamesAndUpdateTree vertexTree =
       let vertexNames = getVertexNamesInTree vertexTree
-          updatedVertexTree = updateVertexTree vertexTree
-          updatedVertexNames = getVertexNamesInTree updatedVertexTree
-          updateMap = M.fromList $ on zip M.elems vertexNames updatedVertexNames
+       in updateVertexTree vertexTree >>= getUpdatedNamesAndUpdateGlobally vertexNames
+    getUpdatedNamesAndUpdateGlobally oldVertexNames updatedVertexTree =
+      let updatedVertexNames = getVertexNamesInTree updatedVertexTree
+          updateMap = M.fromList $ on zip M.elems oldVertexNames updatedVertexNames
        in Right . findAndUpdateTextInNode updateMap cursor $
             updateVerticesInNode verticesQuery updatedVertexTree topNode
