@@ -89,26 +89,27 @@ newVertex (Array ns) = f (V.toList ns)
     f _ = Nothing
 newVertex _ = Nothing
 
-isVertex :: Node -> Bool
-isVertex node = isJust (newVertex node)
-
 isNonVertex :: Node -> Bool
-isNonVertex node = isNothing (newVertex node)
+isNonVertex = isNothing . newVertex
 
 dropIndex :: Text -> Text
 dropIndex = T.dropWhileEnd isDigit
 
 hasVertexPrefix :: Text -> Node -> Bool
 hasVertexPrefix vertexPrefix node =
-  let vertexName = dropIndex . vName <$> newVertex node
+  let vertexName = dropIndex <$> getVertexName node
    in vertexName == Just (dropIndex vertexPrefix)
 
+getVertexName :: Node -> Maybe Text
+getVertexName = fmap vName . newVertex
+
 getFirstVertexName :: [Node] -> Maybe Text
-getFirstVertexName (node : _) = vName <$> newVertex node
+getFirstVertexName (node : _) = getVertexName node
 getFirstVertexName _ = Nothing
 
-isCollision (Array vertex) vertexNames =
-  case getVertexName $ V.uncons vertex of
+isCollision :: Node -> Set Text -> Either Text (Set Text)
+isCollision vertexNode vertexNames =
+  case getVertexName vertexNode of
     Just vertexName ->
       if S.member vertexName vertexNames
         then
@@ -116,9 +117,6 @@ isCollision (Array vertex) vertexNames =
         else
           Right (S.insert vertexName vertexNames)
     Nothing -> Right vertexNames
-  where
-    getVertexName (Just (String string, _)) = Just string
-    getVertexName _ = Nothing
 
 breakVertices
   :: Maybe Text -> Set Text -> [Node] -> Either Text (Set Text, [Node], [Node])
@@ -127,16 +125,18 @@ breakVertices (Just vertexPrefix) allVertexNames ns = go [] ns allVertexNames
   where
     go acc [] vertexNames = Right (vertexNames, reverse acc, [])
     go acc (node : rest) vertexNames
-      | isNonVertex node = go (node : acc) rest vertexNames
+      | isNothing maybeVertex = go (node : acc) rest vertexNames
       | hasVertexPrefix vertexPrefix node =
           isCollision node vertexNames >>= go (node : acc) rest
-      | isVertex node =
+      | isJust maybeVertex =
           let (metaBefore, currentTree) = span isNonVertex acc
            in if null currentTree
                 then Right (vertexNames, [node], reverse metaBefore ++ rest)
                 else
                   Right (vertexNames, reverse currentTree, reverse metaBefore ++ (node : rest))
       | otherwise = go (node : acc) rest vertexNames
+      where
+        maybeVertex = newVertex node
 
 toVertexTreeEntry :: Node -> VertexTreeEntry
 toVertexTreeEntry node =
@@ -156,14 +156,14 @@ nodesListToTree vertexNames nodes =
    in breakVertices vertexPrefix vertexNames rest >>= \(vertexNames', vertexNodes, rest') ->
         go nonVertices vertexNodes vertexNames' rest'
   where
-    go nonVertices vertexNodes vertexNames rest =
+    go nonVertices vertexNodes vertexNames' rest =
       let vertices = mapMaybe newVertex vertexNodes
        in case NE.nonEmpty vertices of
             Nothing -> Left "expected at least one Vertex"
             Just vs ->
               let tRestResult = case NE.nonEmpty rest of
                     Nothing -> Right Nothing
-                    Just restNe -> fmap Just (nodesListToTree vertexNames restNe)
+                    Just restNe -> fmap Just (nodesListToTree vertexNames' restNe)
                in case tRestResult of
                     Left err -> Left err
                     Right maybeSubTree ->
