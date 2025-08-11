@@ -108,34 +108,35 @@ getFirstVertexName (node : _) = vName <$> newVertex node
 getFirstVertexName _ = Nothing
 
 isCollision (Array vertex) vertexNames =
-    case getVertexName $ V.uncons vertex of
-      Just vertexName ->
-          if S.member vertexName vertexNames then
-              Left vertexName
-          else
-              Right (S.insert vertexName vertexNames)
-      Nothing -> Right vertexNames
+  case getVertexName $ V.uncons vertex of
+    Just vertexName ->
+      if S.member vertexName vertexNames
+        then
+          Left $ "multiple vertices named " <> vertexName
+        else
+          Right (S.insert vertexName vertexNames)
+    Nothing -> Right vertexNames
   where
     getVertexName (Just (String string, _)) = Just string
     getVertexName _ = Nothing
 
-breakVertices :: Maybe Text -> Set Text -> [Node] -> Either Text (Set Text, [Node], [Node])
-breakVertices Nothing _ = error "expected at least one Vertex"
-breakVertices (Just vertexPrefix) allVertexNames = go [] allVertexNames
+breakVertices
+  :: Maybe Text -> Set Text -> [Node] -> Either Text (Set Text, [Node], [Node])
+breakVertices Nothing _ _ = Left "expected at least one Vertex"
+breakVertices (Just vertexPrefix) allVertexNames ns = go [] ns allVertexNames
   where
-    go acc vertexNames [] = Right (vertexNames, reverse acc, [])
-    go acc vertexNames (node : rest)
-      | isNonVertex node = go (node : acc) vertexNames rest
+    go acc [] vertexNames = Right (vertexNames, reverse acc, [])
+    go acc (node : rest) vertexNames
+      | isNonVertex node = go (node : acc) rest vertexNames
       | hasVertexPrefix vertexPrefix node =
-          case isCollision node vertexNames of
-            Right vertexNames' -> go (node : acc) vertexNames' rest
-            Left badVertexName -> Left badVertexName
+          isCollision node vertexNames >>= go (node : acc) rest
       | isVertex node =
           let (metaBefore, currentTree) = span isNonVertex acc
            in if null currentTree
                 then Right (vertexNames, [node], reverse metaBefore ++ rest)
-                else Right (vertexNames, reverse currentTree, reverse metaBefore ++ (node : rest))
-      | otherwise = go (node : acc) vertexNames rest
+                else
+                  Right (vertexNames, reverse currentTree, reverse metaBefore ++ (node : rest))
+      | otherwise = go (node : acc) rest vertexNames
 
 toVertexTreeEntry :: Node -> VertexTreeEntry
 toVertexTreeEntry node =
@@ -148,35 +149,44 @@ toVertexTreeEntry node =
 mostCommon :: NonEmpty VertexTreeType -> VertexTreeType
 mostCommon = NE.head . F.maximumBy (compare `on` length) . NE.group1 . NE.sort
 
-nodesListToTree :: NonEmpty Node -> VertexTree
-nodesListToTree nodes =
+nodesListToTree :: Set Text -> NonEmpty Node -> Either Text VertexTree
+nodesListToTree vertexNames nodes =
   let (nonVertices, rest) = NE.span isNonVertex nodes
-      verticePrefix = T.dropWhileEnd isDigit <$> getFirstVerticeName rest
-      (vertexNodes, rest') = breakVertices verticePrefix rest
-      vertices = mapMaybe newVertex vertexNodes
-   in case NE.nonEmpty vertices of
-        Nothing -> error "expected at least one Vertex"
-        Just vs ->
-          VertexTree
-            { tMetaNodes = nonVertices
-            , tVertexNodes =
-                NE.fromList (map toVertexTreeEntry (nonVertices ++ vertexNodes))
-            , tRest = nodesListToTree <$> NE.nonEmpty rest'
-            , tType = mostCommon $ NE.map (determineGroup . vX) vs
-            }
+      vertexPrefix = T.dropWhileEnd isDigit <$> getFirstVertexName rest
+   in breakVertices vertexPrefix vertexNames rest >>= \(vertexNames', vertexNodes, rest') ->
+        go nonVertices vertexNodes vertexNames' rest'
+  where
+    go nonVertices vertexNodes vertexNames rest =
+      let vertices = mapMaybe newVertex vertexNodes
+       in case NE.nonEmpty vertices of
+            Nothing -> Left "expected at least one Vertex"
+            Just vs ->
+              let tRestResult = case NE.nonEmpty rest of
+                    Nothing -> Right Nothing
+                    Just restNe -> fmap Just (nodesListToTree vertexNames restNe)
+               in case tRestResult of
+                    Left err -> Left err
+                    Right maybeSubTree ->
+                      Right
+                        VertexTree
+                          { tMetaNodes = nonVertices
+                          , tVertexNodes = NE.fromList (map toVertexTreeEntry vertexNodes)
+                          , tRest = maybeSubTree
+                          , tType = mostCommon $ NE.map (determineGroup . vX) vs
+                          }
 
-getVertexTree :: NP.NodePath -> Node -> VertexTree
+getVertexTree :: NP.NodePath -> Node -> Either Text VertexTree
 getVertexTree np topNode =
   case NP.queryNodes np topNode of
     Just node -> f node
-    Nothing -> error ("could not find vertices at path " ++ show verticesQuery)
+    Nothing -> Left $ "could not find vertices at path " <> T.pack (show verticesQuery)
   where
     f node =
       case node of
         Array ns
-          | null ns -> error $ show node
-          | otherwise -> nodesListToTree . NE.fromList . V.toList $ ns
-        bad -> error $ show bad
+          | null ns -> Left . T.pack . show $ ns
+          | otherwise -> nodesListToTree S.empty . NE.fromList . V.toList $ ns
+        bad -> Left . T.pack . show $ bad
 
 determineGroup :: Scientific -> VertexTreeType
 determineGroup x
@@ -432,12 +442,13 @@ findAndUpdateTextInNode m cursor node =
     applyBreadcrumbAndUpdateText index =
       NC.applyCrumb (NC.ArrayIndex index) cursor (findAndUpdateTextInNode m)
 
-transform :: NC.NodeCursor -> Node -> Node
-transform cursor topNode =
-  let vertexTree = getVertexTree verticesQuery topNode
-      vertexNames = getVertexNamesInTree vertexTree
-      updatedVertexTree = updateVertexTree vertexTree
-      updatedVertexNames = getVertexNamesInTree updatedVertexTree
-      updateMap = M.fromList $ on zip M.elems vertexNames updatedVertexNames
-   in findAndUpdateTextInNode updateMap cursor $
-        updateVerticesInNode verticesQuery updatedVertexTree topNode
+transform :: NC.NodeCursor -> Node -> Either Text Node
+transform cursor topNode = getVertexTree verticesQuery topNode >>= go
+  where
+    go vertexTree =
+      let vertexNames = getVertexNamesInTree vertexTree
+          updatedVertexTree = updateVertexTree vertexTree
+          updatedVertexNames = getVertexNamesInTree updatedVertexTree
+          updateMap = M.fromList $ on zip M.elems vertexNames updatedVertexNames
+       in Right . findAndUpdateTextInNode updateMap cursor $
+            updateVerticesInNode verticesQuery updatedVertexTree topNode
