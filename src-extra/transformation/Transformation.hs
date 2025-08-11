@@ -98,14 +98,14 @@ isNonVertex node = isNothing (newVertex node)
 dropIndex :: Text -> Text
 dropIndex = T.dropWhileEnd isDigit
 
-hasVerticePrefix :: Text -> Node -> Bool
-hasVerticePrefix verticePrefix node =
-  let verticeName = dropIndex . vName <$> newVertex node
-   in verticeName == Just (dropIndex verticePrefix)
+hasVertexPrefix :: Text -> Node -> Bool
+hasVertexPrefix vertexPrefix node =
+  let vertexName = dropIndex . vName <$> newVertex node
+   in vertexName == Just (dropIndex vertexPrefix)
 
-getFirstVerticeName :: [Node] -> Maybe Text
-getFirstVerticeName (node : _) = vName <$> newVertex node
-getFirstVerticeName _ = Nothing
+getFirstVertexName :: [Node] -> Maybe Text
+getFirstVertexName (node : _) = vName <$> newVertex node
+getFirstVertexName _ = Nothing
 
 isCollision (Array vertex) vertexNames =
     case getVertexName $ V.uncons vertex of
@@ -121,12 +121,12 @@ isCollision (Array vertex) vertexNames =
 
 breakVertices :: Maybe Text -> Set Text -> [Node] -> Either Text (Set Text, [Node], [Node])
 breakVertices Nothing _ = error "expected at least one Vertex"
-breakVertices (Just verticePrefix) allVertexNames = go [] allVertexNames
+breakVertices (Just vertexPrefix) allVertexNames = go [] allVertexNames
   where
     go acc vertexNames [] = Right (vertexNames, reverse acc, [])
     go acc vertexNames (node : rest)
       | isNonVertex node = go (node : acc) vertexNames rest
-      | hasVerticePrefix verticePrefix node =
+      | hasVertexPrefix vertexPrefix node =
           case isCollision node vertexNames of
             Right vertexNames' -> go (node : acc) vertexNames' rest
             Left badVertexName -> Left badVertexName
@@ -169,7 +169,7 @@ getVertexTree :: NP.NodePath -> Node -> VertexTree
 getVertexTree np topNode =
   case NP.queryNodes np topNode of
     Just node -> f node
-    Nothing -> error ("could not find vertices at path " ++ show verticeQuery)
+    Nothing -> error ("could not find vertices at path " ++ show verticesQuery)
   where
     f node =
       case node of
@@ -350,8 +350,8 @@ sortVertices (VertexTree metas nodes maybeRest ttype) =
       (_, nodes') = TR.mapAccumL updateVertexNames 0 (NE.fromList nodesSorted)
    in VertexTree metas nodes' (sortVertices <$> maybeRest) ttype
 
-verticeQuery :: NP.NodePath
-verticeQuery = fromList [NP.ObjectIndex 0, NP.ObjectKey "nodes"]
+verticesQuery :: NP.NodePath
+verticesQuery = fromList [NP.ObjectIndex 0, NP.ObjectKey "nodes"]
 
 possiblyVertex :: VertexTreeEntry -> Maybe Vertex
 possiblyVertex (VertexEntry v) = Just v
@@ -360,11 +360,11 @@ possiblyVertex _ = Nothing
 getVertexNamesInTree
   :: VertexTree -> M.Map (Scientific, Scientific, Scientific) Text
 getVertexNamesInTree vertexTree@(VertexTree {tVertexNodes = vs}) =
-  let verticeCordNamePair vertex =
+  let vertexCordNamePair vertex =
         ((vX vertex, vY vertex, vZ vertex), vName vertex)
       getVertexNames =
         M.fromList
-          . mapMaybe (fmap verticeCordNamePair . possiblyVertex)
+          . mapMaybe (fmap vertexCordNamePair . possiblyVertex)
           . NE.toList
       restNames =
         case vertexTree of
@@ -420,7 +420,7 @@ findAndUpdateTextInNode :: Map Text Text -> NC.NodeCursor -> Node -> Node
 findAndUpdateTextInNode m cursor node =
   case node of
     Array arr
-      | NC.comparePathAndCursor verticeQuery cursor -> Array arr
+      | NC.comparePathAndCursor verticesQuery cursor -> Array arr
       | otherwise -> Array $ V.imap applyBreadcrumbAndUpdateText arr
     Object obj -> Object $ V.imap applyBreadcrumbAndUpdateText obj
     ObjectKey (key, value) ->
@@ -434,10 +434,10 @@ findAndUpdateTextInNode m cursor node =
 
 transform :: NC.NodeCursor -> Node -> Node
 transform cursor topNode =
-  let vertexTree = getVertexTree verticeQuery topNode
+  let vertexTree = getVertexTree verticesQuery topNode
       vertexNames = getVertexNamesInTree vertexTree
       updatedVertexTree = updateVertexTree vertexTree
       updatedVertexNames = getVertexNamesInTree updatedVertexTree
       updateMap = M.fromList $ on zip M.elems vertexNames updatedVertexNames
    in findAndUpdateTextInNode updateMap cursor $
-        updateVerticesInNode verticeQuery updatedVertexTree topNode
+        updateVerticesInNode verticesQuery updatedVertexTree topNode
