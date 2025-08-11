@@ -8,6 +8,7 @@ import CommandLineOptions
 import Control.Monad (unless)
 import Core.Node (Node)
 import Core.NodeCursor (newCursor)
+import Data.Text (Text)
 import Data.Text.Lazy.Encoding (encodeUtf8)
 import Formatting (RuleSet, formatNode)
 import Formatting.Config
@@ -56,17 +57,19 @@ editFile opts = do
 
 processNodes :: FilePath -> Node -> RuleSet -> IO ()
 processNodes outFile nodes formattingConfig =
-  BL.writeFile outFile
-    . encodeUtf8
-    . TL.fromStrict
-    . formatNode formattingConfig newCursor
-    . applyTransform newCursor
-    $ nodes
+  case applyTransform newCursor nodes of
+    Right transformedNode ->
+      BL.writeFile outFile
+        . encodeUtf8
+        . TL.fromStrict
+        . formatNode formattingConfig newCursor
+        $ transformedNode
+    Left err -> TIO.putStrLn err
 
 #ifdef ENABLE_TRANSFORMATION
-applyTransform :: NC.NodeCursor -> Node -> Node
+applyTransform :: NC.NodeCursor -> Node -> Either Text Node
 applyTransform = transform
 #else
-applyTransform :: NC.NodeCursor -> Node -> Node
-applyTransform _ node = node
+applyTransform :: NC.NodeCursor -> Node -> Either Text Node
+applyTransform _ = Right
 #endif
