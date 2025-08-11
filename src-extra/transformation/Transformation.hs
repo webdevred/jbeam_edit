@@ -1,5 +1,3 @@
-{-# OPTIONS_GHC -Wno-incomplete-uni-patterns #-}
-
 module Transformation (
   transform,
 ) where
@@ -13,6 +11,7 @@ import Data.Map (Map)
 import Data.Maybe (isJust, isNothing, listToMaybe, mapMaybe)
 import Data.Scientific (Scientific)
 import Data.Sequence (Seq (..))
+import Data.Set (Set)
 import Data.Text (Text)
 import Data.Vector (Vector, (!), (!?), (//))
 import GHC.IsList (fromList)
@@ -22,6 +21,7 @@ import Core.NodePath qualified as NP
 import Data.Foldable qualified as F (maximumBy)
 import Data.List.NonEmpty qualified as NE
 import Data.Map qualified as M
+import Data.Set qualified as S
 import Data.Text qualified as T
 import Data.Traversable qualified as TR (mapAccumL)
 import Data.Vector qualified as V
@@ -107,20 +107,35 @@ getFirstVerticeName :: [Node] -> Maybe Text
 getFirstVerticeName (node : _) = vName <$> newVertex node
 getFirstVerticeName _ = Nothing
 
-breakVertices :: Maybe Text -> [Node] -> ([Node], [Node])
-breakVertices Nothing = error "expected at least one Vertex"
-breakVertices (Just verticePrefix) = go []
+isCollision (Array vertex) vertexNames =
+    case getVertexName $ V.uncons vertex of
+      Just vertexName ->
+          if S.member vertexName vertexNames then
+              Left vertexName
+          else
+              Right (S.insert vertexName vertexNames)
+      Nothing -> Right vertexNames
   where
-    go acc [] = (reverse acc, [])
-    go acc (node : rest)
-      | isNonVertex node = go (node : acc) rest
-      | hasVerticePrefix verticePrefix node = go (node : acc) rest
+    getVertexName (Just (String string, _)) = Just string
+    getVertexName _ = Nothing
+
+breakVertices :: Maybe Text -> Set Text -> [Node] -> Either Text (Set Text, [Node], [Node])
+breakVertices Nothing _ = error "expected at least one Vertex"
+breakVertices (Just verticePrefix) allVertexNames = go [] allVertexNames
+  where
+    go acc vertexNames [] = Right (vertexNames, reverse acc, [])
+    go acc vertexNames (node : rest)
+      | isNonVertex node = go (node : acc) vertexNames rest
+      | hasVerticePrefix verticePrefix node =
+          case isCollision node vertexNames of
+            Right vertexNames' -> go (node : acc) vertexNames' rest
+            Left badVertexName -> Left badVertexName
       | isVertex node =
           let (metaBefore, currentTree) = span isNonVertex acc
            in if null currentTree
-                then ([node], reverse metaBefore ++ rest)
-                else (reverse currentTree, reverse metaBefore ++ (node : rest))
-      | otherwise = go (node : acc) rest
+                then Right (vertexNames, [node], reverse metaBefore ++ rest)
+                else Right (vertexNames, reverse currentTree, reverse metaBefore ++ (node : rest))
+      | otherwise = go (node : acc) vertexNames rest
 
 toVertexTreeEntry :: Node -> VertexTreeEntry
 toVertexTreeEntry node =
