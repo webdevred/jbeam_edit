@@ -2,6 +2,7 @@ module Core.Node (
   isCommentNode,
   isObjectNode,
   isNumberNode,
+  isStringNode,
   isComplexNode,
   Node (..),
   InternalComment (..),
@@ -43,6 +44,10 @@ isCommentNode _ = False
 isObjectNode :: Node -> Bool
 isObjectNode (Object _) = True
 isObjectNode _ = False
+
+isStringNode :: Node -> Bool
+isStringNode (String _) = True
+isStringNode _ = False
 
 isNumberNode :: Node -> Bool
 isNumberNode (Number _) = True

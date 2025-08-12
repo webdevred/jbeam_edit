@@ -6,7 +6,7 @@ import Core.Node
 import Data.Char (isDigit)
 import Data.Function (on)
 import Data.List (partition, sortOn)
-import Data.List.NonEmpty (NonEmpty)
+import Data.List.NonEmpty (NonEmpty (..))
 import Data.Map (Map)
 import Data.Maybe (isJust, isNothing, listToMaybe, mapMaybe)
 import Data.Scientific (Scientific)
@@ -198,7 +198,13 @@ metaKey :: Node -> Maybe Node
 metaKey (ObjectKey (key, _)) = Just key
 metaKey _ = Nothing
 
-getVertexTreeGlobals :: VertexTree -> Either Text ([Node], VertexTree)
+isValidVertexHeader :: Node -> Bool
+isValidVertexHeader (Array header) =
+  V.length header == 4
+    && all isStringNode header
+isValidVertexHeader _ = False
+
+getVertexTreeGlobals :: VertexTree -> Either Text (NonEmpty Node, VertexTree)
 getVertexTreeGlobals (VertexTree metas vertices restTree ttype) =
   let metaElem meta metas' =
         let maybeKey = metaKey meta
@@ -210,10 +216,12 @@ getVertexTreeGlobals (VertexTree metas vertices restTree ttype) =
           (\restEntries -> meta `metaElem` subNodesInRestTree restEntries)
           restTree
    in case metas of
-        header@(Array _) : metasWithoutHeader ->
-          let (localMetas, globalMetas) = partition existsInRestTree metasWithoutHeader
-           in Right (header : globalMetas, VertexTree localMetas vertices restTree ttype)
-        _ -> Left "invalid or missing vertex header"
+        header : metasWithoutHeader
+          | isValidVertexHeader header ->
+              let (localMetas, globalMetas) = partition existsInRestTree metasWithoutHeader
+               in Right (header :| globalMetas, VertexTree localMetas vertices restTree ttype)
+          | otherwise -> Left "invalid vertex header"
+        _ -> Left "missing vertex header"
   where
     subNodesInRestTree (VertexTree subMetas _ restTree' _) =
       case restTree' of
@@ -310,7 +318,7 @@ updateVertexTree vertexTree = getVertexTreeGlobals vertexTree >>= go
   where
     go (globalMetas, vertexTree') =
       let Just updatedVertexTree = moveVerticesInVertexTree vertexTree'
-          addGlobalMetas (VertexTree metas vertices restTree ttype) = VertexTree (globalMetas ++ metas) vertices restTree ttype
+          addGlobalMetas (VertexTree metas vertices restTree ttype) = VertexTree (NE.toList globalMetas ++ metas) vertices restTree ttype
        in Right . sortVertices . addGlobalMetas $ updatedVertexTree
 
 groupByMeta :: [VertexTreeEntry] -> [[VertexTreeEntry]]
