@@ -291,7 +291,7 @@ processZipperFocus (VertexZipper cur path) = do
         case partition (\(VertexTree _ _ _ t) -> t == tType cur) treesForTypes of
           ([r], rs) -> (Just r, rs)
           ([], rs) -> (listToMaybe rs, filter (\x -> tType x /= tType (head rs)) rs)
-          _ -> error "Flera root-träd med samma typ, oväntat"
+          _ -> error "Multiple trees of same type, shouldnt happen"
 
       linkedRest = foldr (link . Just) Nothing restTrees
 
@@ -317,9 +317,11 @@ updateVertexTree :: VertexTree -> Either Text VertexTree
 updateVertexTree vertexTree = getVertexTreeGlobals vertexTree >>= go
   where
     go (globalMetas, vertexTree') =
-      let Just updatedVertexTree = moveVerticesInVertexTree vertexTree'
-          addGlobalMetas (VertexTree metas vertices restTree ttype) = VertexTree (NE.toList globalMetas ++ metas) vertices restTree ttype
-       in Right . sortVertices . addGlobalMetas $ updatedVertexTree
+      case moveVerticesInVertexTree vertexTree' of
+        Just updatedVertexTree ->
+          let addGlobalMetas (VertexTree metas vertices restTree ttype) = VertexTree (NE.toList globalMetas ++ metas) vertices restTree ttype
+           in Right . sortVertices . addGlobalMetas $ updatedVertexTree
+        Nothing -> Left "Failed to update vertex tree"
 
 groupByMeta :: [VertexTreeEntry] -> [[VertexTreeEntry]]
 groupByMeta [] = []
