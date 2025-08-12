@@ -24,7 +24,7 @@ jobs:
               ~\AppData\Local\Programs\stack\x86_64-windows
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v5.0.0
       - name: Extract resolver
         id: extract
         shell: bash
@@ -89,7 +89,7 @@ jobs:
       matrix: ${{ fromJSON(needs.generate-matrix.outputs.matrix) }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v5.0.0
       - name: Set up GHC ${{ matrix.ghc }} and Cabal
         id: setup-ghc
         uses: haskell-actions/setup@v2.8.0
