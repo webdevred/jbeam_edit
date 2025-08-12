@@ -32,7 +32,7 @@ jobs:
           RESOLVER=$(grep -E '^(snapshot|resolver):' stack.yaml | awk '{ print $2 }')
           echo "resolver=$RESOLVER" >> $GITHUB_OUTPUT
       - name: Cache global Stack dependencies
-        uses: actions/cache@v4.2.3
+        uses: actions/cache@v4.2.4
         with:
           path: ${{ matrix.stack-paths }}
           key: >-
@@ -45,7 +45,7 @@ jobs:
             stack-global-${{ matrix.os }}-${{ steps.extract.outputs.resolver }}-
             stack-global-${{ matrix.os }}-
       - name: Cache .stack-work build artifacts
-        uses: actions/cache@v4.2.3
+        uses: actions/cache@v4.2.4
         with:
           path: .stack-work
           key: >-
@@ -102,7 +102,7 @@ jobs:
           echo "GHC Version: ${{ steps.setup-ghc.outputs.ghc-version }}"
           echo "Cabal Store Path: ${{ steps.setup-ghc.outputs.cabal-store }}"
       - name: Cache Cabal store and build artifacts
-        uses: actions/cache@v4.2.3
+        uses: actions/cache@v4.2.4
         with:
           path: |
             ${{ steps.setup-ghc.outputs.cabal-store }}
