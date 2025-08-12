@@ -260,7 +260,7 @@ processZipperFocus :: VertexZipper -> Maybe VertexZipper
 processZipperFocus (VertexZipper cur path) = do
   fixedRest <- case tRest cur of
     Nothing -> Just Nothing
-    Just r -> moveVerticesInVertexTree r >>= (Just . Just)
+    Just r -> moveVerticesInVertexTree r >>= Just . Just
 
   let entriesList = NE.toList (tVertexNodes cur)
       groupsHere = groupVertexWithLeadingComments entriesList
@@ -290,7 +290,9 @@ processZipperFocus (VertexZipper cur path) = do
       (rootTreeM, restTrees) =
         case partition (\(VertexTree _ _ _ t) -> t == tType cur) treesForTypes of
           ([r], rs) -> (Just r, rs)
-          ([], rs) -> (listToMaybe rs, filter (\x -> tType x /= tType (head rs)) rs)
+          ([], rs) -> case rs of
+            [] -> (Nothing, [])
+            (r : _) -> (Just r, filter (\x -> tType x /= tType r) rs)
           _ -> error "Multiple trees of same type, shouldnt happen"
 
       linkedRest = foldr (link . Just) Nothing restTrees
