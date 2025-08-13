@@ -35,8 +35,9 @@ data VertexTreeType
 
 data VertexTreeEntry
   = VertexEntry Vertex
-  | CommentEntry Node
-  | MetaEntry Node
+  | CommentEntry InternalComment
+  | MetaEntry Object
+  | OtherNodeEntry Node
   deriving (Eq, Show)
 
 data VertexTree = VertexTree
@@ -74,13 +75,21 @@ data Vertex = Vertex
   deriving (Eq, Show)
 
 data CommentGroup = CommentGroup
-  { cComments :: [VertexTreeEntry]
+  { cComments :: [InternalComment]
   , cVertex :: Vertex
   }
   deriving (Show)
 
+vertexIsNotSupport :: Maybe Vertex -> Maybe Vertex
+vertexIsNotSupport maybeVertex =
+  if any (isDigit . T.last . vName) maybeVertex
+    then
+      maybeVertex
+    else
+      Nothing
+
 newVertex :: Node -> Maybe Vertex
-newVertex (Array ns) = f (V.toList ns)
+newVertex (Array ns) = vertexIsNotSupport . f . V.toList $ ns
   where
     f [String name, Number x, Number y, Number z, Object m] =
       Just (Vertex {vName = name, vX = x, vY = y, vZ = z, vMeta = Just m})
@@ -139,12 +148,12 @@ breakVertices (Just vertexPrefix) allVertexNames ns = go [] ns allVertexNames
         maybeVertex = newVertex node
 
 toVertexTreeEntry :: Node -> VertexTreeEntry
+toVertexTreeEntry (Object object) = MetaEntry object
+toVertexTreeEntry (Comment comment) = CommentEntry comment
 toVertexTreeEntry node =
   case newVertex node of
     Just vertex -> VertexEntry vertex
-    Nothing
-      | isObjectNode node -> MetaEntry node
-      | otherwise -> CommentEntry node
+    Nothing -> OtherNodeEntry node
 
 mostCommon :: NonEmpty VertexTreeType -> VertexTreeType
 mostCommon = NE.head . F.maximumBy (compare `on` length) . NE.group1 . NE.sort
@@ -280,7 +289,9 @@ processZipperFocus (VertexZipper cur path) = do
                 Just
                   ( VertexTree
                       (tMetaNodes cur)
-                      (NE.fromList (concatMap (\g -> cComments g ++ [VertexEntry (cVertex g)]) gs))
+                      ( NE.fromList
+                          (concatMap (\g -> map CommentEntry (cComments g) ++ [VertexEntry (cVertex g)]) gs)
+                      )
                       Nothing
                       t
                   )
@@ -346,9 +357,9 @@ groupVertexWithLeadingComments = go []
     go _ [] = []
     go acc (entry : rest) =
       case entry of
-        CommentEntry _ -> go (acc ++ [entry]) rest
+        CommentEntry comment -> go (comment : acc) rest
         VertexEntry v ->
-          CommentGroup {cComments = acc, cVertex = v} : go [] rest
+          CommentGroup {cComments = reverse acc, cVertex = v} : go [] rest
         _ -> go [] rest
 
 sortCommentGroups :: [CommentGroup] -> [CommentGroup]
@@ -356,7 +367,7 @@ sortCommentGroups = sortOn (\cg -> (vZ (cVertex cg), vY (cVertex cg)))
 
 ungroupCommentGroups :: [CommentGroup] -> [VertexTreeEntry]
 ungroupCommentGroups =
-  concatMap (\cg -> cComments cg ++ [VertexEntry (cVertex cg)])
+  concatMap (\cg -> map CommentEntry (cComments cg) ++ [VertexEntry (cVertex cg)])
 
 processGroup :: [VertexTreeEntry] -> [VertexTreeEntry]
 processGroup [] = []
@@ -406,8 +417,9 @@ vertexTreeToNodeVector (VertexTree metas vertices maybeOtherTree _) =
       otherNodes = maybe V.empty vertexTreeToNodeVector maybeOtherTree
       vertexEntryToNode entry =
         case entry of
-          (CommentEntry node) -> node
-          (MetaEntry node) -> node
+          (CommentEntry node) -> Comment node
+          (MetaEntry node) -> Object node
+          (OtherNodeEntry node) -> node
           (VertexEntry vertex) ->
             let name = String . vName $ vertex
                 x = Number . vX $ vertex
