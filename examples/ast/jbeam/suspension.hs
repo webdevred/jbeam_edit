@@ -19,7 +19,12 @@ Object
                 ( String "slotType"
                 , String "main"
                 )
-            , SinglelineComment "--Nodes--"
+            , Comment
+                ( InternalComment
+                    { cText = "--Nodes--"
+                    , cMultiline = False
+                    }
+                )
             , ObjectKey
                 ( String "nodes"
                 , Array
@@ -415,7 +420,12 @@ Object
                         ]
                     ]
                 )
-            , SinglelineComment "--Beams--"
+            , Comment
+                ( InternalComment
+                    { cText = "--Beams--"
+                    , cMultiline = False
+                    }
+                )
             , ObjectKey
                 ( String "beams"
                 , Array
@@ -423,7 +433,12 @@ Object
                         [ String "id1:"
                         , String "id2:"
                         ]
-                    , SinglelineComment "Structural beams"
+                    , Comment
+                        ( InternalComment
+                            { cText = "Structural beams"
+                            , cMultiline = False
+                            }
+                        )
                     , Object
                         [ ObjectKey
                             ( String "beamStrength"
@@ -444,7 +459,12 @@ Object
                             , Number 1.1
                             )
                         ]
-                    , SinglelineComment "Front end"
+                    , Comment
+                        ( InternalComment
+                            { cText = "Front end"
+                            , cMultiline = False
+                            }
+                        )
                     , Object
                         [ ObjectKey
                             ( String "beamDeform"
@@ -547,7 +567,12 @@ Object
                         [ String "rl1"
                         , String "rl7"
                         ]
-                    , SinglelineComment "Middle"
+                    , Comment
+                        ( InternalComment
+                            { cText = "Middle"
+                            , cMultiline = False
+                            }
+                        )
                     , Object
                         [ ObjectKey
                             ( String "beamDeform"
@@ -686,7 +711,12 @@ Object
                         [ String "rl27"
                         , String "rl26"
                         ]
-                    , SinglelineComment "Rear end"
+                    , Comment
+                        ( InternalComment
+                            { cText = "Rear end"
+                            , cMultiline = False
+                            }
+                        )
                     , Object
                         [ ObjectKey
                             ( String "beamDeform"
@@ -829,8 +859,18 @@ Object
                         [ String "rl37"
                         , String "rl40"
                         ]
-                    , SinglelineComment "Crossing beams"
-                    , SinglelineComment "Front end"
+                    , Comment
+                        ( InternalComment
+                            { cText = "Crossing beams"
+                            , cMultiline = False
+                            }
+                        )
+                    , Comment
+                        ( InternalComment
+                            { cText = "Front end"
+                            , cMultiline = False
+                            }
+                        )
                     , Object
                         [ ObjectKey
                             ( String "beamDeform"
@@ -901,7 +941,12 @@ Object
                         [ String "rl18"
                         , String "rl12"
                         ]
-                    , SinglelineComment "Middle"
+                    , Comment
+                        ( InternalComment
+                            { cText = "Middle"
+                            , cMultiline = False
+                            }
+                        )
                     , Object
                         [ ObjectKey
                             ( String "beamDeform"
@@ -1004,7 +1049,12 @@ Object
                         [ String "rl21"
                         , String "rl22"
                         ]
-                    , SinglelineComment "Rear end"
+                    , Comment
+                        ( InternalComment
+                            { cText = "Rear end"
+                            , cMultiline = False
+                            }
+                        )
                     , Object
                         [ ObjectKey
                             ( String "beamDeform"
@@ -1107,8 +1157,18 @@ Object
                         [ String "rl44"
                         , String "rl42"
                         ]
-                    , SinglelineComment "Support beams"
-                    , SinglelineComment "Front end"
+                    , Comment
+                        ( InternalComment
+                            { cText = "Support beams"
+                            , cMultiline = False
+                            }
+                        )
+                    , Comment
+                        ( InternalComment
+                            { cText = "Front end"
+                            , cMultiline = False
+                            }
+                        )
                     , Object
                         [ ObjectKey
                             ( String "beamDeform"
@@ -1171,7 +1231,12 @@ Object
                         [ String "rl14"
                         , String "rl11"
                         ]
-                    , SinglelineComment "Middle"
+                    , Comment
+                        ( InternalComment
+                            { cText = "Middle"
+                            , cMultiline = False
+                            }
+                        )
                     , Object
                         [ ObjectKey
                             ( String "beamDeform"
@@ -1250,7 +1315,12 @@ Object
                         [ String "rl19"
                         , String "rl30"
                         ]
-                    , SinglelineComment "Rear end"
+                    , Comment
+                        ( InternalComment
+                            { cText = "Rear end"
+                            , cMultiline = False
+                            }
+                        )
                     , Object
                         [ ObjectKey
                             ( String "beamDeform"
@@ -1321,7 +1391,12 @@ Object
                         [ String "rl48"
                         , String "rl46"
                         ]
-                    , SinglelineComment "Front crush"
+                    , Comment
+                        ( InternalComment
+                            { cText = "Front crush"
+                            , cMultiline = False
+                            }
+                        )
                     , Object
                         [ ObjectKey
                             ( String "beamDeform"
@@ -1338,7 +1413,12 @@ Object
                         ]
                     ]
                 )
-            , SinglelineComment "--Collision Triangles--"
+            , Comment
+                ( InternalComment
+                    { cText = "--Collision Triangles--"
+                    , cMultiline = False
+                    }
+                )
             , ObjectKey
                 ( String "triangles"
                 , Array

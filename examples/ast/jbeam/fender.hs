@@ -58,7 +58,12 @@ Object
                             , Bool True
                             )
                         ]
-                    , SinglelineComment "Left side"
+                    , Comment
+                        ( InternalComment
+                            { cText = "Left side"
+                            , cMultiline = False
+                            }
+                        )
                     , Object
                         [ ObjectKey
                             ( String "group"
@@ -142,7 +147,12 @@ Object
                             ( -0.759 )
                         , Number 0.896
                         ]
-                    , SinglelineComment "Right side"
+                    , Comment
+                        ( InternalComment
+                            { cText = "Right side"
+                            , cMultiline = False
+                            }
+                        )
                     , Object
                         [ ObjectKey
                             ( String "group"
@@ -237,7 +247,12 @@ Object
                             ( -0.746 )
                         , Number 0.888
                         ]
-                    , SinglelineComment "Support nodes"
+                    , Comment
+                        ( InternalComment
+                            { cText = "Support nodes"
+                            , cMultiline = False
+                            }
+                        )
                     , Object
                         [ ObjectKey
                             ( String "collision"
@@ -286,7 +301,12 @@ Object
                         [ String "id1:"
                         , String "id2:"
                         ]
-                    , SinglelineComment "Structural beams"
+                    , Comment
+                        ( InternalComment
+                            { cText = "Structural beams"
+                            , cMultiline = False
+                            }
+                        )
                     , Object
                         [ ObjectKey
                             ( String "beamType"
@@ -321,7 +341,12 @@ Object
                             , Number 6000.0
                             )
                         ]
-                    , SinglelineComment "Front"
+                    , Comment
+                        ( InternalComment
+                            { cText = "Front"
+                            , cMultiline = False
+                            }
+                        )
                     , Array
                         [ String "bfr2"
                         , String "bfr4"
@@ -370,7 +395,12 @@ Object
                         [ String "bfl4"
                         , String "bfl1"
                         ]
-                    , SinglelineComment "Middle"
+                    , Comment
+                        ( InternalComment
+                            { cText = "Middle"
+                            , cMultiline = False
+                            }
+                        )
                     , Object
                         [ ObjectKey
                             ( String "beamDeform"
@@ -393,7 +423,12 @@ Object
                         [ String "bfr4"
                         , String "bfr7"
                         ]
-                    , SinglelineComment "Rear"
+                    , Comment
+                        ( InternalComment
+                            { cText = "Rear"
+                            , cMultiline = False
+                            }
+                        )
                     , Array
                         [ String "bfl7"
                         , String "bfl10"
@@ -450,14 +485,24 @@ Object
                         [ String "bfr10"
                         , String "bfr9"
                         ]
-                    , SinglelineComment "Crossing beams"
+                    , Comment
+                        ( InternalComment
+                            { cText = "Crossing beams"
+                            , cMultiline = False
+                            }
+                        )
                     , Object
                         [ ObjectKey
                             ( String "deformLimitExpansion"
                             , String ""
                             )
                         ]
-                    , SinglelineComment "Front"
+                    , Comment
+                        ( InternalComment
+                            { cText = "Front"
+                            , cMultiline = False
+                            }
+                        )
                     , Array
                         [ String "bfl0"
                         , String "bfl4"
@@ -490,7 +535,12 @@ Object
                         [ String "bfr4"
                         , String "bfr0"
                         ]
-                    , SinglelineComment "Rear"
+                    , Comment
+                        ( InternalComment
+                            { cText = "Rear"
+                            , cMultiline = False
+                            }
+                        )
                     , Array
                         [ String "bfl6"
                         , String "bfl10"
@@ -523,7 +573,12 @@ Object
                         [ String "bfr6"
                         , String "bfr8"
                         ]
-                    , SinglelineComment "Support beams"
+                    , Comment
+                        ( InternalComment
+                            { cText = "Support beams"
+                            , cMultiline = False
+                            }
+                        )
                     , Array
                         [ String "bfl2"
                         , String "bfsl"
@@ -612,7 +667,12 @@ Object
                         [ String "bfr10"
                         , String "bfsr"
                         ]
-                    , SinglelineComment "Front rigid"
+                    , Comment
+                        ( InternalComment
+                            { cText = "Front rigid"
+                            , cMultiline = False
+                            }
+                        )
                     , Object
                         [ ObjectKey
                             ( String "beamSpring"
@@ -629,7 +689,12 @@ Object
                             , Number 900.0
                             )
                         ]
-                    , SinglelineComment "Left side"
+                    , Comment
+                        ( InternalComment
+                            { cText = "Left side"
+                            , cMultiline = False
+                            }
+                        )
                     , Array
                         [ String "bfl3"
                         , String "bfl9"
@@ -638,7 +703,12 @@ Object
                         [ String "bfl4"
                         , String "bfl10"
                         ]
-                    , SinglelineComment "Right side"
+                    , Comment
+                        ( InternalComment
+                            { cText = "Right side"
+                            , cMultiline = False
+                            }
+                        )
                     , Array
                         [ String "bfr3"
                         , String "bfr9"
@@ -647,7 +717,12 @@ Object
                         [ String "bfr4"
                         , String "bfr10"
                         ]
-                    , SinglelineComment "Attachment beams"
+                    , Comment
+                        ( InternalComment
+                            { cText = "Attachment beams"
+                            , cMultiline = False
+                            }
+                        )
                     , Object
                         [ ObjectKey
                             ( String "beamType"
@@ -678,9 +753,24 @@ Object
                             , String ""
                             )
                         ]
-                    , SinglelineComment "Frame"
-                    , SinglelineComment "Left side"
-                    , SinglelineComment "Front"
+                    , Comment
+                        ( InternalComment
+                            { cText = "Frame"
+                            , cMultiline = False
+                            }
+                        )
+                    , Comment
+                        ( InternalComment
+                            { cText = "Left side"
+                            , cMultiline = False
+                            }
+                        )
+                    , Comment
+                        ( InternalComment
+                            { cText = "Front"
+                            , cMultiline = False
+                            }
+                        )
                     , Object
                         [ ObjectKey
                             ( String "breakGroup"
@@ -717,7 +807,12 @@ Object
                         [ String "bfl2"
                         , String "fr9"
                         ]
-                    , SinglelineComment "Middle"
+                    , Comment
+                        ( InternalComment
+                            { cText = "Middle"
+                            , cMultiline = False
+                            }
+                        )
                     , Object
                         [ ObjectKey
                             ( String "beamDeform"
@@ -754,7 +849,12 @@ Object
                             , Number 0.0
                             )
                         ]
-                    , SinglelineComment "Rear"
+                    , Comment
+                        ( InternalComment
+                            { cText = "Rear"
+                            , cMultiline = False
+                            }
+                        )
                     , Object
                         [ ObjectKey
                             ( String "beamStrength"
@@ -813,8 +913,18 @@ Object
                         [ String "bfl10"
                         , String "fr29"
                         ]
-                    , SinglelineComment "Right side"
-                    , SinglelineComment "Front"
+                    , Comment
+                        ( InternalComment
+                            { cText = "Right side"
+                            , cMultiline = False
+                            }
+                        )
+                    , Comment
+                        ( InternalComment
+                            { cText = "Front"
+                            , cMultiline = False
+                            }
+                        )
                     , Object
                         [ ObjectKey
                             ( String "beamStrength"
@@ -861,7 +971,12 @@ Object
                         [ String "bfr2"
                         , String "fr7"
                         ]
-                    , SinglelineComment "Middle"
+                    , Comment
+                        ( InternalComment
+                            { cText = "Middle"
+                            , cMultiline = False
+                            }
+                        )
                     , Object
                         [ ObjectKey
                             ( String "beamDeform"
@@ -898,7 +1013,12 @@ Object
                             , Number 0.0
                             )
                         ]
-                    , SinglelineComment "Rear"
+                    , Comment
+                        ( InternalComment
+                            { cText = "Rear"
+                            , cMultiline = False
+                            }
+                        )
                     , Object
                         [ ObjectKey
                             ( String "beamStrength"
@@ -967,8 +1087,18 @@ Object
                             , String "FLT_MAX"
                             )
                         ]
-                    , SinglelineComment "Body"
-                    , SinglelineComment "Left side"
+                    , Comment
+                        ( InternalComment
+                            { cText = "Body"
+                            , cMultiline = False
+                            }
+                        )
+                    , Comment
+                        ( InternalComment
+                            { cText = "Left side"
+                            , cMultiline = False
+                            }
+                        )
                     , Object
                         [ ObjectKey
                             ( String "breakGroup"
@@ -987,7 +1117,12 @@ Object
                         [ String "bfl10"
                         , String "mbl2"
                         ]
-                    , SinglelineComment "Right side"
+                    , Comment
+                        ( InternalComment
+                            { cText = "Right side"
+                            , cMultiline = False
+                            }
+                        )
                     , Object
                         [ ObjectKey
                             ( String "breakGroup"
