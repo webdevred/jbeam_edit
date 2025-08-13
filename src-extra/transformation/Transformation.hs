@@ -290,7 +290,8 @@ processZipperFocus (VertexZipper cur path) = do
                   ( VertexTree
                       (tMetaNodes cur)
                       ( NE.fromList
-                          (concatMap (\g -> map CommentEntry (cComments g) ++ [VertexEntry (cVertex g)]) gs)
+                          . ungroupCommentGroups
+                          $ gs
                       )
                       Nothing
                       t
@@ -367,7 +368,9 @@ sortCommentGroups = sortOn (\cg -> (vZ (cVertex cg), vY (cVertex cg)))
 
 ungroupCommentGroups :: [CommentGroup] -> [VertexTreeEntry]
 ungroupCommentGroups =
-  concatMap (\cg -> map CommentEntry (cComments cg) ++ [VertexEntry (cVertex cg)])
+  concatMap ungroupCommentGroup
+  where
+    ungroupCommentGroup cg = map CommentEntry (cComments cg) ++ [VertexEntry $ cVertex cg]
 
 processGroup :: [VertexTreeEntry] -> [VertexTreeEntry]
 processGroup [] = []
