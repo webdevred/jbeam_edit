@@ -69,7 +69,7 @@ jobs:
       - name: Run tests
         run: stack test --fast
   generate-matrix:
-    name: "Generate matrix from cabal"
+    name: Generate matrix from cabal
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     runs-on: ubuntu-latest
