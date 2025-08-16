@@ -1,0 +1,15 @@
+packages: .
+optimization: 2
+platform: x86_64-windows
+
+package *
+  library-profiling: True
+  executable-profiling: True
+  ghc-options:
+    -threaded
+    -rtsopts
+    -with-rtsopts=-N
+
+package jbeam-edit
+  flags: -dump-ast -transformation
+
