@@ -9,4 +9,3 @@ package *
 
 package jbeam-edit
   flags: -dump-ast -transformation
-

@@ -1,4 +1,4 @@
-packages: .
+import: cabal.project
 write-ghc-environment-files: always
 
 package *
@@ -12,4 +12,3 @@ package jbeam-edit
   haddock-executables: True
   haddock-internal: True
   haddock-tests: True
-  flags: +dump-ast +transformation
