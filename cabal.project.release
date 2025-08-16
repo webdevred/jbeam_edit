@@ -1,6 +1,7 @@
-packages: .
+import: cabal.project
 optimization: 2
 platform: x86_64-windows
+tests: False
 
 package *
   library-profiling: True
@@ -12,4 +13,3 @@ package *
 
 package jbeam-edit
   flags: -dump-ast -transformation
-

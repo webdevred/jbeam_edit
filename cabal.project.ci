@@ -1,9 +1,5 @@
-packages: .
-tests: True
+import: cabal.project
 test-show-details: direct
 
 program-options
   ghc-options: -Werror
-
-package jbeam-edit
-  flags: +dump-ast +transformation
