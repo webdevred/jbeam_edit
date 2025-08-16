@@ -49,7 +49,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-cabal-${{ matrix.ghc }}-
       - name: Build executables
-        run: cabal build exe:jbeam-edit
+        run: cabal build exe:jbeam-edit --project-file cabal.project.release
       - name: Prepare release folder
         run: |
           $releaseDir = "$env:GITHUB_WORKSPACE\dist\release"
