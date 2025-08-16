@@ -21,7 +21,7 @@ jobs:
           windows-version: latest
           version: get-tested-for-jbeam-edit
           newest: true
-  build-release:
+  build-for-release:
     runs-on: windows-latest
     needs: get-newest-supported-ghc
     name: Build for release for ${{ matrix.ghc }}
@@ -36,8 +36,15 @@ jobs:
           ghc-version: ${{ matrix.ghc }}
           cabal-version: latest
           cabal-update: true
+      - name: Enable optimization for building on tags
+        if: startsWith(github.ref, 'refs/tags/')
+        run: cabal configure --project-file cabal.project.release -O2
+      - name: Enable tests for non-tags
+        if: "!startsWith(github.ref, 'refs/tags/')"
+        run: cabal configure --project-file cabal.project.release --enable-tests
       - name: Cache GHC, Cabal store, and build artifacts
         uses: actions/cache@v4.2.4
+        if: "!startsWith(github.ref, 'refs/tags/')"
         with:
           path: |
             dist-newstyle
@@ -52,6 +59,8 @@ jobs:
             ${{ runner.os }}-cabal-${{ matrix.ghc }}-
       - name: Build executables
         run: cabal build exe:jbeam-edit --project-file cabal.project.release
+      - name: Run tests (GHC ${{ matrix.ghc }})
+        run: cabal test --project-file cabal.project.release
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
@@ -59,7 +68,7 @@ jobs:
           path: dist-newstyle
   release:
     runs-on: windows-latest
-    needs: build
+    needs: [build-for-release, get-newest-supported-ghc]
     if: startsWith(github.ref, 'refs/tags/')
     name: Release for Windows
     strategy:
