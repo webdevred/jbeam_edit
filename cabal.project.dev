@@ -1,7 +1,15 @@
 packages: .
+write-ghc-environment-files: always
 
 package *
-  ghc-options: -haddock
+  optimization: 0
+  debug-info: True
+  tests: True
+  documentation: True
+  library-for-ghci: True
 
 package jbeam-edit
+  haddock-executables: True
+  haddock-internal: True
+  haddock-tests: True
   flags: +dump-ast +transformation
