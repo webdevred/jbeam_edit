@@ -3,6 +3,7 @@ cabal.project.local~
 dist-newstyle/
 TAGS
 .stack-work/
+.ghc.environment.*
 **/*~
 **/#*#
 **/.#*
