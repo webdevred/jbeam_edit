@@ -64,14 +64,36 @@ Override per project by placing `.jbeam_edit.jbfl` in your project root.
 
 ## Usage
 
-Build and run:
+### 1. Download the latest release
+Go to the [Releases page](https://github.com/webdevred/jbeam_edit/releases) and download the most recent **`.zip`** file.
 
-```bash
-git clone https://github.com/webdevred/jbeam-tool.git
-cd jbeam-tool
-stack build
-stack exec jbeam-tool -- [options] <input-file>
+### 2. Unzip the file
+Extract the contents of the downloaded `.zip` archive to a folder of your choice.
+
+### 3. Run the setup as Administrator
+
+Inside the extracted folder, right-click on **setup.exe** and choose **Run as administrator**.
+
+## 4. Allow Windows protection if needed
+If Windows shows a warning such as:
+
+> *Windows protected your PC*
+
+Click **More info** → **Run anyway**.
+
+## 5. Open Command Prompt or PowerShell
+
+Press **Win + R**, type `cmd` (or `powershell`), and press **Enter**.
+
+## 6. Run jbeam-edit on a file
+
+Navigate to your project in CMD:
+
+```powershell
+jbeam-edit your-file.jbeam
 ```
+
+Replace `your-file.jbeam` with the path to the JBeam file you want to format.
 
 Typical workflow:
 
@@ -81,7 +103,7 @@ Typical workflow:
 
 In-place editing (no backup):
 
-```bash
+```powershell
 jbeam-edit -i example.jbeam
 ```
 
