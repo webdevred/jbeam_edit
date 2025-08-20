@@ -39,9 +39,11 @@ library:
   source-dirs: src
   generated-other-modules: Paths_jbeam_edit
   when:
-    condition: flag(transformation)
-    source-dirs: [src-extra/transformation]
-    exposed-modules: [Transformation]
+    - condition: flag(transformation)
+      source-dirs: [src-extra/transformation]
+      exposed-modules: [Transformation]
+    - condition: os(mingw32)
+      cpp-options: -DWINDOWS_EXAMPLE_PATHS
 
 flags:
   dump-ast:

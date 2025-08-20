@@ -82,6 +82,9 @@ library
         exposed-modules: Transformation
         hs-source-dirs:  src-extra/transformation
 
+    if os(windows)
+        cpp-options: -DWINDOWS_EXAMPLE_PATHS
+
 executable jbeam-edit
     main-is:            Main.hs
     hs-source-dirs:     app
