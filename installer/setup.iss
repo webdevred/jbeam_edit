@@ -2,7 +2,7 @@
 
 [Setup]
 AppName=jbeam-edit
-AppVersion=1.0
+AppVersion=0.0.1.0
 DefaultDirName={pf}\jbeam-edit
 DefaultGroupName=jbeam-edit
 OutputBaseFilename=setup
