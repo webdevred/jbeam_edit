@@ -28,7 +28,7 @@ A fast, robust command-line parser, formatter, and editor for JBeam files, the J
   Uniform indentation, spacing, and layout for improved readability.
 
 - **Automatic Node Management:**
-  Renames nodes sequentially (e.g., `["bf1", ...]` → `["bf0", "bf1", "bf2"]`) and updates all references automatically.
+  Renames nodes sequentially (e.g., `["bf1", ...]` → `["bf0", "bf1", "bf2"]`) and updates all references automatically. Feature currently unstable, enabled by build flag `transformation`.
 
 - **Configurable Formatting with JBFL:**
   Customize formatting rules using JBFL, a mini-language to specify padding, decimals, indentation, and more with wildcard targeting.
@@ -107,6 +107,18 @@ In-place editing (no backup):
 jbeam-edit -i example.jbeam
 ```
 
+### From source (Linux or development)
+
+Clone and build with Cabal:
+
+```bash
+git clone https://github.com/webdevred/jbeam_edit.git
+cd jbeam_edit
+cabal update
+cabal install
+jbeam-edit your-file.jbeam
+```
+
 ## Examples
 
 For sample `.jbeam` files and JBFL rule files, see the [Examples Directory README](examples/README.org).
@@ -138,8 +150,10 @@ For an in-depth walkthrough of the implementation and design decisions, see [EXP
 
 ## Prerequisites
 
-- GHC (The Glasgow Haskell Compiler)
-- Stack build tool
+- **Windows users (BeamNG players):** none, just download the installer from [Releases](https://github.com/webdevred/jbeam_edit/releases/latest).
+- **Developers / Linux users:**
+  - [GHC](https://www.haskell.org/ghc/) (Glasgow Haskell Compiler)
+  - [Cabal](https://www.haskell.org/cabal/) build tool (comes with GHCup)
 
 ## Contributing & License
 
