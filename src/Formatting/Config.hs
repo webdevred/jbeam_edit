@@ -1,3 +1,5 @@
+{-# LANGUAGE CPP #-}
+
 module Formatting.Config (readFormattingConfig, copyToConfigDir, ConfigType (..)) where
 
 import Control.Monad (when)
@@ -7,17 +9,22 @@ import Formatting.Rules
 import GHC.IO.Exception (IOErrorType (NoSuchThing))
 import IOUtils
 import Parsing.DSL (parseDSL)
-import Paths_jbeam_edit
 import System.Directory
 import System.FilePath (takeDirectory, (</>))
+
+#if WINDOWS_EXAMPLE_PATHS
+import System.Environment (getExecutablePath)
+#else
+import Paths_jbeam_edit
+#endif
 
 import Data.Text.IO qualified as TIO (putStrLn)
 
 data ConfigType = MinimalConfig | ComplexConfig deriving (Show)
 
-getJbflSourcePath :: ConfigType -> FilePath
-getJbflSourcePath MinimalConfig = "examples" </> "jbfl" </> "minimal.jbfl"
-getJbflSourcePath ComplexConfig = "examples" </> "jbfl" </> "complex.jbfl"
+getRelativeJbflSourcePath :: ConfigType -> FilePath
+getRelativeJbflSourcePath MinimalConfig = "examples" </> "jbfl" </> "minimal.jbfl"
+getRelativeJbflSourcePath ComplexConfig = "examples" </> "jbfl" </> "complex.jbfl"
 
 getConfigDir :: IO FilePath
 getConfigDir = getXdgDirectory XdgConfig "jbeam_edit"
@@ -32,10 +39,20 @@ getConfigPath userConfigDir = do
     else
       pure $ userConfigDir </> "rules.jbfl"
 
+#if WINDOWS_EXAMPLE_PATHS
+getJbflSourcePath :: ConfigType -> IO FilePath
+getJbflSourcePath configType = do
+    executableDir <- takeDirectory <$> getExecutablePath
+    pure (executableDir </> getRelativeJbflSourcePath configType)
+#else
+getJbflSourcePath :: ConfigType -> IO FilePath
+getJbflSourcePath configType = getDataFileName (getRelativeJbflSourcePath configType)
+#endif
+
 copyConfigFile :: FilePath -> ConfigType -> IO ()
 copyConfigFile dest configType = do
   createDirectoryIfMissing True (takeDirectory dest)
-  source <- getDataFileName (getJbflSourcePath configType)
+  source <- getJbflSourcePath configType
   putStrLn ("installing " ++ show configType ++ " config file to " ++ dest)
   copyFile source dest
 

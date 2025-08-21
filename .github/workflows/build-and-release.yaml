@@ -1,0 +1,143 @@
+name: Build for release
+
+on:
+  push:
+    branches: [master]
+    tags: [v*]
+  pull_request:
+
+jobs:
+  get-newest-supported-ghc:
+    name: Get the newest supported GHC
+    outputs:
+      matrix: ${{ steps.get-latest-version.outputs.matrix }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Extract the tested GHC versions
+        id: get-latest-version
+        uses: webdevred/get-tested@4671a0284723f30fa7f97989ff1f9513167180fe
+        with:
+          cabal-file: jbeam-edit.cabal
+          windows-version: latest
+          version: get-tested-for-jbeam-edit
+          newest: true
+  build-for-release:
+    runs-on: windows-latest
+    needs: get-newest-supported-ghc
+    name: Build for release for ${{ matrix.ghc }}
+    strategy:
+      matrix: ${{ fromJSON(needs.get-newest-supported-ghc.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v5.0.0
+      - name: Set up GHC latest and Cabal
+        id: setup-ghc
+        uses: haskell-actions/setup@v2.8.1
+        with:
+          ghc-version: ${{ matrix.ghc }}
+          cabal-version: latest
+          cabal-update: true
+      - name: Enable optimization for building on tags
+        if: startsWith(github.ref, 'refs/tags/')
+        run: cabal configure --project-file cabal.project.release -O2
+      - name: Enable tests for non-tags
+        if: "!startsWith(github.ref, 'refs/tags/')"
+        run: cabal configure --project-file cabal.project.release --enable-tests
+      - name: Cache GHC, Cabal store, and build artifacts
+        uses: actions/cache@v4.2.4
+        if: "!startsWith(github.ref, 'refs/tags/')"
+        with:
+          path: |
+            dist-newstyle
+            ${{ steps.setup-ghc.outputs.cabal-store }}
+          key: >-
+            ${{ runner.os }}-cabal-${{
+              matrix.ghc
+            }}-${{
+              hashFiles('**/package.yaml')
+            }}
+          restore-keys: |
+            ${{ runner.os }}-cabal-${{ matrix.ghc }}-
+      - name: Build executables
+        run: cabal build exe:jbeam-edit --project-file cabal.project.release
+      - name: Run tests (GHC ${{ matrix.ghc }})
+        if: "!startsWith(github.ref, 'refs/tags/')"
+        run: cabal test --project-file cabal.project.release
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: jbeam-edit-${{ matrix.ghc }}
+          path: dist-newstyle
+  release:
+    runs-on: windows-latest
+    needs: [build-for-release, get-newest-supported-ghc]
+    if: startsWith(github.ref, 'refs/tags/')
+    name: Release for Windows
+    strategy:
+      matrix: ${{ fromJSON(needs.get-newest-supported-ghc.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download build artifact
+        uses: actions/download-artifact@v5.0.0
+        with:
+          name: jbeam-edit-${{ matrix.ghc }}
+          path: dist-newstyle
+      - name: Prepare release folder
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $releaseDir = "$env:GITHUB_WORKSPACE\dist\release"
+          if (Test-Path $releaseDir) { Remove-Item $releaseDir -Recurse -Force -ErrorAction SilentlyContinue }
+          New-Item -ItemType Directory -Path $releaseDir | Out-Null
+
+          $exePath = Get-ChildItem -Path "$env:GITHUB_WORKSPACE\dist-newstyle\build" -Recurse -Filter "jbeam-edit.exe" -ErrorAction SilentlyContinue | Select-Object -First 1
+          if (-not $exePath) {
+            Write-Error "jbeam-edit.exe not found in dist-newstyle build tree. Make sure build-for-release succeeded."
+          }
+          Copy-Item $exePath.FullName $releaseDir
+
+          $jbflDest = Join-Path $releaseDir "examples\jbfl"
+          New-Item -ItemType Directory -Path $jbflDest -Force | Out-Null
+          Copy-Item -Path "examples\jbfl\*" -Destination $jbflDest -Recurse -Force
+
+          Copy-Item README.md $releaseDir -Force
+          Copy-Item JBFL_DOCS.md $releaseDir -Force
+          Copy-Item LICENSE $releaseDir -Force
+      - name: Build Inno Setup Installer
+        uses: Minionguyjpro/Inno-Setup-Action@v1.2.2
+        with:
+          path: installer/setup.iss
+          options: /O+
+      - name: Locate and move setup.exe into release folder
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $found = Get-ChildItem -Path "$env:GITHUB_WORKSPACE" -Recurse -Filter "setup.exe" -ErrorAction SilentlyContinue |
+                   Where-Object { $_.FullName -notmatch "\\\.git\\" } |
+                   Select-Object -First 1
+          if (-not $found) {
+            Write-Error "setup.exe not found after Inno Setup run. Check installer/output location."
+          }
+          $releaseSetupPath = Join-Path "$env:GITHUB_WORKSPACE\dist\release" "setup.exe"
+          Copy-Item $found.FullName $releaseSetupPath -Force
+          Write-Host "Copied setup.exe to $releaseSetupPath"
+      - name: Create zip containing setup.exe and docs
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $zipFile = "$env:GITHUB_WORKSPACE\dist\jbeam-edit-${env:GITHUB_REF_NAME}.zip"
+          $zipDir = "$env:GITHUB_WORKSPACE\dist\zip_temp"
+          if (Test-Path $zipDir) { Remove-Item $zipDir -Recurse -Force -ErrorAction SilentlyContinue }
+          New-Item -ItemType Directory -Path $zipDir | Out-Null
+
+          Copy-Item "$env:GITHUB_WORKSPACE\dist\release\setup.exe" $zipDir -Force
+          Copy-Item "$env:GITHUB_WORKSPACE\dist\release\README.md" $zipDir -Force
+          Copy-Item "$env:GITHUB_WORKSPACE\dist\release\JBFL_DOCS.md" $zipDir -Force
+          Copy-Item "$env:GITHUB_WORKSPACE\dist\release\LICENSE" $zipDir -Force
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          [System.IO.Compression.ZipFile]::CreateFromDirectory($zipDir, $zipFile)
+          Write-Host "Created zip: $zipFile"
+      - name: Create GitHub Release and upload zip
+        uses: softprops/action-gh-release@v2.3.2
+        with:
+          tag_name: ${{ github.ref_name }}
+          draft: true
+          generate_release_notes: true
+          files: |-
+            dist/jbeam-edit-${{ github.ref_name }}.zip

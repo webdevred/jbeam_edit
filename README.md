@@ -28,7 +28,7 @@ A fast, robust command-line parser, formatter, and editor for JBeam files, the J
   Uniform indentation, spacing, and layout for improved readability.
 
 - **Automatic Node Management:**
-  Renames nodes sequentially (e.g., `["bf1", ...]` → `["bf0", "bf1", "bf2"]`) and updates all references automatically.
+  Renames nodes sequentially (e.g., `["bf1", ...]` → `["bf0", "bf1", "bf2"]`) and updates all references automatically. Feature currently unstable, enabled by build flag `transformation`.
 
 - **Configurable Formatting with JBFL:**
   Customize formatting rules using JBFL, a mini-language to specify padding, decimals, indentation, and more with wildcard targeting.
@@ -64,25 +64,65 @@ Override per project by placing `.jbeam_edit.jbfl` in your project root.
 
 ## Usage
 
-Build and run:
+### 1. Download the latest release
+Go to the [Releases page](https://github.com/webdevred/jbeam_edit/releases) and download the most recent **`.zip`** file.
 
-```bash
-git clone https://github.com/webdevred/jbeam-tool.git
-cd jbeam-tool
-stack build
-stack exec jbeam-tool -- [options] <input-file>
+### 2. Unzip the file
+Extract the contents of the downloaded `.zip` archive to a folder of your choice.
+
+### 3. Run the setup as Administrator
+
+Inside the extracted folder, right-click on **setup.exe** and choose **Run as administrator**.
+
+## 4. Allow Windows protection if needed
+If Windows shows a warning such as:
+
+> *Windows protected your PC*
+
+Click **More info** → **Run anyway**.
+
+### 5. Path refresh
+The installer adds `jbeam-edit` to your **PATH**, but:
+- You must **open a new Command Prompt or PowerShell window** after installation.  
+- In some cases, you may need to **log out or restart Windows** for the PATH change to take effect.  
+- If it still doesn’t work, you can run it directly using the full path, e.g.:
+
+```powershell
+"C:\Program Files (x86)\jbeam_edit\jbeam-edit.exe" your-file.jbeam
 ```
 
-Typical workflow:
+### 6. Open Command Prompt or PowerShell
+Press **`Win + R`**, type `cmd` or `powershell`, and hit **Enter**.
 
-- Parses and formats the file.
-- Sorts and renames nodes, updating references.
-- Writes output back with a `.bak` backup by default.
+### 7. Run jbeam-edit on a file
+Navigate to your project folder in CMD/PowerShell and run:
 
-In-place editing (no backup):
+```powershell
+jbeam-edit your-file.jbeam
+```
+
+Replace `your-file.jbeam` with the path to your JBeam file.
+
+#### Typical workflow:
+- Parses and formats the file.  
+- Sorts and renames nodes, updating references.  
+- Writes the output back with a `.bak` backup (default).  
+
+#### In-place editing (no backup):
+```powershell
+jbeam-edit -i example.jbeam
+```
+
+### From source (Linux or development)
+
+Clone and build with Cabal:
 
 ```bash
-jbeam-edit -i example.jbeam
+git clone https://github.com/webdevred/jbeam_edit.git
+cd jbeam_edit
+cabal update
+cabal install
+jbeam-edit your-file.jbeam
 ```
 
 ## Examples
@@ -116,8 +156,10 @@ For an in-depth walkthrough of the implementation and design decisions, see [EXP
 
 ## Prerequisites
 
-- GHC (The Glasgow Haskell Compiler)
-- Stack build tool
+- **Windows users (BeamNG players):** none, just download the installer from [Releases](https://github.com/webdevred/jbeam_edit/releases/latest).
+- **Developers / Linux users:**
+  - [GHC](https://www.haskell.org/ghc/) (Glasgow Haskell Compiler)
+  - [Cabal](https://www.haskell.org/cabal/) build tool (comes with GHCup)
 
 ## Contributing & License
 

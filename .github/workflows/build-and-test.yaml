@@ -69,7 +69,7 @@ jobs:
       - name: Run tests
         run: stack test --fast
   generate-matrix:
-    name: "Generate matrix from cabal"
+    name: Generate matrix from cabal
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     runs-on: ubuntu-latest
@@ -79,7 +79,7 @@ jobs:
         uses: kleidukos/get-tested@v0.1.7.1
         with:
           cabal-file: jbeam-edit.cabal
-          ubuntu-version: "latest"
+          ubuntu-version: latest
           version: 0.1.7.1
   build-with-cabal:
     name: Build and test with Cabal (GHC ${{ matrix.ghc }})

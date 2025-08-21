@@ -1,0 +1,5 @@
+packages: .
+tests: True
+
+package jbeam-edit
+  flags: +dump-ast +transformation -windows-example-paths
