@@ -81,28 +81,34 @@ If Windows shows a warning such as:
 
 Click **More info** → **Run anyway**.
 
-## 5. Open Command Prompt or PowerShell
+### 5. Path refresh
+The installer adds `jbeam-edit` to your **PATH**, but:
+- You must **open a new Command Prompt or PowerShell window** after installation.  
+- In some cases, you may need to **log out or restart Windows** for the PATH change to take effect.  
+- If it still doesn’t work, you can run it directly using the full path, e.g.:
 
-Press **Win + R**, type `cmd` (or `powershell`), and press **Enter**.
+```powershell
+"C:\Program Files (x86)\jbeam_edit\jbeam-edit.exe" your-file.jbeam
+```
 
-## 6. Run jbeam-edit on a file
+### 6. Open Command Prompt or PowerShell
+Press **`Win + R`**, type `cmd` or `powershell`, and hit **Enter**.
 
-Navigate to your project in CMD:
+### 7. Run jbeam-edit on a file
+Navigate to your project folder in CMD/PowerShell and run:
 
 ```powershell
 jbeam-edit your-file.jbeam
 ```
 
-Replace `your-file.jbeam` with the path to the JBeam file you want to format.
+Replace `your-file.jbeam` with the path to your JBeam file.
 
-Typical workflow:
+#### Typical workflow:
+- Parses and formats the file.  
+- Sorts and renames nodes, updating references.  
+- Writes the output back with a `.bak` backup (default).  
 
-- Parses and formats the file.
-- Sorts and renames nodes, updating references.
-- Writes output back with a `.bak` backup by default.
-
-In-place editing (no backup):
-
+#### In-place editing (no backup):
 ```powershell
 jbeam-edit -i example.jbeam
 ```
