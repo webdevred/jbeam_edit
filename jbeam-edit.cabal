@@ -40,6 +40,13 @@ flag transformation
     default:     False
     manual:      True
 
+flag windows-example-paths
+    description:
+        Use executable-relative example paths (for Windows release builds)
+
+    default:     False
+    manual:      True
+
 library
     exposed-modules:
         CommandLineOptions
@@ -82,7 +89,7 @@ library
         exposed-modules: Transformation
         hs-source-dirs:  src-extra/transformation
 
-    if os(windows)
+    if (os(windows) && flag(windows-example-paths))
         cpp-options: -DWINDOWS_EXAMPLE_PATHS
 
 executable jbeam-edit

@@ -5,3 +5,4 @@ flags:
   jbeam-edit:
     transformation: false
     dump-ast: false
+    windows-example-paths: false

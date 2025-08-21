@@ -42,7 +42,7 @@ library:
     - condition: flag(transformation)
       source-dirs: [src-extra/transformation]
       exposed-modules: [Transformation]
-    - condition: os(mingw32)
+    - condition: os(windows) && flag(windows-example-paths)
       cpp-options: -DWINDOWS_EXAMPLE_PATHS
 
 flags:
@@ -54,6 +54,11 @@ flags:
     description: Enable transformation (experimental)
     manual: true
     default: false
+  windows-example-paths:
+    description: Use executable-relative example paths (for Windows release builds)
+    default: false
+    manual: true
+
 
 executables:
   jbeam-edit:

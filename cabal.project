@@ -2,4 +2,4 @@ packages: .
 tests: True
 
 package jbeam-edit
-  flags: +dump-ast +transformation
+  flags: +dump-ast +transformation -windows-example-paths
