@@ -1,5 +1,6 @@
 import: cabal.project
 tests: False
+executable-static: True
 
 package *
   ghc-options:
