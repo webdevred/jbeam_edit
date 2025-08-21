@@ -50,8 +50,8 @@ data VertexTree = VertexTree
 
 data VertexContext = VertexContext
   { ctxMetaAbove :: [Node]
-  , ctxEntriesBefore :: [VertexTreeEntry]
-  , ctxEntriesAfter :: [VertexTreeEntry]
+  , ctxBefore :: [VertexTreeEntry]
+  , ctxAfter :: [VertexTreeEntry]
   , ctxParentType :: VertexTreeType
   , ctxRestAbove :: Maybe VertexTree
   }
@@ -252,80 +252,110 @@ link Nothing acc = acc
 link (Just t) Nothing = Just t
 link (Just t) (Just rest) = Just t {tRest = Just rest}
 
-fromVertexTree :: VertexTree -> VertexZipper
-fromVertexTree = (`VertexZipper` [])
+fromTree :: VertexTree -> VertexZipper
+fromTree t = VertexZipper t []
+
+toTree :: VertexZipper -> VertexTree
+toTree = zFocus . goUpAll
 
 goUpAll :: VertexZipper -> VertexZipper
-goUpAll z@(VertexZipper _ []) = z
-goUpAll (VertexZipper cur (VertexContext meta before after ptype restAbove : ps)) =
-  let combinedEntries = before ++ NE.toList (tVertexNodes cur) ++ after
-      parent = VertexTree meta (NE.fromList combinedEntries) restAbove ptype
-   in goUpAll (VertexZipper parent ps)
+goUpAll z = maybe z goUpAll (goUp z)
 
-toVertexTreeFromZ :: VertexZipper -> VertexTree
-toVertexTreeFromZ = zFocus . goUpAll
+goDown :: VertexZipper -> Maybe VertexZipper
+goDown (VertexZipper (VertexTree metas (e :| es) rest t) ctx) =
+  Just $
+    VertexZipper
+      (VertexTree metas (e :| []) Nothing t)
+      (VertexContext metas [] es t rest : ctx)
+goDown _ = Nothing
+
+goUp :: VertexZipper -> Maybe VertexZipper
+goUp (VertexZipper cur (VertexContext metas before after t rest : ps)) =
+  let combined = before ++ NE.toList (tVertexNodes cur) ++ after
+      parent = VertexTree metas (NE.fromList combined) rest t
+   in Just (VertexZipper parent ps)
+goUp _ = Nothing
+
+goNext :: VertexZipper -> Maybe VertexZipper
+goNext (VertexZipper cur (VertexContext metas before (a : as) t rest : ps)) =
+  Just $
+    VertexZipper
+      (VertexTree metas (a :| []) Nothing t)
+      (VertexContext metas (before ++ NE.toList (tVertexNodes cur)) as t rest : ps)
+goNext _ = Nothing
+
+goPrev :: VertexZipper -> Maybe VertexZipper
+goPrev (VertexZipper cur (VertexContext metas (b : bs) after t rest : ps)) =
+  Just $
+    VertexZipper
+      (VertexTree metas (b :| []) Nothing t)
+      (VertexContext metas bs (NE.toList (tVertexNodes cur) ++ after) t rest : ps)
+goPrev _ = Nothing
+
+modify :: (VertexTree -> VertexTree) -> VertexZipper -> VertexZipper
+modify f (VertexZipper cur ctx) = VertexZipper (f cur) ctx
+
+replace :: VertexTree -> VertexZipper -> VertexZipper
+replace new (VertexZipper _ ctx) = VertexZipper new ctx
 
 processZipperFocus :: VertexZipper -> Maybe VertexZipper
 processZipperFocus (VertexZipper cur path) = do
-  fixedRest <- case tRest cur of
-    Nothing -> Just Nothing
-    Just r -> moveVerticesInVertexTree r >>= Just . Just
+  fixedRest <- traverse moveVerticesInVertexTree (tRest cur)
 
   let entriesList = NE.toList (tVertexNodes cur)
       groupsHere = groupVertexWithLeadingComments entriesList
+
       groupsRest =
-        maybe [] (groupVertexWithLeadingComments . NE.toList . tVertexNodes) fixedRest
+        maybe
+          []
+          (\r -> groupVertexWithLeadingComments (NE.toList (tVertexNodes r)))
+          fixedRest
       allGroups = groupsHere ++ groupsRest
 
-      groupsByType :: M.Map VertexTreeType [CommentGroup]
-      groupsByType = M.fromListWith (++) [(determineGroup (vX (cVertex g)), [g]) | g <- allGroups]
+      groupsByType =
+        M.fromListWith
+          (++)
+          [(determineGroup (vX (cVertex g)), [g]) | g <- allGroups]
 
       allTypes = [LeftTree, MiddleTree, RightTree, SupportTree]
+
       makeTreeFor t =
-        let gs = M.findWithDefault [] t groupsByType
-         in if null gs
-              then Nothing
-              else
-                Just
-                  ( VertexTree
-                      (tMetaNodes cur)
-                      ( NE.fromList
-                          . ungroupCommentGroups
-                          $ gs
-                      )
-                      Nothing
-                      t
-                  )
+        case M.findWithDefault [] t groupsByType of
+          [] -> Nothing
+          gs ->
+            Just $
+              VertexTree
+                (tMetaNodes cur)
+                (NE.fromList (ungroupCommentGroups gs))
+                Nothing
+                t
 
       treesForTypes = mapMaybe makeTreeFor allTypes
 
       (rootTreeM, restTrees) =
-        case partition (\(VertexTree _ _ _ t) -> t == tType cur) treesForTypes of
+        case partition (\t -> tType t == tType cur) treesForTypes of
           ([r], rs) -> (Just r, rs)
           ([], rs) -> case rs of
             [] -> (Nothing, [])
-            (r : _) -> (Just r, filter (\x -> tType x /= tType r) rs)
-          _ -> error "Multiple trees of same type, shouldnt happen"
+            (r : rs) -> (Just r, filter (\x -> tType x /= tType r) rs)
+          _ -> error "multiple trees of same type"
 
       linkedRest = foldr (link . Just) Nothing restTrees
 
   case rootTreeM of
-    Just rootTree ->
-      let newFocus = rootTree {tRest = linkedRest}
-       in Just (VertexZipper newFocus path)
-    Nothing ->
-      case treesForTypes of
-        [] -> Nothing
-        (firstTree : others) ->
-          let newFocus = firstTree {tRest = foldr (link . Just) Nothing others}
-           in Just (VertexZipper newFocus path)
+    Just rootTree -> Just (VertexZipper (rootTree {tRest = linkedRest}) path)
+    Nothing -> case treesForTypes of
+      [] -> Nothing
+      (firstTree : others) ->
+        Just
+          (VertexZipper (firstTree {tRest = foldr (link . Just) Nothing others}) path)
 
 moveVerticesInVertexTree :: VertexTree -> Maybe VertexTree
 moveVerticesInVertexTree root =
-  let startZ = fromVertexTree root
+  let startZ = fromTree root
    in do
         z' <- processZipperFocus startZ
-        pure $ toVertexTreeFromZ z'
+        pure (toTree z')
 
 updateVertexTree :: VertexTree -> Either Text VertexTree
 updateVertexTree vertexTree = getVertexTreeGlobals vertexTree >>= go
