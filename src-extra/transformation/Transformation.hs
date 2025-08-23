@@ -6,7 +6,7 @@ module Transformation (
 import Core.Node
 import Data.Char (isDigit)
 import Data.Function (on)
-import Data.List (partition, sortOn)
+import Data.List (partition, sortOn, uncons)
 import Data.List.NonEmpty (NonEmpty (..))
 import Data.Map (Map)
 import Data.Maybe (isJust, isNothing, listToMaybe, mapMaybe)
@@ -151,6 +151,21 @@ nodesListToTree nodes =
             Just ne -> go vertexNames' acc' ne
         Left err -> Left err
 
+createVertexForFirstNode :: [Node] -> Maybe (Vertex, [Node])
+createVertexForFirstNode nodes = do
+  (node, rest) <- uncons nodes
+  vertex <- newVertex node
+  pure (vertex, rest)
+
+toVertexTreeEntry :: Node -> VertexTreeEntry
+toVertexTreeEntry node =
+  case newVertex node of
+    Just vertice -> VertexEntry vertice
+    Nothing ->
+      case node of
+        (Object meta) -> MetaEntry meta
+        (Comment comment) -> CommentEntry comment
+
 newVertexTree
   :: Set Text
   -> VertexForest
@@ -160,12 +175,12 @@ newVertexTree vertexNames vertexForest nodes' =
   let (nonVertices, rest) = NE.span isNonVertex nodes'
       vertexPrefix = T.dropWhileEnd isDigit <$> getFirstVertexName rest
    in case breakVertices vertexPrefix vertexNames rest of
-        Right (vertexNames', vertices, rest') ->
-          case mapMaybe newVertex vertices of
-            [] -> Left "no vertices found when building a vertex tree"
-            (firstV : vs) ->
+        Right (vertexNames', vertexNodes, rest') ->
+          case createVertexForFirstNode vertexNodes of
+            Nothing -> Left "no vertices found when building a vertex tree"
+            Just (firstV, vs) ->
               let treeType = determineGroup firstV
-                  vertexEntries = NE.fromList (VertexEntry firstV : map VertexEntry vs)
+                  vertexEntries = (VertexEntry firstV :| map toVertexTreeEntry vs)
                   vertexTree = VertexTree nonVertices vertexEntries
                   updatedForest = case treeType of
                     SupportTree ->
@@ -317,9 +332,7 @@ moveVerticesInVertexForest vertexTrees =
 
             sideCommentEntry :: [VertexTreeEntry]
             sideCommentEntry =
-              if isNothing origTree && not (null groupsSorted)
-                then [CommentEntry (sideComment t)]
-                else []
+              ([CommentEntry (sideComment t) | isNothing origTree && not (null groupsSorted)])
 
             process [] keys = ([], keys)
             process (cg : rest) keys =
