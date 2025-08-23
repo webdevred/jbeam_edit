@@ -3,6 +3,7 @@ module Transformation (
   transform,
 ) where
 
+import Control.Monad (foldM)
 import Core.Node
 import Data.Char (isDigit)
 import Data.Function (on)
@@ -111,7 +112,7 @@ breakVertices vertexPrefix allVertexNames ns = go [] ns allVertexNames
     go acc (node : rest) vertexNames
       | isNothing maybeVertex = go (node : acc) rest vertexNames
       | hasVertexPrefix vertexPrefix node
-          || (isNothing vertexPrefix && any isSupportVertex maybeVertex) =
+          || isNothing vertexPrefix && any isSupportVertex maybeVertex =
           isCollision node vertexNames >>= go (node : acc) rest
       | isJust maybeVertex =
           let (metaBefore, currentTree) = span isNonVertex acc
@@ -290,12 +291,60 @@ sideCommentText SupportTree = "Support"
 sideComment :: VertexTreeType -> InternalComment
 sideComment t = InternalComment (sideCommentText t) False
 
-moveVerticesInVertexForest :: VertexForest -> VertexForest
-moveVerticesInVertexForest vertexTrees =
-  let supportTree :: Maybe VertexTree
-      supportTree = M.lookup SupportTree vertexTrees
+metaKeysFromNodes :: [Node] -> Set Text
+metaKeysFromNodes nodes = S.fromList . M.keys $ nodesToMap nodes
 
-      movableTrees :: VertexForest
+buildTree
+  :: VertexForest -> VertexTreeType -> [CommentGroup] -> Either Text VertexTree
+buildTree vertexTrees t groupsOrig =
+  let groupsSorted = sortCommentGroups groupsOrig
+      origTree = M.lookup t vertexTrees
+      topMetas = maybe [] tMetaNodes origTree
+
+      existingTopKeys = metaKeysFromNodes topMetas
+      existingEntryKeys = maybe S.empty (S.unions . map metaKeys . NE.toList . tVertexNodes) origTree
+      initialKeys = existingTopKeys <> existingEntryKeys
+
+      existingNames :: Set Text
+      existingNames =
+        maybe
+          S.empty
+          (S.fromList . mapMaybe (fmap vName . possiblyVertex) . NE.toList . tVertexNodes)
+          origTree
+
+      sideCommentEntry :: [VertexTreeEntry]
+      sideCommentEntry =
+        ([CommentEntry (sideComment t) | isNothing origTree && not (null groupsSorted)])
+
+      process [] keys = ([], keys)
+      process (cg : rest) keys =
+        let cm = cMeta cg
+            needed = [k | (k, _) <- M.assocs cm]
+            missing = filter (`S.notMember` keys) needed
+            newMetaEntries = [MetaEntry (V.singleton (ObjectKey (String k, cm M.! k))) | k <- missing]
+            commentEntries = map CommentEntry (cComments cg)
+
+            originalVertex = cVertex cg
+            finalName =
+              if S.member (vName originalVertex) existingNames
+                then vName originalVertex
+                else renameVertexId t (vName originalVertex)
+
+            vertexEntry = VertexEntry (originalVertex {vName = finalName})
+            newKeys = keys <> S.fromList missing
+            (bundlesRest, finalKeys) = process rest newKeys
+         in (newMetaEntries ++ commentEntries ++ (vertexEntry : bundlesRest), finalKeys)
+
+      (bundles, _) = process groupsSorted initialKeys
+
+      finalEntries = sideCommentEntry ++ bundles
+   in case NE.nonEmpty finalEntries of
+        Just ne -> Right $ VertexTree topMetas ne
+        Nothing -> Left "Cannot build empty tree: there are no vertices to insert"
+
+moveVerticesInVertexForest :: VertexForest -> Either Text VertexForest
+moveVerticesInVertexForest vertexTrees = do
+  let supportTree = M.lookup SupportTree vertexTrees
       movableTrees = M.delete SupportTree vertexTrees
 
       allGroups :: [CommentGroup]
@@ -307,72 +356,20 @@ moveVerticesInVertexForest vertexTrees =
       grouped :: Map VertexTreeType [CommentGroup]
       grouped = M.fromListWith (++) [(determineGroup (cVertex g), [g]) | g <- movableGroups]
 
-      metaKeysFromNodes nodes = S.fromList . M.keys $ nodesToMap nodes
-      existingOtherEntries vt =
-        filter
-          (\e -> case e of OtherNodeEntry _ -> True; _ -> False)
-          (NE.toList $ tVertexNodes vt)
+  newForest <-
+    foldM
+      ( \acc k ->
+          case M.lookup k grouped of
+            Just groupsForK | not (null groupsForK) -> do
+              tree <- buildTree vertexTrees k groupsForK
+              pure (M.insert k tree acc)
+            _ -> pure $ maybe acc (\ot -> M.insert k ot acc) (M.lookup k vertexTrees)
+      )
+      M.empty
+      [LeftTree, MiddleTree, RightTree]
 
-      buildTree :: VertexTreeType -> [CommentGroup] -> VertexTree
-      buildTree t groupsOrig =
-        let groupsSorted = sortCommentGroups groupsOrig
-            origTree = M.lookup t vertexTrees
-            origTopMetas = maybe [] tMetaNodes origTree
-            topMetas = filter (not . isValidVertexHeader) origTopMetas
-            existingTopKeys = metaKeysFromNodes topMetas
-            existingEntryKeys = maybe S.empty (S.unions . map metaKeys . NE.toList . tVertexNodes) origTree
-            initialKeys = existingTopKeys <> existingEntryKeys
-
-            existingNames :: Set Text
-            existingNames =
-              maybe
-                S.empty
-                (S.fromList . mapMaybe (fmap vName . possiblyVertex) . NE.toList . tVertexNodes)
-                origTree
-
-            sideCommentEntry :: [VertexTreeEntry]
-            sideCommentEntry =
-              ([CommentEntry (sideComment t) | isNothing origTree && not (null groupsSorted)])
-
-            process [] keys = ([], keys)
-            process (cg : rest) keys =
-              let cm = cMeta cg
-                  needed = [k | (k, _) <- M.assocs cm]
-                  missing = filter (`S.notMember` keys) needed
-                  newMetaEntries = [MetaEntry (V.singleton (ObjectKey (String k, cm M.! k))) | k <- missing]
-                  commentEntries = map CommentEntry (cComments cg)
-
-                  originalVertex = cVertex cg
-                  finalName =
-                    if S.member (vName originalVertex) existingNames
-                      then vName originalVertex
-                      else renameVertexId t (vName originalVertex)
-
-                  vertexEntry = VertexEntry (originalVertex {vName = finalName})
-                  newKeys = keys <> S.fromList missing
-                  (bundlesRest, finalKeys) = process rest newKeys
-               in (newMetaEntries ++ commentEntries ++ (vertexEntry : bundlesRest), finalKeys)
-
-            (bundles, _) = process groupsSorted initialKeys
-            prefixOther = maybe [] existingOtherEntries origTree
-
-            finalEntries = prefixOther ++ sideCommentEntry ++ bundles
-         in case NE.nonEmpty finalEntries of
-              Just ne -> VertexTree topMetas ne
-              Nothing -> error "Cannot build empty tree: there are no vertices to insert"
-
-      newForest =
-        foldl
-          ( \acc k ->
-              case M.lookup k grouped of
-                Just groupsForK | not (null groupsForK) -> M.insert k (buildTree k groupsForK) acc
-                _ -> maybe acc (\ot -> M.insert k ot acc) (M.lookup k vertexTrees)
-          )
-          M.empty
-          [LeftTree, MiddleTree, RightTree]
-
-      finalForest = maybe newForest (\st -> M.insert SupportTree st newForest) supportTree
-   in finalForest
+  let finalForest = maybe newForest (\st -> M.insert SupportTree st newForest) supportTree
+  pure finalForest
 
 updateVertexForest :: NonEmpty Node -> VertexForest -> Either Text VertexForest
 updateVertexForest globalMetas vertexForest =
@@ -384,7 +381,7 @@ updateVertexForest globalMetas vertexForest =
             let VertexTree metas entries = firstVertexTree
                 firstVertexTreeWithGlobals = VertexTree (NE.toList globalMetas ++ metas) entries
              in M.insert firstTreeType firstVertexTreeWithGlobals f
-   in Right . sortVertices . addGlobalMetas $ updated
+   in sortVertices . addGlobalMetas <$> updated
 
 groupByMeta :: [VertexTreeEntry] -> [[VertexTreeEntry]]
 groupByMeta [] = []
