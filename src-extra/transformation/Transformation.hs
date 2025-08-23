@@ -266,6 +266,15 @@ renameVertexId treeType vertexName =
         SupportTree -> prefix
    in newPrefix <> index
 
+sideCommentText :: VertexTreeType -> Text
+sideCommentText LeftTree = "Left side"
+sideCommentText MiddleTree = "Middle side"
+sideCommentText RightTree = "Right side"
+sideCommentText SupportTree = "Support"
+
+sideComment :: VertexTreeType -> InternalComment
+sideComment t = InternalComment (sideCommentText t) False
+
 moveVerticesInVertexForest :: VertexForest -> VertexForest
 moveVerticesInVertexForest vertexTrees =
   let supportTree :: Maybe VertexTree
@@ -306,6 +315,12 @@ moveVerticesInVertexForest vertexTrees =
                 (S.fromList . mapMaybe (fmap vName . possiblyVertex) . NE.toList . tVertexNodes)
                 origTree
 
+            sideCommentEntry :: [VertexTreeEntry]
+            sideCommentEntry =
+              if isNothing origTree && not (null groupsSorted)
+                then [CommentEntry (sideComment t)]
+                else []
+
             process [] keys = ([], keys)
             process (cg : rest) keys =
               let cm = cMeta cg
@@ -323,11 +338,12 @@ moveVerticesInVertexForest vertexTrees =
                   vertexEntry = VertexEntry (originalVertex {vName = finalName})
                   newKeys = keys <> S.fromList missing
                   (bundlesRest, finalKeys) = process rest newKeys
-               in (newMetaEntries ++ commentEntries ++ vertexEntry : bundlesRest, finalKeys)
+               in (newMetaEntries ++ commentEntries ++ (vertexEntry : bundlesRest), finalKeys)
 
             (bundles, _) = process groupsSorted initialKeys
             prefixOther = maybe [] existingOtherEntries origTree
-            finalEntries = prefixOther ++ bundles
+
+            finalEntries = prefixOther ++ sideCommentEntry ++ bundles
          in case NE.nonEmpty finalEntries of
               Just ne -> VertexTree topMetas ne
               Nothing -> error "Cannot build empty tree: there are no vertices to insert"
