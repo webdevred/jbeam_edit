@@ -255,6 +255,17 @@ groupVertexWithLeadingCommentsAndMeta (VertexTree baseMeta entriesNE) =
            in cg : go currentMeta [] rest
         OtherNodeEntry _ -> go currentMeta [] rest
 
+renameVertexId :: VertexTreeType -> Text -> Text
+renameVertexId treeType vertexName =
+  let prefix = T.takeWhile (not . isDigit) vertexName
+      index = T.dropWhile (not . isDigit) vertexName
+      newPrefix = case treeType of
+        LeftTree -> if "l" `T.isSuffixOf` prefix then prefix else prefix <> "l"
+        MiddleTree -> if "m" `T.isSuffixOf` prefix then prefix else prefix <> "m"
+        RightTree -> if "r" `T.isSuffixOf` prefix then prefix else prefix <> "r"
+        SupportTree -> prefix
+   in newPrefix <> index
+
 moveVerticesInVertexForest :: VertexForest -> VertexForest
 moveVerticesInVertexForest vertexTrees =
   let supportTree :: Maybe VertexTree
@@ -288,6 +299,13 @@ moveVerticesInVertexForest vertexTrees =
             existingEntryKeys = maybe S.empty (S.unions . map metaKeys . NE.toList . tVertexNodes) origTree
             initialKeys = existingTopKeys <> existingEntryKeys
 
+            existingNames :: Set Text
+            existingNames =
+              maybe
+                S.empty
+                (S.fromList . mapMaybe (fmap vName . possiblyVertex) . NE.toList . tVertexNodes)
+                origTree
+
             process [] keys = ([], keys)
             process (cg : rest) keys =
               let cm = cMeta cg
@@ -295,15 +313,21 @@ moveVerticesInVertexForest vertexTrees =
                   missing = filter (`S.notMember` keys) needed
                   newMetaEntries = [MetaEntry (V.singleton (ObjectKey (String k, cm M.! k))) | k <- missing]
                   commentEntries = map CommentEntry (cComments cg)
-                  vertexEntry = VertexEntry (cVertex cg)
-                  bundle = newMetaEntries ++ commentEntries ++ [vertexEntry]
+
+                  originalVertex = cVertex cg
+                  finalName =
+                    if S.member (vName originalVertex) existingNames
+                      then vName originalVertex
+                      else renameVertexId t (vName originalVertex)
+
+                  vertexEntry = VertexEntry (originalVertex {vName = finalName})
                   newKeys = keys <> S.fromList missing
                   (bundlesRest, finalKeys) = process rest newKeys
-               in (bundle : bundlesRest, finalKeys)
+               in (newMetaEntries ++ commentEntries ++ vertexEntry : bundlesRest, finalKeys)
 
             (bundles, _) = process groupsSorted initialKeys
             prefixOther = maybe [] existingOtherEntries origTree
-            finalEntries = prefixOther ++ concat bundles
+            finalEntries = prefixOther ++ bundles
          in case NE.nonEmpty finalEntries of
               Just ne -> VertexTree topMetas ne
               Nothing -> error "Cannot build empty tree: there are no vertices to insert"
