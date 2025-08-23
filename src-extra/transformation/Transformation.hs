@@ -1,4 +1,5 @@
-{- HLINT ignore "Use lambda-case" -}
+{-# LANGUAGE RankNTypes #-}
+
 module Transformation (
   transform,
 ) where
@@ -40,7 +41,6 @@ data VertexTreeEntry
   = VertexEntry Vertex
   | CommentEntry InternalComment
   | MetaEntry Object
-  | OtherNodeEntry Node
   deriving (Eq, Show)
 
 data VertexTree = VertexTree
@@ -66,6 +66,9 @@ data CommentGroup = CommentGroup
   deriving (Show)
 
 type MetaMap = Map Text Node
+
+showAsText :: forall a. Show a => a -> Text
+showAsText = T.pack . show
 
 newVertex :: Node -> Maybe Vertex
 newVertex (Array ns) = f . V.toList $ ns
@@ -158,14 +161,15 @@ createVertexForFirstNode nodes = do
   vertex <- newVertex node
   pure (vertex, rest)
 
-toVertexTreeEntry :: Node -> VertexTreeEntry
+toVertexTreeEntry :: Node -> Either Text VertexTreeEntry
 toVertexTreeEntry node =
   case newVertex node of
-    Just vertice -> VertexEntry vertice
+    Just vertice -> Right $ VertexEntry vertice
     Nothing ->
       case node of
-        (Object meta) -> MetaEntry meta
-        (Comment comment) -> CommentEntry comment
+        (Object meta) -> Right $ MetaEntry meta
+        (Comment comment) -> Right $ CommentEntry comment
+        _ -> Left $ "unexpected node " <> showAsText node
 
 newVertexTree
   :: Set Text
@@ -180,14 +184,17 @@ newVertexTree vertexNames vertexForest nodes' =
           case createVertexForFirstNode vertexNodes of
             Nothing -> Left "no vertices found when building a vertex tree"
             Just (firstV, vs) ->
-              let treeType = determineGroup firstV
-                  vertexEntries = (VertexEntry firstV :| map toVertexTreeEntry vs)
-                  vertexTree = VertexTree nonVertices vertexEntries
-                  updatedForest = case treeType of
-                    SupportTree ->
-                      M.insertWith combineSupportTrees SupportTree vertexTree vertexForest
-                    _ -> M.insert treeType vertexTree vertexForest
-               in Right (vertexNames', treeType, vertexTree, updatedForest, rest')
+              case mapM toVertexTreeEntry vs of
+                Right vertexEntries ->
+                  let treeType = determineGroup firstV
+                      vertexTree = VertexTree nonVertices (VertexEntry firstV :| vertexEntries)
+                      updatedForest =
+                        case treeType of
+                          SupportTree ->
+                            M.insertWith combineSupportTrees SupportTree vertexTree vertexForest
+                          _ -> M.insert treeType vertexTree vertexForest
+                   in Right (vertexNames', treeType, vertexTree, updatedForest, rest')
+                Left err -> Left err
         Left err -> Left err
 
 combineSupportTrees :: VertexTree -> VertexTree -> VertexTree
@@ -202,14 +209,14 @@ getVertexForest
 getVertexForest np topNode =
   case NP.queryNodes np topNode of
     Just node -> f node
-    Nothing -> Left $ "could not find vertices at path " <> T.pack (show verticesQuery)
+    Nothing -> Left $ "could not find vertices at path " <> showAsText verticesQuery
   where
     f node =
       case node of
         Array ns
-          | null ns -> Left . T.pack . show $ ns
+          | null ns -> Left . showAsText $ ns
           | otherwise -> nodesListToTree . NE.fromList . V.toList $ ns
-        bad -> Left . T.pack . show $ bad
+        bad -> Left . showAsText $ bad
 
 determineGroup :: Vertex -> VertexTreeType
 determineGroup v
@@ -269,7 +276,6 @@ groupVertexWithLeadingCommentsAndMeta (VertexTree baseMeta entriesNE) =
         VertexEntry v ->
           let cg = CommentGroup {cComments = accComments, cVertex = v, cMeta = currentMeta}
            in cg : go currentMeta [] rest
-        OtherNodeEntry _ -> go currentMeta [] rest
 
 renameVertexId :: VertexTreeType -> Text -> Text
 renameVertexId treeType vertexName =
@@ -409,7 +415,6 @@ groupVertexWithLeadingComments = go [] []
         VertexEntry v ->
           let cg = CommentGroup {cComments = acc, cVertex = v, cMeta = nodesToMap metas}
            in cg : go [] [] rest
-        OtherNodeEntry _ -> go metas [] rest
 
 sortCommentGroups :: [CommentGroup] -> [CommentGroup]
 sortCommentGroups = sortOn (\cg -> (vZ (cVertex cg), vY (cVertex cg)))
@@ -484,7 +489,6 @@ vertexForestToNodeVector = V.concat . map vertexTreeToNodeVector . M.elems
             case entry of
               (CommentEntry node) -> Comment node
               (MetaEntry node) -> Object node
-              (OtherNodeEntry node) -> node
               (VertexEntry vertex) ->
                 let name = String . vName $ vertex
                     x = Number . vX $ vertex
