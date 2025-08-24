@@ -4,7 +4,7 @@ module Transformation (
   transform,
 ) where
 
-import Control.Monad (foldM)
+import Control.Monad (foldM, guard)
 import Core.Node
 import Data.Char (isDigit)
 import Data.Function (on)
@@ -98,6 +98,15 @@ getFirstVertexName :: [Node] -> Maybe Text
 getFirstVertexName (node : _) = getVertexName node
 getFirstVertexName _ = Nothing
 
+getVertexPrefix :: [Node] -> Maybe Text
+getVertexPrefix nodes = do
+  firstVertexName <- getFirstVertexName nodes
+  (_, vertexIndex) <- T.unsnoc firstVertexName
+  guard $ isDigit vertexIndex
+  let vertexPrefix = T.dropWhileEnd isDigit firstVertexName
+  guard . not . T.null $ vertexPrefix
+  pure vertexPrefix
+
 isCollision :: Node -> Set Text -> Either Text (Set Text)
 isCollision vertexNode vertexNames =
   case getVertexName vertexNode of
@@ -178,7 +187,7 @@ newVertexTree
   -> Either Text (Set Text, VertexTreeType, VertexTree, VertexForest, [Node])
 newVertexTree vertexNames vertexForest nodes' =
   let (nonVertices, rest) = NE.span isNonVertex nodes'
-      vertexPrefix = T.dropWhileEnd isDigit <$> getFirstVertexName rest
+      vertexPrefix = getVertexPrefix rest
    in case breakVertices vertexPrefix vertexNames rest of
         Right (vertexNames', vertexNodes, rest') ->
           case createVertexForFirstNode vertexNodes of
