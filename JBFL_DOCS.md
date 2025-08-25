@@ -46,11 +46,12 @@ Typical use cases include:
 
 # Properties Overview
 
-| Setting Name       | Description                                                                                                                                                      | Applies To                     |
-|--------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------|
-| `PadDecimals`      | When non-zero, numeric values are padded with trailing zeros after the decimal point. The fractional part is extended to match the specified PadDecimals length. | Numeric values                 |
-| `PadAmount`        | Specifies the **total length** (number of characters) the formatted value should occupy.                                                                         | Any scalar except for comments |
-| `NoComplexNewLine` | When true, disables multiline or indented formatting for arrays, outputting values inline.                                                                       | Any complex data structure     |
+| Setting Name       | Description                                                                                                                                                      | Applies To                                                        |
+|--------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------|
+| `PadDecimals`      | When non-zero, numeric values are padded with trailing zeros after the decimal point. The fractional part is extended to match the specified PadDecimals length. | Numeric values                                                    |
+| `PadAmount`        | Specifies the **total length** (number of characters) the formatted value should occupy.                                                                         | Any scalar except for comments                                    |
+| `NoComplexNewLine` | When true, disables multiline or indented formatting for arrays, outputting values inline.                                                                       | Any complex data structure                                        |
+| `Indent`           | When set, controls the the amount of indentation. Defaults to 2 spaces.                                                                                          | Any complex data structure with `NoComplexNewLine` set to `false` |
 
 # How Matching Works
 
