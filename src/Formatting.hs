@@ -14,6 +14,7 @@ import Formatting.Rules (
   RuleSet (..),
   applyPadLogic,
   findPropertiesForCursor,
+  lookupIndentProperty,
   newRuleSet,
   noComplexNewLine,
  )
@@ -47,18 +48,21 @@ addDelimiters rs index c complexChildren acc ns@(node : rest)
     space = bool " " "" $ null rest || complexChildren
     newline = bool "" "\n" complexChildren
 
-indent :: Text -> Text
-indent s
+applyIndentation :: Int -> Text -> Text
+applyIndentation n s
   | T.all isSpace s = s
-  | otherwise = "  " <> s
+  | otherwise = T.replicate n " " <> s
 
 doFormatNode :: RuleSet -> NC.NodeCursor -> Vector Node -> Text
 doFormatNode rs cursor nodes =
   let formatted =
         reverse . addDelimiters rs 0 cursor complexChildren [] . V.toList $
           nodes
+      indentationAmount = lookupIndentProperty rs cursor
    in if complexChildren
-        then T.unlines . map indent . concatMap T.lines $ formatted
+        then
+          T.unlines . map (applyIndentation indentationAmount) . concatMap T.lines $
+            formatted
         else T.concat formatted
   where
     complexChildren =
