@@ -3,6 +3,8 @@ module SpecHelper (
   works,
   module Core.Node,
   module Test.Hspec,
+  DescribeFun,
+  SpecFun,
 ) where
 
 import Core.Node
