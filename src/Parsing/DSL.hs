@@ -88,6 +88,7 @@ parseValueForKey :: PropertyKey a -> Parser a
 parseValueForKey NoComplexNewLine = parseBool <?> "bool"
 parseValueForKey PadAmount = L.decimal <?> "integer"
 parseValueForKey PadDecimals = L.decimal <?> "integer"
+parseValueForKey Indent = L.decimal <?> "integer"
 
 skipComment :: Parser ()
 skipComment = void . MP.many $ comment <* skipWhiteSpace

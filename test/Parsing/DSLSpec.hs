@@ -35,6 +35,7 @@ intProperties :: [(String, (SomeKey, SomeProperty))]
 intProperties =
   [ ("PadDecimals : 3;", (SomeKey PadDecimals, SomeProperty PadDecimals 3))
   , ("PadAmount : 8;", (SomeKey PadAmount, SomeProperty PadAmount 8))
+  , ("Indent : 4;", (SomeKey Indent, SomeProperty Indent 4))
   ]
 
 boolProperties :: [(String, (SomeKey, SomeProperty))]
@@ -79,6 +80,10 @@ invalidIntProperties =
   ,
     ( "PadAmount : true;"
     , err 12 (utok (toWord8 't') <> expLabels ["integer", "white space"])
+    )
+  ,
+    ( "Indent : true;"
+    , err 9 (utok (toWord8 't') <> expLabels ["integer", "white space"])
     )
   ]
 

@@ -18,6 +18,7 @@ module Formatting.Rules (
   applyPadLogic,
   comparePatternAndCursor,
   noComplexNewLine,
+  lookupIndentProperty,
   newRuleSet,
   findPropertiesForCursor,
 ) where
@@ -27,6 +28,7 @@ import Core.NodePath (NodeSelector (..))
 import Data.Function (on)
 import Data.List (find)
 import Data.Map (Map)
+import Data.Maybe (fromMaybe)
 import Data.Ord (Down (..))
 import Data.Sequence (Seq (..))
 import Data.Text (Text)
@@ -65,6 +67,7 @@ data PropertyKey a where
   NoComplexNewLine :: PropertyKey Bool
   PadAmount :: PropertyKey Int
   PadDecimals :: PropertyKey Int
+  Indent :: PropertyKey Int
 
 data SomeKey
   = forall a.
@@ -93,6 +96,7 @@ eqKey :: PropertyKey a -> PropertyKey b -> Maybe (a :~: b)
 eqKey PadAmount PadAmount = Just Refl
 eqKey NoComplexNewLine NoComplexNewLine = Just Refl
 eqKey PadDecimals PadDecimals = Just Refl
+eqKey Indent Indent = Just Refl
 eqKey _ _ = Nothing
 
 instance Ord SomeKey where
@@ -131,6 +135,7 @@ propertyName :: PropertyKey a -> Text
 propertyName NoComplexNewLine = "NoComplexNewLine"
 propertyName PadAmount = "PadAmount"
 propertyName PadDecimals = "PadDecimals"
+propertyName Indent = "Indent"
 
 keyName :: SomeKey -> Text
 keyName (SomeKey key) = propertyName key
@@ -142,7 +147,7 @@ boolProperties :: [SomeKey]
 boolProperties = [SomeKey NoComplexNewLine]
 
 intProperties :: [SomeKey]
-intProperties = map SomeKey [PadAmount, PadDecimals]
+intProperties = map SomeKey [PadAmount, PadDecimals, Indent]
 
 allProperties :: [SomeKey]
 allProperties = boolProperties ++ intProperties
@@ -189,6 +194,12 @@ noComplexNewLine rs cursor =
   let ps = findPropertiesForCursor cursor rs
       maybeProp = lookupProp NoComplexNewLine ps
    in (Just True == maybeProp)
+
+lookupIndentProperty :: RuleSet -> NC.NodeCursor -> Int
+lookupIndentProperty rs cursor =
+  let ps = findPropertiesForCursor cursor rs
+      indentProperty = lookupProp Indent ps
+   in fromMaybe 2 indentProperty
 
 comparePC :: NodePatternSelector -> NC.NodeBreadcrumb -> Bool
 comparePC AnyObjectKey (NC.ObjectIndexAndKey (_, _)) = True
