@@ -99,7 +99,7 @@ jobs:
           Copy-Item JBFL_DOCS.md $releaseDir -Force
           Copy-Item LICENSE $releaseDir -Force
       - name: Build Inno Setup Installer
-        uses: Minionguyjpro/Inno-Setup-Action@v1.2.2
+        uses: Minionguyjpro/Inno-Setup-Action@v1.2.6
         with:
           path: installer/setup.iss
           options: /O+
