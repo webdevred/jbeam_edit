@@ -74,7 +74,7 @@ Extract the contents of the downloaded `.zip` archive to a folder of your choice
 
 Inside the extracted folder, right-click on **setup.exe** and choose **Run as administrator**.
 
-## 4. Allow Windows protection if needed
+## 4. Allow in Windows Defender if needed
 If Windows shows a warning such as:
 
 > *Windows protected your PC*
