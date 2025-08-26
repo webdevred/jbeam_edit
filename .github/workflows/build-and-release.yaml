@@ -28,7 +28,7 @@ jobs:
     strategy:
       matrix: ${{ fromJSON(needs.get-newest-supported-ghc.outputs.matrix) }}
     steps:
-      - uses: actions/checkout@v5.0.0
+      - uses: actions/checkout@v5
       - name: Set up GHC latest and Cabal
         id: setup-ghc
         uses: haskell-actions/setup@v2.8.1
@@ -75,7 +75,7 @@ jobs:
     strategy:
       matrix: ${{ fromJSON(needs.get-newest-supported-ghc.outputs.matrix) }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Download build artifact
         uses: actions/download-artifact@v5.0.0
         with:
