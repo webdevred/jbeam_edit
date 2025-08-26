@@ -1,5 +1,7 @@
+examples/jbeam/*.jbeam.bak
 cabal.project.local
 cabal.project.local~
+cabal.project.*.local
 dist-newstyle/
 TAGS
 .stack-work/
