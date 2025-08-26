@@ -16,7 +16,7 @@ jobs:
         os: [ubuntu-latest, windows-latest]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v5
       - name: Get latest supported GHC version
         id: get-ghc
         uses: webdevred/get-supported-ghc@v0.0.7
