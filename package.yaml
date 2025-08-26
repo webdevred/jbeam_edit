@@ -59,7 +59,6 @@ flags:
     default: false
     manual: true
 
-
 executables:
   jbeam-edit:
     main: Main.hs
