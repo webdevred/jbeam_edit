@@ -8,7 +8,7 @@ import Control.Monad (foldM, guard)
 import Core.Node
 import Data.Char (isDigit)
 import Data.Function (on)
-import Data.List (sortOn, uncons)
+import Data.List (partition, sortOn, uncons)
 import Data.List.NonEmpty (NonEmpty (..))
 import Data.Map (Map)
 import Data.Maybe (isJust, isNothing, listToMaybe, mapMaybe)
@@ -304,6 +304,7 @@ buildTree vertexTrees t groupsOrig =
   let groupsSorted = sortCommentGroups groupsOrig
 
       origTree = M.lookup t vertexTrees
+      topComments = filter isCommentNode (maybe [] tMetaNodes origTree)
 
       sideCommentEntry :: [VertexTreeEntry]
       sideCommentEntry =
@@ -311,7 +312,7 @@ buildTree vertexTrees t groupsOrig =
 
       finalEntries = sideCommentEntry ++ process (existingNames origTree) t M.empty groupsSorted
    in case NE.nonEmpty finalEntries of
-        Just ne -> Right $ VertexTree [] ne
+        Just ne -> Right $ VertexTree topComments ne
         Nothing -> Left "Cannot build empty tree: there are no vertices to insert"
 
 moveVerticesInVertexForest :: VertexForest -> Either Text VertexForest
@@ -367,8 +368,8 @@ groupByMeta (x : xs)
         (g : gs) -> (x : g) : gs
 
 isMeta :: VertexTreeEntry -> Bool
-isMeta (VertexEntry _) = False
-isMeta _ = True
+isMeta (MetaEntry _) = True
+isMeta _ = False
 
 groupVertexWithLeadingComments :: [VertexTreeEntry] -> [CommentGroup]
 groupVertexWithLeadingComments = go [] []
@@ -514,7 +515,7 @@ getVertexForestGlobals (treeType, firstVertexTree, vertexTrees) =
   let metaElem globalMeta localMeta =
         let maybeKey = metaKey globalMeta
          in case maybeKey of
-              Nothing -> False
+              Nothing -> True
               Just meta -> meta `S.member` localMeta
       extractLocalMeta = S.unions . map metaKeys . NE.toList . tVertexNodes
       extractMeta' = S.fromList . mapMaybe metaKey . tMetaNodes
@@ -528,11 +529,15 @@ getVertexForestGlobals (treeType, firstVertexTree, vertexTrees) =
         VertexTree (header : metasWithoutHeader) cg
           | isValidVertexHeader header ->
               let objectKeysToObjects = V.toList . V.map (Object . V.singleton)
-                  ungroupedMetaKeys = V.concat (mapMaybe objectsToObjectKeys metasWithoutHeader)
+                  (topComments, topMetas) = partition isCommentNode metasWithoutHeader
+                  ungroupedMetaKeys = V.concat (mapMaybe objectsToObjectKeys topMetas)
                   (localMetas, globalMetas) = V.partition existsInTree ungroupedMetaKeys
                in Right
                     ( header :| objectKeysToObjects globalMetas
-                    , M.insert treeType (VertexTree (objectKeysToObjects localMetas) cg) vertexTrees
+                    , M.insert
+                        treeType
+                        (VertexTree (topComments ++ objectKeysToObjects localMetas) cg)
+                        vertexTrees
                     )
           | otherwise -> Left "invalid vertex header"
         _ -> Left "missing vertex header"
