@@ -18,6 +18,7 @@ import Data.Set (Set)
 import Data.Text (Text)
 import Data.Vector (Vector, (!), (!?), (//))
 import GHC.IsList (fromList)
+import Types
 
 import Core.NodeCursor qualified as NC
 import Core.NodePath qualified as NP
@@ -27,45 +28,6 @@ import Data.Set qualified as S
 import Data.Text qualified as T
 import Data.Traversable qualified as TR (mapAccumL)
 import Data.Vector qualified as V
-
-type VertexForest = Map VertexTreeType VertexTree
-
-data VertexTreeType
-  = LeftTree
-  | MiddleTree
-  | RightTree
-  | SupportTree
-  deriving (Eq, Ord, Show)
-
-data VertexTreeEntry
-  = VertexEntry Vertex
-  | CommentEntry InternalComment
-  | MetaEntry Object
-  deriving (Eq, Show)
-
-data VertexTree = VertexTree
-  { tMetaNodes :: [Node]
-  , tVertexNodes :: NonEmpty VertexTreeEntry
-  }
-  deriving (Show)
-
-data Vertex = Vertex
-  { vName :: Text
-  , vX :: Scientific
-  , vY :: Scientific
-  , vZ :: Scientific
-  , vMeta :: Maybe Object
-  }
-  deriving (Eq, Show)
-
-data CommentGroup = CommentGroup
-  { cComments :: [InternalComment]
-  , cVertex :: Vertex
-  , cMeta :: MetaMap
-  }
-  deriving (Show)
-
-type MetaMap = Map Text Node
 
 showAsText :: forall a. Show a => a -> Text
 showAsText = T.pack . show

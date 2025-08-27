@@ -48,6 +48,7 @@ library:
     - condition: flag(transformation)
       source-dirs: [src-extra/transformation]
       exposed-modules: [Transformation]
+      other-modules: [Types]
     - condition: os(windows) && flag(windows-example-paths)
       cpp-options: -DWINDOWS_EXAMPLE_PATHS
 
