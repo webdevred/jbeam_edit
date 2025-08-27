@@ -8,7 +8,7 @@ import Control.Monad (foldM, guard)
 import Core.Node
 import Data.Char (isDigit)
 import Data.Function (on)
-import Data.List (partition, sortOn, uncons)
+import Data.List (sortOn, uncons)
 import Data.List.NonEmpty (NonEmpty (..))
 import Data.Map (Map)
 import Data.Maybe (isJust, isNothing, listToMaybe, mapMaybe)
@@ -546,6 +546,9 @@ findAndUpdateTextInNode m cursor node =
     applyBreadcrumbAndUpdateText index =
       NC.applyCrumb (NC.ArrayIndex index) cursor (findAndUpdateTextInNode m)
 
+objectsToObjectKeys (Object keys) = Just keys
+objectsToObjectKeys _ = Nothing
+
 getVertexForestGlobals
   :: (VertexTreeType, VertexTree, VertexForest)
   -> Either Text (NonEmpty Node, VertexForest)
@@ -559,17 +562,19 @@ getVertexForestGlobals (treeType, firstVertexTree, vertexTrees) =
       extractMeta' = S.fromList . mapMaybe metaKey . tMetaNodes
       restMeta =
         let localMeta = extractLocalMeta firstVertexTree
-            topMetaOtherTrees = foldMap extractMeta' vertexTrees
+            topMetaOtherTrees = foldMap extractMeta' (M.delete treeType vertexTrees)
             localMetaOtherTrees = foldMap extractLocalMeta vertexTrees
-         in localMeta <> topMetaOtherTrees <> localMetaOtherTrees
+         in S.unions [localMeta, topMetaOtherTrees, localMetaOtherTrees]
       existsInTree globalMeta = globalMeta `metaElem` restMeta
    in case firstVertexTree of
         VertexTree (header : metasWithoutHeader) cg
           | isValidVertexHeader header ->
-              let (localMetas, globalMetas) = partition existsInTree metasWithoutHeader
+              let objectKeysToObjects = V.toList . V.map (Object . V.singleton)
+                  ungroupedMetaKeys = V.concat (mapMaybe objectsToObjectKeys metasWithoutHeader)
+                  (localMetas, globalMetas) = V.partition existsInTree ungroupedMetaKeys
                in Right
-                    ( header :| globalMetas
-                    , M.insert treeType (VertexTree localMetas cg) vertexTrees
+                    ( header :| objectKeysToObjects globalMetas
+                    , M.insert treeType (VertexTree (objectKeysToObjects localMetas) cg) vertexTrees
                     )
           | otherwise -> Left "invalid vertex header"
         _ -> Left "missing vertex header"
