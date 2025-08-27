@@ -136,7 +136,6 @@ For an in-depth walkthrough of the implementation and design decisions, see [EXP
 ## Planned Features / TODO
 
 - Language Server Protocol (LSP) support
-- Indent control in JBFL
 - Automatic grouping of support vertices
 - Meta node-aware sorting
 - Prefix replacement via CLI arguments
