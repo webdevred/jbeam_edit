@@ -24,7 +24,6 @@ dependencies:
   - containers
   - megaparsec
   - scientific
-  - foldable1-classes-compat
   - directory
   - filepath
 
@@ -49,6 +48,7 @@ library:
       source-dirs: [src-extra/transformation]
       exposed-modules: [Transformation]
       other-modules: [Types]
+      dependencies: [foldable1-classes-compat]
     - condition: os(windows) && flag(windows-example-paths)
       cpp-options: -DWINDOWS_EXAMPLE_PATHS
 
