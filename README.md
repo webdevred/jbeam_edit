@@ -137,7 +137,6 @@ For an in-depth walkthrough of the implementation and design decisions, see [EXP
 
 - Language Server Protocol (LSP) support
 - Automatic grouping of support vertices
-- Meta node-aware sorting
 - Prefix replacement via CLI arguments
 - Expanded tests and example files
 - Improved documentation
