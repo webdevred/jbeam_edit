@@ -25,6 +25,9 @@ data-files:
 extra-source-files:
     README.md
     JBFL_DOCS.md
+    examples/README.md
+    examples/jbeam/fender.jbeam
+    examples/jbeam/suspension.jbeam
 
 source-repository head
     type:     git

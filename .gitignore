@@ -3,6 +3,7 @@ cabal.project.local
 cabal.project.local~
 cabal.project.*.local
 dist-newstyle/
+dist/
 TAGS
 .stack-work/
 .ghc.environment.*
