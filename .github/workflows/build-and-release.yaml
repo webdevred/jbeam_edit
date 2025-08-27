@@ -74,61 +74,40 @@ jobs:
     name: Release for Windows
     strategy:
       matrix: ${{ fromJSON(needs.get-newest-supported-ghc.outputs.matrix) }}
+    env:
+      RELEASE_DIR: dist/release
+      ZIP_DIR: dist/zip_temp
+      DIST_NEWSTYLE: dist-newstyle
+      CABAL_FILE: jbeam-edit.cabal
     steps:
       - uses: actions/checkout@v5
       - name: Download build artifact
         uses: actions/download-artifact@v5.0.0
         with:
           name: jbeam-edit-${{ matrix.ghc }}
-          path: dist-newstyle
-      - name: Prepare release folder
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $releaseDir = "$env:GITHUB_WORKSPACE\dist\release"
-          if (Test-Path $releaseDir) { Remove-Item $releaseDir -Recurse -Force -ErrorAction SilentlyContinue }
-          New-Item -ItemType Directory -Path $releaseDir | Out-Null
-          $exePath = Get-ChildItem -Path "$env:GITHUB_WORKSPACE\dist-newstyle\build" -Recurse -Filter "jbeam-edit.exe" -ErrorAction SilentlyContinue | Select-Object -First 1
-          if (-not $exePath) {
-            Write-Error "jbeam-edit.exe not found in dist-newstyle build tree. Make sure build-for-release succeeded."
-          }
-          Copy-Item $exePath.FullName $releaseDir
-          $jbflDest = Join-Path $releaseDir "examples\jbfl"
-          New-Item -ItemType Directory -Path $jbflDest -Force | Out-Null
-          Copy-Item -Path "examples\jbfl\*" -Destination $jbflDest -Recurse -Force
-          Copy-Item README.md $releaseDir -Force
-          Copy-Item JBFL_DOCS.md $releaseDir -Force
-          Copy-Item LICENSE $releaseDir -Force
+          path: ${{ env.DIST_NEWSTYLE }}
+      - name: Extract files from cabal
+        shell: bash
+        run: bash .github/scripts/copy-example-files.sh
+      - name: Copy exe to release folder
+        shell: bash
+        run: bash .github/scripts/copy-exe-to-release.sh
       - name: Build Inno Setup Installer
         uses: Minionguyjpro/Inno-Setup-Action@v1.2.6
         with:
           path: installer/setup.iss
           options: /O+
-      - name: Locate and move setup.exe into release folder
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $found = Get-ChildItem -Path "$env:GITHUB_WORKSPACE" -Recurse -Filter "setup.exe" -ErrorAction SilentlyContinue |
-                   Where-Object { $_.FullName -notmatch "\\\.git\\" } |
-                   Select-Object -First 1
-          if (-not $found) {
-            Write-Error "setup.exe not found after Inno Setup run. Check installer/output location."
-          }
-          $releaseSetupPath = Join-Path "$env:GITHUB_WORKSPACE\dist\release" "setup.exe"
-          Copy-Item $found.FullName $releaseSetupPath -Force
-          Write-Host "Copied setup.exe to $releaseSetupPath"
-      - name: Create zip containing setup.exe and docs
+      - name: Prepare release
+        shell: bash
+        run: bash .github/scripts/prepare-release.sh
+      - name: Package the release
+        shell: powershell
         run: |
           $ErrorActionPreference = 'Stop'
           $zipFile = "$env:GITHUB_WORKSPACE\dist\jbeam-edit-${env:GITHUB_REF_NAME}.zip"
           $zipDir = "$env:GITHUB_WORKSPACE\dist\zip_temp"
-          if (Test-Path $zipDir) { Remove-Item $zipDir -Recurse -Force -ErrorAction SilentlyContinue }
-          New-Item -ItemType Directory -Path $zipDir | Out-Null
-          Copy-Item "$env:GITHUB_WORKSPACE\dist\release\setup.exe" $zipDir -Force
-          Copy-Item "$env:GITHUB_WORKSPACE\dist\release\README.md" $zipDir -Force
-          Copy-Item "$env:GITHUB_WORKSPACE\dist\release\JBFL_DOCS.md" $zipDir -Force
-          Copy-Item "$env:GITHUB_WORKSPACE\dist\release\LICENSE" $zipDir -Force
           Add-Type -AssemblyName System.IO.Compression.FileSystem
           [System.IO.Compression.ZipFile]::CreateFromDirectory($zipDir, $zipFile)
-          Write-Host "Created zip: $zipFile"
       - name: Create GitHub Release and upload zip
         uses: softprops/action-gh-release@v2.3.2
         with:
