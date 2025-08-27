@@ -24,7 +24,7 @@ data InternalComment = InternalComment
   { cText :: Text
   , cMultiline :: Bool
   }
-  deriving (Eq, Read, Show)
+  deriving (Eq, Ord, Read, Show)
 
 data Node
   = Array Array
@@ -35,7 +35,7 @@ data Node
   | Bool Bool
   | Comment InternalComment
   | Null
-  deriving (Eq, Read, Show)
+  deriving (Eq, Ord, Read, Show)
 
 isCommentNode :: Node -> Bool
 isCommentNode (Comment _) = True

@@ -306,55 +306,50 @@ sideCommentText SupportTree = "Support"
 sideComment :: VertexTreeType -> InternalComment
 sideComment t = InternalComment (sideCommentText t) False
 
-metaKeysFromNodes :: [Node] -> Set Text
-metaKeysFromNodes nodes = S.fromList . M.keys $ nodesToMap nodes
+existingNames :: Maybe VertexTree -> Set Text
+existingNames =
+  maybe
+    S.empty
+    (S.fromList . mapMaybe (fmap vName . possiblyVertex) . NE.toList . tVertexNodes)
+
+process
+  :: Set Text -> VertexTreeType -> MetaMap -> [CommentGroup] -> [VertexTreeEntry]
+process _ _ _ [] = []
+process oldNames t prevMeta (cg : rest) =
+  let changedMeta = M.differenceWith diff (cMeta cg) prevMeta
+      diff new old = if new == old then Nothing else Just new
+
+      metaEntries =
+        [ MetaEntry (V.singleton (ObjectKey (String k, v)))
+        | (k, v) <- M.assocs changedMeta
+        ]
+
+      commentEntries = map CommentEntry (cComments cg)
+
+      originalVertex = cVertex cg
+      finalName =
+        if S.member (vName originalVertex) oldNames
+          then vName originalVertex
+          else renameVertexId t (vName originalVertex)
+      vertexEntry = VertexEntry (originalVertex {vName = finalName})
+
+      entries = metaEntries ++ commentEntries ++ [vertexEntry]
+   in entries ++ process oldNames t (cMeta cg) rest
 
 buildTree
   :: VertexForest -> VertexTreeType -> [CommentGroup] -> Either Text VertexTree
 buildTree vertexTrees t groupsOrig =
   let groupsSorted = sortCommentGroups groupsOrig
+
       origTree = M.lookup t vertexTrees
-      topMetas = maybe [] tMetaNodes origTree
-
-      existingTopKeys = metaKeysFromNodes topMetas
-      existingEntryKeys = maybe S.empty (S.unions . map metaKeys . NE.toList . tVertexNodes) origTree
-      initialKeys = existingTopKeys <> existingEntryKeys
-
-      existingNames :: Set Text
-      existingNames =
-        maybe
-          S.empty
-          (S.fromList . mapMaybe (fmap vName . possiblyVertex) . NE.toList . tVertexNodes)
-          origTree
 
       sideCommentEntry :: [VertexTreeEntry]
       sideCommentEntry =
-        ([CommentEntry (sideComment t) | isNothing origTree && not (null groupsSorted)])
+        [CommentEntry (sideComment t) | isNothing origTree && not (null groupsSorted)]
 
-      process [] keys = ([], keys)
-      process (cg : rest) keys =
-        let cm = cMeta cg
-            needed = [k | (k, _) <- M.assocs cm]
-            missing = filter (`S.notMember` keys) needed
-            newMetaEntries = [MetaEntry (V.singleton (ObjectKey (String k, cm M.! k))) | k <- missing]
-            commentEntries = map CommentEntry (cComments cg)
-
-            originalVertex = cVertex cg
-            finalName =
-              if S.member (vName originalVertex) existingNames
-                then vName originalVertex
-                else renameVertexId t (vName originalVertex)
-
-            vertexEntry = VertexEntry (originalVertex {vName = finalName})
-            newKeys = keys <> S.fromList missing
-            (bundlesRest, finalKeys) = process rest newKeys
-         in (newMetaEntries ++ commentEntries ++ (vertexEntry : bundlesRest), finalKeys)
-
-      (bundles, _) = process groupsSorted initialKeys
-
-      finalEntries = sideCommentEntry ++ bundles
+      finalEntries = sideCommentEntry ++ process (existingNames origTree) t M.empty groupsSorted
    in case NE.nonEmpty finalEntries of
-        Just ne -> Right $ VertexTree topMetas ne
+        Just ne -> Right $ VertexTree [] ne
         Nothing -> Left "Cannot build empty tree: there are no vertices to insert"
 
 moveVerticesInVertexForest :: VertexForest -> Either Text VertexForest
@@ -426,7 +421,7 @@ groupVertexWithLeadingComments = go [] []
            in cg : go [] [] rest
 
 sortCommentGroups :: [CommentGroup] -> [CommentGroup]
-sortCommentGroups = sortOn (\cg -> (vZ (cVertex cg), vY (cVertex cg)))
+sortCommentGroups = sortOn (\cg -> (cMeta cg, vZ (cVertex cg), vY (cVertex cg)))
 
 ungroupCommentGroups :: NonEmpty CommentGroup -> VertexTree
 ungroupCommentGroups ((CommentGroup comments vertex meta) :| commentGroups) =
@@ -546,6 +541,7 @@ findAndUpdateTextInNode m cursor node =
     applyBreadcrumbAndUpdateText index =
       NC.applyCrumb (NC.ArrayIndex index) cursor (findAndUpdateTextInNode m)
 
+objectsToObjectKeys :: Node -> Maybe Object
 objectsToObjectKeys (Object keys) = Just keys
 objectsToObjectKeys _ = Nothing
 
