@@ -43,7 +43,7 @@ data NodePatternSelector
   = AnyObjectKey
   | AnyArrayIndex
   | Selector NodeSelector
-  deriving (Eq, Read, Show)
+  deriving stock (Eq, Read, Show)
 
 instance Ord NodePatternSelector where
   compare a b = compare (rank a) (rank b)
@@ -223,8 +223,8 @@ sameBy f = go
 
 findPropertiesForCursor :: NC.NodeCursor -> RuleSet -> Rule
 findPropertiesForCursor cursor (RuleSet rs) =
-  case find patPointsToCursor (M.assocs rs) of
-    Just (_, m) -> m
-    Nothing -> M.empty
+  case filter patPointsToCursor (M.assocs rs) of
+    [] -> M.empty
+    ms -> M.unions (map snd ms)
   where
     patPointsToCursor (pat, _) = pat `comparePatternAndCursor` cursor

@@ -82,7 +82,6 @@ library
         containers,
         directory,
         filepath,
-        foldable1-classes-compat,
         megaparsec,
         scientific,
         text >=2.0,
@@ -91,6 +90,8 @@ library
     if flag(transformation)
         exposed-modules: Transformation
         hs-source-dirs:  src-extra/transformation
+        other-modules:   Types
+        build-depends:   foldable1-classes-compat
 
     if (os(windows) && flag(windows-example-paths))
         cpp-options: -DWINDOWS_EXAMPLE_PATHS
@@ -114,7 +115,6 @@ executable jbeam-edit
         containers,
         directory,
         filepath,
-        foldable1-classes-compat,
         jbeam-edit,
         megaparsec,
         scientific,
@@ -143,7 +143,6 @@ executable jbeam-edit-dump-ast
         containers,
         directory,
         filepath,
-        foldable1-classes-compat,
         jbeam-edit,
         megaparsec,
         pretty-simple,
@@ -183,7 +182,6 @@ test-suite jbeam-edit-test
         containers,
         directory,
         filepath,
-        foldable1-classes-compat,
         hspec,
         hspec-megaparsec,
         jbeam-edit,

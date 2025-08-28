@@ -136,10 +136,10 @@ For an in-depth walkthrough of the implementation and design decisions, see [EXP
 ## Planned Features / TODO
 
 - Language Server Protocol (LSP) support
-- Indent control in JBFL
 - Automatic grouping of support vertices
-- Meta node-aware sorting
 - Prefix replacement via CLI arguments
+- Sort a vertices using a threshold, Z values within the threshold are treated as equal; if too strict, compare the Y elements instead.
+- Update specific ranges of vertices
 - Expanded tests and example files
 - Improved documentation
 

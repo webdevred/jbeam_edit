@@ -62,7 +62,7 @@ copyToConfigDir configType = do
   copyConfigFile (configDir </> "rules.jbfl") configType
 
 createRuleFileIfDoesNotExist :: FilePath -> IO ()
-createRuleFileIfDoesNotExist configPath = do
+createRuleFileIfDoesNotExist configPath =
   doesFileExist configPath
     >>= (`when` copyConfigFile configPath MinimalConfig) . not
 

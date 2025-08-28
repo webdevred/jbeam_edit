@@ -1,3 +1,5 @@
+{-# LANGUAGE DerivingStrategies #-}
+
 module Core.NodeCursor (
   NodeCursor (..),
   NodeBreadcrumb (..),
@@ -14,22 +16,15 @@ import Data.Text (Text)
 
 import Core.NodePath qualified as NP
 import Data.Sequence qualified as Seq (empty, null)
-import Data.Text qualified as T
 
 data NodeBreadcrumb
   = ArrayIndex Int
   | ObjectIndexAndKey (Int, Text)
-
-instance Show NodeBreadcrumb where
-  show (ArrayIndex i) = "[" <> show i <> "]"
-  show (ObjectIndexAndKey (_, k)) = "." <> T.unpack k
+  deriving (Show)
 
 newtype NodeCursor
   = NodeCursor (Seq NodeBreadcrumb)
-
-instance Show NodeCursor where
-  show (NodeCursor (b :<| bs)) = show b <> show (NodeCursor bs)
-  show (NodeCursor Empty) = ""
+  deriving stock (Show)
 
 newCursor :: NodeCursor
 newCursor = NodeCursor Seq.empty
