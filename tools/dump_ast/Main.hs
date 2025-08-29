@@ -4,12 +4,11 @@ module Main (
   main,
 ) where
 
-import Core.NodeCursor (newCursor)
-import Relude.Unsafe (read)
 import Data.List (isSuffixOf)
 import Formatting
 import Parsing.DSL (parseDSL)
 import Parsing.Jbeam (parseNodes)
+import Relude.Unsafe (read)
 import System.Directory (getDirectoryContents)
 import System.FilePath (takeBaseName, (</>))
 import Text.Pretty.Simple (defaultOutputOptionsNoColor, pStringOpt)
@@ -69,7 +68,7 @@ dumpJbeamAST dir outDir filename = do
   contents <- readFileLBS (dir </> filename)
   case parseNodes (BL.toStrict contents) of
     Right rs -> dump rs
-    Left _ ->  error $ "error " <> toText filename
+    Left _ -> error $ "error " <> toText filename
   where
     dump contents =
       let outFile = outDir </> takeBaseName filename ++ ".hs"
@@ -80,7 +79,7 @@ dumpFormattedJbeam outDir (jbeamFile, ruleFile) = do
   jbeam <- read <$> readFile jbeamFile
   rs <- read <$> readFile ruleFile
   let outFilename = takeBaseName jbeamFile ++ "-" ++ takeBaseName ruleFile ++ "-jbfl.jbeam"
-   in dump outFilename (formatNode rs newCursor jbeam)
+   in dump outFilename (formatNode rs jbeam)
   where
     dump filename contents =
       let outFile = outDir </> filename

@@ -2,9 +2,6 @@ module FormattingSpec (
   spec,
 ) where
 
-import Core.NodeCursor (newCursor)
-import Data.String (fromString)
-import Data.Vector (fromList)
 import Formatting
 import SpecHelper
 
@@ -58,7 +55,7 @@ spec = do
       applySpecOnInput
         descFun
         shouldBe
-        (formatNode newRuleSet newCursor node)
+        (formatNode newRuleSet node)
         (fromString jbeam)
     descFun jbeam node = "should format " ++ node ++ " as " ++ jbeam
     specs =
