@@ -4,6 +4,7 @@ module Transformation (
 
 import Control.Monad (foldM)
 import Core.Node
+import Core.NodeCursor (newCursor)
 import Data.Char (isDigit)
 import Data.List (partition)
 import Data.Scientific (Scientific)
@@ -36,9 +37,9 @@ dropIndex :: Text -> Text
 dropIndex = T.dropWhileEnd isDigit
 
 hasVertexPrefix :: Maybe Text -> Node -> Bool
-hasVertexPrefix vertexPrefix node =
-  let vertexName = dropIndex <$> getVertexName node
-   in vertexName == (dropIndex <$> vertexPrefix)
+hasVertexPrefix vertexPrefix1 node =
+  let vertexPrefix2 = dropIndex <$> getVertexName node
+   in vertexPrefix1 == vertexPrefix2
 
 getVertexName :: Node -> Maybe Text
 getVertexName = fmap vName . newVertex
@@ -529,8 +530,8 @@ getVertexForestGlobals (treeType, firstVertexTree, vertexTrees) =
           | otherwise -> Left "invalid vertex header"
         _ -> Left "missing vertex header"
 
-transform :: NC.NodeCursor -> Node -> Either Text Node
-transform cursor topNode =
+transform :: Node -> Either Text Node
+transform topNode =
   getVertexForest verticesQuery topNode
     >>= getVertexForestGlobals
     >>= getNamesAndUpdateTree
@@ -542,5 +543,5 @@ transform cursor topNode =
     getUpdatedNamesAndUpdateGlobally oldVertexNames updatedVertexForest =
       let updatedVertexNames = getVertexNamesInForest updatedVertexForest
           updateMap = M.fromList $ on zip M.elems oldVertexNames updatedVertexNames
-       in Right . findAndUpdateTextInNode updateMap cursor $
+       in Right . findAndUpdateTextInNode updateMap newCursor $
             updateVerticesInNode verticesQuery updatedVertexForest topNode

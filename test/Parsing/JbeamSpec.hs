@@ -1,5 +1,3 @@
-{-# OPTIONS_GHC -Wno-deprecations #-}
-
 module Parsing.JbeamSpec (
   spec,
 ) where
@@ -92,7 +90,7 @@ topNodeSpec :: FilePath -> FilePath -> Spec
 topNodeSpec inFilename outFilename = do
   let inputPath = "examples/jbeam/" ++ inFilename
   input <- runIO $ readFileBS inputPath
-  output <- runIO $ readFile outFilename
+  output <- runIO $ baseReadFile outFilename
   let desc = "should parse contents of " ++ inFilename ++ " to AST in " ++ outFilename
   describe desc . works $
     parseNodes input `shouldBe` Right (read output)

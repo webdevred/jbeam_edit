@@ -2,7 +2,6 @@
 
 module Formatting.Config (readFormattingConfig, copyToConfigDir, ConfigType (..)) where
 
-import Data.ByteString.Lazy as BL
 import Formatting.Rules
 import GHC.IO.Exception (IOErrorType (NoSuchThing))
 import IOUtils
@@ -69,6 +68,6 @@ readFormattingConfig = do
   createRuleFileIfDoesNotExist (configDir </> "rules.jbfl")
   configPath <- getConfigPath configDir
   contents <- tryReadFile [NoSuchThing] configPath
-  case contents >>= parseDSL . BL.toStrict of
+  case contents >>= parseDSL . toStrict of
     Right rs -> pure rs
     Left err -> putTextLn err $> newRuleSet
