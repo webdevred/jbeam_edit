@@ -23,6 +23,8 @@ module Formatting.Rules (
   findPropertiesForCursor,
 ) where
 
+import Text.Read qualified as TR
+import qualified Text.Show
 import Core.Node
 import Core.NodePath (NodeSelector (..))
 import Data.Function (on)
@@ -75,17 +77,17 @@ data SomeKey
     SomeKey (PropertyKey a)
 
 instance Show SomeKey where
-  show (SomeKey key) = "SomeKey " ++ T.unpack (propertyName key)
+  show (SomeKey key) = "SomeKey " <> T.unpack (propertyName key)
 
 instance Read SomeKey where
   readsPrec _ s =
-    case lex s of
+    case TR.lex s of
       [("SomeKey", rest1)] ->
-        case lex rest1 of
+        case TR.lex rest1 of
           [(keyStr, rest2)] ->
-            case lookupKey (T.pack keyStr) allProperties of
+            case lookupKey (toText keyStr) allProperties of
               Just theKey -> [(theKey, rest2)]
-              Nothing -> error ("invalid key: " ++ keyStr)
+              Nothing -> error ("invalid key: " <> toText keyStr)
           _ -> []
       _ -> []
 
@@ -112,9 +114,9 @@ instance Show SomeProperty where
 
 instance Read SomeProperty where
   readsPrec _ s =
-    case lex s of
+    case TR.lex s of
       [("SomeProperty", rest1)] ->
-        case lex rest1 of
+        case TR.lex rest1 of
           (keyStr, rest2) : _ ->
             case lookupKey (T.pack keyStr) allProperties of
               Just (SomeKey (key :: PropertyKey a)) ->

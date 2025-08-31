@@ -18,6 +18,7 @@ tested-with: [GHC == 9.4.7, GHC == 9.6.6]
 
 dependencies:
   - base >= 4.17 && < 5
+  - relude
   - bytestring
   - vector
   - text >= 2.0
@@ -43,6 +44,11 @@ ghc-options:
 library:
   source-dirs: src
   generated-other-modules: Paths_jbeam_edit
+  verbatim:
+    mixins: |
+      base hiding (Prelude),
+      relude (Relude as Prelude),
+      relude
   when:
     - condition: flag(transformation)
       source-dirs: [src-extra/transformation]

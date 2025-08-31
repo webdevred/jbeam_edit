@@ -28,14 +28,14 @@ newtype NodePath
 instance IsList NodePath where
   type Item NodePath = NodeSelector
   fromList = NodePath . fromList
-  toList (NodePath xs) = toList xs
+  toList (NodePath xs) = Prelude.toList xs
 
 extractValInKey :: N.Node -> Maybe N.Node
 extractValInKey (N.ObjectKey (_, val)) = Just val
 extractValInKey _ = Nothing
 
 select :: NodeSelector -> N.Node -> Maybe N.Node
-select (ArrayIndex i) (N.Array ns) = getNthElem 0 (toList ns)
+select (ArrayIndex i) (N.Array ns) = getNthElem 0 (V.toList ns)
   where
     getNthElem _ [] = Nothing
     getNthElem curIndex ((N.Comment _) : rest) = getNthElem curIndex rest
@@ -46,7 +46,7 @@ select (ObjectKey k) (N.Object ns) = extractValInKey =<< V.find compareKey ns
   where
     compareKey (N.ObjectKey (N.String keyText, _)) = keyText == k
     compareKey _ = False
-select (ObjectIndex i) (N.Object a) = getNthKey 0 (toList a)
+select (ObjectIndex i) (N.Object a) = getNthKey 0 (V.toList a)
   where
     getNthKey _ [] = Nothing
     getNthKey curIndex ((N.ObjectKey (_, value)) : rest)
