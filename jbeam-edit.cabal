@@ -83,9 +83,15 @@ library
         directory,
         filepath,
         megaparsec,
+        relude,
         scientific,
         text >=2.0,
         vector
+
+    mixins:
+        base hiding (Prelude),
+        relude (Relude as Prelude),
+        relude
 
     if flag(transformation)
         exposed-modules: Transformation
@@ -117,9 +123,15 @@ executable jbeam-edit
         filepath,
         jbeam-edit,
         megaparsec,
+        relude,
         scientific,
         text >=2.0,
         vector
+
+    mixins:
+        base hiding (Prelude),
+        relude (Relude as Prelude),
+        relude
 
     if flag(transformation)
         cpp-options: -DENABLE_TRANSFORMATION
@@ -146,9 +158,15 @@ executable jbeam-edit-dump-ast
         jbeam-edit,
         megaparsec,
         pretty-simple,
+        relude,
         scientific,
         text >=2.0,
         vector
+
+    mixins:
+        base hiding (Prelude),
+        relude (Relude as Prelude),
+        relude
 
     if flag(dump-ast)
 
@@ -186,6 +204,12 @@ test-suite jbeam-edit-test
         hspec-megaparsec,
         jbeam-edit,
         megaparsec,
+        relude,
         scientific,
         text >=2.0,
         vector
+
+    mixins:
+        base hiding (Prelude),
+        relude (Relude as Prelude),
+        relude

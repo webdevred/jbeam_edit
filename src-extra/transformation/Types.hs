@@ -9,10 +9,7 @@ module Types (
 ) where
 
 import Core.Node
-import Data.List.NonEmpty (NonEmpty (..))
-import Data.Map (Map)
 import Data.Scientific (Scientific)
-import Data.Text (Text)
 
 type VertexForest = Map VertexTreeType VertexTree
 

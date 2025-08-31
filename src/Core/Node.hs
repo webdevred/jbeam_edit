@@ -11,7 +11,6 @@ module Core.Node (
 ) where
 
 import Data.Scientific (Scientific)
-import Data.Text (Text)
 import Data.Vector (Vector)
 
 type Object = Vector Node

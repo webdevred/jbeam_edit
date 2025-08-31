@@ -2,12 +2,7 @@ module Parsing.Common.ErrorMessage (
   formatErrors,
 ) where
 
-import Data.ByteString (ByteString)
-import Data.Function (on)
-import Data.Set (Set)
-import Data.Text (Text)
 import Data.Text.Encoding (decodeUtf8Lenient)
-import Data.Word (Word8)
 import Parsing.Common.Helpers (charNotEqWord8, toChar, toWord8)
 
 import Data.ByteString qualified as BS
@@ -30,8 +25,8 @@ formatTok :: MP.ErrorItem Word8 -> Text
 formatTok toks =
   case toks of
     MP.EndOfInput -> "end of input"
-    MP.Label lab -> T.pack $ NE.toList lab
-    MP.Tokens toks' -> T.pack . wrap "'" "'" . map toChar $ NE.toList toks'
+    MP.Label lab -> toText $ NE.toList lab
+    MP.Tokens toks' -> toText . wrap "'" "'" . map toChar $ NE.toList toks'
 
 errorAreaAndLineNumber :: Int -> ByteString -> (Text, Text)
 errorAreaAndLineNumber pos inputNotParsed =
@@ -41,7 +36,7 @@ errorAreaAndLineNumber pos inputNotParsed =
       lineNumber = BS.count (toWord8 '\n') begin
       errorArea =
         T.strip $ on (<>) decodeUtf8Lenient fstPartOfLine sndPartOfLine
-   in (errorArea, T.pack $ show lineNumber)
+   in (errorArea, show lineNumber)
 
 wrap :: Semigroup a => a -> a -> a -> a
 wrap l r m = l <> m <> r

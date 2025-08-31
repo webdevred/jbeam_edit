@@ -17,7 +17,11 @@ description: Please see the README on GitHub at <https://github.com/webdevred/jb
 tested-with: [GHC == 9.4.7, GHC == 9.6.6]
 
 dependencies:
-  - base >= 4.17 && < 5
+  - name: base
+    version: '>= 4.17 && < 5'
+    mixin: [hiding (Prelude)]
+  - name: relude
+    mixin: [(Relude as Prelude), '']
   - bytestring
   - vector
   - text >= 2.0

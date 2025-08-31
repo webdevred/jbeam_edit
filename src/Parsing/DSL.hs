@@ -9,14 +9,7 @@ module Parsing.DSL (
 ) where
 
 import Core.NodePath
-import Data.Bifunctor (first)
-import Data.ByteString (ByteString)
 import Data.Char (isSpace)
-import Data.Functor (void, ($>))
-import Data.Map (Map)
-import Data.Text (Text)
-import Data.Text.Encoding (decodeUtf8')
-import Data.Word (Word8)
 import Formatting.Rules
 import Parsing.Common
 import Text.Megaparsec ((<?>))

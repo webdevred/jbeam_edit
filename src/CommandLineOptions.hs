@@ -8,7 +8,6 @@ import Formatting.Config (ConfigType (..))
 import Paths_jbeam_edit (version)
 import System.Console.GetOpt
 import System.Environment
-import System.Exit
 
 data Options = Options
   { optInPlace :: Bool
@@ -28,7 +27,7 @@ startOptions =
 parseOptions :: [String] -> IO Options
 parseOptions args = do
   let (actions, nonOptions, _) = getOpt RequireOrder options args
-  opts <- foldl (>>=) (pure startOptions) actions
+  opts <- foldl' (>>=) (pure startOptions) actions
   case (optInputFile opts, nonOptions) of
     (Nothing, filename : _) -> pure $ opts {optInputFile = Just filename}
     (_, _) -> pure opts
@@ -72,10 +71,10 @@ options =
               let header =
                     unlines
                       [ "Usage:"
-                      , "  " ++ prg ++ " [OPTIONS] [INPUT-FILE]"
+                      , "  " <> toText prg <> " [OPTIONS] [INPUT-FILE]"
                       , ""
                       ]
-              putStrLn (usageInfo header options)
+              putStrLn (usageInfo (toString header) options)
               exitSuccess
           )
       )

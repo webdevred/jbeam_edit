@@ -25,19 +25,15 @@ module Formatting.Rules (
 
 import Core.Node
 import Core.NodePath (NodeSelector (..))
-import Data.Function (on)
-import Data.List (find)
-import Data.Map (Map)
-import Data.Maybe (fromMaybe)
-import Data.Ord (Down (..))
 import Data.Sequence (Seq (..))
-import Data.Text (Text)
 import Data.Type.Equality ((:~:) (Refl))
 
 import Core.NodeCursor qualified as NC
 import Data.Map qualified as M
 import Data.Sequence qualified as Seq (length, null)
 import Data.Text qualified as T
+import Text.Read qualified as TR
+import Text.Show qualified
 
 data NodePatternSelector
   = AnyObjectKey
@@ -75,17 +71,17 @@ data SomeKey
     SomeKey (PropertyKey a)
 
 instance Show SomeKey where
-  show (SomeKey key) = "SomeKey " ++ T.unpack (propertyName key)
+  show (SomeKey key) = "SomeKey " <> toString (propertyName key)
 
 instance Read SomeKey where
   readsPrec _ s =
-    case lex s of
+    case TR.lex s of
       [("SomeKey", rest1)] ->
-        case lex rest1 of
+        case TR.lex rest1 of
           [(keyStr, rest2)] ->
-            case lookupKey (T.pack keyStr) allProperties of
+            case lookupKey (toText keyStr) allProperties of
               Just theKey -> [(theKey, rest2)]
-              Nothing -> error ("invalid key: " ++ keyStr)
+              Nothing -> error ("invalid key: " <> toText keyStr)
           _ -> []
       _ -> []
 
@@ -108,15 +104,15 @@ data SomeProperty
     SomeProperty (PropertyKey a) a
 
 instance Show SomeProperty where
-  show (SomeProperty key val) = "SomeProperty " <> T.unpack (propertyName key) <> " " <> show val
+  show (SomeProperty key val) = "SomeProperty " <> toString (propertyName key) <> " " <> show val
 
 instance Read SomeProperty where
   readsPrec _ s =
-    case lex s of
+    case TR.lex s of
       [("SomeProperty", rest1)] ->
-        case lex rest1 of
+        case TR.lex rest1 of
           (keyStr, rest2) : _ ->
-            case lookupKey (T.pack keyStr) allProperties of
+            case lookupKey (toText keyStr) allProperties of
               Just (SomeKey (key :: PropertyKey a)) ->
                 case reads rest2 of
                   [(val, rest3)] -> [(SomeProperty key val, rest3)]

@@ -1,24 +1,21 @@
+{-# OPTIONS_GHC -Wno-deprecations #-}
+
 module Parsing.DSLSpec (
   spec,
 ) where
 
-import Data.ByteString (ByteString)
 import Data.List (isSuffixOf)
-import Data.String (fromString)
-import Data.Void (Void)
 import Formatting.Rules
 import Parsing.Common.Helpers
 import Parsing.DSL
 import Parsing.ParsingTestHelpers
+import Relude.Unsafe (read)
 import SpecHelper
 import System.Directory (getDirectoryContents)
 import Test.Hspec.Megaparsec
 import Text.Megaparsec
 
 import Core.NodePath qualified as NP (NodeSelector (..))
-import Data.ByteString qualified as BS (
-  readFile,
- )
 
 patternSelectorSpecs :: [Spec]
 patternSelectorSpecs =
@@ -49,7 +46,7 @@ boolProperties =
 ruleSetSpec :: FilePath -> FilePath -> Spec
 ruleSetSpec inFilename outFilename = do
   let inputPath = "examples/jbfl/" ++ inFilename
-  input <- runIO $ BS.readFile inputPath
+  input <- runIO $ readFileBS inputPath
   output <- runIO $ readFile outFilename
   let desc = "should parse contents of " ++ inFilename ++ " to AST in " ++ outFilename
   describe desc . works $

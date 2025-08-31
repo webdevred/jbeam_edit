@@ -1,20 +1,18 @@
+{-# OPTIONS_GHC -Wno-deprecations #-}
+
 module Parsing.JbeamSpec (
   spec,
 ) where
 
 import Data.List (isSuffixOf)
-import Data.Vector (fromList)
 import Parsing.Common.Helpers
 import Parsing.Jbeam
 import Parsing.ParsingTestHelpers
+import Relude.Unsafe (read)
 import SpecHelper
 import System.Directory (getDirectoryContents)
 import Test.Hspec.Megaparsec
 import Text.Megaparsec
-
-import Data.ByteString qualified as BS (
-  readFile,
- )
 
 numberSpec :: [(String, Node)]
 numberSpec =
@@ -93,7 +91,7 @@ invalidNumberSpec =
 topNodeSpec :: FilePath -> FilePath -> Spec
 topNodeSpec inFilename outFilename = do
   let inputPath = "examples/jbeam/" ++ inFilename
-  input <- runIO $ BS.readFile inputPath
+  input <- runIO $ readFileBS inputPath
   output <- runIO $ readFile outFilename
   let desc = "should parse contents of " ++ inFilename ++ " to AST in " ++ outFilename
   describe desc . works $

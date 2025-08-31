@@ -1,23 +1,14 @@
-{-# LANGUAGE RankNTypes #-}
-
 module Transformation (
   transform,
 ) where
 
-import Control.Monad (foldM, guard)
+import Control.Monad (foldM)
 import Core.Node
 import Data.Char (isDigit)
-import Data.Function (on)
-import Data.List (partition, sortOn, uncons)
-import Data.List.NonEmpty (NonEmpty (..))
-import Data.Map (Map)
-import Data.Maybe (isJust, isNothing, listToMaybe, mapMaybe)
+import Data.List (partition)
 import Data.Scientific (Scientific)
 import Data.Sequence (Seq (..))
-import Data.Set (Set)
-import Data.Text (Text)
 import Data.Vector (Vector, (!), (!?), (//))
-import GHC.IsList (fromList)
 import Types
 
 import Core.NodeCursor qualified as NC
@@ -26,11 +17,7 @@ import Data.List.NonEmpty qualified as NE
 import Data.Map qualified as M
 import Data.Set qualified as S
 import Data.Text qualified as T
-import Data.Traversable qualified as TR (mapAccumL)
 import Data.Vector qualified as V
-
-showAsText :: forall a. Show a => a -> Text
-showAsText = T.pack . show
 
 newVertex :: Node -> Maybe Vertex
 newVertex (Array ns) = f . V.toList $ ns
@@ -109,7 +96,7 @@ nodesListToTree
 nodesListToTree nodes =
   case newVertexTree S.empty M.empty nodes of
     Right (vertexNames, firstTreeType, firstVertexTree, vertexForest, rest) ->
-      case NE.nonEmpty rest of
+      case nonEmpty rest of
         Just nonEmptyRest ->
           case go vertexNames vertexForest nonEmptyRest of
             Right finalForest -> Right (firstTreeType, firstVertexTree, finalForest)
@@ -121,7 +108,7 @@ nodesListToTree nodes =
     go vertexNames acc restNE =
       case newVertexTree vertexNames acc restNE of
         Right (vertexNames', _treeType, _, acc', rest') ->
-          case NE.nonEmpty rest' of
+          case nonEmpty rest' of
             Nothing -> Right acc'
             Just ne -> go vertexNames' acc' ne
         Left err -> Left err
@@ -140,7 +127,7 @@ toVertexTreeEntry node =
       case node of
         (Object meta) -> Right $ MetaEntry meta
         (Comment comment) -> Right $ CommentEntry comment
-        _ -> Left $ "unexpected node " <> showAsText node
+        _ -> Left $ "unexpected node " <> show node
 
 newVertexTree
   :: Set Text
@@ -180,14 +167,14 @@ getVertexForest
 getVertexForest np topNode =
   case NP.queryNodes np topNode of
     Just node -> f node
-    Nothing -> Left $ "could not find vertices at path " <> showAsText verticesQuery
+    Nothing -> Left $ "could not find vertices at path " <> show verticesQuery
   where
     f node =
       case node of
         Array ns
-          | null ns -> Left . showAsText $ ns
+          | null ns -> Left . show $ ns
           | otherwise -> nodesListToTree . NE.fromList . V.toList $ ns
-        bad -> Left . showAsText $ bad
+        bad -> Left . show $ bad
 
 determineGroup :: Vertex -> VertexTreeType
 determineGroup v
@@ -217,7 +204,7 @@ updateVertexNames index (VertexEntry vertex) =
         else
           let newIndex = index + 1
               vertexPrefix = dropIndex vertexName
-              newVertexName = vertexPrefix <> T.pack (show index)
+              newVertexName = vertexPrefix <> show index
               renamedVertex = VertexEntry (vertex {vName = newVertexName})
            in (newIndex, renamedVertex)
 updateVertexNames index entry = (index, entry)
@@ -311,7 +298,7 @@ buildTree vertexTrees t groupsOrig =
         [CommentEntry (sideComment t) | isNothing origTree && not (null groupsSorted)]
 
       finalEntries = sideCommentEntry ++ process (existingNames origTree) t M.empty groupsSorted
-   in case NE.nonEmpty finalEntries of
+   in case nonEmpty finalEntries of
         Just ne -> Right $ VertexTree topComments ne
         Nothing -> Left "Cannot build empty tree: there are no vertices to insert"
 
@@ -408,7 +395,7 @@ processGroup [] = []
 processGroup (metaOrHeader : rest) =
   let commentGroups = groupVertexWithLeadingComments rest
       sortedGroups = sortCommentGroups commentGroups
-   in case NE.nonEmpty sortedGroups of
+   in case nonEmpty sortedGroups of
         Nothing -> [metaOrHeader]
         Just ne ->
           let entriesSorted = ungroupCommentGroups ne
@@ -420,7 +407,7 @@ sortVertices = M.map sortVerticesInForest
     sortVerticesInForest (VertexTree metas nodes) =
       let groups = groupByMeta (NE.toList nodes)
           processedGroups = concatMap processGroup groups
-          (_, nodes') = TR.mapAccumL updateVertexNames 0 (NE.fromList processedGroups)
+          (_, nodes') = mapAccumL updateVertexNames 0 (NE.fromList processedGroups)
        in VertexTree metas nodes'
 
 verticesQuery :: NP.NodePath

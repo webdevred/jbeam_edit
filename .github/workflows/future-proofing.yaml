@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@v5
       - name: Get latest supported GHC version
         id: get-ghc
-        uses: webdevred/get-supported-ghc@v0.0.7
+        uses: webdevred/get-supported-ghc@v0.0.8
       - name: Set up GHC latest and Cabal
         id: setup-ghc
         uses: haskell-actions/setup@v2.8.1

@@ -4,12 +4,7 @@ module Parsing.Jbeam (
   parseNodes,
 ) where
 
-import Control.Applicative (Alternative (..), optional, (<|>))
 import Core.Node (InternalComment (..), Node (..))
-import Data.Bifunctor (first)
-import Data.ByteString (ByteString)
-import Data.Functor (($>))
-import Data.Text (Text)
 import Parsing.Common
 import Text.Megaparsec ((<?>))
 
