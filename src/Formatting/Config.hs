@@ -2,15 +2,11 @@
 
 module Formatting.Config (readFormattingConfig, copyToConfigDir, ConfigType (..)) where
 
-import Control.Monad (when)
 import Data.ByteString.Lazy as BL
-import Data.Functor (($>))
 import Formatting.Rules
 import GHC.IO.Exception (IOErrorType (NoSuchThing))
 import IOUtils
 import Parsing.DSL (parseDSL)
-import System.Directory
-import System.FilePath (takeDirectory, (</>))
 
 #if WINDOWS_EXAMPLE_PATHS
 import System.Environment (getExecutablePath)
@@ -18,7 +14,8 @@ import System.Environment (getExecutablePath)
 import Paths_jbeam_edit
 #endif
 
-import Data.Text.IO qualified as TIO (putStrLn)
+import System.Directory
+import System.FilePath (takeDirectory, (</>))
 
 data ConfigType = MinimalConfig | ComplexConfig deriving (Show)
 
@@ -74,4 +71,4 @@ readFormattingConfig = do
   contents <- tryReadFile [NoSuchThing] configPath
   case contents >>= parseDSL . BL.toStrict of
     Right rs -> pure rs
-    Left err -> TIO.putStrLn err $> newRuleSet
+    Left err -> putTextLn err $> newRuleSet

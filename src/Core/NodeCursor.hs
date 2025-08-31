@@ -12,7 +12,6 @@ module Core.NodeCursor (
 
 import Core.Node (Node (..))
 import Data.Sequence (Seq (..))
-import Data.Text (Text)
 
 import Core.NodePath qualified as NP
 import Data.Sequence qualified as Seq (empty, null)

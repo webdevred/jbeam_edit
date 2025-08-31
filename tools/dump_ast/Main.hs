@@ -10,10 +10,8 @@ import System.FilePath ((</>))
 import Text.Pretty.Simple (defaultOutputOptionsNoColor, pStringOpt)
 
 import Data.ByteString.Lazy qualified as BL (
-  readFile,
   toStrict,
  )
-import Data.Text.Lazy.IO qualified as TLIO (writeFile)
 
 main :: IO ()
 main =
@@ -30,17 +28,17 @@ saveDump :: Show a => String -> a -> IO ()
 saveDump outFile contents =
   let formatted = pStringOpt defaultOutputOptionsNoColor (show contents ++ "\n")
    in putStrLn ("creating " ++ outFile)
-        >> TLIO.writeFile outFile formatted
+        >> writeFileLText outFile formatted
 
 astDir :: FilePath
 astDir = "examples" </> "ast"
 
 dumpJbflAST :: String -> String -> IO ()
 dumpJbflAST dir filename = do
-  contents <- BL.readFile (dir </> filename)
+  contents <- readFileLBS (dir </> filename)
   case parseDSL (BL.toStrict contents) of
     Right rs -> dump rs
-    Left _ -> error $ "error " ++ filename
+    Left _ -> error $ "error " <> toText filename
   where
     dump contents =
       let outFile = astDir </> "jbfl" </> takeWhile (/= '.') filename ++ ".hs"
@@ -48,10 +46,10 @@ dumpJbflAST dir filename = do
 
 dumpJbeamAST :: String -> String -> IO ()
 dumpJbeamAST dir filename = do
-  contents <- BL.readFile (dir </> filename)
+  contents <- readFileLBS (dir </> filename)
   case parseNodes (BL.toStrict contents) of
     Right rs -> dump rs
-    Left _ -> error $ "error " ++ filename
+    Left _ -> error $ "error " <> toText filename
   where
     dump contents =
       let outFile = astDir </> "jbeam" </> takeWhile (/= '.') filename ++ ".hs"

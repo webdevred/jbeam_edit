@@ -2,7 +2,6 @@ module Parsing.ParsingTestHelpers (
   applyParserSpec,
 ) where
 
-import Data.String (fromString)
 import Parsing.Common.Helpers
 import SpecHelper
 import Test.Hspec.Megaparsec

@@ -11,13 +11,7 @@ module Parsing.Common.Helpers (
   parseBool,
 ) where
 
-import Control.Applicative (Alternative (..), asum)
-import Data.ByteString (ByteString)
-import Data.Char (chr, isSpace, ord)
-import Data.Functor ((<&>))
-import Data.Text.Encoding (decodeUtf8')
-import Data.Void (Void)
-import Data.Word (Word8)
+import Data.Char (isSpace)
 
 import Data.ByteString qualified as BS
 import Data.List.NonEmpty qualified as NE (fromList)

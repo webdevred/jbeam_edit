@@ -5,10 +5,8 @@ module Formatting (
 ) where
 
 import Core.Node (InternalComment (..), Node (..), isCommentNode, isComplexNode)
-import Data.Bool (bool)
 import Data.Char (isSpace)
 import Data.Scientific (FPFormat (Fixed), formatScientific)
-import Data.Text (Text)
 import Data.Vector (Vector)
 import Formatting.Rules (
   RuleSet (..),

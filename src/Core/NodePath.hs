@@ -9,7 +9,6 @@ module Core.NodePath (
 ) where
 
 import Data.Sequence (Seq (..))
-import Data.Text (Text)
 import GHC.IsList (IsList (..))
 
 import Core.Node qualified as N (Node (..))
