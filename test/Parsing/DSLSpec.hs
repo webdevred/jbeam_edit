@@ -1,5 +1,3 @@
-{-# OPTIONS_GHC -Wno-deprecations #-}
-
 module Parsing.DSLSpec (
   spec,
 ) where
@@ -47,7 +45,7 @@ ruleSetSpec :: FilePath -> FilePath -> Spec
 ruleSetSpec inFilename outFilename = do
   let inputPath = "examples/jbfl/" ++ inFilename
   input <- runIO $ readFileBS inputPath
-  output <- runIO $ readFile outFilename
+  output <- runIO $ baseReadFile outFilename
   let desc = "should parse contents of " ++ inFilename ++ " to AST in " ++ outFilename
   describe desc . works $
     parseDSL input `shouldBe` Right (read output)

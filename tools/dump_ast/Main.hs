@@ -16,6 +16,7 @@ import Text.Pretty.Simple (defaultOutputOptionsNoColor, pStringOpt)
 import Data.ByteString.Lazy qualified as BL (
   toStrict,
  )
+import System.IO qualified as IO (readFile)
 
 main :: IO ()
 main =
@@ -76,8 +77,8 @@ dumpJbeamAST dir outDir filename = do
 
 dumpFormattedJbeam :: String -> (FilePath, FilePath) -> IO ()
 dumpFormattedJbeam outDir (jbeamFile, ruleFile) = do
-  jbeam <- read <$> readFile jbeamFile
-  rs <- read <$> readFile ruleFile
+  jbeam <- read <$> IO.readFile jbeamFile
+  rs <- read <$> IO.readFile ruleFile
   let outFilename = takeBaseName jbeamFile ++ "-" ++ takeBaseName ruleFile ++ "-jbfl.jbeam"
    in dump outFilename (formatNode rs jbeam)
   where
