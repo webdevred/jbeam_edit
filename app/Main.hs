@@ -16,10 +16,6 @@ import System.Directory (copyFile)
 import Transformation (transform)
 #endif
 
-import Data.ByteString.Lazy qualified as BL (
-  toStrict,
- )
-
 main :: IO ()
 main = do
   args <- getArgs
@@ -40,7 +36,7 @@ editFile opts = do
     Just filename -> do
       outFilename <- getWritabaleFilename filename opts
       contents <- tryReadFile [] filename
-      case contents >>= parseNodes . BL.toStrict of
+      case contents >>= parseNodes . toStrict of
         Right ns -> processNodes outFilename ns formattingConfig
         Left err -> putTextLn err
     Nothing -> putTextLn "missing arg filename"

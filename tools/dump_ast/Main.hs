@@ -13,9 +13,6 @@ import System.Directory (getDirectoryContents)
 import System.FilePath (takeBaseName, (</>))
 import Text.Pretty.Simple (defaultOutputOptionsNoColor, pStringOpt)
 
-import Data.ByteString.Lazy qualified as BL (
-  toStrict,
- )
 import System.IO qualified as IO (readFile)
 
 main :: IO ()
@@ -56,7 +53,7 @@ saveAstDump outFile contents =
 dumpJbflAST :: FilePath -> String -> String -> IO ()
 dumpJbflAST dir outDir filename = do
   contents <- readFileLBS (dir </> filename)
-  case parseDSL (BL.toStrict contents) of
+  case parseDSL (toStrict contents) of
     Right rs -> dump rs
     Left _ -> error $ "error " <> toText filename
   where
@@ -67,7 +64,7 @@ dumpJbflAST dir outDir filename = do
 dumpJbeamAST :: FilePath -> String -> String -> IO ()
 dumpJbeamAST dir outDir filename = do
   contents <- readFileLBS (dir </> filename)
-  case parseNodes (BL.toStrict contents) of
+  case parseNodes (toStrict contents) of
     Right rs -> dump rs
     Left _ -> error $ "error " <> toText filename
   where
