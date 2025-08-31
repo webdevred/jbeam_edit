@@ -37,9 +37,9 @@ dropIndex :: Text -> Text
 dropIndex = T.dropWhileEnd isDigit
 
 hasVertexPrefix :: Maybe Text -> Node -> Bool
-hasVertexPrefix vertexPrefix node =
-  let vertexName = dropIndex <$> getVertexName node
-   in vertexName == (dropIndex <$> vertexPrefix)
+hasVertexPrefix vertexPrefix1 node =
+  let vertexPrefix2 = dropIndex <$> getVertexName node
+   in vertexPrefix1 == vertexPrefix2
 
 getVertexName :: Node -> Maybe Text
 getVertexName = fmap vName . newVertex
