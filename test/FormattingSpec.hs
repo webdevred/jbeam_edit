@@ -2,8 +2,12 @@ module FormattingSpec (
   spec,
 ) where
 
+import Data.List (isSuffixOf)
 import Formatting
+import Relude.Unsafe (read)
 import SpecHelper
+import System.Directory (getDirectoryContents)
+import System.FilePath (takeBaseName, (</>))
 
 numberSpec :: [(String, Node)]
 numberSpec =
@@ -47,9 +51,35 @@ objectSpec =
     )
   ]
 
+dynamicJbflTests :: IO [(Text, Text)]
+dynamicJbflTests = do
+  let examplesDir = "examples"
+      jbeamAstDir = examplesDir </> "ast/jbeam"
+      jbflAstDir = examplesDir </> "ast/jbfl"
+      formattedDir = examplesDir </> "formatted_jbeam"
+
+  jbeamFiles <- filter (".hs" `isSuffixOf`) <$> getDirectoryContents jbeamAstDir
+  jbflFiles <- filter (".hs" `isSuffixOf`) <$> getDirectoryContents jbflAstDir
+
+  forM [(j, b) | j <- jbeamFiles, b <- jbflFiles] $ \(jbeamFile, jbflFile) -> do
+    jbeam <- read <$> baseReadFile (jbeamAstDir </> jbeamFile)
+    rules <- read <$> baseReadFile (jbflAstDir </> jbflFile)
+
+    let formatted = formatNode rules jbeam
+        baseName = takeBaseName jbeamFile ++ "-" ++ takeBaseName jbflFile
+        outFile = formattedDir </> (baseName ++ "-jbfl.jbeam")
+
+    expected <- toText <$> baseReadFile outFile
+    pure (formatted, expected)
+
 spec :: Spec
 spec = do
   mapM_ formatNodeSpec specs
+
+  it "formats all JBEAM ASTs with all JBFL rules and matches dumped files" $ do
+    dynamicTests <- dynamicJbflTests
+    forM_ dynamicTests $ \(formatted, expected) -> do
+      formatted `shouldBe` expected
   where
     formatNodeSpec (jbeam, node) =
       applySpecOnInput
@@ -57,7 +87,7 @@ spec = do
         shouldBe
         (formatNode newRuleSet node)
         (fromString jbeam)
-    descFun jbeam node = "should format " ++ node ++ " as " ++ jbeam
+    descFun jbeam node = "should format " ++ show node ++ " as " ++ jbeam
     specs =
       concat
         [ numberSpec
