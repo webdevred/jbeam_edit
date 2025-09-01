@@ -164,18 +164,20 @@ combineSupportTrees (VertexTree metas1 entries1) (VertexTree metas2 entries2) =
     }
 
 getVertexForest
-  :: NP.NodePath -> Node -> Either Text (VertexTreeType, VertexTree, VertexForest)
+  :: NP.NodePath -> Node -> Either Text (NonEmpty Node, VertexForest)
 getVertexForest np topNode =
   case NP.queryNodes np topNode of
-    Just node -> f node
-    Nothing -> Left $ "could not find vertices at path " <> show verticesQuery
+    Nothing -> Left $ "could not find vertices at path " <> show np
+    Just node -> processNode node
   where
-    f node =
-      case node of
-        Array ns
-          | null ns -> Left . show $ ns
-          | otherwise -> nodesListToTree . NE.fromList . V.toList $ ns
-        bad -> Left . show $ bad
+    processNode (Array ns)
+      | null ns = Left "empty array at vertex path"
+      | otherwise =
+          case nodesListToTree (NE.fromList (V.toList ns)) of
+            Left err -> Left err
+            Right (firstTreeType, firstVertexTree, vertexForest) ->
+              getVertexForestGlobals (firstTreeType, firstVertexTree, vertexForest)
+    processNode bad = Left $ "expected Array at vertex path, got: " <> show bad
 
 determineGroup :: Vertex -> VertexTreeType
 determineGroup v
@@ -533,7 +535,6 @@ getVertexForestGlobals (treeType, firstVertexTree, vertexTrees) =
 transform :: Node -> Either Text Node
 transform topNode =
   getVertexForest verticesQuery topNode
-    >>= getVertexForestGlobals
     >>= getNamesAndUpdateTree
   where
     getNamesAndUpdateTree (globals, vertexForest) =
