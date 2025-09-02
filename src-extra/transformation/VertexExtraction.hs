@@ -45,7 +45,7 @@ getVertexPrefix nodes = do
   firstVertexName <- getFirstVertexName nodes
   (_, vertexIndex) <- T.unsnoc firstVertexName
   guard $ isDigit vertexIndex
-  let vertexPrefix = T.dropWhileEnd isDigit firstVertexName
+  let vertexPrefix = dropIndex firstVertexName
   guard . not . T.null $ vertexPrefix
   pure vertexPrefix
 
