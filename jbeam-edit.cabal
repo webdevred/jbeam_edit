@@ -96,7 +96,10 @@ library
     if flag(transformation)
         exposed-modules: Transformation
         hs-source-dirs:  src-extra/transformation
-        other-modules:   Types
+        other-modules:
+            Types
+            VertexExtraction
+
         build-depends:   foldable1-classes-compat
 
     if (os(windows) && flag(windows-example-paths))

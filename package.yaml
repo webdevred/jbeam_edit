@@ -51,7 +51,7 @@ library:
     - condition: flag(transformation)
       source-dirs: [src-extra/transformation]
       exposed-modules: [Transformation]
-      other-modules: [Types]
+      other-modules: [Types, VertexExtraction]
       dependencies: [foldable1-classes-compat]
     - condition: os(windows) && flag(windows-example-paths)
       cpp-options: -DWINDOWS_EXAMPLE_PATHS
