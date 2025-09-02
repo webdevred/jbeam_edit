@@ -114,7 +114,7 @@ jobs:
         shell: bash
         run: bash .github/scripts/copy-exe-to-release.sh
       - name: Build Inno Setup Installer
-        uses: Minionguyjpro/Inno-Setup-Action@v1.2.6
+        uses: Minionguyjpro/Inno-Setup-Action@v1.2.7
         with:
           path: installer/setup.iss
           options: /O+
