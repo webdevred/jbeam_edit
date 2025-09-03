@@ -51,7 +51,7 @@ buildTreeForType originalForest treeType groupsOrig =
       let origTree = M.lookup treeType originalForest
           topComments = maybe [] tComments origTree
           topComments' =
-            if isNothing origTree && not (null groupsOrig)
+            if null topComments
               then sideComment treeType : topComments
               else topComments
        in Just $
