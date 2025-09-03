@@ -206,7 +206,9 @@ getVertexForestGlobals header (treeType, firstVertexTree, vertexTrees) =
       (firstCG, laterFirstCGsMaybe) = NE.uncons allFirstCGs
       laterFirstCGsList = maybe [] NE.toList laterFirstCGsMaybe
       allOtherTrees = M.delete treeType vertexTrees
-      allOtherCGs = concatMap (NE.toList . tCommentGroups) (M.elems allOtherTrees)
+      -- TODO: remove M.delete SupportTree
+      treesNoSupport = M.delete SupportTree allOtherTrees
+      allOtherCGs = concatMap (NE.toList . tCommentGroups) (M.elems treesNoSupport)
 
       isGlobal :: Text -> Node -> Bool
       isGlobal k v =

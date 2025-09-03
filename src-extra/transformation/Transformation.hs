@@ -147,7 +147,10 @@ sortVertices treeType groups =
             newV = v {vName = renameVertexId treeType idx (vName v)}
          in (idx + 1, cg {cVertex = newV})
 
-      (_, renamedGroups) = mapAccumL assignNames 0 sortedGroups
+      renamedGroups =
+        case treeType of
+          SupportTree -> sortedGroups
+          _ -> snd $ mapAccumL assignNames 0 sortedGroups
    in renamedGroups
 
 updateVerticesInNode
