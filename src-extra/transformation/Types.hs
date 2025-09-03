@@ -2,7 +2,6 @@ module Types (
   VertexForest,
   VertexTree (..),
   VertexTreeType (..),
-  VertexTreeEntry (..),
   Vertex (..),
   CommentGroup (..),
   MetaMap,
@@ -20,15 +19,9 @@ data VertexTreeType
   | SupportTree
   deriving (Eq, Ord, Show)
 
-data VertexTreeEntry
-  = VertexEntry Vertex
-  | CommentEntry InternalComment
-  | MetaEntry Object
-  deriving (Eq, Show)
-
 data VertexTree = VertexTree
-  { tMetaNodes :: [Node]
-  , tVertexNodes :: NonEmpty VertexTreeEntry
+  { tComments :: [InternalComment]
+  , tCommentGroups :: NonEmpty CommentGroup
   }
   deriving (Show)
 
