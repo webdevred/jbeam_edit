@@ -3,7 +3,6 @@ module VertexExtraction (
   determineGroup,
   isSupportVertex,
   metaMapFromObject,
-  combineTrees,
   dropIndex,
 ) where
 
@@ -88,9 +87,9 @@ breakVertices vertexPrefix allVertexNames ns = go [] ns allVertexNames
         maybeVertex = newVertex node
 
 combineTrees :: VertexTree -> VertexTree -> VertexTree
-combineTrees (VertexTree comments1 groups1) (VertexTree _ groups2) =
+combineTrees (VertexTree _ groups1) (VertexTree comments2 groups2) =
   VertexTree
-    { tComments = comments1
+    { tComments = comments2
     , tCommentGroups = groups1 <> groups2
     }
 

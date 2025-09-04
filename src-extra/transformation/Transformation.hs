@@ -58,6 +58,17 @@ buildTreeForType originalForest treeType groupsOrig =
             VertexTree topComments' ne
     Nothing -> Nothing
 
+addPrefixComments
+  :: NonEmpty (NonEmpty CommentGroup)
+  -> NonEmpty (NonEmpty CommentGroup)
+addPrefixComments (x :| []) = NE.singleton x
+addPrefixComments (x :| xs) = x :| map addToCG xs
+  where
+    addToCG ((CommentGroup comments vertex meta) :| cgs) =
+      let commentName = vName vertex
+          newComment = InternalComment ("prefix group " <> commentName) False
+       in CommentGroup (newComment : comments) vertex meta :| cgs
+
 moveVerticesInVertexForest :: VertexForest -> Either Text VertexForest
 moveVerticesInVertexForest vertexTrees = do
   let supportTree = M.lookup SupportTree vertexTrees
@@ -65,22 +76,24 @@ moveVerticesInVertexForest vertexTrees = do
       allGroups = concatMap (NE.toList . tCommentGroups) (M.elems movableTrees)
       movableGroups = filter (not . isSupportVertex . cVertex) allGroups
       grouped = M.fromListWith (++) [(determineGroup (cVertex g), [g]) | g <- movableGroups]
+      addVertexTreeToForest f t =
+        case M.lookup t grouped of
+          Just groupsForT ->
+            case buildTreeForType vertexTrees t groupsForT of
+              Just vt ->
+                let groupsToSort = NE.groupWith1 (dropIndex . vName . cVertex) (tCommentGroups vt)
+                    groupsSorted = addPrefixComments $ NE.map (sortVertices t) groupsToSort
+                    vt' = (vt {tCommentGroups = sconcat groupsSorted})
+                 in Right $ M.insert t vt' f
+              Nothing -> Right f
+          Nothing -> Right f
 
   newForest <-
-    foldM
-      ( \acc t ->
-          case M.lookup t grouped of
-            Just groupsForT ->
-              case buildTreeForType vertexTrees t groupsForT of
-                Just vt -> Right $ M.insert t vt acc
-                Nothing -> Right acc
-            Nothing -> Right acc
-      )
+      foldlM
+      addVertexTreeToForest
       M.empty
       treesOrderNoSupport
-
-  let finalForest = maybe newForest (\st -> M.insert SupportTree st newForest) supportTree
-  pure finalForest
+  Right $ maybe newForest (\st -> M.insert SupportTree st newForest) supportTree
 
 getVertexNamesInForest
   :: VertexForest -> M.Map (Scientific, Scientific, Scientific) Text
@@ -94,26 +107,42 @@ getVertexNamesInForest =
               (NE.toList groups)
       )
 
-vertexTreeToNodes :: VertexTreeType -> VertexTree -> [Node]
-vertexTreeToNodes treeType (VertexTree topComments groups) =
-  map Comment topComments
-    ++ concatMap
-      snd
-      (scanl processGroup (M.empty, []) (sortVertices treeType $ NE.toList groups))
-  where
-    processGroup :: (MetaMap, [Node]) -> CommentGroup -> (MetaMap, [Node])
-    processGroup (prevMeta, _) cg =
-      let (nodesForCg, newMeta) = commentGroupToNodesWithPrev prevMeta cg
-       in (newMeta, nodesForCg)
+vertexTreeToNodesWithPrev
+  :: MetaMap -> VertexTreeType -> VertexTree -> (MetaMap, [Node])
+vertexTreeToNodesWithPrev prevMeta _ (VertexTree topComments groups) =
+  let step :: (MetaMap, [Node]) -> CommentGroup -> (MetaMap, [Node])
+      step (pm, acc) cg =
+        let (nodesForCg, newMeta) = commentGroupToNodesWithPrev pm cg
+         in (newMeta, acc ++ nodesForCg)
 
-commentGroupToNodesWithPrev :: MetaMap -> CommentGroup -> ([Node], MetaMap)
+      (finalMeta, lists) = foldl' step (prevMeta, map Comment topComments) (NE.toList groups)
+   in (finalMeta, lists)
+
+removeIdenticalMeta :: MetaMap -> MetaMap -> MetaMap
+removeIdenticalMeta = M.differenceWithKey diff
+  where
+    diff _ v1 v2
+      | v1 == v2 = Nothing
+      | otherwise = Just v1
+
+commentGroupToNodesWithPrev
+  :: MetaMap
+  -> CommentGroup
+  -> ([Node], MetaMap)
 commentGroupToNodesWithPrev prevMeta (CommentGroup comments vertex meta) =
-  let changedMeta = M.differenceWith diff meta prevMeta
-      diff new old = if new == old then Nothing else Just new
+  let localsMeta = removeIdenticalMeta meta prevMeta
+
+      newPrevMeta = M.union localsMeta prevMeta
 
       metaNodes =
-        [Object (V.fromList [ObjectKey (String k, v)]) | (k, v) <- M.assocs changedMeta]
+        [ Object (V.singleton (ObjectKey (String k, v)))
+        | (k, v) <- M.assocs localsMeta
+        ]
+
+      commentNodes :: [Node]
       commentNodes = map Comment comments
+
+      vertexArray :: Node
       vertexArray =
         Array $
           V.fromList
@@ -122,7 +151,18 @@ commentGroupToNodesWithPrev prevMeta (CommentGroup comments vertex meta) =
             , Number (vY vertex)
             , Number (vZ vertex)
             ]
-   in (metaNodes ++ commentNodes ++ [vertexArray], meta)
+   in (metaNodes ++ commentNodes ++ [vertexArray], newPrevMeta)
+
+vertexForestToNodeVector :: MetaMap -> VertexForest -> Vector Node
+vertexForestToNodeVector initialMeta vf =
+  let step :: MetaMap -> VertexTreeType -> (MetaMap, [Node])
+      step prevMeta treeType =
+        case M.lookup treeType vf of
+          Nothing -> (prevMeta, [])
+          Just tree -> vertexTreeToNodesWithPrev prevMeta treeType tree
+
+      (_, listsOfNodes) = mapAccumL step initialMeta treesOrder
+   in V.fromList $ concat listsOfNodes
 
 treesOrderNoSupport :: [VertexTreeType]
 treesOrderNoSupport = [LeftTree, MiddleTree, RightTree]
@@ -130,17 +170,15 @@ treesOrderNoSupport = [LeftTree, MiddleTree, RightTree]
 treesOrder :: [VertexTreeType]
 treesOrder = treesOrderNoSupport ++ [SupportTree]
 
-vertexForestToNodeVector :: VertexForest -> Vector Node
-vertexForestToNodeVector vf =
-  V.fromList $
-    concatMap (\t -> maybe [] (vertexTreeToNodes t) (M.lookup t vf)) treesOrder
+compareCG :: CommentGroup -> CommentGroup -> Ordering
+compareCG cg1 cg2 =
+  compare
+    (cMeta cg1, vZ (cVertex cg1), vY (cVertex cg1), vX (cVertex cg1))
+    (cMeta cg2, vZ (cVertex cg2), vY (cVertex cg2), vX (cVertex cg2))
 
-sortVertices :: VertexTreeType -> [CommentGroup] -> [CommentGroup]
+sortVertices :: VertexTreeType -> NonEmpty CommentGroup -> NonEmpty CommentGroup
 sortVertices treeType groups =
-  let sortedGroups =
-        sortOn
-          (\cg -> (cMeta cg, vZ (cVertex cg), vY (cVertex cg), vX (cVertex cg)))
-          groups
+  let sortedGroups = NE.sortBy compareCG groups
 
       assignNames idx cg =
         let v = cVertex cg
@@ -156,7 +194,10 @@ sortVertices treeType groups =
 updateVerticesInNode
   :: NP.NodePath -> VertexForest -> NE.NonEmpty Node -> Node -> Node
 updateVerticesInNode (NP.NodePath Empty) g globals (Array _) =
-  Array (V.fromList (NE.toList globals) <> vertexForestToNodeVector g)
+  let globalsList = NE.toList globals
+      initialMeta =
+        M.unions (map metaMapFromObject (NE.toList globals))
+   in Array (V.fromList globalsList <> vertexForestToNodeVector initialMeta g)
 updateVerticesInNode (NP.NodePath ((NP.ArrayIndex i) :<| qrest)) g globals (Array children) =
   let updateInNode nodeToUpdate =
         children
