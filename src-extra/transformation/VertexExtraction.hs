@@ -2,6 +2,8 @@ module VertexExtraction (
   getVertexForest,
   determineGroup,
   isSupportVertex,
+  metaMapFromObject,
+  combineTrees,
   dropIndex,
 ) where
 
@@ -85,6 +87,13 @@ breakVertices vertexPrefix allVertexNames ns = go [] ns allVertexNames
       where
         maybeVertex = newVertex node
 
+combineTrees :: VertexTree -> VertexTree -> VertexTree
+combineTrees (VertexTree comments1 groups1) (VertexTree _ groups2) =
+  VertexTree
+    { tComments = comments1
+    , tCommentGroups = groups1 <> groups2
+    }
+
 isSupportVertex :: Vertex -> Bool
 isSupportVertex v =
   case T.unsnoc (vName v) of
@@ -103,35 +112,28 @@ toInternalComment (Comment c) = Just c
 toInternalComment _ = Nothing
 
 nodesToCommentGroups
-  :: MetaMap -> [Node] -> Either Text (NE.NonEmpty CommentGroup)
+  :: Map Text Node
+  -> [Node]
+  -> Either Text (NE.NonEmpty CommentGroup)
 nodesToCommentGroups initialMeta nodes = go initialMeta [] nodes []
   where
-    go
-      :: MetaMap
-      -> [InternalComment]
-      -> [Node]
-      -> [CommentGroup]
-      -> Either Text (NE.NonEmpty CommentGroup)
     go _ _ [] acc =
       case reverse acc of
-        [] -> Left "no vertices found when building comment groups"
+        [] -> Left "no vertices found"
         revAcc -> Right $ NE.fromList revAcc
     go pendingMeta pendingComments (n : ns) acc =
       case newVertex n of
         Just v ->
-          let cg =
-                CommentGroup
-                  { cComments = reverse pendingComments
-                  , cVertex = v
-                  , cMeta = pendingMeta
-                  }
-           in go pendingMeta [] ns (cg : acc) -- fortsätt ackumulera meta
+          let cg = CommentGroup (reverse pendingComments) v pendingMeta
+           in go pendingMeta [] ns (cg : acc)
         Nothing
           | isObjectNode n ->
-              go (M.union (metaMapFromObject n) pendingMeta) pendingComments ns acc
-          | isCommentNode n -> case toInternalComment n of
-              Just ic -> go pendingMeta (ic : pendingComments) ns acc
-              Nothing -> go pendingMeta pendingComments ns acc
+              let newMeta = M.union (metaMapFromObject n) pendingMeta
+               in go newMeta pendingComments ns acc
+          | isCommentNode n ->
+              case toInternalComment n of
+                Just ic -> go pendingMeta (ic : pendingComments) ns acc
+                Nothing -> go pendingMeta pendingComments ns acc
           | otherwise -> go pendingMeta pendingComments ns acc
 
 newVertexTree
@@ -150,22 +152,11 @@ newVertexTree vertexNames vertexForest nodes =
           case nodesToCommentGroups topMeta vertexNodes of
             Left err -> Left err
             Right cgNe ->
-              case NE.uncons cgNe of
-                (firstCG, _) ->
-                  let vertexTree = VertexTree {tComments = topComments, tCommentGroups = cgNe}
-                      treeType = determineGroup (cVertex firstCG)
-                      updatedForest =
-                        case treeType of
-                          SupportTree -> M.insertWith combineSupportTrees SupportTree vertexTree vertexForest
-                          _ -> M.insert treeType vertexTree vertexForest
-                   in Right (vertexNames', treeType, vertexTree, updatedForest, rest')
-
-combineSupportTrees :: VertexTree -> VertexTree -> VertexTree
-combineSupportTrees (VertexTree comments1 groups1) (VertexTree comments2 groups2) =
-  VertexTree
-    { tComments = comments1 ++ comments2
-    , tCommentGroups = groups1 <> groups2
-    }
+              let firstCG = NE.head cgNe
+                  vertexTree = VertexTree topComments cgNe
+                  treeType = determineGroup (cVertex firstCG)
+                  updatedForest = M.insertWith combineTrees treeType vertexTree vertexForest
+               in Right (vertexNames', treeType, vertexTree, updatedForest, rest')
 
 determineGroup :: Vertex -> VertexTreeType
 determineGroup v
@@ -206,7 +197,6 @@ getVertexForestGlobals header (treeType, firstVertexTree, vertexTrees) =
       (firstCG, laterFirstCGsMaybe) = NE.uncons allFirstCGs
       laterFirstCGsList = maybe [] NE.toList laterFirstCGsMaybe
       allOtherTrees = M.delete treeType vertexTrees
-      -- TODO: remove M.delete SupportTree
       treesNoSupport = M.delete SupportTree allOtherTrees
       allOtherCGs = concatMap (NE.toList . tCommentGroups) (M.elems treesNoSupport)
 
@@ -220,13 +210,12 @@ getVertexForestGlobals header (treeType, firstVertexTree, vertexTrees) =
           (laterFirstCGsList ++ allOtherCGs)
 
       (globalsMap, localsMap) = M.partitionWithKey isGlobal (cMeta firstCG)
-      firstCG' = firstCG {cMeta = localsMap}
-      deleteGlobals gs (CommentGroup c v m) = CommentGroup c v (foldr M.delete m (M.keys gs))
-      updatedTree =
-        firstVertexTree
-          { tCommentGroups = firstCG' :| map (deleteGlobals globalsMap) laterFirstCGsList
-          }
-      updatedForest = M.insert treeType updatedTree allOtherTrees
+      setLocals (CommentGroup c v m) = CommentGroup c v (M.union m localsMap)
+      updatedForest =
+        M.update
+          (\(VertexTree c gs) -> Just $ VertexTree c (NE.map setLocals gs))
+          treeType
+          vertexTrees
       globalNodes = objectKeysToObjects globalsMap
    in Right (header :| globalNodes, updatedForest)
 
