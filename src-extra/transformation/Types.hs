@@ -3,7 +3,7 @@ module Types (
   VertexTree (..),
   VertexTreeType (..),
   Vertex (..),
-  CommentGroup (..),
+  AnnotatedVertex (..),
   MetaMap,
 ) where
 
@@ -21,7 +21,7 @@ data VertexTreeType
 
 data VertexTree = VertexTree
   { tComments :: [InternalComment]
-  , tCommentGroups :: NonEmpty CommentGroup
+  , tAnnotatedVertices :: NonEmpty AnnotatedVertex
   }
   deriving (Show)
 
@@ -34,7 +34,7 @@ data Vertex = Vertex
   }
   deriving (Eq, Show)
 
-data CommentGroup = CommentGroup
+data AnnotatedVertex = AnnotatedVertex
   { cComments :: [InternalComment]
   , cVertex :: Vertex
   , cMeta :: MetaMap

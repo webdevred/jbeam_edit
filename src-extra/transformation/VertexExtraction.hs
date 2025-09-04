@@ -90,7 +90,7 @@ combineTrees :: VertexTree -> VertexTree -> VertexTree
 combineTrees (VertexTree _ groups1) (VertexTree comments2 groups2) =
   VertexTree
     { tComments = comments2
-    , tCommentGroups = groups1 <> groups2
+    , tAnnotatedVertices = groups1 <> groups2
     }
 
 isSupportVertex :: Vertex -> Bool
@@ -113,7 +113,7 @@ toInternalComment _ = Nothing
 nodesToCommentGroups
   :: Map Text Node
   -> [Node]
-  -> Either Text (NE.NonEmpty CommentGroup)
+  -> Either Text (NE.NonEmpty AnnotatedVertex)
 nodesToCommentGroups initialMeta nodes = go initialMeta [] nodes []
   where
     go _ _ [] acc =
@@ -123,7 +123,7 @@ nodesToCommentGroups initialMeta nodes = go initialMeta [] nodes []
     go pendingMeta pendingComments (n : ns) acc =
       case newVertex n of
         Just v ->
-          let cg = CommentGroup (reverse pendingComments) v pendingMeta
+          let cg = AnnotatedVertex (reverse pendingComments) v pendingMeta
            in go pendingMeta [] ns (cg : acc)
         Nothing
           | isObjectNode n ->
@@ -192,12 +192,12 @@ getVertexForestGlobals
   -> (VertexTreeType, VertexTree, VertexForest)
   -> Either Text (NE.NonEmpty Node, VertexForest)
 getVertexForestGlobals header (treeType, firstVertexTree, vertexTrees) =
-  let allFirstCGs = tCommentGroups firstVertexTree
+  let allFirstCGs = tAnnotatedVertices firstVertexTree
       (firstCG, laterFirstCGsMaybe) = NE.uncons allFirstCGs
       laterFirstCGsList = maybe [] NE.toList laterFirstCGsMaybe
       allOtherTrees = M.delete treeType vertexTrees
       treesNoSupport = M.delete SupportTree allOtherTrees
-      allOtherCGs = concatMap (NE.toList . tCommentGroups) (M.elems treesNoSupport)
+      allOtherCGs = concatMap (NE.toList . tAnnotatedVertices) (M.elems treesNoSupport)
 
       isGlobal :: Text -> Node -> Bool
       isGlobal k v =
@@ -209,7 +209,7 @@ getVertexForestGlobals header (treeType, firstVertexTree, vertexTrees) =
           (laterFirstCGsList ++ allOtherCGs)
 
       (globalsMap, localsMap) = M.partitionWithKey isGlobal (cMeta firstCG)
-      setLocals (CommentGroup c v m) = CommentGroup c v (M.union m localsMap)
+      setLocals (AnnotatedVertex c v m) = AnnotatedVertex c v (M.union m localsMap)
       updatedForest =
         M.update
           (\(VertexTree c gs) -> Just $ VertexTree c (NE.map setLocals gs))
