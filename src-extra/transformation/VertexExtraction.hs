@@ -87,10 +87,10 @@ breakVertices vertexPrefix allVertexNames ns = go [] ns allVertexNames
         maybeVertex = newVertex node
 
 combineTrees :: VertexTree -> VertexTree -> VertexTree
-combineTrees (VertexTree _ groups1) (VertexTree comments2 groups2) =
+combineTrees (VertexTree _ newVertexGroups) (VertexTree oldComments oldVertexGroups) =
   VertexTree
-    { tComments = comments2
-    , tAnnotatedVertices = groups1 <> groups2
+    { tComments = oldComments
+    , tAnnotatedVertices = oldVertexGroups <> newVertexGroups
     }
 
 isSupportVertex :: Vertex -> Bool
@@ -165,22 +165,22 @@ determineGroup v
   | otherwise = RightTree
 
 nodesListToTree
-  :: NE.NonEmpty Node -> Either Text (VertexTreeType, VertexTree, VertexForest)
+  :: NE.NonEmpty Node -> Either Text (VertexTreeType, VertexForest)
 nodesListToTree nodes =
   case newVertexTree S.empty M.empty nodes of
     Left err -> Left err
-    Right (vertexNames, firstTreeType, firstVertexTree, vertexForest, rest) ->
+    Right (vertexNames, firstTreeType, _firstVertexTree, vertexForest, rest) ->
       case nonEmpty rest of
-        Nothing -> Right (firstTreeType, firstVertexTree, vertexForest)
-        Just nonEmptyRest -> go vertexNames vertexForest nonEmptyRest firstTreeType firstVertexTree
+        Nothing -> Right (firstTreeType, vertexForest)
+        Just nonEmptyRest -> go vertexNames vertexForest nonEmptyRest firstTreeType
   where
-    go vertexNames acc restNE firstTreeType firstVertexTree =
+    go vertexNames acc restNE firstTreeType =
       case newVertexTree vertexNames acc restNE of
         Left err -> Left err
         Right (vertexNames', _treeType, _vt, acc', rest') ->
           case nonEmpty rest' of
-            Nothing -> Right (firstTreeType, firstVertexTree, acc')
-            Just ne -> go vertexNames' acc' ne firstTreeType firstVertexTree
+            Nothing -> Right (firstTreeType, acc')
+            Just ne -> go vertexNames' acc' ne firstTreeType
 
 objectKeysToObjects :: Map Text Node -> [Node]
 objectKeysToObjects =
@@ -189,32 +189,43 @@ objectKeysToObjects =
 
 getVertexForestGlobals
   :: Node
-  -> (VertexTreeType, VertexTree, VertexForest)
+  -> (VertexTreeType, VertexForest)
   -> Either Text (NE.NonEmpty Node, VertexForest)
-getVertexForestGlobals header (treeType, firstVertexTree, vertexTrees) =
-  let allFirstCGs = NE.head $ tAnnotatedVertices firstVertexTree
-      (firstCG, laterFirstCGsMaybe) = NE.uncons allFirstCGs
-      laterFirstCGsList = maybe [] NE.toList laterFirstCGsMaybe
-      allOtherTrees = M.delete treeType vertexTrees
-      treesNoSupport = M.delete SupportTree allOtherTrees
-      allOtherCGs = concatMap (NE.toList . sconcat . tAnnotatedVertices) (M.elems treesNoSupport)
+getVertexForestGlobals header (treeType, vertexTrees) =
+  let firstVertexTree = vertexTrees M.! treeType
 
-      isGlobal :: Text -> Node -> Bool
+      allVerticesFirstTree = concatMap NE.toList (NE.toList $ tAnnotatedVertices firstVertexTree)
+
+      otherVerticesFirstTree = case allVerticesFirstTree of
+        [] -> []
+        (_ : xs) -> xs
+
+      allOtherTrees = M.delete treeType vertexTrees
+      allOtherCGs =
+        concatMap
+          (concatMap NE.toList . NE.toList . tAnnotatedVertices)
+          (M.elems allOtherTrees)
+
+      firstCGMay = listToMaybe allVerticesFirstTree
+
       isGlobal k v =
         all
-          ( \cg -> case M.lookup k (cMeta cg) of
-              Nothing -> True
-              Just v' -> v' == v
-          )
-          (laterFirstCGsList ++ allOtherCGs)
+          (all (== v) . M.lookup k . cMeta)
+          (otherVerticesFirstTree ++ allOtherCGs)
 
-      (globalsMap, localsMap) = M.partitionWithKey isGlobal (cMeta firstCG)
+      (globalsMap, localsMap) =
+        maybe
+          (M.empty, M.empty)
+          (M.partitionWithKey isGlobal . cMeta)
+          firstCGMay
+
       setLocals (AnnotatedVertex c v m) = AnnotatedVertex c v (M.union m localsMap)
       updatedForest =
         M.update
           (\(VertexTree c gs) -> Just $ VertexTree c (NE.map (NE.map setLocals) gs))
           treeType
           vertexTrees
+
       globalNodes = objectKeysToObjects globalsMap
    in Right (header :| globalNodes, updatedForest)
 
@@ -236,8 +247,8 @@ getVertexForest np topNode =
                     Just ne -> do
                       case nodesListToTree ne of
                         Left err -> Left err
-                        Right (firstTreeType, firstVertexTree, vertexForest) ->
-                          getVertexForestGlobals header (firstTreeType, firstVertexTree, vertexForest)
+                        Right (firstTreeType, vertexForest) ->
+                          getVertexForestGlobals header (firstTreeType, vertexForest)
               | otherwise -> Left "invalid vertex header"
             _ -> Left "missing vertex header"
     processNode bad = Left $ "expected Array at vertex path, got: " <> show bad
