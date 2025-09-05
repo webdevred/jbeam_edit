@@ -166,7 +166,7 @@ newVertexTree brks vertexNames vertexForest nodes =
             Right cgNe ->
               let firstCG = head cgNe
                   vertexTree = VertexTree topComments (one cgNe)
-               in case determineGroup brks (aVertex firstCG) of
+               in case determineGroup' brks (aVertex firstCG) of
                     Just treeType ->
                       let updatedForest = M.insertWith combineTrees treeType vertexTree vertexForest
                        in Right (vertexNames', treeType, vertexTree, updatedForest, rest')

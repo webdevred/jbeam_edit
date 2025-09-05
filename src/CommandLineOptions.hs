@@ -9,10 +9,13 @@ import Paths_jbeam_edit (version)
 import System.Console.GetOpt
 import System.Environment
 
+import Data.Text qualified as T
+
 data Options = Options
   { optInPlace :: Bool
   , optCopyJbflConfig :: Maybe ConfigType
   , optInputFile :: Maybe FilePath
+  , optUpdateNames :: Maybe (Map Text Text)
   }
   deriving (Show)
 
@@ -22,6 +25,7 @@ startOptions =
     { optInPlace = False
     , optInputFile = Nothing
     , optCopyJbflConfig = Nothing
+    , optUpdateNames = Nothing
     }
 
 parseOptions :: [String] -> IO Options
@@ -36,6 +40,18 @@ maybeConfigType :: Maybe String -> Maybe ConfigType
 maybeConfigType (Just "complex") = Just ComplexConfig
 maybeConfigType (Just "minimal") = Just MinimalConfig
 maybeConfigType _ = Nothing
+
+splitNames :: Text -> Maybe (Text, Text)
+splitNames namePair =
+  case T.split (== ':') namePair of
+    [orig, new] -> Just (orig, new)
+    _ -> Nothing
+
+maybeNamesToUpdate :: String -> Maybe (Map Text Text)
+maybeNamesToUpdate names = do
+  let namesList = T.split (== ',') (toText names)
+  namePairs <- mapM splitNames namesList
+  pure $ fromList  namePairs
 
 options :: [OptDescr (Options -> IO Options)]
 options =
@@ -52,6 +68,14 @@ options =
           "JBFL-CONFIG"
       )
       "Copy rules file to config directory"
+  , Option
+      "n"
+      ["update-names"]
+      ( ReqArg
+          (\names opt -> pure opt {optUpdateNames = maybeNamesToUpdate names})
+          "ORIGINAL_VERT_PREFIX:NEW_VERT_PREFIX,..."
+      )
+      "Print version"
   , Option
       "V"
       ["version"]
