@@ -151,7 +151,7 @@ newVertexTree vertexNames vertexForest nodes =
           case nodesToCommentGroups topMeta vertexNodes of
             Left err -> Left err
             Right cgNe ->
-              let firstCG = NE.head cgNe
+              let firstCG = head cgNe
                   vertexTree = VertexTree topComments (NE.singleton cgNe)
                   treeType = determineGroup (cVertex firstCG)
                   updatedForest = M.insertWith combineTrees treeType vertexTree vertexForest
@@ -190,28 +190,29 @@ objectKeysToObjects =
 getVertexForestGlobals
   :: Node
   -> (VertexTreeType, VertexForest)
-  -> Either Text (NE.NonEmpty Node, VertexForest)
+  -> Either Text (NonEmpty Node, VertexForest)
 getVertexForestGlobals header (treeType, vertexTrees) =
   let firstVertexTree = vertexTrees M.! treeType
 
-      allVerticesFirstTree = concatMap NE.toList (NE.toList $ tAnnotatedVertices firstVertexTree)
+      allFirstGroups = tAnnotatedVertices firstVertexTree
+      firstGroup = head allFirstGroups
+      otherGroups = tail allFirstGroups
 
-      otherVerticesFirstTree = case allVerticesFirstTree of
-        [] -> []
-        (_ : xs) -> xs
+      otherVerticesSameTree = concatMap toList otherGroups
 
-      allOtherTrees = M.delete treeType vertexTrees
       allOtherCGs =
-        concatMap
-          (concatMap NE.toList . NE.toList . tAnnotatedVertices)
-          (M.elems allOtherTrees)
+        concatMap (concatMap toList . tAnnotatedVertices) $
+          M.filterWithKey (const . (/=) treeType) vertexTrees
 
-      firstCGMay = listToMaybe allVerticesFirstTree
+      firstCGMay = listToMaybe (toList firstGroup)
 
-      isGlobal k v =
-        all
-          (all (== v) . M.lookup k . cMeta)
-          (otherVerticesFirstTree ++ allOtherCGs)
+      globalCandidates =
+        foldr
+          (M.unionWith S.union . fmap one . cMeta)
+          M.empty
+          (otherVerticesSameTree ++ allOtherCGs)
+
+      isGlobal k v = all (S.member v) (M.lookup k globalCandidates)
 
       (globalsMap, localsMap) =
         maybe
