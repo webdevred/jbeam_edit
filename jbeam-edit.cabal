@@ -100,8 +100,6 @@ library
             Types
             VertexExtraction
 
-        build-depends:   foldable1-classes-compat
-
     if (os(windows) && flag(windows-example-paths))
         cpp-options: -DWINDOWS_EXAMPLE_PATHS
 
