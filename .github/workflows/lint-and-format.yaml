@@ -16,7 +16,12 @@ jobs:
         uses: haskell-actions/hlint-setup@v2
         with:
           version: latest
-      - name: Run hlint
+      - name: Run hlint with my hlints
+        uses: haskell-actions/hlint-run@v2.4.10
+        with:
+          fail-on: warning
+      - run: curl https://raw.githubusercontent.com/kowainik/relude/refs/heads/main/.hlint.yaml -o .hlint.yaml
+      - name: Run hlint with relude hlints
         uses: haskell-actions/hlint-run@v2.4.10
         with:
           fail-on: warning
