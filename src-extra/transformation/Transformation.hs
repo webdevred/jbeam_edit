@@ -60,7 +60,7 @@ buildTreeForType originalForest treeType groupsOrig =
 addPrefixComments
   :: NonEmpty (NonEmpty AnnotatedVertex)
   -> NonEmpty (NonEmpty AnnotatedVertex)
-addPrefixComments (x :| []) = NE.singleton x
+addPrefixComments (x :| []) = one x
 addPrefixComments (x :| xs) = x :| map addToCG xs
   where
     addToCG ((AnnotatedVertex comments vertex meta) :| cgs) =

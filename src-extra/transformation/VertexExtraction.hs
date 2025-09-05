@@ -113,13 +113,13 @@ toInternalComment _ = Nothing
 nodesToCommentGroups
   :: Map Text Node
   -> [Node]
-  -> Either Text (NE.NonEmpty AnnotatedVertex)
+  -> Either Text (NonEmpty AnnotatedVertex)
 nodesToCommentGroups initialMeta nodes = go initialMeta [] nodes []
   where
     go _ _ [] acc =
       case reverse acc of
         [] -> Left "no vertices found"
-        revAcc -> Right $ NE.fromList revAcc
+        revAcc -> Right $ fromList revAcc
     go pendingMeta pendingComments (n : ns) acc =
       case newVertex n of
         Just v ->
@@ -138,7 +138,7 @@ nodesToCommentGroups initialMeta nodes = go initialMeta [] nodes []
 newVertexTree
   :: Set Text
   -> VertexForest
-  -> NE.NonEmpty Node
+  -> NonEmpty Node
   -> Either Text (Set Text, VertexTreeType, VertexTree, VertexForest, [Node])
 newVertexTree vertexNames vertexForest nodes =
   let (topNodes, nodes') = NE.span isNonVertex nodes
@@ -152,7 +152,7 @@ newVertexTree vertexNames vertexForest nodes =
             Left err -> Left err
             Right cgNe ->
               let firstCG = head cgNe
-                  vertexTree = VertexTree topComments (NE.singleton cgNe)
+                  vertexTree = VertexTree topComments (one cgNe)
                   treeType = determineGroup (aVertex firstCG)
                   updatedForest = M.insertWith combineTrees treeType vertexTree vertexForest
                in Right (vertexNames', treeType, vertexTree, updatedForest, rest')
@@ -165,7 +165,7 @@ determineGroup v
   | otherwise = RightTree
 
 nodesListToTree
-  :: NE.NonEmpty Node -> Either Text (VertexTreeType, VertexForest)
+  :: NonEmpty Node -> Either Text (VertexTreeType, VertexForest)
 nodesListToTree nodes =
   case newVertexTree S.empty M.empty nodes of
     Left err -> Left err
@@ -174,8 +174,8 @@ nodesListToTree nodes =
         Nothing -> Right (firstTreeType, vertexForest)
         Just nonEmptyRest -> go vertexNames vertexForest nonEmptyRest firstTreeType
   where
-    go vertexNames acc restNE firstTreeType =
-      case newVertexTree vertexNames acc restNE of
+    go vertexNames acc rest firstTreeType =
+      case newVertexTree vertexNames acc rest of
         Left err -> Left err
         Right (vertexNames', _treeType, _vt, acc', rest') ->
           case nonEmpty rest' of
@@ -193,7 +193,6 @@ getVertexForestGlobals
   -> Either Text (NonEmpty Node, VertexForest)
 getVertexForestGlobals header (treeType, vertexTrees) =
   let firstVertexTree = vertexTrees M.! treeType
-
       allFirstGroups = tAnnotatedVertices firstVertexTree
       firstGroup = head allFirstGroups
       otherGroups = tail allFirstGroups
@@ -231,7 +230,7 @@ getVertexForestGlobals header (treeType, vertexTrees) =
    in Right (header :| globalNodes, updatedForest)
 
 getVertexForest
-  :: NP.NodePath -> Node -> Either Text (NE.NonEmpty Node, VertexForest)
+  :: NP.NodePath -> Node -> Either Text (NonEmpty Node, VertexForest)
 getVertexForest np topNode =
   case NP.queryNodes np topNode of
     Nothing -> Left $ "could not find vertices at path " <> show np
