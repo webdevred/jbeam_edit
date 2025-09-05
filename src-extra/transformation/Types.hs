@@ -21,7 +21,7 @@ data VertexTreeType
 
 data VertexTree = VertexTree
   { tComments :: [InternalComment]
-  , tAnnotatedVertices :: NonEmpty AnnotatedVertex
+  , tAnnotatedVertices :: NonEmpty (NonEmpty AnnotatedVertex)
   }
   deriving (Show)
 

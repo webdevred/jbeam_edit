@@ -152,7 +152,7 @@ newVertexTree vertexNames vertexForest nodes =
             Left err -> Left err
             Right cgNe ->
               let firstCG = NE.head cgNe
-                  vertexTree = VertexTree topComments cgNe
+                  vertexTree = VertexTree topComments (NE.singleton cgNe)
                   treeType = determineGroup (cVertex firstCG)
                   updatedForest = M.insertWith combineTrees treeType vertexTree vertexForest
                in Right (vertexNames', treeType, vertexTree, updatedForest, rest')
@@ -192,12 +192,12 @@ getVertexForestGlobals
   -> (VertexTreeType, VertexTree, VertexForest)
   -> Either Text (NE.NonEmpty Node, VertexForest)
 getVertexForestGlobals header (treeType, firstVertexTree, vertexTrees) =
-  let allFirstCGs = tAnnotatedVertices firstVertexTree
+  let allFirstCGs = NE.head $ tAnnotatedVertices firstVertexTree
       (firstCG, laterFirstCGsMaybe) = NE.uncons allFirstCGs
       laterFirstCGsList = maybe [] NE.toList laterFirstCGsMaybe
       allOtherTrees = M.delete treeType vertexTrees
       treesNoSupport = M.delete SupportTree allOtherTrees
-      allOtherCGs = concatMap (NE.toList . tAnnotatedVertices) (M.elems treesNoSupport)
+      allOtherCGs = concatMap (NE.toList . sconcat . tAnnotatedVertices) (M.elems treesNoSupport)
 
       isGlobal :: Text -> Node -> Bool
       isGlobal k v =
@@ -212,7 +212,7 @@ getVertexForestGlobals header (treeType, firstVertexTree, vertexTrees) =
       setLocals (AnnotatedVertex c v m) = AnnotatedVertex c v (M.union m localsMap)
       updatedForest =
         M.update
-          (\(VertexTree c gs) -> Just $ VertexTree c (NE.map setLocals gs))
+          (\(VertexTree c gs) -> Just $ VertexTree c (NE.map (NE.map setLocals) gs))
           treeType
           vertexTrees
       globalNodes = objectKeysToObjects globalsMap
