@@ -153,7 +153,7 @@ newVertexTree vertexNames vertexForest nodes =
             Right cgNe ->
               let firstCG = head cgNe
                   vertexTree = VertexTree topComments (NE.singleton cgNe)
-                  treeType = determineGroup (cVertex firstCG)
+                  treeType = determineGroup (aVertex firstCG)
                   updatedForest = M.insertWith combineTrees treeType vertexTree vertexForest
                in Right (vertexNames', treeType, vertexTree, updatedForest, rest')
 
@@ -208,7 +208,7 @@ getVertexForestGlobals header (treeType, vertexTrees) =
 
       globalCandidates =
         foldr
-          (M.unionWith S.union . fmap one . cMeta)
+          (M.unionWith S.union . fmap one . aMeta)
           M.empty
           (otherVerticesSameTree ++ allOtherCGs)
 
@@ -217,7 +217,7 @@ getVertexForestGlobals header (treeType, vertexTrees) =
       (globalsMap, localsMap) =
         maybe
           (M.empty, M.empty)
-          (M.partitionWithKey isGlobal . cMeta)
+          (M.partitionWithKey isGlobal . aMeta)
           firstCGMay
 
       setLocals (AnnotatedVertex c v m) = AnnotatedVertex c v (M.union m localsMap)

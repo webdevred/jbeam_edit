@@ -35,9 +35,9 @@ data Vertex = Vertex
   deriving (Eq, Show)
 
 data AnnotatedVertex = AnnotatedVertex
-  { cComments :: [InternalComment]
-  , cVertex :: Vertex
-  , cMeta :: MetaMap
+  { aComments :: [InternalComment]
+  , aVertex :: Vertex
+  , aMeta :: MetaMap
   }
   deriving (Show)
 

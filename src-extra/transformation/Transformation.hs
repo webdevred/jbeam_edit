@@ -54,7 +54,7 @@ buildTreeForType originalForest treeType groupsOrig =
               then sideComment treeType : topComments
               else topComments
        in Just $
-            VertexTree topComments' ne
+            VertexTree topComments' (one ne)
     Nothing -> Nothing
 
 addPrefixComments
@@ -72,17 +72,18 @@ moveVerticesInVertexForest :: VertexForest -> Either Text VertexForest
 moveVerticesInVertexForest vertexTrees = do
   let supportTree = M.lookup SupportTree vertexTrees
       movableTrees = M.delete SupportTree vertexTrees
-      allGroups = concatMap (NE.toList . tAnnotatedVertices) (M.elems movableTrees)
-      movableGroups = filter (not . isSupportVertex . cVertex) allGroups
-      grouped = M.fromListWith (++) [(determineGroup (cVertex g), [g]) | g <- movableGroups]
+      allGroups = concatMap (NE.toList . sconcat . tAnnotatedVertices) (M.elems movableTrees)
+      movableGroups = filter (not . isSupportVertex . aVertex) allGroups
+      grouped = M.fromListWith (++) [(determineGroup (aVertex g), [g]) | g <- movableGroups]
       addVertexTreeToForest f t =
         case M.lookup t grouped of
           Just groupsForT ->
             case buildTreeForType vertexTrees t groupsForT of
               Just vt ->
-                let groupsToSort = NE.groupWith1 (dropIndex . vName . cVertex) (tAnnotatedVertices vt)
-                    groupsSorted = addPrefixComments $ NE.map (sortVertices t) groupsToSort
-                    vt' = (vt {tAnnotatedVertices = sconcat groupsSorted})
+                let groupsToSort = tAnnotatedVertices vt
+                    groupsSorted = sconcat $ NE.map (sortVertices t) groupsToSort
+                    prefixCommentedGroups = addPrefixComments $ NE.groupWith1 (dropIndex . vName . aVertex) groupsSorted
+                    vt' = (vt {tAnnotatedVertices = prefixCommentedGroups})
                  in Right $ M.insert t vt' f
               Nothing -> Right f
           Nothing -> Right f
@@ -102,8 +103,8 @@ getVertexNamesInForest =
       ( \(VertexTree _ groups) ->
           M.fromList $
             map
-              (\cg -> let v = cVertex cg in ((vX v, vY v, vZ v), vName v))
-              (NE.toList groups)
+              (\cg -> let v = aVertex cg in ((vX v, vY v, vZ v), vName v))
+              (NE.toList $ sconcat groups)
       )
 
 vertexTreeToNodesWithPrev
@@ -114,7 +115,7 @@ vertexTreeToNodesWithPrev prevMeta _ (VertexTree topComments groups) =
         let (nodesForCg, newMeta) = commentGroupToNodesWithPrev pm cg
          in (newMeta, acc ++ nodesForCg)
 
-      (finalMeta, lists) = foldl' step (prevMeta, map Comment topComments) (NE.toList groups)
+      (finalMeta, lists) = foldl' step (prevMeta, map Comment topComments) (NE.toList $ sconcat groups)
    in (finalMeta, lists)
 
 removeIdenticalMeta :: MetaMap -> MetaMap -> MetaMap
@@ -172,8 +173,8 @@ treesOrder = treesOrderNoSupport ++ [SupportTree]
 compareCG :: AnnotatedVertex -> AnnotatedVertex -> Ordering
 compareCG cg1 cg2 =
   compare
-    (cMeta cg1, vZ (cVertex cg1), vY (cVertex cg1), vX (cVertex cg1))
-    (cMeta cg2, vZ (cVertex cg2), vY (cVertex cg2), vX (cVertex cg2))
+    (aMeta cg1, vZ (aVertex cg1), vY (aVertex cg1), vX (aVertex cg1))
+    (aMeta cg2, vZ (aVertex cg2), vY (aVertex cg2), vX (aVertex cg2))
 
 sortVertices
   :: VertexTreeType -> NonEmpty AnnotatedVertex -> NonEmpty AnnotatedVertex
@@ -181,9 +182,9 @@ sortVertices treeType groups =
   let sortedGroups = NE.sortBy compareCG groups
 
       assignNames idx cg =
-        let v = cVertex cg
+        let v = aVertex cg
             newV = v {vName = renameVertexId treeType idx (vName v)}
-         in (idx + 1, cg {cVertex = newV})
+         in (idx + 1, cg {aVertex = newV})
 
       renamedGroups =
         case treeType of
