@@ -14,6 +14,7 @@ import System.Directory (copyFile)
 
 #ifdef ENABLE_TRANSFORMATION
 import Transformation (transform)
+import Config (loadTransformationConfig)
 #endif
 
 main :: IO ()
@@ -42,19 +43,22 @@ editFile opts = do
     Nothing -> putTextLn "missing arg filename"
 
 processNodes :: FilePath -> Node -> RuleSet -> IO ()
-processNodes outFile nodes formattingConfig =
-  case applyTransform nodes of
-    Right transformedNode ->
+processNodes outFile nodes formattingConfig = do
+  transformedNode <- applyTransform nodes
+  case transformedNode of
+    Right transformedNode' ->
       writeFileLBS outFile
         . encodeUtf8
         . toLText
         . formatNode formattingConfig
-        $ transformedNode
+        $ transformedNode'
     Left err -> putTextLn err
 
-applyTransform :: Node -> Either Text Node
+applyTransform :: Node -> IO (Either Text Node)
 #ifdef ENABLE_TRANSFORMATION
-applyTransform = transform
+applyTransform node = do
+  tfConfig <- loadTransformationConfig
+  pure (transform tfConfig node)
 #else
-applyTransform = Right
+applyTransform = pure . Right
 #endif
