@@ -37,7 +37,7 @@ renameVertexId :: VertexTreeType -> Int -> Text -> Text
 renameVertexId treeType idx vertexName =
   let prefix = dropIndex vertexName
       cleanPrefix =
-        if not (T.null prefix) && T.last prefix `elem` ['l', 'm', 'r']
+        if T.length prefix >= 3 && T.last prefix `elem` ['l', 'm', 'r']
           then T.init prefix
           else prefix
    in cleanPrefix <> prefixForType treeType <> show idx
