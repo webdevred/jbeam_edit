@@ -2,9 +2,8 @@ module Types (
   VertexForest,
   VertexTree (..),
   VertexTreeType (..),
-  VertexTreeEntry (..),
   Vertex (..),
-  CommentGroup (..),
+  AnnotatedVertex (..),
   MetaMap,
 ) where
 
@@ -20,15 +19,9 @@ data VertexTreeType
   | SupportTree
   deriving (Eq, Ord, Show)
 
-data VertexTreeEntry
-  = VertexEntry Vertex
-  | CommentEntry InternalComment
-  | MetaEntry Object
-  deriving (Eq, Show)
-
 data VertexTree = VertexTree
-  { tMetaNodes :: [Node]
-  , tVertexNodes :: NonEmpty VertexTreeEntry
+  { tComments :: [InternalComment]
+  , tAnnotatedVertices :: NonEmpty (NonEmpty AnnotatedVertex)
   }
   deriving (Show)
 
@@ -41,10 +34,10 @@ data Vertex = Vertex
   }
   deriving (Eq, Show)
 
-data CommentGroup = CommentGroup
-  { cComments :: [InternalComment]
-  , cVertex :: Vertex
-  , cMeta :: MetaMap
+data AnnotatedVertex = AnnotatedVertex
+  { aComments :: [InternalComment]
+  , aVertex :: Vertex
+  , aMeta :: MetaMap
   }
   deriving (Show)
 
