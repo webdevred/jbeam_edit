@@ -9,6 +9,10 @@ module Types (
 
 import Core.Node
 import Data.Scientific (Scientific)
+import Data.Yaml.Aeson (
+  FromJSON (..),
+  withText,
+ )
 
 type VertexForest = Map VertexTreeType VertexTree
 
@@ -18,6 +22,15 @@ data VertexTreeType
   | RightTree
   | SupportTree
   deriving (Eq, Ord, Show)
+
+instance FromJSON VertexTreeType where
+  parseJSON = withText "VertexTreeType" $ \t ->
+    case t of
+      "LeftTree" -> pure LeftTree
+      "MiddleTree" -> pure MiddleTree
+      "RightTree" -> pure RightTree
+      "SupportTree" -> fail "SupportTree not allowed in breakpoints"
+      _ -> fail $ "Unknown VertexTreeType: " ++ toString t
 
 data VertexTree = VertexTree
   { tComments :: [InternalComment]

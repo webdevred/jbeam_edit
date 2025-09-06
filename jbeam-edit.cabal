@@ -102,11 +102,16 @@ library
         relude
 
     if flag(transformation)
-        exposed-modules: Transformation
+        exposed-modules:
+            Transformation
+            Config
+
         hs-source-dirs:  src-extra/transformation
         other-modules:
             Types
             VertexExtraction
+
+        build-depends:   yaml
 
     if (os(windows) && flag(windows-example-paths))
         cpp-options: -DWINDOWS_EXAMPLE_PATHS
