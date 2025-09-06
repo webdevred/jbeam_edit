@@ -6,6 +6,7 @@ module VertexExtraction (
   dropIndex,
 ) where
 
+import Config
 import Core.Node
 import Data.Char (isDigit)
 import Types
@@ -136,11 +137,12 @@ nodesToCommentGroups initialMeta nodes = go initialMeta [] nodes []
           | otherwise -> go pendingMeta pendingComments ns acc
 
 newVertexTree
-  :: Set Text
+  :: XGroupBreakpoints
+  -> Set Text
   -> VertexForest
   -> NonEmpty Node
   -> Either Text (Set Text, VertexTreeType, VertexTree, VertexForest, [Node])
-newVertexTree vertexNames vertexForest nodes =
+newVertexTree brks vertexNames vertexForest nodes =
   let (topNodes, nodes') = NE.span isNonVertex nodes
       topComments = mapMaybe toInternalComment topNodes
       topMeta = M.unions . map metaMapFromObject . filter isObjectNode $ topNodes
@@ -153,21 +155,24 @@ newVertexTree vertexNames vertexForest nodes =
             Right cgNe ->
               let firstCG = head cgNe
                   vertexTree = VertexTree topComments (one cgNe)
-                  treeType = determineGroup (aVertex firstCG)
-                  updatedForest = M.insertWith combineTrees treeType vertexTree vertexForest
-               in Right (vertexNames', treeType, vertexTree, updatedForest, rest')
+               in case determineGroup brks (aVertex firstCG) of
+                    Just treeType ->
+                      let updatedForest = M.insertWith combineTrees treeType vertexTree vertexForest
+                       in Right (vertexNames', treeType, vertexTree, updatedForest, rest')
+                    Nothing -> Left "invalid breakpoint"
 
-determineGroup :: Vertex -> VertexTreeType
-determineGroup v
-  | isSupportVertex v = SupportTree
-  | vX v > 0.09 = LeftTree
-  | vX v > -0.09 = MiddleTree
-  | otherwise = RightTree
+determineGroup :: XGroupBreakpoints -> Vertex -> Maybe VertexTreeType
+determineGroup (XGroupBreakpoints brks) v
+  | isSupportVertex v = Just SupportTree
+  | otherwise =
+      case [vtype | (XGroupBreakpoint f, vtype) <- brks, f (vX v)] of
+        (vtype : _) -> Just vtype
+        [] -> Nothing
 
 nodesListToTree
-  :: NonEmpty Node -> Either Text (VertexTreeType, VertexForest)
-nodesListToTree nodes =
-  case newVertexTree S.empty M.empty nodes of
+  :: XGroupBreakpoints -> NonEmpty Node -> Either Text (VertexTreeType, VertexForest)
+nodesListToTree brks nodes =
+  case newVertexTree brks S.empty M.empty nodes of
     Left err -> Left err
     Right (vertexNames, firstTreeType, _firstVertexTree, vertexForest, rest) ->
       case nonEmpty rest of
@@ -175,7 +180,7 @@ nodesListToTree nodes =
         Just nonEmptyRest -> go vertexNames vertexForest nonEmptyRest firstTreeType
   where
     go vertexNames acc rest firstTreeType =
-      case newVertexTree vertexNames acc rest of
+      case newVertexTree brks vertexNames acc rest of
         Left err -> Left err
         Right (vertexNames', _treeType, _vt, acc', rest') ->
           case nonEmpty rest' of
@@ -223,8 +228,11 @@ getVertexForestGlobals header (treeType, vertexTrees) =
    in Right (header :| globalNodes, updatedForest)
 
 getVertexForest
-  :: NP.NodePath -> Node -> Either Text (NonEmpty Node, VertexForest)
-getVertexForest np topNode =
+  :: XGroupBreakpoints
+  -> NP.NodePath
+  -> Node
+  -> Either Text (NonEmpty Node, VertexForest)
+getVertexForest brks np topNode =
   case NP.queryNodes np topNode of
     Nothing -> Left $ "could not find vertices at path " <> show np
     Just node -> processNode node
@@ -237,8 +245,8 @@ getVertexForest np topNode =
               | isValidVertexHeader header ->
                   case nonEmpty nodesWithoutHeader of
                     Nothing -> Left "no nodes after header"
-                    Just ne -> do
-                      case nodesListToTree ne of
+                    Just ne ->
+                      case nodesListToTree brks ne of
                         Left err -> Left err
                         Right (firstTreeType, vertexForest) ->
                           getVertexForestGlobals header (firstTreeType, vertexForest)

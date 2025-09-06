@@ -54,8 +54,9 @@ library:
   when:
     - condition: flag(transformation)
       source-dirs: [src-extra/transformation]
-      exposed-modules: [Transformation]
+      exposed-modules: [Transformation, Config]
       other-modules: [Types, VertexExtraction]
+      dependencies: [yaml]
     - condition: os(windows) && flag(windows-example-paths)
       cpp-options: -DWINDOWS_EXAMPLE_PATHS
 
