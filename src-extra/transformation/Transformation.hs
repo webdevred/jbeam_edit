@@ -68,6 +68,33 @@ addPrefixComments (x :| xs) = x :| map addToCG xs
           newComment = InternalComment ("prefix group " <> commentName) False
        in AnnotatedVertex (newComment : comments) vertex meta :| cgs
 
+addVertexTreeToForest
+  :: Map VertexTreeType [AnnotatedVertex]
+  -> VertexForest
+  -> VertexForest
+  -> VertexTreeType
+  -> Either Text VertexForest
+addVertexTreeToForest grouped forest forestAcc t =
+  case M.lookup t grouped of
+    Just groupsForT ->
+      let keepGroupMeta =
+            isNothing (M.lookup t forest)
+
+          groupsForT' =
+            if keepGroupMeta
+              then groupsForT
+              else [g {aMeta = M.delete "group" (aMeta g)} | g <- groupsForT]
+       in case buildTreeForType forest t groupsForT' of
+            Just vt ->
+              let groupsToSort = tAnnotatedVertices vt
+                  groupsSorted = sconcat $ NE.map (sortVertices t) groupsToSort
+                  prefixCommentedGroups =
+                    addPrefixComments $ NE.groupWith1 (dropIndex . vName . aVertex) groupsSorted
+                  vt' = vt {tAnnotatedVertices = prefixCommentedGroups}
+               in Right $ M.insert t vt' forestAcc
+            Nothing -> Right forestAcc
+    Nothing -> Right forestAcc
+
 moveVerticesInVertexForest :: VertexForest -> Either Text VertexForest
 moveVerticesInVertexForest vertexTrees = do
   let supportTree = M.lookup SupportTree vertexTrees
@@ -75,22 +102,10 @@ moveVerticesInVertexForest vertexTrees = do
       allGroups = concatMap (NE.toList . sconcat . tAnnotatedVertices) (M.elems movableTrees)
       movableGroups = filter (not . isSupportVertex . aVertex) allGroups
       grouped = M.fromListWith (++) [(determineGroup (aVertex g), [g]) | g <- movableGroups]
-      addVertexTreeToForest f t =
-        case M.lookup t grouped of
-          Just groupsForT ->
-            case buildTreeForType vertexTrees t groupsForT of
-              Just vt ->
-                let groupsToSort = tAnnotatedVertices vt
-                    groupsSorted = sconcat $ NE.map (sortVertices t) groupsToSort
-                    prefixCommentedGroups = addPrefixComments $ NE.groupWith1 (dropIndex . vName . aVertex) groupsSorted
-                    vt' = (vt {tAnnotatedVertices = prefixCommentedGroups})
-                 in Right $ M.insert t vt' f
-              Nothing -> Right f
-          Nothing -> Right f
 
   newForest <-
     foldlM
-      addVertexTreeToForest
+      (addVertexTreeToForest grouped vertexTrees)
       M.empty
       treesOrderNoSupport
   Right $ maybe newForest (\st -> M.insert SupportTree st newForest) supportTree
