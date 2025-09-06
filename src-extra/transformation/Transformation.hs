@@ -79,12 +79,7 @@ addVertexTreeToForest grouped forest forestAcc t =
     Just groupsForT ->
       let keepGroupMeta =
             isNothing (M.lookup t forest)
-
-          groupsForT' =
-            if keepGroupMeta
-              then groupsForT
-              else [g {aMeta = M.delete "group" (aMeta g)} | g <- groupsForT]
-       in case buildTreeForType forest t groupsForT' of
+       in case buildTreeForType forest t groupsForT of
             Just vt ->
               let groupsToSort = tAnnotatedVertices vt
                   groupsSorted = sconcat $ NE.map (sortVertices t) groupsToSort

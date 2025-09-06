@@ -187,37 +187,30 @@ objectKeysToObjects =
   map (\(key, value) -> Object . V.singleton $ ObjectKey (String key, value))
     . M.assocs
 
+extractFirstVertex
+  :: NonEmpty (NonEmpty AnnotatedVertex) -> (AnnotatedVertex, [AnnotatedVertex])
+extractFirstVertex (firstGroup :| otherGroups) =
+  let x :| xs = firstGroup
+      rest = xs ++ concatMap NE.toList otherGroups
+   in (x, rest)
+
 getVertexForestGlobals
   :: Node
   -> (VertexTreeType, VertexForest)
   -> Either Text (NonEmpty Node, VertexForest)
 getVertexForestGlobals header (treeType, vertexTrees) =
   let firstVertexTree = vertexTrees M.! treeType
-      allFirstGroups = tAnnotatedVertices firstVertexTree
-      firstGroup = head allFirstGroups
-      otherGroups = tail allFirstGroups
 
-      otherVerticesSameTree = concatMap toList otherGroups
+      (firstVertex, otherFirstTreeVertices) = extractFirstVertex (tAnnotatedVertices firstVertexTree)
 
-      allOtherCGs =
-        concatMap (concatMap toList . tAnnotatedVertices) $
-          M.filterWithKey (const . (/=) treeType) vertexTrees
+      vertices =
+        otherFirstTreeVertices
+          ++ concatMap (NE.toList . sconcat . tAnnotatedVertices) (M.elems vertexTrees)
 
-      firstCGMay = listToMaybe (toList firstGroup)
-
-      globalCandidates =
-        foldr
-          (M.unionWith S.union . fmap one . aMeta)
-          M.empty
-          (otherVerticesSameTree ++ allOtherCGs)
-
-      isGlobal k v = all (S.member v) (M.lookup k globalCandidates)
-
-      (globalsMap, localsMap) =
-        maybe
-          (M.empty, M.empty)
-          (M.partitionWithKey isGlobal . aMeta)
-          firstCGMay
+      isGlobal k v =
+        let otherVs = map (M.lookup k . aMeta) vertices
+         in all (\v' -> isNothing v' || v' == Just v) otherVs
+      (globalsMap, localsMap) = M.partitionWithKey isGlobal (aMeta firstVertex)
 
       setLocals (AnnotatedVertex c v m) = AnnotatedVertex c v (M.union m localsMap)
       updatedForest =
