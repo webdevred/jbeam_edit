@@ -12,6 +12,7 @@ import Relude.Unsafe (read)
 import System.Directory (getDirectoryContents)
 import System.FilePath (takeBaseName, (</>))
 import Text.Pretty.Simple (defaultOutputOptionsNoColor, pStringOpt)
+import Transformation
 
 import System.IO qualified as IO (readFile)
 
@@ -24,6 +25,7 @@ main =
       jbeamAstDir = astDir </> "jbeam"
       jbflAstDir = astDir </> "jbfl"
       formattedDir = examplesDir </> "formatted_jbeam"
+      transformedDir = examplesDir </> "transformed_jbeam"
    in do
         jbeamFiles <-
           filter (isSuffixOf ".jbeam") <$> getDirectoryContents jbeamInputDir
@@ -39,6 +41,7 @@ main =
           | jbeamAST <- jbeamASTs
           , jbflAST <- jbflASTs
           ]
+        mapM_ (dumpTransformedJbeam jbeamAstDir transformedDir) jbeamFiles
 
 saveDump :: String -> Text -> IO ()
 saveDump outFile formatted =
@@ -72,12 +75,29 @@ dumpJbeamAST dir outDir filename = do
       let outFile = outDir </> takeBaseName filename ++ ".hs"
        in saveAstDump outFile contents
 
-dumpFormattedJbeam :: String -> (FilePath, FilePath) -> IO ()
+dumpFormattedJbeam :: FilePath -> (FilePath, FilePath) -> IO ()
 dumpFormattedJbeam outDir (jbeamFile, ruleFile) = do
   jbeam <- read <$> IO.readFile jbeamFile
   rs <- read <$> IO.readFile ruleFile
   let outFilename = takeBaseName jbeamFile ++ "-" ++ takeBaseName ruleFile ++ "-jbfl.jbeam"
    in dump outFilename (formatNode rs jbeam)
+  where
+    dump filename contents =
+      let outFile = outDir </> filename
+       in saveDump outFile contents
+
+dumpTransformedJbeam :: FilePath -> FilePath -> FilePath -> IO ()
+dumpTransformedJbeam jbeamInputAstDir outDir jbeamFile = do
+  jbeam <-
+    read <$> IO.readFile (jbeamInputAstDir </> (takeBaseName jbeamFile <> ".hs"))
+  let outFilename = takeBaseName jbeamFile ++ ".jbeam"
+  transformedJbeam <-
+    case transform jbeam of
+      Left err -> do
+        putTextLn $ "error occurred during transformation" <> err
+        exitFailure
+      Right jbeam' -> pure jbeam'
+  dump outFilename (formatNode newRuleSet transformedJbeam)
   where
     dump filename contents =
       let outFile = outDir </> filename

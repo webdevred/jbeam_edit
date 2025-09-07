@@ -1,0 +1,292 @@
+{
+  "cot_fender" : {
+    "information" : {"authors" : "gittarrgy01", "name" : "Fenders"},
+    "slotType" : "cot_fender",
+    "nodes" : [
+      ["id", "posX", "posY", "posZ"],
+      {"frictionCoef" : 0.7},
+      {"nodeMaterial" : "|NM_METAL"},
+
+      // Left side
+      {"collision" : true},
+      {"group" : "cot_fender_l"},
+      {"nodeWeight" : 0.65},
+      {"selfCollision" : true},
+      ["bfl0", 0.987, -0.743, 0.109],
+      ["bfl1", 0.963, -1.024, 0.112],
+      ["bfl2", 0.987, -0.744, 0.494],
+      ["bfl3", 0.964, -1.072, 0.507],
+      ["bfl4", 0.959, -1.762, 0.576],
+      ["bfl5", 0.855, -1.788, 0.707],
+      ["bfl6", 0.739, -1.845, 0.716],
+      ["bfl7", 0.948, -1.435, 0.73],
+      ["bfl8", 0.756, -1.413, 0.843],
+      ["bfl9", 0.778, -1.008, 0.873],
+      ["bfl10", 0.812, -0.759, 0.896],
+
+      // Right side
+      {"group" : "cot_fender_r"},
+      ["bfr0", -0.899, -1.005, 0.112],
+      ["bfr1", -0.916, -0.742, 0.112],
+      ["bfr2", -0.917, -0.746, 0.494],
+      ["bfr3", -0.9, -1.053, 0.508],
+      ["bfr4", -0.906, -1.737, 0.578],
+      ["bfr5", -0.807, -1.769, 0.707],
+      ["bfr6", -0.691, -1.829, 0.716],
+      ["bfr7", -0.89, -1.409, 0.729],
+      ["bfr8", -0.7, -1.397, 0.843],
+      ["bfr9", -0.715, -0.991, 0.873],
+      ["bfr10", -0.734, -0.746, 0.888],
+
+      // Support nodes
+      {"collision" : false},
+      {"group" : ""},
+      {"nodeWeight" : 1.2},
+      {"selfCollision" : false},
+      ["bfsl", 0.684, -1.079, 0.507],
+      ["bfsr", -0.623, -1.064, 0.507]
+    ],
+    "beams" : [
+      ["id1:", "id2:"],
+
+      // Structural beams
+      {"beamType" : "|NORMAL"},
+      {"beamSpring" : 451000.0, "beamDamp" : 50.0},
+      {"beamStrength" : "FLT_MAX"},
+      {"deformLimitExpansion" : 1.1},
+      {"beamDeform" : 6000.0},
+
+      // Front
+      ["bfr6", "bfr8"],
+      ["bfr6", "bfr5"],
+      ["bfr5", "bfr8"],
+      ["bfl8", "bfl6"],
+      ["bfl6", "bfl5"],
+      ["bfl4", "bfl5"],
+      ["bfl8", "bfl7"],
+      ["bfl4", "bfl7"],
+      ["bfr5", "bfr4"],
+      ["bfr8", "bfr7"],
+      ["bfr4", "bfr7"],
+      ["bfl8", "bfl5"],
+
+      // Middle
+      {"beamDeform" : 12000.0},
+      ["bfl3", "bfl7"],
+      ["bfr3", "bfr7"],
+      ["bfl8", "bfl9"],
+      ["bfr8", "bfr9"],
+
+      // Rear
+      ["bfl9", "bfl10"],
+      ["bfl1", "bfl3"],
+      ["bfl9", "bfl3"],
+      ["bfl1", "bfl0"],
+      ["bfl3", "bfl2"],
+      ["bfl0", "bfl2"],
+      ["bfl10", "bfl2"],
+      ["bfr9", "bfr10"],
+      ["bfr3", "bfr0"],
+      ["bfr3", "bfr9"],
+      ["bfr0", "bfr1"],
+      ["bfr3", "bfr2"],
+      ["bfr1", "bfr2"],
+      ["bfr10", "bfr2"],
+
+      // Crossing beams
+      {"deformLimitExpansion" : ""},
+
+      // Front
+      ["bfl4", "bfl8"],
+      ["bfl8", "bfl3"],
+      ["bfl9", "bfl7"],
+      ["bfr8", "bfr3"],
+      ["bfr9", "bfr7"],
+      ["bfl5", "bfl7"],
+      ["bfr7", "bfr5"],
+      ["bfr8", "bfr4"],
+
+      // Rear
+      ["bfl3", "bfl10"],
+      ["bfl9", "bfl2"],
+      ["bfl1", "bfl2"],
+      ["bfl3", "bfl0"],
+      ["bfr3", "bfr10"],
+      ["bfr9", "bfr2"],
+      ["bfr0", "bfr2"],
+      ["bfr3", "bfr1"],
+
+      // Support beams
+      ["bfl6", "bfsl"],
+      ["bfl3", "bfsl"],
+      ["bfl1", "bfsl"],
+      ["bfl7", "bfsl"],
+      ["bfl4", "bfsl"],
+      ["bfl5", "bfsl"],
+      ["bfl8", "bfsl"],
+      ["bfl9", "bfsl"],
+      ["bfl0", "bfsl"],
+      ["bfl2", "bfsl"],
+      ["bfl10", "bfsl"],
+      ["bfr6", "bfsr"],
+      ["bfr3", "bfsr"],
+      ["bfr0", "bfsr"],
+      ["bfr7", "bfsr"],
+      ["bfr4", "bfsr"],
+      ["bfr5", "bfsr"],
+      ["bfr8", "bfsr"],
+      ["bfr9", "bfsr"],
+      ["bfr1", "bfsr"],
+      ["bfr2", "bfsr"],
+      ["bfr10", "bfsr"],
+
+      // Front rigid
+      {"beamSpring" : 350000.0, "beamDamp" : 115.0},
+      {"beamDeform" : 900.0},
+
+      // Left side
+      ["bfl7", "bfl2"],
+      ["bfl8", "bfl10"],
+
+      // Right side
+      ["bfr7", "bfr2"],
+      ["bfr8", "bfr10"],
+
+      // Attachment beams
+      {"beamType" : "|NORMAL"},
+      {"beamSpring" : 501000.0, "beamDamp" : 75.0, "beamStrength" : 20000.0, "beamDeform" : 1000.0},
+      {"deformLimitExpansion" : ""},
+
+      // Frame
+
+      // Left side
+
+      // Front
+      {"breakGroup" : "fender_l"},
+      {"breakGroupType" : 1.0},
+      ["bfl4", "fr17"],
+      ["bfl4", "fr9"],
+      ["bfl5", "fr17"],
+      ["bfl5", "fr9"],
+      ["bfl6", "fr17"],
+      ["bfl6", "fr9"],
+
+      // Middle
+      {"beamDeform" : 18000.0},
+      {"beamStrength" : 4000.0},
+      {"breakGroupType" : 1.0},
+      ["bfl7", "fr17"],
+      ["bfl8", "fr17"],
+      ["bfl8", "fr9"],
+      {"breakGroupType" : 0.0},
+
+      // Rear
+      {"beamStrength" : 16000.0, "beamDeform" : 12000.0},
+      ["bfl1", "fr18"],
+      ["bfl1", "fr27"],
+      ["bfl3", "fr17"],
+      ["bfl3", "fr21"],
+      ["bfl9", "fr17"],
+      ["bfl9", "fr29"],
+      ["bfl0", "fr18"],
+      ["bfl0", "fr27"],
+      ["bfl2", "fr28"],
+      ["bfl2", "fr21"],
+      ["bfl10", "fr17"],
+      ["bfl10", "fr29"],
+
+      // Right side
+
+      // Front
+      {"beamStrength" : 20000.0, "beamDeform" : 1000.0},
+      {"breakGroup" : "fender_r"},
+      {"breakGroupType" : 1.0},
+      ["bfr4", "fr16"],
+      ["bfr4", "fr7"],
+      ["bfr5", "fr16"],
+      ["bfr5", "fr7"],
+      ["bfr6", "fr16"],
+      ["bfr6", "fr7"],
+
+      // Middle
+      {"beamDeform" : 18000.0},
+      {"beamStrength" : 4000.0},
+      {"breakGroupType" : 1.0},
+      ["bfr7", "fr16"],
+      ["bfr8", "fr16"],
+      ["bfr8", "fr7"],
+      {"breakGroupType" : 0.0},
+
+      // Rear
+      {"beamStrength" : 16000.0, "beamDeform" : 12000.0},
+      ["bfr0", "fr19"],
+      ["bfr0", "fr32"],
+      ["bfr3", "fr16"],
+      ["bfr3", "fr20"],
+      ["bfr9", "fr16"],
+      ["bfr9", "fr34"],
+      ["bfr1", "fr19"],
+      ["bfr1", "fr32"],
+      ["bfr2", "fr33"],
+      ["bfr2", "fr20"],
+      ["bfr10", "fr16"],
+      ["bfr10", "fr34"],
+      {"beamStrength" : 16000.0, "beamDeform" : "FLT_MAX"},
+
+      // Body
+
+      // Left side
+      {"breakGroup" : "fender_l"},
+      ["bfl0", "mbl0"],
+      ["bfl2", "mbl1"],
+      ["bfl10", "mbl2"],
+
+      // Right side
+      {"breakGroup" : "fender_r"},
+      ["bfr1", "mbr0"],
+      ["bfr2", "mbr1"],
+      ["bfr10", "mbr2"],
+      {"breakGroup" : "", "breakGroupType" : "", "beamType" : "|NORMAL"}
+    ],
+    "triangles" : [
+      ["id1:", "id2:", "id3:"],
+      ["bfl7", "bfl8", "bfl5"],
+      ["bfl4", "bfl7", "bfl5"],
+      ["bfl8", "bfl6", "bfl5"],
+      ["bfl8", "bfl7", "bfl9"],
+      ["bfl3", "bfl9", "bfl7"],
+      ["bfl10", "bfl9", "bfl3"],
+      ["bfl2", "bfl10", "bfl3"],
+      ["bfl1", "bfl0", "bfl3"],
+      ["bfl2", "bfl3", "bfl0"],
+      ["bfr8", "bfr5", "bfr6"],
+      ["bfr7", "bfr5", "bfr8"],
+      ["bfr4", "bfr5", "bfr7"],
+      ["bfr3", "bfr7", "bfr9"],
+      ["bfr8", "bfr9", "bfr7"],
+      ["bfr10", "bfr3", "bfr9"],
+      ["bfr2", "bfr3", "bfr10"],
+      ["bfr2", "bfr1", "bfr3"],
+      ["bfr0", "bfr3", "bfr1"]
+    ],
+    "flexbodies" : [
+      ["mesh", "[group]:", "nonFlexMaterials"],
+      [
+        "impala_fender_l",
+        ["cot_fender_l"]
+      ],
+      [
+        "impala_fender_inter_l",
+        ["cot_fender_l"]
+      ],
+      [
+        "impala_fender_r",
+        ["cot_fender_r"]
+      ],
+      [
+        "impala_fender_inter_r",
+        ["cot_fender_r"]
+      ]
+    ]
+  }
+}

@@ -169,7 +169,7 @@ executable jbeam-edit-dump-ast
         relude (Relude as Prelude),
         relude
 
-    if flag(dump-ast)
+    if (flag(dump-ast) && flag(transformation))
 
     else
         buildable: False
@@ -185,6 +185,7 @@ test-suite jbeam-edit-test
         Parsing.JbeamSpec
         Parsing.ParsingTestHelpers
         SpecHelper
+        TransformationSpec
         Paths_jbeam_edit
 
     autogen-modules:    Paths_jbeam_edit
@@ -215,3 +216,6 @@ test-suite jbeam-edit-test
         base hiding (Prelude),
         relude (Relude as Prelude),
         relude
+
+    if flag(transformation)
+        cpp-options: -DENABLE_TRANSFORMATION_TESTS

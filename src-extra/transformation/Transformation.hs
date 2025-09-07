@@ -77,15 +77,15 @@ addVertexTreeToForest
 addVertexTreeToForest grouped forest forestAcc t =
   case M.lookup t grouped of
     Just groupsForT ->
-        case buildTreeForType forest t groupsForT of
-            Just vt ->
-              let groupsToSort = tAnnotatedVertices vt
-                  groupsSorted = sconcat $ NE.map (sortVertices t) groupsToSort
-                  prefixCommentedGroups =
-                    addPrefixComments $ NE.groupWith1 (dropIndex . vName . aVertex) groupsSorted
-                  vt' = vt {tAnnotatedVertices = prefixCommentedGroups}
-               in Right $ M.insert t vt' forestAcc
-            Nothing -> Right forestAcc
+      case buildTreeForType forest t groupsForT of
+        Just vt ->
+          let groupsToSort = tAnnotatedVertices vt
+              groupsSorted = sconcat $ NE.map (sortVertices t) groupsToSort
+              prefixCommentedGroups =
+                addPrefixComments $ NE.groupWith1 (dropIndex . vName . aVertex) groupsSorted
+              vt' = vt {tAnnotatedVertices = prefixCommentedGroups}
+           in Right $ M.insert t vt' forestAcc
+        Nothing -> Right forestAcc
     Nothing -> Right forestAcc
 
 moveVerticesInVertexForest :: VertexForest -> Either Text VertexForest
