@@ -169,7 +169,7 @@ executable jbeam-edit-dump-ast
         relude (Relude as Prelude),
         relude
 
-    if flag(dump-ast)
+    if (flag(dump-ast) && flag(transformation))
 
     else
         buildable: False
