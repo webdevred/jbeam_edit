@@ -14,9 +14,13 @@ author:             webdevred
 tested-with:        ghc ==9.4.7 ghc ==9.6.6
 homepage:           https://github.com/webdevred/jbeam-edit#readme
 bug-reports:        https://github.com/webdevred/jbeam-edit/issues
+synopsis:
+    A fast, robust command-line parser, formatter, and editor for JBeam files, the JSON-like format used by BeamNG to define vehicles and physics structures.
+
 description:
     Please see the README on GitHub at <https://github.com/webdevred/jbeam-edit#readme>
 
+category:           Command Line, Jbeam, Beamng
 build-type:         Simple
 data-files:
     examples/jbfl/complex.jbfl
