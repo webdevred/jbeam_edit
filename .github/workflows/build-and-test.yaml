@@ -65,7 +65,7 @@ jobs:
           --ghc-options="-Werror"
       - name: Check that .cabal file has not changed except hpack comment
         shell: bash
-        run: bash .github/scripts/check-cabal-file.sh
+        run: bash .github/scripts/check_cabal_file.sh
       - name: Run tests
         run: stack test --fast
   generate-matrix:
