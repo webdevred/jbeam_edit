@@ -19,7 +19,7 @@ This documentation describes the rule-based system for formatting values inside 
 
 - Example ruleset file: [minimal.jbfl](examples/jbfl/minimal.jbfl)
 - Example input: [minimal.jbeam](examples/jbeam/minimal.jbeam)
-- Example result after formatting: [formatted_chevy_impala.jbeam](formatted_chevy_impala.jbeam)
+- Example result after formatting: [formatted_chevy_impala.jbeam](fender-minimal-jbfl.jbeam)
 
 # Overview
 
