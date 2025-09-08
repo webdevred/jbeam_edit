@@ -60,6 +60,7 @@ jobs:
         shell: bash
         run: |
           printf 'package jbeam-edit\n  flags: %s' $MATRIX_FLAGS >> cabal.project.release.local
+          echo "contents of cabal.project.release.local"
           cat cabal.project.release.local
         env:
           MATRIX_FLAGS: ${{ matrix.flags }}
@@ -109,10 +110,10 @@ jobs:
           path: ${{ env.DIST_NEWSTYLE }}
       - name: Extract files from cabal
         shell: bash
-        run: bash .github/scripts/copy-example-files.sh
+        run: bash .github/scripts/copy_example_files.sh
       - name: Copy exe to release folder
         shell: bash
-        run: bash .github/scripts/copy-exe-to-release.sh
+        run: bash .github/scripts/copy_exe_to_release.sh
       - name: Build Inno Setup Installer
         uses: Minionguyjpro/Inno-Setup-Action@v1.2.7
         with:
@@ -120,7 +121,7 @@ jobs:
           options: /O+
       - name: Prepare release
         shell: bash
-        run: bash .github/scripts/prepare-release.sh
+        run: bash .github/scripts/prepare_release.sh
       - name: Package the release
         shell: powershell
         run: |

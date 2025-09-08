@@ -6,12 +6,16 @@ author: webdevred
 maintainer: example@example.com
 copyright: 2025 webdevred
 data-files: examples/jbfl/*.jbfl
+category: Command Line, Jbeam, Beamng
+synopsis: A fast, robust command-line parser, formatter, and editor for JBeam files,
+  the JSON-like format used by BeamNG to define vehicles and physics structures.
 
 extra-source-files:
   - README.md
   - JBFL_DOCS.md
   - examples/README.md
   - examples/jbeam/*.jbeam
+  - examples/formatted_jbeam/*.jbeam
 
 description: Please see the README on GitHub at <https://github.com/webdevred/jbeam-edit#readme>
 tested-with: [GHC == 9.4.7, GHC == 9.6.6]

@@ -15,7 +15,7 @@ if [[ -z "$CABAL_FILE" || ! -f "$CABAL_FILE" ]]; then
   exit 1
 fi
 
-MATRIX_JSON=$(sed -E 's/^matrix=//' < "$MATRIX_FILE")
+MATRIX_JSON=$(sed -E 's/^matrix=//' <"$MATRIX_FILE")
 
 readarray -t EXP_FLAGS < <(awk '
   /^flag / { flag=$2; in_desc=0 }

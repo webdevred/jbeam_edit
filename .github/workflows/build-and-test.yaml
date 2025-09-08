@@ -65,7 +65,9 @@ jobs:
           --ghc-options="-Werror"
       - name: Check that .cabal file has not changed except hpack comment
         shell: bash
-        run: bash .github/scripts/check-cabal-file.sh
+        run: bash .github/scripts/check_cabal_file.sh
+      - run: cabal check --ignore=missing-upper-bounds
+        shell: bash
       - name: Run tests
         run: stack test --fast
   generate-matrix:

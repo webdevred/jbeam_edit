@@ -30,8 +30,6 @@ This file guides you through example files and formatting rules to help you lear
     - Maintain groupings and structural integrity for suspension parts
     - Demonstrate the tool's capabilities on realistic, advanced files
 
-**Note:** This example will gain further advanced features soon, including improved vertex grouping, meta node handling, and better structural transformations as outlined in the [VertexTree Transformation Roadmap](https://github.com/webdevred/jbeam_edit/pull/2).
-
 ## JBFL Configuration Files
 
 - `minimal.jbfl`
