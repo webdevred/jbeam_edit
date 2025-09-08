@@ -32,6 +32,10 @@ extra-source-files:
     examples/README.md
     examples/jbeam/fender.jbeam
     examples/jbeam/suspension.jbeam
+    examples/formatted_jbeam/fender-complex-jbfl.jbeam
+    examples/formatted_jbeam/fender-minimal-jbfl.jbeam
+    examples/formatted_jbeam/suspension-complex-jbfl.jbeam
+    examples/formatted_jbeam/suspension-minimal-jbfl.jbeam
 
 source-repository head
     type:     git
