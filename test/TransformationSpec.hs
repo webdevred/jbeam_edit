@@ -12,6 +12,7 @@ import Relude.Unsafe (read)
 import System.Directory (getDirectoryContents)
 import Transformation
 import Formatting
+import Config
 
 topNodeSpec :: FilePath -> FilePath -> Spec
 topNodeSpec inFilename outFilename = do
@@ -20,7 +21,7 @@ topNodeSpec inFilename outFilename = do
   output <- runIO $ baseReadFile outFilename
   let desc = "should transform AST in " ++ inFilename ++ " to Jbeam in " ++ outFilename
   describe desc . works $
-    formatNode newRuleSet <$> transform (read input) `shouldBe` Right (toText output)
+    formatNode newRuleSet <$> transform newTransformationConfig (read input) `shouldBe` Right (toText output)
 
 spec :: Spec
 spec = do

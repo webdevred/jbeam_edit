@@ -4,6 +4,7 @@ module Main (
   main,
 ) where
 
+import Config
 import Data.List (isSuffixOf)
 import Formatting
 import Parsing.DSL (parseDSL)
@@ -92,7 +93,7 @@ dumpTransformedJbeam jbeamInputAstDir outDir jbeamFile = do
     read <$> IO.readFile (jbeamInputAstDir </> (takeBaseName jbeamFile <> ".hs"))
   let outFilename = takeBaseName jbeamFile ++ ".jbeam"
   transformedJbeam <-
-    case transform jbeam of
+    case transform newTransformationConfig jbeam of
       Left err -> do
         putTextLn $ "error occurred during transformation" <> err
         exitFailure
