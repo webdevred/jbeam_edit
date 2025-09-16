@@ -205,16 +205,16 @@ treesOrder = treesOrderNoSupport ++ [SupportTree]
 
 compareCG :: Scientific -> AnnotatedVertex -> AnnotatedVertex -> Ordering
 compareCG thr vertex1 vertex2 =
-  let z1 = vZ . aVertex $ vertex1
-      z2 = vZ . aVertex $ vertex2
-      compareY = on compare (vY . aVertex)
+  let y1 = vY . aVertex $ vertex1
+      y2 = vY . aVertex $ vertex2
+      compareZ = on compare (vZ . aVertex)
       sortingFun =
-        let zDiff = abs $ z1 - z2
+        let zDiff = abs $ y1 - y2
          in if zDiff > thr
               then
-                compare z1 z2
+                compare y1 y2
               else
-                compareY vertex1 vertex2
+                compareZ vertex1 vertex2
    in on compare aMeta vertex1 vertex2 <> sortingFun
 
 sortVertices
