@@ -32,9 +32,9 @@ defaultThreshold = 0.05
 defaultBreakpoints :: XGroupBreakpoints
 defaultBreakpoints =
   XGroupBreakpoints
-    [ (XGroupBreakpoint (0.09 <), LeftTree)
-    , (XGroupBreakpoint ((-0.09) <), MiddleTree)
-    , (XGroupBreakpoint ((-0.09) >), RightTree)
+    [ (XGroupBreakpoint (>= 0.09), LeftTree) -- x >= 0.09 → LeftTree
+    , (XGroupBreakpoint (> -0.09), MiddleTree) -- -0.09 < x < 0.09 → MiddleTree
+    , (XGroupBreakpoint (<= -0.09), RightTree) -- x <= -0.09 → RightTree
     ]
 
 data TransformationConfig = TransformationConfig
