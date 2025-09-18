@@ -15,6 +15,7 @@ import System.FilePath (takeBaseName, (</>))
 import Text.Pretty.Simple (defaultOutputOptionsNoColor, pStringOpt)
 import Transformation
 
+import Data.Map qualified as M
 import System.IO qualified as IO (readFile)
 
 main :: IO ()
@@ -93,7 +94,7 @@ dumpTransformedJbeam jbeamInputAstDir outDir jbeamFile = do
     read <$> IO.readFile (jbeamInputAstDir </> (takeBaseName jbeamFile <> ".hs"))
   let outFilename = takeBaseName jbeamFile ++ ".jbeam"
   transformedJbeam <-
-    case transform newTransformationConfig jbeam of
+    case transform M.empty newTransformationConfig jbeam of
       Left err -> do
         putTextLn $ "error occurred during transformation" <> err
         exitFailure
