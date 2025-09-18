@@ -103,11 +103,22 @@ topNodeSpecs = do
       testInputFile inFile = topNodeSpec inFile (outputFile inFile)
   mapM_ testInputFile inputFiles
 
+invalidTopNodeSpec :: Spec
+invalidTopNodeSpec = do
+  let inputPath = "examples/invalid_jbeam/invalid_fender.jbeam"
+  input <- runIO $ readFileBS inputPath
+  let desc = "should fail for content in " ++ inputPath
+  describe desc . works $
+    parseNodes input
+      `shouldBe` Left
+        "got: '{', expecting ',', '}', comment, string or white space somewhere close to {\"collision\" : true}, on line 9"
+
 spec :: Spec
 spec = do
   mapM_ (applyParserSpec nodeParser) specs
   invalidSpec
   invalidNumberSpec
+  invalidTopNodeSpec
   topNodeSpecs
   where
     specs =
