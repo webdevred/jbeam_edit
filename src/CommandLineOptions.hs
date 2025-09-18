@@ -9,13 +9,14 @@ import Paths_jbeam_edit (version)
 import System.Console.GetOpt
 import System.Environment
 
+import Data.Map qualified as M
 import Data.Text qualified as T
 
 data Options = Options
   { optInPlace :: Bool
   , optCopyJbflConfig :: Maybe ConfigType
   , optInputFile :: Maybe FilePath
-  , optUpdateNames :: Maybe (Map Text Text)
+  , optUpdateNames :: Map Text Text
   }
   deriving (Show)
 
@@ -25,7 +26,7 @@ startOptions =
     { optInPlace = False
     , optInputFile = Nothing
     , optCopyJbflConfig = Nothing
-    , optUpdateNames = Nothing
+    , optUpdateNames = M.empty
     }
 
 parseOptions :: [String] -> IO Options
@@ -47,11 +48,10 @@ splitNames namePair =
     [orig, new] -> Just (orig, new)
     _ -> Nothing
 
-maybeNamesToUpdate :: String -> Maybe (Map Text Text)
-maybeNamesToUpdate names = do
+maybeNamesToUpdate :: String -> Map Text Text
+maybeNamesToUpdate names =
   let namesList = T.split (== ',') (toText names)
-  namePairs <- mapM splitNames namesList
-  pure $ fromList  namePairs
+   in maybe M.empty fromList (mapM splitNames namesList)
 
 options :: [OptDescr (Options -> IO Options)]
 options =
@@ -75,7 +75,7 @@ options =
           (\names opt -> pure opt {optUpdateNames = maybeNamesToUpdate names})
           "ORIGINAL_VERT_PREFIX:NEW_VERT_PREFIX,..."
       )
-      "Print version"
+      "Update vertex names"
   , Option
       "V"
       ["version"]

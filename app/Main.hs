@@ -38,13 +38,13 @@ editFile opts = do
       outFilename <- getWritabaleFilename filename opts
       contents <- tryReadFile [] filename
       case contents >>= parseNodes . toStrict of
-        Right ns -> processNodes outFilename ns formattingConfig
+        Right ns -> processNodes opts outFilename ns formattingConfig
         Left err -> putTextLn err
     Nothing -> putTextLn "missing arg filename"
 
-processNodes :: FilePath -> Node -> RuleSet -> IO ()
-processNodes outFile nodes formattingConfig = do
-  transformedNode <- applyTransform nodes
+processNodes :: Options -> FilePath -> Node -> RuleSet -> IO ()
+processNodes opts outFile nodes formattingConfig = do
+  transformedNode <- applyTransform opts nodes
   case transformedNode of
     Right transformedNode' ->
       writeFileLBS outFile
@@ -54,11 +54,11 @@ processNodes outFile nodes formattingConfig = do
         $ transformedNode'
     Left err -> putTextLn err
 
-applyTransform :: Node -> IO (Either Text Node)
+applyTransform :: Options -> Node -> IO (Either Text Node)
 #ifdef ENABLE_TRANSFORMATION
-applyTransform node = do
+applyTransform opts node = do
   tfConfig <- loadTransformationConfig
-  pure (transform tfConfig node)
+  pure (transform (optUpdateNames opts) tfConfig node)
 #else
-applyTransform = pure . Right
+applyTransform _ = pure . Right
 #endif

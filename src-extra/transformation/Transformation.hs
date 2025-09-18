@@ -96,16 +96,17 @@ groupByPrefix
 groupByPrefix = NE.groupWith1 (dropIndex . vName . aVertex)
 
 addVertexTreeToForest
-  :: XGroupBreakpoints
+  :: Map Text Text
+  -> XGroupBreakpoints
   -> Scientific
   -> Double
-  -> VertexConnMap
+  -> Map Text Int
   -> Map VertexTreeType [AnnotatedVertex]
   -> VertexForest
   -> VertexForest
   -> VertexTreeType
   -> Either Text VertexForest
-addVertexTreeToForest brks thr supThr conns grouped forest forestAcc t =
+addVertexTreeToForest newNames brks thr supThr conns grouped forest forestAcc t =
   case M.lookup t grouped of
     Just groupsForT ->
       let (supportVertices, tree) = buildTreeForType conns supThr forest t groupsForT
@@ -115,7 +116,9 @@ addVertexTreeToForest brks thr supThr conns grouped forest forestAcc t =
                   groupsSorted =
                     if t /= SupportTree
                       then
-                        concatMap (NE.toList . sortVertices brks thr t) (NE.toList groupsToSort)
+                        concatMap
+                          (NE.toList . sortVertices newNames brks thr t)
+                          (NE.toList groupsToSort)
                       else
                         concatMap NE.toList groupsToSort
                in case nonEmpty groupsSorted of
@@ -137,11 +140,12 @@ groupAnnotatedVertices brks g = do
   pure (treeType, [g])
 
 sortSupportVertices
-  :: XGroupBreakpoints
+  :: UpdateNamesMap
+  -> XGroupBreakpoints
   -> Scientific
   -> VertexForest
   -> VertexForest
-sortSupportVertices brks thr =
+sortSupportVertices newNames brks thr =
   M.update
     maybeNewTree
     SupportTree
@@ -149,7 +153,7 @@ sortSupportVertices brks thr =
     maybeNewTree (VertexTree topComments supportVertices) =
       let vertices =
             one
-              . sortVertices brks thr SupportTree
+              . sortVertices newNames brks thr SupportTree
               . sconcat
               $ supportVertices
        in Just
@@ -159,23 +163,24 @@ sortSupportVertices brks thr =
             )
 
 moveVerticesInVertexForest
-  :: XGroupBreakpoints
+  :: UpdateNamesMap
+  -> XGroupBreakpoints
   -> Scientific
   -> Double
   -> VertexForest
   -> VertexConnMap
   -> Either Text VertexForest
-moveVerticesInVertexForest brks thr supThr vertexTrees conns =
+moveVerticesInVertexForest newNames brks thr supThr vertexTrees conns =
   let allVertices = concatMap (NE.toList . sconcat . tAnnotatedVertices) vertexTrees
    in case mapM (groupAnnotatedVertices brks) allVertices of
         Just movableVertices' -> do
           let groupedVertices = M.fromListWith (++) movableVertices'
           newForest <-
             foldM
-              (addVertexTreeToForest brks thr supThr conns groupedVertices vertexTrees)
+              (addVertexTreeToForest newNames brks thr supThr conns groupedVertices vertexTrees)
               M.empty
               treesOrder
-          Right $ sortSupportVertices brks thr newForest
+          Right $ sortSupportVertices newNames brks thr newForest
         Nothing -> Left "invalid breakpoint"
 
 getVertexNamesInForest
@@ -287,46 +292,48 @@ renameVertexId treeType idx vertexPrefix =
    in vertexPrefix <> idx'
 
 assignNames
-  :: XGroupBreakpoints
+  :: UpdateNamesMap
+  -> XGroupBreakpoints
   -> VertexTreeType
   -> Map Text Int
   -> AnnotatedVertex
   -> (Map Text Int, AnnotatedVertex)
-assignNames brks treeType prefixMap av =
+assignNames newNames brks treeType prefixMap av =
   let v = aVertex av
+      updatedPrefix cleanPrefix' = M.findWithDefault cleanPrefix' cleanPrefix' newNames
       prefix = dropIndex (vName v)
       typeSpecific = maybe "" prefixForType (determineGroup brks v)
       (prefix', lastChar) = fromMaybe (error "unreachable") (T.unsnoc prefix)
-      prefix''
+      cleanPrefix
         | treeType /= SupportTree
             && T.length prefix >= 3
             && T.last prefix' == 's' =
-            T.init prefix' <> typeSpecific
+            updatedPrefix (T.init prefix') <> typeSpecific
         | treeType /= SupportTree
             && T.length prefix >= 3
-            && lastChar `elem` ['l', 'm', 'r']
-            || T.length prefix' >= 3 && T.last prefix' == 's' =
-            prefix' <> typeSpecific
+            && lastChar `elem` ['l', 'm', 'r'] =
+            updatedPrefix prefix' <> typeSpecific
         | treeType /= SupportTree =
-            prefix <> typeSpecific
-        | T.length prefix < 3 =
-            prefix <> one 's' <> typeSpecific
+            updatedPrefix prefix <> typeSpecific
+        | T.length prefix' >= 3
+            && T.last prefix' == 's' =
+            updatedPrefix (T.init prefix') <> one 's' <> typeSpecific
         | otherwise =
-            prefix' <> one 's' <> typeSpecific
-      curPrefix = dropIndex prefix''
-      lastIdx = M.findWithDefault 0 curPrefix prefixMap
-      newName = renameVertexId treeType lastIdx prefix''
+            updatedPrefix prefix <> one 's' <> typeSpecific
+      lastIdx = M.findWithDefault 0 cleanPrefix prefixMap
+      newName = renameVertexId treeType lastIdx cleanPrefix
       newVertex = v {vName = newName}
-      prefixMap' = M.insert curPrefix (lastIdx + 1) prefixMap
+      prefixMap' = M.insert cleanPrefix (lastIdx + 1) prefixMap
    in (prefixMap', av {aVertex = newVertex})
 
 sortVertices
-  :: XGroupBreakpoints
+  :: UpdateNamesMap
+  -> XGroupBreakpoints
   -> Scientific
   -> VertexTreeType
   -> NonEmpty AnnotatedVertex
   -> NonEmpty AnnotatedVertex
-sortVertices brks thr treeType groups =
+sortVertices newNames brks thr treeType groups =
   let groups' =
         if treeType /= SupportTree
           then
@@ -335,7 +342,7 @@ sortVertices brks thr treeType groups =
       sortedGroups = NE.sortBy (compareCG thr treeType) groups'
 
       renamedGroups =
-        snd $ mapAccumL (assignNames brks treeType) M.empty sortedGroups
+        snd $ mapAccumL (assignNames newNames brks treeType) M.empty sortedGroups
    in renamedGroups
 
 updateVerticesInNode
@@ -384,8 +391,8 @@ findAndUpdateTextInNode m cursor node =
     applyBreadcrumbAndUpdateText index =
       NC.applyCrumb (NC.ArrayIndex index) cursor (findAndUpdateTextInNode m)
 
-transform :: TransformationConfig -> Node -> Either Text Node
-transform (TransformationConfig sortThr brks supThr) topNode =
+transform :: UpdateNamesMap -> TransformationConfig -> Node -> Either Text Node
+transform newNames (TransformationConfig sortThr brks supThr) topNode =
   getVertexForest brks verticesQuery topNode
     >>= getNamesAndUpdateTree
   where
@@ -393,7 +400,7 @@ transform (TransformationConfig sortThr brks supThr) topNode =
     getNamesAndUpdateTree (globals, vertexForest) =
       let vertexNames = getVertexNamesInForest vertexForest
        in getVertexConns
-            >>= moveVerticesInVertexForest brks sortThr supThr vertexForest
+            >>= moveVerticesInVertexForest newNames brks sortThr supThr vertexForest
             >>= getUpdatedNamesAndUpdateGlobally globals vertexNames
     getUpdatedNamesAndUpdateGlobally globals oldVertexNames updatedVertexForest =
       let updatedVertexNames = getVertexNamesInForest updatedVertexForest
