@@ -75,9 +75,12 @@ jobs:
             ${{ runner.os }}-cabal-${{
               matrix.ghc
             }}-${{
+              matrix.label
+            }}-${{
               hashFiles('**/package.yaml')
             }}
           restore-keys: |
+            ${{ runner.os }}-cabal-${{ matrix.ghc }}-${{ matrix.label }}
             ${{ runner.os }}-cabal-${{ matrix.ghc }}-
       - name: Build executables
         run: cabal build exe:jbeam-edit --project-file cabal.project.release
