@@ -193,6 +193,7 @@ test-suite jbeam-edit-test
     build-tool-depends: hspec-discover:hspec-discover
     hs-source-dirs:     test
     other-modules:
+        Core.NodePathSpec
         FormattingSpec
         Parsing.DSLSpec
         Parsing.JbeamSpec

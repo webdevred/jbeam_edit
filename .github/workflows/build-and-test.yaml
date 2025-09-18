@@ -61,7 +61,7 @@ jobs:
         run: stack setup
       - name: Build project
         run: >-
-          stack build --fast --hpack-force --lock-file=error-on-write
+          stack build --fast --coverage --hpack-force --lock-file=error-on-write
           --ghc-options="-Werror"
       - name: Check that .cabal file has not changed except hpack comment
         shell: bash
@@ -69,7 +69,17 @@ jobs:
       - run: cabal check --ignore=missing-upper-bounds
         shell: bash
       - name: Run tests
-        run: stack test --fast
+        run: stack test --fast --coverage
+      - name: Make sure test coverage is more than 80%
+        shell: bash
+        run: |
+          TIX_FILE=$(find .stack-work -name 'jbeam-edit-test.tix')
+          COVERAGE=$(stack hpc report "$TIX_FILE" 2>&1 | grep "expressions used" | awk '{print $1}'  | sed 's/%//')
+          echo "Coverage: $COVERAGE"
+          if [[ $COVERAGE -lt 80 ]]; then
+            echo "coverage too low"
+            exit 1
+          fi
   generate-matrix:
     name: Generate matrix from cabal
     outputs:
