@@ -207,15 +207,11 @@ compareCG :: Scientific -> AnnotatedVertex -> AnnotatedVertex -> Ordering
 compareCG thr vertex1 vertex2 =
   let y1 = vY . aVertex $ vertex1
       y2 = vY . aVertex $ vertex2
-      compareZ = on compare (vZ . aVertex)
-      sortingFun =
+      compareZ = on compare (vZ . aVertex) vertex1 vertex2
+      compareY =
         let zDiff = abs $ y1 - y2
-         in if zDiff > thr
-              then
-                compare y1 y2
-              else
-                compareZ vertex1 vertex2
-   in on compare aMeta vertex1 vertex2 <> sortingFun
+         in bool EQ (compare y1 y2) (zDiff > thr)
+   in on compare aMeta vertex1 vertex2 <> compareY <> compareZ
 
 sortVertices
   :: Scientific
