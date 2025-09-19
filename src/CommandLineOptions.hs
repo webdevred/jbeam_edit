@@ -1,3 +1,5 @@
+{-# LANGUAGE CPP #-}
+
 module CommandLineOptions (
   parseOptions,
   Options (..),
@@ -10,7 +12,10 @@ import System.Console.GetOpt
 import System.Environment
 
 import Data.Map qualified as M
+
+#ifdef ENABLE_TRANSFORMATION
 import Data.Text qualified as T
+#endif
 
 data Options = Options
   { optInPlace :: Bool
@@ -42,6 +47,19 @@ maybeConfigType (Just "complex") = Just ComplexConfig
 maybeConfigType (Just "minimal") = Just MinimalConfig
 maybeConfigType _ = Nothing
 
+#ifdef ENABLE_TRANSFORMATION
+updateNamesOption
+  :: [OptDescr (Options -> IO Options)]
+updateNamesOption =
+  [ Option
+    "n"
+    ["update-names"]
+    ( ReqArg
+        (\names opt -> pure opt {optUpdateNames = maybeNamesToUpdate names})
+        "ORIGINAL_VERT_PREFIX:NEW_VERT_PREFIX,..."
+    )
+    "Update vertex names" ]
+
 splitNames :: Text -> Maybe (Text, Text)
 splitNames namePair =
   case T.split (== ':') namePair of
@@ -52,6 +70,11 @@ maybeNamesToUpdate :: String -> Map Text Text
 maybeNamesToUpdate names =
   let namesList = T.split (== ',') (toText names)
    in maybe M.empty fromList (mapM splitNames namesList)
+#else
+updateNamesOption
+  :: [OptDescr (Options -> IO Options)]
+updateNamesOption = []
+#endif
 
 options :: [OptDescr (Options -> IO Options)]
 options =
@@ -68,39 +91,33 @@ options =
           "JBFL-CONFIG"
       )
       "Copy rules file to config directory"
-  , Option
-      "n"
-      ["update-names"]
-      ( ReqArg
-          (\names opt -> pure opt {optUpdateNames = maybeNamesToUpdate names})
-          "ORIGINAL_VERT_PREFIX:NEW_VERT_PREFIX,..."
-      )
-      "Update vertex names"
-  , Option
-      "V"
-      ["version"]
-      ( NoArg
-          ( \_ -> do
-              putStrLn ("Version " <> showVersion version)
-              exitSuccess
-          )
-      )
-      "Print version"
-  , Option
-      "h"
-      ["help"]
-      ( NoArg
-          ( \_ -> do
-              prg <- getProgName
-              let header =
-                    unlines
-                      [ "Usage:"
-                      , "  " <> toText prg <> " [OPTIONS] [INPUT-FILE]"
-                      , ""
-                      ]
-              putStrLn (usageInfo (toString header) options)
-              exitSuccess
-          )
-      )
-      "Show help"
   ]
+    ++ updateNamesOption
+    ++ [ Option
+           "V"
+           ["version"]
+           ( NoArg
+               ( \_ -> do
+                   putStrLn ("Version " <> showVersion version)
+                   exitSuccess
+               )
+           )
+           "Print version"
+       , Option
+           "h"
+           ["help"]
+           ( NoArg
+               ( \_ -> do
+                   prg <- getProgName
+                   let header =
+                         unlines
+                           [ "Usage:"
+                           , "  " <> toText prg <> " [OPTIONS] [INPUT-FILE]"
+                           , ""
+                           ]
+                   putStrLn (usageInfo (toString header) options)
+                   exitSuccess
+               )
+           )
+           "Show help"
+       ]
