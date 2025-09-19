@@ -1,6 +1,7 @@
 module VertexExtraction (
   getVertexForest,
   determineGroup,
+  combineTrees,
   isSupportVertex,
   metaMapFromObject,
   dropIndex,

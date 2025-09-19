@@ -110,6 +110,7 @@ library
         other-modules:
             Types
             VertexExtraction
+            SupportVertex
 
         build-depends:   yaml
 
