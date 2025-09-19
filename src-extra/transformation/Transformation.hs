@@ -1,5 +1,5 @@
 module Transformation (transform) where
-
+import SupportVertex
 import Config
 import Control.Monad (foldM)
 import Core.Node
@@ -72,12 +72,13 @@ addPrefixComments (x :| xs) = x :| map addToCG xs
 
 addVertexTreeToForest
   :: Scientific
+  -> VertexConnMap
   -> Map VertexTreeType [AnnotatedVertex]
   -> VertexForest
   -> VertexForest
   -> VertexTreeType
   -> Either Text VertexForest
-addVertexTreeToForest thr grouped forest forestAcc t =
+addVertexTreeToForest thr _conns grouped forest forestAcc t =
   case M.lookup t grouped of
     Just groupsForT ->
       case buildTreeForType forest t groupsForT of
@@ -100,18 +101,21 @@ groupAnnotatedVertices brks g = do
   pure (treeType, [g])
 
 moveVerticesInVertexForest
-  :: XGroupBreakpoints -> Scientific -> VertexForest -> Either Text VertexForest
-moveVerticesInVertexForest brks thr vertexTrees =
+  :: XGroupBreakpoints
+  -> Scientific
+  -> VertexForest
+  -> VertexConnMap
+  -> Either Text VertexForest
+moveVerticesInVertexForest brks thr vertexTrees conns =
   let supportTree = M.lookup SupportTree vertexTrees
       movableTrees = M.delete SupportTree vertexTrees
       allVertices = concatMap (NE.toList . sconcat . tAnnotatedVertices) (M.elems movableTrees)
-      movableVertices = filter (not . isSupportVertex . aVertex) allVertices
-   in case mapM (groupAnnotatedVertices brks) movableVertices of
+   in case mapM (groupAnnotatedVertices brks) allVertices of
         Just movableVertices' -> do
           let groupedVertices = M.fromListWith (++) movableVertices'
           newForest <-
             foldM
-              (addVertexTreeToForest thr groupedVertices vertexTrees)
+              (addVertexTreeToForest thr conns groupedVertices vertexTrees)
               M.empty
               treesOrderNoSupport
           Right $ maybe newForest (\st -> M.insert SupportTree st newForest) supportTree
@@ -226,10 +230,7 @@ sortVertices thr treeType groups =
             newV = v {vName = renameVertexId treeType idx (vName v)}
          in (idx + 1, cg {aVertex = newV})
 
-      renamedGroups =
-        case treeType of
-          SupportTree -> sortedGroups
-          _ -> snd $ mapAccumL assignNames 0 sortedGroups
+      renamedGroups = snd $ mapAccumL assignNames 0 sortedGroups
    in renamedGroups
 
 updateVerticesInNode
@@ -283,9 +284,11 @@ transform (TransformationConfig thr brks) topNode =
   getVertexForest brks verticesQuery topNode
     >>= getNamesAndUpdateTree
   where
+    getVertexConns = vertexConns topNode
     getNamesAndUpdateTree (globals, vertexForest) =
       let vertexNames = getVertexNamesInForest vertexForest
-       in moveVerticesInVertexForest brks thr vertexForest
+       in getVertexConns
+            >>= moveVerticesInVertexForest brks thr vertexForest
             >>= getUpdatedNamesAndUpdateGlobally globals vertexNames
     getUpdatedNamesAndUpdateGlobally globals oldVertexNames updatedVertexForest =
       let updatedVertexNames = getVertexNamesInForest updatedVertexForest
