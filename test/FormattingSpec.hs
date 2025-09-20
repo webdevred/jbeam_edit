@@ -2,11 +2,9 @@ module FormattingSpec (
   spec,
 ) where
 
-import Data.List (isSuffixOf)
 import Formatting
 import Relude.Unsafe (read)
 import SpecHelper
-import System.Directory (getDirectoryContents)
 import System.FilePath (takeBaseName, (</>))
 
 numberSpec :: [(String, Node)]
@@ -58,8 +56,8 @@ dynamicJbflTests = do
       jbflAstDir = examplesDir </> "ast/jbfl"
       formattedDir = examplesDir </> "formatted_jbeam"
 
-  jbeamFiles <- filter (".hs" `isSuffixOf`) <$> getDirectoryContents jbeamAstDir
-  jbflFiles <- filter (".hs" `isSuffixOf`) <$> getDirectoryContents jbflAstDir
+  jbeamFiles <- listFilesInDir jbeamAstDir
+  jbflFiles <- listFilesInDir jbflAstDir
 
   forM [(j, b) | j <- jbeamFiles, b <- jbflFiles] $ \(jbeamFile, jbflFile) -> do
     jbeam <- read <$> baseReadFile (jbeamAstDir </> jbeamFile)

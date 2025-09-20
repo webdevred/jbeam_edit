@@ -2,13 +2,11 @@ module Parsing.JbeamSpec (
   spec,
 ) where
 
-import Data.List (isSuffixOf)
 import Parsing.Common.Helpers
 import Parsing.Jbeam
 import Parsing.ParsingTestHelpers
 import Relude.Unsafe (read)
 import SpecHelper
-import System.Directory (getDirectoryContents)
 import Test.Hspec.Megaparsec
 import Text.Megaparsec
 
@@ -98,7 +96,7 @@ topNodeSpec inFilename outFilename = do
 topNodeSpecs :: Spec
 topNodeSpecs = do
   inputFiles <-
-    runIO $ filter (isSuffixOf ".jbeam") <$> getDirectoryContents "examples/jbeam"
+    runIO $ listFilesInDir "examples/jbeam"
   let outputFile inFile = "examples/ast/jbeam/" ++ takeWhile (/= '.') inFile ++ ".hs"
       testInputFile inFile = topNodeSpec inFile (outputFile inFile)
   mapM_ testInputFile inputFiles

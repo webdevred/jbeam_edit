@@ -2,6 +2,7 @@ module SpecHelper (
   applySpecOnInput,
   works,
   baseReadFile,
+  listFilesInDir,
   module Core.Node,
   module Test.Hspec,
   DescribeFun,
@@ -9,6 +10,8 @@ module SpecHelper (
 ) where
 
 import Core.Node
+import Data.List (isSuffixOf)
+import System.Directory (getDirectoryContents)
 import Test.Hspec
 
 import System.IO qualified as IO (readFile)
@@ -19,6 +22,13 @@ type SpecFun t1 t2 a = (t1 -> t2 -> a)
 
 baseReadFile :: FilePath -> IO String
 baseReadFile = IO.readFile
+
+listFilesInDir
+  :: FilePath
+  -> IO ([String])
+listFilesInDir dir =
+    filter (\f -> isSuffixOf ".hs" f && isPrefixOf ".#" f)
+      <$> getDirectoryContents dir
 
 applySpecOnInput
   :: (Example a, Show t1, Show t2)
