@@ -136,7 +136,6 @@ For an in-depth walkthrough of the implementation and design decisions, see [EXP
 ## Planned Features / TODO
 
 - Language Server Protocol (LSP) support
-- Automatic grouping of support vertices
 - Update specific ranges of vertices
 - Expanded tests and example files
 - Improved documentation
