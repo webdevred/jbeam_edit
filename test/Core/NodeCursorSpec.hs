@@ -1,5 +1,6 @@
 module Core.NodeCursorSpec (spec) where
 
+import Control.Exception
 import Core.Node (Node (..))
 import Core.NodeCursor
 import Test.Hspec
@@ -9,18 +10,30 @@ import Data.Sequence qualified as Seq
 
 spec :: Spec
 spec = do
-  describe "newCursor" . it "creates an empty cursor" $ newCursor `shouldBe` NodeCursor Seq.empty
+  describe "newCursor" . it "creates an empty cursor" $
+    newCursor `shouldBe` NodeCursor Seq.empty
 
-  describe "applyCrumb" . it "appends a breadcrumb" $ (do
-    let cursor = newCursor
-        crumb = ArrayIndex 0
-        result = applyCrumb crumb cursor const (String "dummy")
-    result `shouldBe` NodeCursor (Seq.singleton crumb))
+  describe "applyCrumb" . it "appends a breadcrumb" $
+    ( do
+        let cursor = newCursor
+            crumb = ArrayIndex 0
+            result = applyCrumb crumb cursor const (String "dummy")
+        result `shouldBe` NodeCursor (one crumb)
+    )
 
-  describe "applyObjCrumb" . it "transforms ArrayIndex + String into ObjectIndexAndKey" $ (do
-    let cursor = NodeCursor (Seq.singleton (ArrayIndex 2))
-        result = applyObjCrumb (String "key") cursor const (String "dummy")
-    result `shouldBe` NodeCursor (Seq.singleton (ObjectIndexAndKey (2, "key"))))
+  describe
+    "applyObjCrumb"
+    ( do
+        let cursor = NodeCursor (one (ArrayIndex 2))
+            result = applyObjCrumb (String "key") cursor const (String "dummy")
+            ioAction = applyObjCrumb (Number 1) cursor const (String "dummy")
+        it "transforms ArrayIndex + String into ObjectIndexAndKey" $
+          result `shouldBe` NodeCursor (one (ObjectIndexAndKey (2, "key")))
+        it "raises on non String input" $
+          evaluateWHNF ioAction
+            `shouldThrow` errorCall
+              "applyObjCrumb expects a String Node and NodeCursor with a index as the head Number 1.0 NodeCursor (fromList [ArrayIndex 2])"
+    )
 
   describe "compareSB" $ do
     it "matches ObjectKey correctly" $ do
@@ -35,7 +48,8 @@ spec = do
       compareSB (NP.ArrayIndex 3) (ArrayIndex 3) `shouldBe` True
       compareSB (NP.ArrayIndex 4) (ArrayIndex 3) `shouldBe` False
 
-    it "does not match mismatched cases" $ compareSB (NP.ArrayIndex 1) (ObjectIndexAndKey (1, "x")) `shouldBe` False
+    it "does not match mismatched cases" $
+      compareSB (NP.ArrayIndex 1) (ObjectIndexAndKey (1, "x")) `shouldBe` False
 
   describe "comparePathAndCursor" $ do
     it "matches when path and cursor are equivalent" $ do
@@ -45,5 +59,5 @@ spec = do
 
     it "returns False when path and cursor differ" $ do
       let path = NP.NodePath (Seq.fromList [NP.ArrayIndex 1])
-          cursor = NodeCursor (Seq.singleton (ArrayIndex 0))
+          cursor = NodeCursor (one (ArrayIndex 0))
       comparePathAndCursor path cursor `shouldBe` False

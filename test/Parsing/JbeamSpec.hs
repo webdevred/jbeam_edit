@@ -90,8 +90,9 @@ topNodeSpec inFilename outFilename = do
   input <- runIO $ readFileBS inputPath
   output <- runIO $ baseReadFile outFilename
   let desc = "should parse contents of " ++ inFilename ++ " to AST in " ++ outFilename
-  describe desc . works $
+  describe desc . works $ do
     parseNodes input `shouldBe` Right (read output)
+    parse nodeParser "" input `shouldParse` read output
 
 topNodeSpecs :: Spec
 topNodeSpecs = do

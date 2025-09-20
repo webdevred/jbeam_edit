@@ -1,5 +1,6 @@
 module Formatting (
   formatNode,
+  formatScalarNode,
   newRuleSet,
   RuleSet (..),
 ) where
