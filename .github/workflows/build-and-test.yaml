@@ -5,9 +5,17 @@ on:
     branches: [master]
   pull_request:
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
   build-with-stack:
     name: Build and test on ${{ matrix.os }}
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ${{ matrix.runner }}
     strategy:
       matrix:
@@ -80,6 +88,29 @@ jobs:
             echo "coverage too low"
             exit 1
           fi
+      - name: Prepare coverage report
+        if: |
+          matrix.os == 'ubuntu-latest' &&
+          github.event_name == 'push' &&
+          github.ref == 'refs/heads/master'
+        run: |
+          mkdir -p coverage
+          cp -r $(find .stack-work/install -name hpc) coverage/
+      - name: Upload artifact
+        if: |
+          matrix.os == 'ubuntu-latest' &&
+          github.event_name == 'push' &&
+          github.ref == 'refs/heads/master'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: coverage
+      - name: Deploy to GitHub Pages
+        if: |
+          matrix.os == 'ubuntu-latest' &&
+          github.event_name == 'push' &&
+          github.ref == 'refs/heads/master'
+        id: deployment
+        uses: actions/deploy-pages@v4
   generate-matrix:
     name: Generate matrix from cabal
     outputs:
