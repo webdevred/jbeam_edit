@@ -1,6 +1,5 @@
 module Core.NodeCursorSpec (spec) where
 
-import Control.Exception
 import Core.Node (Node (..))
 import Core.NodeCursor
 import Test.Hspec
