@@ -197,6 +197,7 @@ test-suite jbeam-edit-test
         Core.NodeCursorSpec
         Core.NodePathSpec
         Core.NodeSpec
+        Formatting.RulesSpec
         FormattingSpec
         Parsing.DSLSpec
         Parsing.JbeamSpec
