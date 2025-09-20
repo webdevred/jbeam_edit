@@ -25,7 +25,7 @@ baseReadFile = IO.readFile
 
 listFilesInDir
   :: FilePath
-  -> IO ([String])
+  -> IO [String]
 listFilesInDir dir =
   filter (\f -> isSuffixOf ".hs" f && isPrefixOf ".#" f)
     <$> getDirectoryContents dir

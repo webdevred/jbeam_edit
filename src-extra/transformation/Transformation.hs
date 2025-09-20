@@ -45,7 +45,7 @@ buildTreeForType
   -> [AnnotatedVertex]
   -> ([AnnotatedVertex], Maybe VertexTree)
 buildTreeForType conns supThr originalForest treeType groupsOrig =
-  let annVertexCount = round $ (supThr * fromIntegral (length groupsOrig)) / 100
+  let annVertexCount = round $ supThr * fromIntegral (length groupsOrig) / 100
       isSupportVertex' v = any (>= annVertexCount) $ M.lookup (vName . aVertex $ v) conns
       (supportVertices, nonSupportVertices) = partition isSupportVertex' groupsOrig
    in case nonEmpty nonSupportVertices of
