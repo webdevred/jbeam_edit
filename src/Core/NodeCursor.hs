@@ -21,6 +21,10 @@ data NodeBreadcrumb
   | ObjectIndexAndKey (Int, Text)
   deriving (Show)
 
+{- | node cursor
+A NodeCursor is a Sequence of breadcrumbs as we transcend deeper into the Node tree.
+A Seqeunce is good choice for NodeCursor since I need to compare the first element of the cursor and the path but when transcending the Node tree I need to append the current breadcrumb.
+-}
 newtype NodeCursor
   = NodeCursor (Seq NodeBreadcrumb)
   deriving stock (Show)
@@ -30,6 +34,9 @@ newCursor = NodeCursor Seq.empty
 
 type CursorFun a = NodeCursor -> Node -> a
 
+{- | applyCrumb
+This function takes a function f, a breadcrumb b, and a sequence of breadcrumbs wrapped in a NodeCursor, appends the the breadcrumb to the Sequence in the cursor and supplies the cursor to the function f. This is used whenever I update the Node tree to track where in the tree I am so, enabling checking whether I am updating at a certain point in the Node tree.
+-}
 applyCrumb :: NodeBreadcrumb -> NodeCursor -> CursorFun a -> Node -> a
 applyCrumb b (NodeCursor bs) f = f (NodeCursor $ bs :|> b)
 
@@ -43,6 +50,9 @@ applyObjCrumb key cursor _ = error $ unwords [errMsg, show key, show cursor]
 
 type SelCrumbCompFun = NP.NodeSelector -> NodeBreadcrumb -> Bool
 
+{- | compareSB
+Validate whether all the selectors match the corresponding breadcrumb, returning False if either Sequence exhausts prematurely.
+-}
 compareSB :: SelCrumbCompFun
 compareSB (NP.ObjectKey s) (ObjectIndexAndKey (_, k)) = s == k
 compareSB (NP.ObjectIndex s) (ObjectIndexAndKey (i, _)) = s == i

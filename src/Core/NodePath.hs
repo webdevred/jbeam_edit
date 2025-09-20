@@ -20,6 +20,9 @@ data NodeSelector
   | ObjectIndex Int
   deriving (Eq, Ord, Read, Show)
 
+{- | node path
+A NodePath is a Sequence of selectors to that point out a certain point in a Node tree, either to point at as something when fetching it from Node or to point to something compare that I at a certain point when doing updates.
+-}
 newtype NodePath
   = NodePath (Seq NodeSelector)
   deriving stock (Read, Show)
@@ -33,6 +36,11 @@ extractValInKey :: N.Node -> Maybe N.Node
 extractValInKey (N.ObjectKey (_, val)) = Just val
 extractValInKey _ = Nothing
 
+{- | select
+Takes a Node and a selector.
+In case the selector matches nodes at a certain point in the tree.
+And queryNodes allows use to chain the Selectors as a NodePath and perform complex queries.
+-}
 select :: NodeSelector -> N.Node -> Maybe N.Node
 select (ArrayIndex i) (N.Array ns) = getNthElem 0 (V.toList ns)
   where
