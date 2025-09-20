@@ -27,8 +27,8 @@ listFilesInDir
   :: FilePath
   -> IO ([String])
 listFilesInDir dir =
-    filter (\f -> isSuffixOf ".hs" f && isPrefixOf ".#" f)
-      <$> getDirectoryContents dir
+  filter (\f -> isSuffixOf ".hs" f && isPrefixOf ".#" f)
+    <$> getDirectoryContents dir
 
 applySpecOnInput
   :: (Example a, Show t1, Show t2)

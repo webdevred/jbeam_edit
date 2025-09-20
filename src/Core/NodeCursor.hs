@@ -19,7 +19,7 @@ import Data.Sequence qualified as Seq (empty, null)
 data NodeBreadcrumb
   = ArrayIndex Int
   | ObjectIndexAndKey (Int, Text)
-  deriving (Show)
+  deriving (Eq, Show)
 
 {- | node cursor
 A NodeCursor is a Sequence of breadcrumbs as we transcend deeper into the Node tree.
@@ -27,7 +27,7 @@ A Seqeunce is good choice for NodeCursor since I need to compare the first eleme
 -}
 newtype NodeCursor
   = NodeCursor (Seq NodeBreadcrumb)
-  deriving stock (Show)
+  deriving stock (Eq, Show)
 
 newCursor :: NodeCursor
 newCursor = NodeCursor Seq.empty
