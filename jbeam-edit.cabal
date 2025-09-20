@@ -114,6 +114,9 @@ library
 
         build-depends:   yaml
 
+    if flag(transformation)
+        cpp-options: -DENABLE_TRANSFORMATION
+
     if (os(windows) && flag(windows-example-paths))
         cpp-options: -DWINDOWS_EXAMPLE_PATHS
 

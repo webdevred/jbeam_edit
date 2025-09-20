@@ -57,6 +57,8 @@ library:
       exposed-modules: [Transformation, Config]
       other-modules: [Types, VertexExtraction, SupportVertex]
       dependencies: [yaml]
+    - condition: flag(transformation)
+      cpp-options: -DENABLE_TRANSFORMATION
     - condition: os(windows) && flag(windows-example-paths)
       cpp-options: -DWINDOWS_EXAMPLE_PATHS
 

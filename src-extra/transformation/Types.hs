@@ -6,6 +6,7 @@ module Types (
   AnnotatedVertex (..),
   MetaMap,
   VertexConnMap,
+  UpdateNamesMap,
 ) where
 
 import Core.Node
@@ -58,3 +59,5 @@ data AnnotatedVertex = AnnotatedVertex
 type MetaMap = Map Text Node
 
 type VertexConnMap = Map Text Int
+
+type UpdateNamesMap = Map Text Text

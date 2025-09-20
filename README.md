@@ -83,8 +83,8 @@ Click **More info** → **Run anyway**.
 
 ### 5. Path refresh
 The installer adds `jbeam-edit` to your **PATH**, but:
-- You must **open a new Command Prompt or PowerShell window** after installation.  
-- In some cases, you may need to **log out or restart Windows** for the PATH change to take effect.  
+- You must **open a new Command Prompt or PowerShell window** after installation.
+- In some cases, you may need to **log out or restart Windows** for the PATH change to take effect.
 - If it still doesn’t work, you can run it directly using the full path, e.g.:
 
 ```powershell
@@ -104,9 +104,9 @@ jbeam-edit your-file.jbeam
 Replace `your-file.jbeam` with the path to your JBeam file.
 
 #### Typical workflow:
-- Parses and formats the file.  
-- Sorts and renames nodes, updating references.  
-- Writes the output back with a `.bak` backup (default).  
+- Parses and formats the file.
+- Sorts and renames nodes, updating references.
+- Writes the output back with a `.bak` backup (default).
 
 #### In-place editing (no backup):
 ```powershell
@@ -136,9 +136,6 @@ For an in-depth walkthrough of the implementation and design decisions, see [EXP
 ## Planned Features / TODO
 
 - Language Server Protocol (LSP) support
-- Automatic grouping of support vertices
-- Prefix replacement via CLI arguments
-- Sort a vertices using a threshold, Z values within the threshold are treated as equal; if too strict, compare the Y elements instead.
 - Update specific ranges of vertices
 - Expanded tests and example files
 - Improved documentation
