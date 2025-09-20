@@ -31,7 +31,7 @@ defaultSortingThreshold :: Scientific
 defaultSortingThreshold = 0.05
 
 defaultSupportThreshold :: Double
-defaultSupportThreshold = 80
+defaultSupportThreshold = 96
 
 defaultBreakpoints :: XGroupBreakpoints
 defaultBreakpoints =
