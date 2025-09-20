@@ -45,8 +45,9 @@ ruleSetSpec inFilename outFilename = do
   input <- runIO $ readFileBS inputPath
   output <- runIO $ baseReadFile outFilename
   let desc = "should parse contents of " ++ inFilename ++ " to AST in " ++ outFilename
-  describe desc . works $
+  describe desc . works $ do
     parseDSL input `shouldBe` Right (read output)
+    parse ruleSetParser "" input `shouldParse` read output
 
 ruleSetSpecs :: Spec
 ruleSetSpecs = do
