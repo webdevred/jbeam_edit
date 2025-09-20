@@ -278,17 +278,9 @@ compareCG thr treeType vertex1 vertex2 =
    in supportNameCompare <> on compare aMeta vertex1 vertex2 <> compareY <> compareZ
 
 renameVertexId :: VertexTreeType -> Int -> Text -> Text
-renameVertexId SupportTree idx vertexName =
-  let prefix = dropIndex vertexName
-      idx' = bool "" (show idx) (idx /= 0)
-   in prefix <> idx'
-renameVertexId treeType idx vertexName =
-  let prefix = dropIndex vertexName
-      cleanPrefix =
-        if T.length prefix >= 3 && T.last prefix `elem` ['l', 'm', 'r']
-          then T.init prefix
-          else prefix
-   in cleanPrefix <> prefixForType treeType <> show idx
+renameVertexId treeType idx vertexPrefix =
+  let idx' = bool "" (show idx) (treeType /= SupportTree || idx /= 0)
+   in vertexPrefix <> idx'
 
 assignNames
   :: XGroupBreakpoints
@@ -299,18 +291,24 @@ assignNames
 assignNames brks treeType prefixMap av =
   let v = aVertex av
       prefix = dropIndex (vName v)
-      typeSpecific = maybe "" prefixForType (determineGroup brks v)
+      typeSpecific = maybe "" prefixForType (determineGroup' brks v)
       (prefix', lastChar) = fromMaybe (error "unreachable") (T.unsnoc prefix)
       prefix''
-        | treeType /= SupportTree && T.last prefix' == 's' =
-            T.init prefix' <> one lastChar
-        | treeType /= SupportTree = prefix
-        | T.length prefix' >= 3 && T.last prefix' == 's' =
-            prefix' <> one lastChar
+        | treeType /= SupportTree
+            && T.length prefix >= 3
+            && T.last prefix' == 's' =
+            T.init prefix' <> typeSpecific
+        | treeType /= SupportTree
+            && T.length prefix >= 3
+            && lastChar `elem` ['l', 'm', 'r']
+            || T.length prefix' >= 3 && T.last prefix' == 's' =
+            prefix' <> typeSpecific
+        | treeType /= SupportTree =
+            prefix <> typeSpecific
         | T.length prefix < 3 =
             prefix <> one 's' <> typeSpecific
         | otherwise =
-            prefix' <> one 's' <> one lastChar
+            prefix' <> one 's' <> typeSpecific
       curPrefix = dropIndex prefix''
       lastIdx = M.findWithDefault 0 curPrefix prefixMap
       newName = renameVertexId treeType lastIdx prefix''
