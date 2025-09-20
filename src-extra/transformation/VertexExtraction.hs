@@ -1,7 +1,8 @@
 module VertexExtraction (
   getVertexForest,
   determineGroup,
-  isSupportVertex,
+  determineGroup',
+  combineTrees,
   metaMapFromObject,
   dropIndex,
 ) where
@@ -162,12 +163,15 @@ newVertexTree brks vertexNames vertexForest nodes =
                     Nothing -> Left "invalid breakpoint"
 
 determineGroup :: XGroupBreakpoints -> Vertex -> Maybe VertexTreeType
-determineGroup (XGroupBreakpoints brks) v
+determineGroup (XGroupBreakpoints brks) v =
+  case [vtype | (XGroupBreakpoint f, vtype) <- brks, f (vX v)] of
+    (vtype : _) -> Just vtype
+    [] -> Nothing
+
+determineGroup' :: XGroupBreakpoints -> Vertex -> Maybe VertexTreeType
+determineGroup' brks v
   | isSupportVertex v = Just SupportTree
-  | otherwise =
-      case [vtype | (XGroupBreakpoint f, vtype) <- brks, f (vX v)] of
-        (vtype : _) -> Just vtype
-        [] -> Nothing
+  | otherwise = determineGroup brks v
 
 nodesListToTree
   :: XGroupBreakpoints -> NonEmpty Node -> Either Text (VertexTreeType, VertexForest)

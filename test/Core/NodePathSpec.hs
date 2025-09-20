@@ -1,37 +1,47 @@
-{-# LANGUAGE OverloadedStrings #-}
-
 module Core.NodePathSpec (spec) where
 
-import Core.NodePath
-import Test.Hspec
+import Relude.Unsafe (read)
+import SpecHelper
 
-import Core.Node qualified as N
+import Core.NodePath qualified as NP
 
 spec :: Spec
-spec = do
-  describe "select" $ do
-    it "selects an element by ArrayIndex, ignoring comments" $ do
-      let arr =
-            N.Array $
-              fromList
-                [N.Comment (N.InternalComment "c" False), N.String "first", N.String "second"]
-      select (ArrayIndex 0) arr `shouldBe` Just (N.String "first")
-      select (ArrayIndex 1) arr `shouldBe` Just (N.String "second")
-      select (ArrayIndex 2) arr `shouldBe` Nothing
+spec = describe "select" $ do
+  it "selects an element by ArrayIndex, ignoring comments" $ do
+    let arr =
+          Array $
+            fromList
+              [Comment (InternalComment "c" False), String "first", String "second"]
+    NP.select (NP.ArrayIndex 0) arr `shouldBe` Just (String "first")
+    NP.select (NP.ArrayIndex 1) arr `shouldBe` Just (String "second")
+    NP.select (NP.ArrayIndex 2) arr `shouldBe` Nothing
 
-    it "selects a value by ObjectKey" $ do
-      let obj =
-            N.Object $ fromList [N.ObjectKey (N.String "first_key", N.String "first value")]
-      select (ObjectKey "first_key") obj `shouldBe` Just (N.String "first value")
-      select (ObjectKey "second_key") obj `shouldBe` Nothing
+  it "selects a value by ObjectKey" $ do
+    let obj =
+          Object $ fromList [ObjectKey (String "first_key", String "first value")]
+    NP.select (NP.ObjectKey "first_key") obj
+      `shouldBe` Just (String "first value")
+    NP.select (NP.ObjectKey "second_key") obj `shouldBe` Nothing
 
-    it "selects a value by ObjectIndex" $ do
-      let obj =
-            N.Object $
-              fromList
-                [ N.ObjectKey (N.String "first_key", N.String "first value")
-                , N.ObjectKey (N.String "second_key", N.String "second value")
-                ]
-      select (ObjectIndex 0) obj `shouldBe` Just (N.String "first value")
-      select (ObjectIndex 1) obj `shouldBe` Just (N.String "second value")
-      select (ObjectIndex 2) obj `shouldBe` Nothing
+  it "selects a value by ObjectIndex" $ do
+    let obj =
+          Object $
+            fromList
+              [ ObjectKey (String "first_key", String "first value")
+              , ObjectKey (String "second_key", String "second value")
+              ]
+    NP.select (NP.ObjectIndex 0) obj `shouldBe` Just (String "first value")
+    NP.select (NP.ObjectIndex 1) obj `shouldBe` Just (String "second value")
+    NP.select (NP.ObjectIndex 2) obj `shouldBe` Nothing
+
+  describe "queryNodes" $ do
+    let inputPath = "examples/ast/jbeam/fender.hs"
+    input <- runIO $ baseReadFile inputPath
+    it "queryNode can retrieve nodes" $ do
+      let ast = read input
+          path = fromList [NP.ObjectIndex 0, NP.ObjectKey "nodes"]
+          badPath = fromList [NP.ArrayIndex 0, NP.ArrayIndex 3]
+          nodes = NP.queryNodes path ast
+          badNodes = NP.queryNodes badPath ast
+      badNodes `shouldNotSatisfy` isJust
+      nodes `shouldSatisfy` isJust

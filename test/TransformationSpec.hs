@@ -7,9 +7,7 @@ module TransformationSpec (
 import SpecHelper
 
 #ifdef ENABLE_TRANSFORMATION_TESTS
-import Data.List (isSuffixOf)
 import Relude.Unsafe (read)
-import System.Directory (getDirectoryContents)
 import Transformation
 import Formatting
 import Config
@@ -26,7 +24,7 @@ topNodeSpec inFilename outFilename = do
 spec :: Spec
 spec = do
   inputFiles <-
-    runIO $ filter (isSuffixOf ".hs") <$> getDirectoryContents "examples/ast/jbeam"
+    runIO $ listFilesInDir "examples/ast/jbeam"
   let outputFile inFile = "examples/transformed_jbeam/" ++ takeWhile (/= '.') inFile ++ ".jbeam"
       testInputFile inFile = topNodeSpec inFile (outputFile inFile)
   mapM_ testInputFile inputFiles

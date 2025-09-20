@@ -2,14 +2,12 @@ module Parsing.DSLSpec (
   spec,
 ) where
 
-import Data.List (isSuffixOf)
 import Formatting.Rules
 import Parsing.Common.Helpers
 import Parsing.DSL
 import Parsing.ParsingTestHelpers
 import Relude.Unsafe (read)
 import SpecHelper
-import System.Directory (getDirectoryContents)
 import Test.Hspec.Megaparsec
 import Text.Megaparsec
 
@@ -47,13 +45,14 @@ ruleSetSpec inFilename outFilename = do
   input <- runIO $ readFileBS inputPath
   output <- runIO $ baseReadFile outFilename
   let desc = "should parse contents of " ++ inFilename ++ " to AST in " ++ outFilename
-  describe desc . works $
+  describe desc . works $ do
     parseDSL input `shouldBe` Right (read output)
+    parse ruleSetParser "" input `shouldParse` read output
 
 ruleSetSpecs :: Spec
 ruleSetSpecs = do
   inputFiles <-
-    runIO $ filter (isSuffixOf ".jbfl") <$> getDirectoryContents "examples/jbfl"
+    runIO $ listFilesInDir "examples/jbfl"
   let outputFile inFile = "examples/ast/jbfl/" ++ takeWhile (/= '.') inFile ++ ".hs"
       testInputFile inFile = ruleSetSpec inFile (outputFile inFile)
   mapM_ testInputFile inputFiles

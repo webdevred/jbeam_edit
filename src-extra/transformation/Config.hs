@@ -6,7 +6,8 @@ module Config (
   TransformationConfig (..),
   XGroupBreakpoint (..),
   XGroupBreakpoints (..),
-  defaultThreshold,
+  defaultSortingThreshold,
+  defaultSupportThreshold,
   defaultBreakpoints,
 ) where
 
@@ -26,8 +27,11 @@ import Types (VertexTreeType (..))
 
 import Data.Text qualified as T
 
-defaultThreshold :: Scientific
-defaultThreshold = 0.05
+defaultSortingThreshold :: Scientific
+defaultSortingThreshold = 0.05
+
+defaultSupportThreshold :: Double
+defaultSupportThreshold = 96
 
 defaultBreakpoints :: XGroupBreakpoints
 defaultBreakpoints =
@@ -40,11 +44,16 @@ defaultBreakpoints =
 data TransformationConfig = TransformationConfig
   { zSortingThreshold :: Scientific
   , xGroupBreakpoints :: XGroupBreakpoints
+  , supportThreshold :: Double
   }
   deriving (Generic)
 
 newTransformationConfig :: TransformationConfig
-newTransformationConfig = TransformationConfig defaultThreshold defaultBreakpoints
+newTransformationConfig =
+  TransformationConfig
+    defaultSortingThreshold
+    defaultBreakpoints
+    defaultSupportThreshold
 
 newtype XGroupBreakpoint = XGroupBreakpoint
   {passingBreakpoint :: Scientific -> Bool}
@@ -86,12 +95,17 @@ instance FromJSON XGroupBreakpoints where
 instance FromJSON TransformationConfig where
   parseJSON = withObject "TransformationConfig" $ \o ->
     TransformationConfig
-      <$> o .:? "z-sorting-threshold" .!= defaultThreshold
+      <$> o .:? "z-sorting-threshold" .!= defaultSortingThreshold
       <*> o .:? "x-group-breakpoints" .!= defaultBreakpoints
+      <*> o .:? "support-threshold" .!= defaultSupportThreshold
 
 loadTransformationConfig :: IO TransformationConfig
 loadTransformationConfig = do
   res <- decodeFileEither ".jbeam-edit.yaml"
   pure $ case res of
     Right tc -> tc
-    Left _ -> TransformationConfig defaultThreshold defaultBreakpoints
+    Left _ ->
+      TransformationConfig
+        defaultSortingThreshold
+        defaultBreakpoints
+        defaultSupportThreshold
