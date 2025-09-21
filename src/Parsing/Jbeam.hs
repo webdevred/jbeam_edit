@@ -1,7 +1,10 @@
 module Parsing.Jbeam (
+  ParseState (..),
+  JbeamParser,
   nodeParser,
   numberParser,
   parseNodes,
+  parseNodesState,
 ) where
 
 import Core.Node (InternalComment (..), Node (..))
@@ -26,12 +29,12 @@ separatorParser :: JbeamParser ()
 separatorParser = do
   ws1 <-
     MP.takeWhileP
-      (Just "space before comma")
+      Nothing
       wordIsSpace
-  comma <- optional (byteChar ',')
+  comma <- optional (MP.label "comma" $ byteChar ',')
   ws2 <-
     MP.takeWhileP
-      (Just "space after comma")
+      Nothing
       wordIsSpace
 
   let hasNewline =
@@ -147,8 +150,13 @@ objectParser = do
 topNodeParser :: JbeamParser Node
 topNodeParser = nodeParser <* skipWhiteSpace <* MP.eof
 
+parseNodesState
+  :: JbeamParser a
+  -> ByteString
+  -> Either (MP.ParseErrorBundle ByteString Void) a
+parseNodesState parser input =
+  let initialState = ParseState {lastNodeEndedWithNewline = True}
+   in evalState (MP.runParserT parser "<input>" input) initialState
+
 parseNodes :: BS.ByteString -> Either Text Node
-parseNodes input =
-  let initialState = ParseState {lastNodeEndedWithNewline = False}
-      result = evalState (MP.runParserT topNodeParser "<input>" input) initialState
-   in first formatErrors result
+parseNodes input = first formatErrors (parseNodesState topNodeParser input)

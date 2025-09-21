@@ -2,6 +2,7 @@
 {-# LANGUAGE GADTs #-}
 
 module Parsing.DSL (
+  JbflParser,
   parseDSL,
   patternSelectorParser,
   keyPropertyPairParser,

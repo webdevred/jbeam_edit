@@ -201,7 +201,6 @@ test-suite jbeam-edit-test
         FormattingSpec
         Parsing.DSLSpec
         Parsing.JbeamSpec
-        Parsing.ParsingTestHelpers
         SpecHelper
         TransformationSpec
         Paths_jbeam_edit
