@@ -238,13 +238,12 @@ commentGroupToNodesWithPrev prevMeta (AnnotatedVertex comments vertex meta) =
 
       vertexArray :: Node
       vertexArray =
-        Array $
-          V.fromList
-            [ String (vName vertex)
-            , Number (vX vertex)
-            , Number (vY vertex)
-            , Number (vZ vertex)
-            ]
+        let name = String (vName vertex)
+            x = Number (vX vertex)
+            y = Number (vY vertex)
+            z = Number (vZ vertex)
+            possiblyMeta = maybe [] (one . Object) (vMeta vertex)
+         in Array . V.fromList $ [name, x, y, z] ++ possiblyMeta
    in ( map Comment preComments
           ++ metaNodes
           ++ one vertexArray
