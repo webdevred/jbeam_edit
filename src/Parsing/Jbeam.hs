@@ -27,15 +27,9 @@ type JbeamParser a = Parser (State ParseState) a
 
 separatorParser :: JbeamParser ()
 separatorParser = do
-  ws1 <-
-    MP.takeWhileP
-      Nothing
-      wordIsSpace
+  ws1 <- MP.takeWhileP Nothing wordIsSpace
   comma <- optional (MP.label "comma" $ byteChar ',')
-  ws2 <-
-    MP.takeWhileP
-      Nothing
-      wordIsSpace
+  ws2 <- MP.takeWhileP Nothing wordIsSpace
 
   let hasNewline =
         isNothing comma && '\n' `elem` map toChar (BS.unpack ws1)
