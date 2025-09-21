@@ -47,6 +47,22 @@ singlelineCommentSpec =
     , Comment
         (InternalComment {cText = "test", cMultiline = False, assocWithPrior = False})
     )
+  ,
+    ( "[\"test\", \"test\" // cool comment \n ]"
+    , Array
+        ( fromList
+            [ String "test"
+            , String "test"
+            , Comment
+                ( InternalComment
+                    { cText = "cool comment"
+                    , cMultiline = False
+                    , assocWithPrior = True
+                    }
+                )
+            ]
+        )
+    )
   ]
 
 arraySpec :: [(String, Node)]
