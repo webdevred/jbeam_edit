@@ -13,9 +13,6 @@ permissions:
 jobs:
   build-with-stack:
     name: Build and test on ${{ matrix.os }}
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ${{ matrix.runner }}
     strategy:
       matrix:
@@ -105,6 +102,9 @@ jobs:
         with:
           path: coverage
       - name: Deploy to GitHub Pages
+        env:
+          name: github-pages
+          url: ${{ steps.deployment.outputs.page_url }}
         if: |
           matrix.os == 'ubuntu-latest' &&
           github.event_name == 'push' &&
