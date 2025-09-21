@@ -20,7 +20,6 @@ import Formatting.Rules (
  )
 
 import Core.NodeCursor qualified as NC
-import Data.List qualified as L
 import Data.Text qualified as T
 import Data.Vector qualified as V (null, toList)
 
@@ -31,34 +30,23 @@ addDelimiters rs index c complexChildren acc ns@(node : rest)
   | complexChildren && null acc =
       addDelimiters rs index c complexChildren ["\n"] ns
   | isCommentNode node =
-      addDelimiters
-        rs
-        index
-        c
-        complexChildren
-        ((formatWithCursor rs c node <> "\n") : acc)
-        rest
+      let formatted = (formatWithCursor rs c node <> "\n") : acc
+       in addDelimiters rs index c complexChildren formatted rest
   | otherwise =
       case assocPriorComment of
         Just (comment, rest') ->
-          addDelimiters
-            rs
-            index
-            c
-            complexChildren
-            (applyCrumbAndFormat <> ", " <> formatWithCursor rs c comment : acc)
-            rest'
+          let formatted =
+                (applyCrumbAndFormat <> ", " <> formatWithCursor rs c comment : acc)
+           in addDelimiters rs index c complexChildren formatted rest'
         Nothing ->
           let new_acc = T.concat [applyCrumbAndFormat, comma, space, newline] : acc
            in addDelimiters rs newIndex c complexChildren new_acc rest
   where
-    assocPriorComment =
-      case L.uncons rest of
-        Just (Comment cmt, rest')
-          | assocWithPrior cmt ->
-              Just (Comment cmt, rest')
-          | otherwise -> Nothing
-        _ -> Nothing
+    assocPriorComment = do
+      (Comment cmt, rest') <- uncons rest
+      guard (assocWithPrior cmt)
+      pure (Comment cmt, rest')
+
     applyCrumbAndFormat =
       NC.applyCrumb (NC.ArrayIndex index) c (formatWithCursor rs) node
     newIndex = index + 1
