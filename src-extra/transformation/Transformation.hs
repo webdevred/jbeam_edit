@@ -133,7 +133,7 @@ groupAnnotatedVertices
   -> AnnotatedVertex
   -> Maybe (VertexTreeType, [AnnotatedVertex])
 groupAnnotatedVertices brks g = do
-  treeType <- determineGroup brks (aVertex g)
+  treeType <- determineGroup' brks (aVertex g)
   pure (treeType, [g])
 
 sortSupportVertices
@@ -295,7 +295,7 @@ assignNames
 assignNames brks treeType prefixMap av =
   let v = aVertex av
       prefix = dropIndex (vName v)
-      typeSpecific = maybe "" prefixForType (determineGroup' brks v)
+      typeSpecific = maybe "" prefixForType (determineGroup brks v)
       (prefix', lastChar) = fromMaybe (error "unreachable") (T.unsnoc prefix)
       prefix''
         | treeType /= SupportTree
