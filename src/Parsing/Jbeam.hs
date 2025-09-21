@@ -27,12 +27,12 @@ separatorParser = do
   ws1 <-
     MP.takeWhileP
       (Just "space before comma")
-      (\w -> let c = toChar w in c `elem` [' ', '\t', '\n', '\r'])
+      wordIsSpace
   comma <- optional (byteChar ',')
   ws2 <-
     MP.takeWhileP
       (Just "space after comma")
-      (\w -> let c = toChar w in c `elem` [' ', '\t', '\n', '\r'])
+      wordIsSpace
 
   let hasNewline =
         isNothing comma && '\n' `elem` map toChar (BS.unpack ws1)
@@ -40,7 +40,7 @@ separatorParser = do
 
   modify (\s -> s {lastNodeEndedWithNewline = hasNewline})
 
-  pure ()
+  pass
 
 ---
 --- selectors for numbers, comments, strings and bools

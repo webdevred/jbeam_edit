@@ -5,6 +5,7 @@ module Parsing.Common.Helpers (
   failingParser,
   toChar,
   toWord8,
+  wordIsSpace,
   parseWord8s,
   tryParsers,
   skipWhiteSpace,
@@ -30,6 +31,9 @@ toWord8 = fromIntegral . ord
 
 toChar :: Word8 -> Char
 toChar = chr . fromIntegral
+
+wordIsSpace :: Word8 -> Bool
+wordIsSpace = isSpace . toChar
 
 charNotEqWord8 :: Char -> Word8 -> Bool
 charNotEqWord8 c w = toWord8 c /= w
