@@ -232,8 +232,7 @@ commentGroupToNodesWithPrev prevMeta (AnnotatedVertex comments vertex meta) =
         | (k, v) <- M.assocs localsMeta
         ]
 
-      commentNodes :: [Node]
-      commentNodes = map Comment comments
+      (postComments, preComments) = partition assocWithPrior comments
 
       vertexArray :: Node
       vertexArray =
@@ -244,7 +243,12 @@ commentGroupToNodesWithPrev prevMeta (AnnotatedVertex comments vertex meta) =
             , Number (vY vertex)
             , Number (vZ vertex)
             ]
-   in (commentNodes ++ metaNodes ++ [vertexArray], newPrevMeta)
+   in ( map Comment preComments
+          ++ metaNodes
+          ++ one vertexArray
+          ++ map Comment postComments
+      , newPrevMeta
+      )
 
 vertexForestToNodeVector :: MetaMap -> VertexForest -> Vector Node
 vertexForestToNodeVector initialMeta vf =
