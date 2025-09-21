@@ -11,7 +11,7 @@ spec = describe "select" $ do
     let arr =
           Array $
             fromList
-              [Comment (InternalComment "c" False), String "first", String "second"]
+              [Comment (InternalComment "c" False False), String "first", String "second"]
     NP.select (NP.ArrayIndex 0) arr `shouldBe` Just (String "first")
     NP.select (NP.ArrayIndex 1) arr `shouldBe` Just (String "second")
     NP.select (NP.ArrayIndex 2) arr `shouldBe` Nothing

@@ -5,7 +5,6 @@ module Parsing.DSLSpec (
 import Formatting.Rules
 import Parsing.Common.Helpers
 import Parsing.DSL
-import Parsing.ParsingTestHelpers
 import Relude.Unsafe (read)
 import SpecHelper
 import Test.Hspec.Megaparsec
@@ -95,8 +94,15 @@ invalidKeyPropertySpecs =
     (assertParserFailure keyPropertyPairParser)
     (invalidBoolProperties ++ invalidIntProperties)
 
+applyParserSpec
+  :: (Eq a, Show a) => ParsecT Void ByteString Identity a -> (String, a) -> Spec
+applyParserSpec parser = uncurry $ applySpecOnInput descFun assertParsesTo
+  where
+    assertParsesTo input = shouldParse . parse parser "" $ fromString input
+    descFun input expResult = "should parse " <> input <> " to " <> expResult
+
 assertParserFailure
-  :: Show a => Parser a -> (String, ParseError ByteString Void) -> Spec
+  :: Show a => JbflParser a -> (String, ParseError ByteString Void) -> Spec
 assertParserFailure parser (input, expError) =
   describe desc . works $
     parse parser "" (fromString input) `shouldFailWith` expError

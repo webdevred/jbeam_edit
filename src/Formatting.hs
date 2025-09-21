@@ -30,17 +30,23 @@ addDelimiters rs index c complexChildren acc ns@(node : rest)
   | complexChildren && null acc =
       addDelimiters rs index c complexChildren ["\n"] ns
   | isCommentNode node =
-      addDelimiters
-        rs
-        index
-        c
-        complexChildren
-        (formatWithCursor rs c node <> "\n" : acc)
-        rest
+      let formatted = (formatWithCursor rs c node <> "\n") : acc
+       in addDelimiters rs index c complexChildren formatted rest
   | otherwise =
-      let new_acc = T.concat [applyCrumbAndFormat, comma, space, newline] : acc
-       in addDelimiters rs newIndex c complexChildren new_acc rest
+      case assocPriorComment of
+        Just (comment, rest') ->
+          let formatted =
+                (applyCrumbAndFormat <> ", " <> formatWithCursor rs c comment : acc)
+           in addDelimiters rs index c complexChildren formatted rest'
+        Nothing ->
+          let new_acc = T.concat [applyCrumbAndFormat, comma, space, newline] : acc
+           in addDelimiters rs newIndex c complexChildren new_acc rest
   where
+    assocPriorComment = do
+      (Comment cmt, rest') <- uncons rest
+      guard (assocWithPrior cmt)
+      pure (Comment cmt, rest')
+
     applyCrumbAndFormat =
       NC.applyCrumb (NC.ArrayIndex index) c (formatWithCursor rs) node
     newIndex = index + 1
@@ -69,8 +75,9 @@ doFormatNode rs cursor nodes =
       any isComplexNode nodes && not (noComplexNewLine rs cursor)
 
 formatComment :: InternalComment -> Text
-formatComment (InternalComment {cMultiline = True, cText = c}) = T.concat ["/* ", c, " */"]
+formatComment (InternalComment {cMultiline = False, cText = c, assocWithPrior = True}) = "// " <> c
 formatComment (InternalComment {cMultiline = False, cText = c}) = "\n// " <> c
+formatComment (InternalComment {cMultiline = True, cText = c}) = T.concat ["/* ", c, " */"]
 
 formatScalarNode :: Node -> Text
 formatScalarNode (Comment c) = formatComment c

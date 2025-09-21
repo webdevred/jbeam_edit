@@ -62,6 +62,7 @@ Object
                         ( InternalComment
                             { cText = "Left side"
                             , cMultiline = False
+                            , assocWithPrior = False
                             }
                         )
                     , Object
@@ -151,6 +152,7 @@ Object
                         ( InternalComment
                             { cText = "Right side"
                             , cMultiline = False
+                            , assocWithPrior = False
                             }
                         )
                     , Object
@@ -251,6 +253,7 @@ Object
                         ( InternalComment
                             { cText = "Support nodes"
                             , cMultiline = False
+                            , assocWithPrior = False
                             }
                         )
                     , Object
@@ -305,6 +308,7 @@ Object
                         ( InternalComment
                             { cText = "Structural beams"
                             , cMultiline = False
+                            , assocWithPrior = False
                             }
                         )
                     , Object
@@ -345,6 +349,7 @@ Object
                         ( InternalComment
                             { cText = "Front"
                             , cMultiline = False
+                            , assocWithPrior = False
                             }
                         )
                     , Array
@@ -399,6 +404,7 @@ Object
                         ( InternalComment
                             { cText = "Middle"
                             , cMultiline = False
+                            , assocWithPrior = False
                             }
                         )
                     , Object
@@ -427,6 +433,7 @@ Object
                         ( InternalComment
                             { cText = "Rear"
                             , cMultiline = False
+                            , assocWithPrior = False
                             }
                         )
                     , Array
@@ -489,6 +496,7 @@ Object
                         ( InternalComment
                             { cText = "Crossing beams"
                             , cMultiline = False
+                            , assocWithPrior = False
                             }
                         )
                     , Object
@@ -501,6 +509,7 @@ Object
                         ( InternalComment
                             { cText = "Front"
                             , cMultiline = False
+                            , assocWithPrior = False
                             }
                         )
                     , Array
@@ -539,6 +548,7 @@ Object
                         ( InternalComment
                             { cText = "Rear"
                             , cMultiline = False
+                            , assocWithPrior = False
                             }
                         )
                     , Array
@@ -577,6 +587,7 @@ Object
                         ( InternalComment
                             { cText = "Support beams"
                             , cMultiline = False
+                            , assocWithPrior = False
                             }
                         )
                     , Array
@@ -671,6 +682,7 @@ Object
                         ( InternalComment
                             { cText = "Front rigid"
                             , cMultiline = False
+                            , assocWithPrior = False
                             }
                         )
                     , Object
@@ -693,6 +705,7 @@ Object
                         ( InternalComment
                             { cText = "Left side"
                             , cMultiline = False
+                            , assocWithPrior = False
                             }
                         )
                     , Array
@@ -707,6 +720,7 @@ Object
                         ( InternalComment
                             { cText = "Right side"
                             , cMultiline = False
+                            , assocWithPrior = False
                             }
                         )
                     , Array
@@ -721,6 +735,7 @@ Object
                         ( InternalComment
                             { cText = "Attachment beams"
                             , cMultiline = False
+                            , assocWithPrior = False
                             }
                         )
                     , Object
@@ -757,18 +772,21 @@ Object
                         ( InternalComment
                             { cText = "Frame"
                             , cMultiline = False
+                            , assocWithPrior = False
                             }
                         )
                     , Comment
                         ( InternalComment
                             { cText = "Left side"
                             , cMultiline = False
+                            , assocWithPrior = False
                             }
                         )
                     , Comment
                         ( InternalComment
                             { cText = "Front"
                             , cMultiline = False
+                            , assocWithPrior = False
                             }
                         )
                     , Object
@@ -811,6 +829,7 @@ Object
                         ( InternalComment
                             { cText = "Middle"
                             , cMultiline = False
+                            , assocWithPrior = False
                             }
                         )
                     , Object
@@ -853,6 +872,7 @@ Object
                         ( InternalComment
                             { cText = "Rear"
                             , cMultiline = False
+                            , assocWithPrior = False
                             }
                         )
                     , Object
@@ -917,12 +937,14 @@ Object
                         ( InternalComment
                             { cText = "Right side"
                             , cMultiline = False
+                            , assocWithPrior = False
                             }
                         )
                     , Comment
                         ( InternalComment
                             { cText = "Front"
                             , cMultiline = False
+                            , assocWithPrior = False
                             }
                         )
                     , Object
@@ -975,6 +997,7 @@ Object
                         ( InternalComment
                             { cText = "Middle"
                             , cMultiline = False
+                            , assocWithPrior = False
                             }
                         )
                     , Object
@@ -1017,6 +1040,7 @@ Object
                         ( InternalComment
                             { cText = "Rear"
                             , cMultiline = False
+                            , assocWithPrior = False
                             }
                         )
                     , Object
@@ -1091,12 +1115,14 @@ Object
                         ( InternalComment
                             { cText = "Body"
                             , cMultiline = False
+                            , assocWithPrior = False
                             }
                         )
                     , Comment
                         ( InternalComment
                             { cText = "Left side"
                             , cMultiline = False
+                            , assocWithPrior = False
                             }
                         )
                     , Object
@@ -1121,6 +1147,7 @@ Object
                         ( InternalComment
                             { cText = "Right side"
                             , cMultiline = False
+                            , assocWithPrior = False
                             }
                         )
                     , Object

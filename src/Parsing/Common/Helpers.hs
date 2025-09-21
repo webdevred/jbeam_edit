@@ -5,6 +5,7 @@ module Parsing.Common.Helpers (
   failingParser,
   toChar,
   toWord8,
+  wordIsSpace,
   parseWord8s,
   tryParsers,
   skipWhiteSpace,
@@ -20,7 +21,7 @@ import Data.Text qualified as T
 import Text.Megaparsec qualified as MP
 import Text.Megaparsec.Byte qualified as B
 
-type Parser = MP.Parsec Void ByteString
+type Parser m a = MP.ParsecT Void ByteString m a
 
 ---
 --- helpers
@@ -31,26 +32,29 @@ toWord8 = fromIntegral . ord
 toChar :: Word8 -> Char
 toChar = chr . fromIntegral
 
+wordIsSpace :: Word8 -> Bool
+wordIsSpace = isSpace . toChar
+
 charNotEqWord8 :: Char -> Word8 -> Bool
 charNotEqWord8 c w = toWord8 c /= w
 
-tryParsers :: [Parser a] -> Parser a
+tryParsers :: [Parser m a] -> Parser m a
 tryParsers = asum . map MP.try
 
-byteChar :: Char -> Parser Word8
+byteChar :: Char -> Parser m Word8
 byteChar = B.char . toWord8
 
-skipWhiteSpace :: Parser ()
+skipWhiteSpace :: Parser m ()
 skipWhiteSpace = B.space
 
-parseWord8s :: (T.Text -> a) -> Parser [Word8] -> Parser a
+parseWord8s :: (T.Text -> a) -> Parser m [Word8] -> Parser m a
 parseWord8s f bsParser = do
   bs' <- bsParser
   case decodeUtf8' (BS.pack bs') of
     Right text' -> pure (f text')
     Left _ -> empty
 
-failingParser :: [String] -> Parser a
+failingParser :: [String] -> Parser m a
 failingParser expLabels = unexpTok >>= flip MP.failure expToks
   where
     unexpTok =
@@ -61,5 +65,5 @@ failingParser expLabels = unexpTok >>= flip MP.failure expToks
       let c = toChar w
        in not (isSpace c) && notElem c [',', ']', '}']
 
-parseBool :: Parser Bool
+parseBool :: Parser m Bool
 parseBool = MP.choice [B.string "true", B.string "false"] <&> (== "true")

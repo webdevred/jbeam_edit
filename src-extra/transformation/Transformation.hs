@@ -35,7 +35,7 @@ sideCommentText RightTree = "Right side"
 sideCommentText SupportTree = "Support nodes"
 
 sideComment :: VertexTreeType -> InternalComment
-sideComment t = InternalComment (sideCommentText t) False
+sideComment t = InternalComment (sideCommentText t) False False
 
 buildTreeForType
   :: VertexConnMap
@@ -70,7 +70,7 @@ addPrefixComments (x :| xs) = x :| map addToCG xs
   where
     addToCG ((AnnotatedVertex comments vertex meta) :| cgs) =
       let commentName = dropIndex $ vName vertex
-          newComment = InternalComment ("prefix group " <> commentName) False
+          newComment = InternalComment ("prefix group " <> commentName) False False
        in AnnotatedVertex (newComment : comments) vertex meta :| cgs
 
 addSupportVertex
@@ -133,7 +133,7 @@ groupAnnotatedVertices
   -> AnnotatedVertex
   -> Maybe (VertexTreeType, [AnnotatedVertex])
 groupAnnotatedVertices brks g = do
-  treeType <- determineGroup brks (aVertex g)
+  treeType <- determineGroup' brks (aVertex g)
   pure (treeType, [g])
 
 sortSupportVertices
@@ -232,8 +232,7 @@ commentGroupToNodesWithPrev prevMeta (AnnotatedVertex comments vertex meta) =
         | (k, v) <- M.assocs localsMeta
         ]
 
-      commentNodes :: [Node]
-      commentNodes = map Comment comments
+      (postComments, preComments) = partition assocWithPrior comments
 
       vertexArray :: Node
       vertexArray =
@@ -244,7 +243,12 @@ commentGroupToNodesWithPrev prevMeta (AnnotatedVertex comments vertex meta) =
             , Number (vY vertex)
             , Number (vZ vertex)
             ]
-   in (commentNodes ++ metaNodes ++ [vertexArray], newPrevMeta)
+   in ( map Comment preComments
+          ++ metaNodes
+          ++ one vertexArray
+          ++ map Comment postComments
+      , newPrevMeta
+      )
 
 vertexForestToNodeVector :: MetaMap -> VertexForest -> Vector Node
 vertexForestToNodeVector initialMeta vf =
@@ -291,7 +295,7 @@ assignNames
 assignNames brks treeType prefixMap av =
   let v = aVertex av
       prefix = dropIndex (vName v)
-      typeSpecific = maybe "" prefixForType (determineGroup' brks v)
+      typeSpecific = maybe "" prefixForType (determineGroup brks v)
       (prefix', lastChar) = fromMaybe (error "unreachable") (T.unsnoc prefix)
       prefix''
         | treeType /= SupportTree

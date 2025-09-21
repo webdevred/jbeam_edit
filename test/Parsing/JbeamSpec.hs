@@ -4,11 +4,11 @@ module Parsing.JbeamSpec (
 
 import Parsing.Common.Helpers
 import Parsing.Jbeam
-import Parsing.ParsingTestHelpers
 import Relude.Unsafe (read)
 import SpecHelper
 import Test.Hspec.Megaparsec
-import Text.Megaparsec
+
+import Text.Megaparsec qualified as MP
 
 numberSpec :: [(String, Node)]
 numberSpec =
@@ -33,11 +33,36 @@ nullSpec = [("null", Null)]
 
 multilineCommentSpec :: [(String, Node)]
 multilineCommentSpec =
-  [("/* test */", Comment (InternalComment {cText = "test", cMultiline = True}))]
+  [
+    ( "/* test */"
+    , Comment
+        (InternalComment {cText = "test", cMultiline = True, assocWithPrior = False})
+    )
+  ]
 
 singlelineCommentSpec :: [(String, Node)]
 singlelineCommentSpec =
-  [ ("// test \n", Comment (InternalComment {cText = "test", cMultiline = False}))
+  [
+    ( "// test \n"
+    , Comment
+        (InternalComment {cText = "test", cMultiline = False, assocWithPrior = False})
+    )
+  ,
+    ( "[\"test\", \"test\" // cool comment \n ]"
+    , Array
+        ( fromList
+            [ String "test"
+            , String "test"
+            , Comment
+                ( InternalComment
+                    { cText = "cool comment"
+                    , cMultiline = False
+                    , assocWithPrior = True
+                    }
+                )
+            ]
+        )
+    )
   ]
 
 arraySpec :: [(String, Node)]
@@ -71,7 +96,7 @@ objectSpec =
 invalidSpec :: Spec
 invalidSpec =
   describe "should fail when input is malformed" . works $
-    parse nodeParser "" "[1,2,a,4]"
+    parseNodesState nodeParser "[1,2,a,4]"
       `shouldFailWith` err 6 (utok (toWord8 'a') <> expLabels)
   where
     expLabels = foldMap elabel ["a valid scalar", "object", "array"]
@@ -81,7 +106,7 @@ invalidNumberSpec =
   describe
     "should fail parsing Number when there is space after the negative sign"
     . works
-    $ parse numberParser "" "- 0.3"
+    $ parseNodesState numberParser "- 0.3"
       `shouldFailWith` err 1 (utok (toWord8 ' ') <> elabel "digit")
 
 topNodeSpec :: FilePath -> FilePath -> Spec
@@ -92,7 +117,7 @@ topNodeSpec inFilename outFilename = do
   let desc = "should parse contents of " ++ inFilename ++ " to AST in " ++ outFilename
   describe desc . works $ do
     parseNodes input `shouldBe` Right (read output)
-    parse nodeParser "" input `shouldParse` read output
+    parseNodesState nodeParser input `shouldParse` read output
 
 topNodeSpecs :: Spec
 topNodeSpecs = do
@@ -102,6 +127,18 @@ topNodeSpecs = do
       testInputFile inFile = topNodeSpec inFile (outputFile inFile)
   mapM_ testInputFile inputFiles
 
+parseNodesState'
+  :: JbeamParser a
+  -> String
+  -> Either (MP.ParseErrorBundle ByteString Void) a
+parseNodesState' parser = parseNodesState parser . fromString
+
+applyParserSpec :: (Eq a, Show a) => JbeamParser a -> (String, a) -> Spec
+applyParserSpec parser = uncurry $ applySpecOnInput descFun assertParsesTo
+  where
+    assertParsesTo input = shouldParse (parseNodesState' parser input)
+    descFun input expResult = "should parse " <> input <> " to " <> expResult
+
 invalidTopNodeSpec :: Spec
 invalidTopNodeSpec = do
   let inputPath = "examples/invalid_jbeam/invalid_fender.jbeam"
@@ -110,7 +147,7 @@ invalidTopNodeSpec = do
   describe desc . works $
     parseNodes input
       `shouldBe` Left
-        "got: '{', expecting ',', '}', comment, string or white space somewhere close to {\"collision\" : true}, on line 9"
+        "got: '{', expecting '}', comma, comment, string or white space somewhere close to {\"collision\" : true}, on line 9"
 
 spec :: Spec
 spec = do

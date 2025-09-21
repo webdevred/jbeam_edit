@@ -26,10 +26,10 @@ nullSpec :: [(String, Node)]
 nullSpec = [("null", Null)]
 
 multilineCommentSpec :: [(String, Node)]
-multilineCommentSpec = [("/* test */", Comment (InternalComment "test" True))]
+multilineCommentSpec = [("/* test */", Comment (InternalComment "test" True False))]
 
 singlelineCommentSpec :: [(String, Node)]
-singlelineCommentSpec = [("\n// test", Comment (InternalComment "test" False))]
+singlelineCommentSpec = [("\n// test", Comment (InternalComment "test" False False))]
 
 arraySpec :: [(String, Node)]
 arraySpec =
@@ -76,8 +76,7 @@ spec = do
 
   it "formats all JBEAM ASTs with all JBFL rules and matches dumped files" $ do
     dynamicTests <- dynamicJbflTests
-    forM_ dynamicTests $ \(formatted, expected) -> do
-      formatted `shouldBe` expected
+    forM_ dynamicTests $ uncurry shouldBe
   where
     formatNodeSpec (jbeam, node) =
       applySpecOnInput

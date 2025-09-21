@@ -112,6 +112,12 @@ toInternalComment :: Node -> Maybe InternalComment
 toInternalComment (Comment c) = Just c
 toInternalComment _ = Nothing
 
+addCommentToAn
+  :: InternalComment
+  -> AnnotatedVertex
+  -> AnnotatedVertex
+addCommentToAn ic (AnnotatedVertex comments vertex meta) = AnnotatedVertex (ic : comments) vertex meta
+
 nodesToCommentGroups
   :: Map Text Node
   -> [Node]
@@ -132,9 +138,13 @@ nodesToCommentGroups initialMeta nodes = go initialMeta [] nodes []
               let newMeta = M.union (metaMapFromObject n) pendingMeta
                in go newMeta pendingComments ns acc
           | isCommentNode n ->
-              case toInternalComment n of
-                Just ic -> go pendingMeta (ic : pendingComments) ns acc
-                Nothing -> go pendingMeta pendingComments ns acc
+              case (toInternalComment n, acc) of
+                (Just ic@(InternalComment {assocWithPrior = True}), an : ans) ->
+                  go pendingMeta pendingComments ns (addCommentToAn ic an : ans)
+                (Just ic, _) ->
+                  go pendingMeta (ic : pendingComments) ns acc
+                (Nothing, _) ->
+                  go pendingMeta pendingComments ns acc
           | otherwise -> go pendingMeta pendingComments ns acc
 
 newVertexTree

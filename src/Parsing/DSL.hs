@@ -2,6 +2,7 @@
 {-# LANGUAGE GADTs #-}
 
 module Parsing.DSL (
+  JbflParser,
   parseDSL,
   patternSelectorParser,
   keyPropertyPairParser,
@@ -27,7 +28,9 @@ import Text.Megaparsec.Byte.Lexer qualified as L (
   skipLineComment,
  )
 
-objectKeyParser :: Parser NodePatternSelector
+type JbflParser a = Parser Identity a
+
+objectKeyParser :: JbflParser NodePatternSelector
 objectKeyParser = byteChar '.' *> key
   where
     key = parseWord8s (Selector . ObjectKey) (MP.some . MP.satisfy $ p)
@@ -35,17 +38,17 @@ objectKeyParser = byteChar '.' *> key
       let c = toChar w
        in not (isSpace c) && c `notElem` ['[', '.']
 
-objectIndexParser :: Parser NodePatternSelector
+objectIndexParser :: JbflParser NodePatternSelector
 objectIndexParser = byteChar '.' *> index
   where
     index = Selector . ObjectIndex <$> L.decimal
 
-arrayIndexParser :: Parser NodePatternSelector
+arrayIndexParser :: JbflParser NodePatternSelector
 arrayIndexParser = byteChar '[' *> index <* byteChar ']'
   where
     index = Selector . ArrayIndex <$> L.decimal
 
-patternSelectorParser :: Parser NodePatternSelector
+patternSelectorParser :: JbflParser NodePatternSelector
 patternSelectorParser =
   tryParsers
     [ B.string ".*" $> AnyObjectKey
@@ -55,7 +58,7 @@ patternSelectorParser =
     , arrayIndexParser <?> "array index"
     ]
 
-patternParser :: Parser NodePattern
+patternParser :: JbflParser NodePattern
 patternParser = skipWhiteSpace *> patternSelectors <* skipWhiteSpace
   where
     patternSelectors = NodePattern . Seq.fromList <$> MP.some patternSelectorParser
@@ -66,7 +69,7 @@ tryDecodeKey bs f =
     Right text' -> f text'
     Left _ -> Nothing
 
-propertyParser :: SomeKey -> Parser (SomeKey, SomeProperty)
+propertyParser :: SomeKey -> JbflParser (SomeKey, SomeProperty)
 propertyParser (SomeKey key) = do
   _ <- byteChar ':'
   skipWhiteSpace
@@ -76,18 +79,18 @@ propertyParser (SomeKey key) = do
   let prop = SomeProperty key
    in pure (SomeKey key, prop val)
 
-parseValueForKey :: PropertyKey a -> Parser a
+parseValueForKey :: PropertyKey a -> JbflParser a
 parseValueForKey NoComplexNewLine = parseBool <?> "bool"
 parseValueForKey PadAmount = L.decimal <?> "integer"
 parseValueForKey PadDecimals = L.decimal <?> "integer"
 parseValueForKey Indent = L.decimal <?> "integer"
 
-skipComment :: Parser ()
+skipComment :: JbflParser ()
 skipComment = void . MP.many $ comment <* skipWhiteSpace
   where
     comment = tryParsers [L.skipLineComment "//", L.skipBlockComment "/*" "*/"]
 
-keyPropertyPairParser :: Parser (SomeKey, SomeProperty)
+keyPropertyPairParser :: JbflParser (SomeKey, SomeProperty)
 keyPropertyPairParser = do
   skipComment
   offset <- MP.getOffset
@@ -103,10 +106,10 @@ keyPropertyPairParser = do
       key' = tryDecodeKey key (`lookupKey` allProperties)
    in maybe (unexpTok >>= failParser) propertyParser key'
 
-separatorParser :: Parser ()
+separatorParser :: JbflParser ()
 separatorParser = skipWhiteSpace *> void (byteChar ';') <* skipWhiteSpace
 
-ruleParser :: Parser (NodePattern, Map SomeKey SomeProperty)
+ruleParser :: JbflParser (NodePattern, Map SomeKey SomeProperty)
 ruleParser = do
   pat <- patternParser
   skipWhiteSpace
@@ -117,7 +120,7 @@ ruleParser = do
   skipWhiteSpace
   pure (pat, M.fromList props)
 
-ruleSetParser :: Parser RuleSet
+ruleSetParser :: JbflParser RuleSet
 ruleSetParser = RuleSet . M.fromListWith M.union <$> MP.some singleRuleSet
   where
     singleRuleSet = skipComment *> ruleParser <* skipComment
