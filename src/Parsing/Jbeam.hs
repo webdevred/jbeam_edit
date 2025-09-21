@@ -8,6 +8,7 @@ import Core.Node (InternalComment (..), Node (..))
 import Parsing.Common
 import Text.Megaparsec ((<?>))
 
+import Data.ByteString qualified as BS
 import Data.Text qualified as T
 import Data.Vector qualified as V (fromList)
 import Text.Megaparsec qualified as MP
@@ -15,17 +16,36 @@ import Text.Megaparsec.Byte qualified as B
 import Text.Megaparsec.Byte.Lexer qualified as L (scientific)
 import Text.Megaparsec.Char qualified as C
 
-separatorParser :: Parser ()
-separatorParser =
-  tryParsers [commaSeparator, whitespaceSeparator] *> skipWhiteSpace
-  where
-    commaSeparator = skipWhiteSpace *> byteChar ','
-    whitespaceSeparator = B.spaceChar
+newtype ParseState = ParseState
+  { lastNodeEndedWithNewline :: Bool
+  }
+
+type JbeamParser a = Parser (State ParseState) a
+
+separatorParser :: JbeamParser ()
+separatorParser = do
+  ws1 <-
+    MP.takeWhileP
+      (Just "space before comma")
+      (\w -> let c = toChar w in c `elem` [' ', '\t', '\n', '\r'])
+  comma <- optional (byteChar ',')
+  ws2 <-
+    MP.takeWhileP
+      (Just "space after comma")
+      (\w -> let c = toChar w in c `elem` [' ', '\t', '\n', '\r'])
+
+  let hasNewline =
+        isNothing comma && '\n' `elem` map toChar (BS.unpack ws1)
+          || '\n' `elem` map toChar (BS.unpack ws2)
+
+  modify (\s -> s {lastNodeEndedWithNewline = hasNewline})
+
+  pure ()
 
 ---
 --- selectors for numbers, comments, strings and bools
 ---
-numberParser :: Parser Node
+numberParser :: JbeamParser Node
 numberParser = do
   char <- MP.lookAhead B.asciiChar
   Number
@@ -35,33 +55,43 @@ numberParser = do
       else
         L.scientific
 
-multilineCommentParser :: Parser InternalComment
-multilineCommentParser =
+multilineCommentParser :: JbeamParser InternalComment
+multilineCommentParser = do
+  st <- get
+  let multilineComment text =
+        InternalComment
+          { cText = text
+          , cMultiline = True
+          , assocWithPrior = not (lastNodeEndedWithNewline st)
+          }
+      parseComment = parseWord8s (multilineComment . T.strip)
   C.string "/*" >> parseComment (MP.manyTill B.asciiChar (B.string "*/"))
-  where
-    multilineComment text = InternalComment {cText = text, cMultiline = True}
-    parseComment = parseWord8s (multilineComment . T.strip)
 
-singlelineCommentParser :: Parser InternalComment
-singlelineCommentParser =
-  C.string "//" *> parseComment (MP.some (MP.satisfy (charNotEqWord8 '\n')))
-  where
-    singlelineComment text = InternalComment {cText = text, cMultiline = False}
-    parseComment = parseWord8s (singlelineComment . T.strip)
+singlelineCommentParser :: JbeamParser InternalComment
+singlelineCommentParser = do
+  st <- get
+  _ <- C.string "//"
+  txt <- MP.some (MP.satisfy (charNotEqWord8 '\n'))
+  pure
+    InternalComment
+      { cText = T.strip (decodeUtf8 (BS.pack txt))
+      , cMultiline = False
+      , assocWithPrior = not (lastNodeEndedWithNewline st)
+      }
 
-commentParser :: Parser Node
+commentParser :: JbeamParser Node
 commentParser =
   MP.label
     "comment"
     (Comment <$> tryParsers [multilineCommentParser, singlelineCommentParser])
 
-nullParser :: Parser Node
+nullParser :: JbeamParser Node
 nullParser = C.string "null" $> Null
 
-boolParser :: Parser Node
+boolParser :: JbeamParser Node
 boolParser = Bool <$> parseBool
 
-stringParser :: Parser Node
+stringParser :: JbeamParser Node
 stringParser = parseWord8s String string
   where
     validString =
@@ -69,14 +99,14 @@ stringParser = parseWord8s String string
     emptyString = C.string "\"\"" >> pure []
     string = emptyString <|> validString
 
-scalarParser :: Parser Node
+scalarParser :: JbeamParser Node
 scalarParser =
   tryScalarParsers
     [stringParser, commentParser, numberParser, boolParser, nullParser]
   where
     tryScalarParsers = MP.try . tryParsers . map MP.hidden
 
-nodeParser :: Parser Node
+nodeParser :: JbeamParser Node
 nodeParser = skipWhiteSpace *> (anyNode <|> failingParser expLabels)
   where
     expLabels = ["a valid scalar", "object", "array"]
@@ -85,7 +115,7 @@ nodeParser = skipWhiteSpace *> (anyNode <|> failingParser expLabels)
 ---
 --- selectors for objects, object keys and arrays
 ---
-arrayParser :: Parser Node
+arrayParser :: JbeamParser Node
 arrayParser = do
   _ <- byteChar '['
   elems <- MP.sepEndBy nodeParser separatorParser
@@ -93,7 +123,7 @@ arrayParser = do
   _ <- byteChar ']'
   pure . Array . V.fromList $ elems
 
-objectKeyParser :: Parser Node
+objectKeyParser :: JbeamParser Node
 objectKeyParser = do
   _ <- skipWhiteSpace
   key <- MP.try (stringParser <?> "string")
@@ -106,7 +136,7 @@ objectKeyParser = do
     '}' -> pure obj
     _ -> separatorParser $> obj
 
-objectParser :: Parser Node
+objectParser :: JbeamParser Node
 objectParser = do
   _ <- byteChar '{'
   keys <- MP.some (commentParser <|> objectKeyParser)
@@ -114,8 +144,11 @@ objectParser = do
   _ <- byteChar '}'
   pure . Object . V.fromList $ keys
 
-topNodeParser :: Parser Node
+topNodeParser :: JbeamParser Node
 topNodeParser = nodeParser <* skipWhiteSpace <* MP.eof
 
-parseNodes :: ByteString -> Either Text Node
-parseNodes = first formatErrors . MP.parse topNodeParser "<input>"
+parseNodes :: BS.ByteString -> Either Text Node
+parseNodes input =
+  let initialState = ParseState {lastNodeEndedWithNewline = False}
+      result = evalState (MP.runParserT topNodeParser "<input>" input) initialState
+   in first formatErrors result

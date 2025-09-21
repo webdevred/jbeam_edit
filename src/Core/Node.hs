@@ -22,6 +22,7 @@ type Array = Vector Node
 data InternalComment = InternalComment
   { cText :: Text
   , cMultiline :: Bool
+  , assocWithPrior :: Bool
   }
   deriving (Eq, Ord, Read, Show)
 
