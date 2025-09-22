@@ -133,6 +133,7 @@ library jbeam-edit-transformation
         filepath,
         jbeam-edit,
         megaparsec,
+        nonempty-vector,
         relude,
         scientific,
         text >=2.0,
