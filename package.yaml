@@ -69,7 +69,7 @@ internal-libraries:
       condition: '!flag(transformation)'
       buildable: false
     source-dirs: src-extra/transformation
-    dependencies: [yaml, jbeam-edit]
+    dependencies: [yaml, nonempty-vector, jbeam-edit]
 
 library:
   source-dirs: src
