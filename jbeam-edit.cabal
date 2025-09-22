@@ -86,15 +86,15 @@ library
 
     build-depends:
         base >=4.17 && <5,
-        bytestring,
-        containers,
-        directory,
-        filepath,
-        megaparsec,
-        relude,
-        scientific,
-        text >=2.0,
-        vector
+        bytestring >=0.12,
+        containers >=0.6,
+        directory >=1.3,
+        filepath >=1.4,
+        megaparsec >=9.6,
+        relude >=1.2,
+        scientific >=0.3,
+        text >=2.1,
+        vector >=0.13
 
     mixins:
         base hiding (Prelude),
@@ -127,16 +127,16 @@ library jbeam-edit-transformation
 
     build-depends:
         base >=4.17 && <5,
-        bytestring,
-        containers,
-        directory,
-        filepath,
+        bytestring >=0.12,
+        containers >=0.6,
+        directory >=1.3,
+        filepath >=1.4,
         jbeam-edit,
-        megaparsec,
-        relude,
-        scientific,
-        text >=2.0,
-        vector,
+        megaparsec >=9.6,
+        relude >=1.2,
+        scientific >=0.3,
+        text >=2.1,
+        vector >=0.13,
         yaml
 
     mixins:
@@ -159,16 +159,16 @@ executable jbeam-edit
 
     build-depends:
         base >=4.17 && <5,
-        bytestring,
-        containers,
-        directory,
-        filepath,
+        bytestring >=0.12,
+        containers >=0.6,
+        directory >=1.3,
+        filepath >=1.4,
         jbeam-edit,
-        megaparsec,
-        relude,
-        scientific,
-        text >=2.0,
-        vector
+        megaparsec >=9.6,
+        relude >=1.2,
+        scientific >=0.3,
+        text >=2.1,
+        vector >=0.13
 
     mixins:
         base hiding (Prelude),
@@ -194,18 +194,18 @@ executable jbeam-edit-dump-ast
 
     build-depends:
         base >=4.17 && <5,
-        bytestring,
-        containers,
-        directory,
-        filepath,
+        bytestring >=0.12,
+        containers >=0.6,
+        directory >=1.3,
+        filepath >=1.4,
         jbeam-edit,
         jbeam-edit-transformation,
-        megaparsec,
+        megaparsec >=9.6,
         pretty-simple,
-        relude,
-        scientific,
-        text >=2.0,
-        vector
+        relude >=1.2,
+        scientific >=0.3,
+        text >=2.1,
+        vector >=0.13
 
     mixins:
         base hiding (Prelude),
@@ -245,18 +245,18 @@ test-suite jbeam-edit-test
 
     build-depends:
         base >=4.17 && <5,
-        bytestring,
-        containers,
-        directory,
-        filepath,
-        hspec,
-        hspec-megaparsec,
+        bytestring >=0.12,
+        containers >=0.6,
+        directory >=1.3,
+        filepath >=1.4,
+        hspec >=2.11,
+        hspec-megaparsec >=2.2,
         jbeam-edit,
-        megaparsec,
-        relude,
-        scientific,
-        text >=2.0,
-        vector
+        megaparsec >=9.6,
+        relude >=1.2,
+        scientific >=0.3,
+        text >=2.1,
+        vector >=0.13
 
     mixins:
         base hiding (Prelude),
