@@ -102,20 +102,47 @@ library
         relude
 
     if flag(transformation)
-        exposed-modules:
-            Transformation
-            Config
-
-        hs-source-dirs:  src-extra/transformation
-        other-modules:
-            Types
-            VertexExtraction
-            SupportVertex
-
-        build-depends:   yaml
+        cpp-options: -DENABLE_TRANSFORMATION
 
     if (os(windows) && flag(windows-example-paths))
         cpp-options: -DWINDOWS_EXAMPLE_PATHS
+
+library jbeam-edit-transformation
+    exposed-modules:
+        Config
+        SupportVertex
+        Transformation
+        Types
+        VertexExtraction
+
+    hs-source-dirs:     src-extra/transformation
+    other-modules:      Paths_jbeam_edit
+    autogen-modules:    Paths_jbeam_edit
+    default-language:   Haskell2010
+    default-extensions: OverloadedStrings ImportQualifiedPost
+    ghc-options:
+        -Wall -Wcompat -Widentities -Wincomplete-record-updates
+        -Wincomplete-uni-patterns -Wmissing-export-lists
+        -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
+
+    build-depends:
+        base >=4.17 && <5,
+        bytestring,
+        containers,
+        directory,
+        filepath,
+        jbeam-edit,
+        megaparsec,
+        relude,
+        scientific,
+        text >=2.0,
+        vector,
+        yaml
+
+    mixins:
+        base hiding (Prelude),
+        relude (Relude as Prelude),
+        relude
 
 executable jbeam-edit
     main-is:            Main.hs
@@ -149,7 +176,8 @@ executable jbeam-edit
         relude
 
     if flag(transformation)
-        cpp-options: -DENABLE_TRANSFORMATION
+        cpp-options:   -DENABLE_TRANSFORMATION
+        build-depends: jbeam-edit-transformation
 
 executable jbeam-edit-dump-ast
     main-is:            Main.hs
@@ -171,6 +199,7 @@ executable jbeam-edit-dump-ast
         directory,
         filepath,
         jbeam-edit,
+        jbeam-edit-transformation,
         megaparsec,
         pretty-simple,
         relude,
@@ -235,4 +264,5 @@ test-suite jbeam-edit-test
         relude
 
     if flag(transformation)
-        cpp-options: -DENABLE_TRANSFORMATION_TESTS
+        cpp-options:   -DENABLE_TRANSFORMATION_TESTS
+        build-depends: jbeam-edit-transformation

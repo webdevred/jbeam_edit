@@ -48,18 +48,6 @@ ghc-options:
   - -Wpartial-fields
   - -Wredundant-constraints
 
-library:
-  source-dirs: src
-  generated-other-modules: Paths_jbeam_edit
-  when:
-    - condition: flag(transformation)
-      source-dirs: [src-extra/transformation]
-      exposed-modules: [Transformation, Config]
-      other-modules: [Types, VertexExtraction, SupportVertex]
-      dependencies: [yaml]
-    - condition: os(windows) && flag(windows-example-paths)
-      cpp-options: -DWINDOWS_EXAMPLE_PATHS
-
 flags:
   dump-ast:
     description: Enable building the dump-ast executable
@@ -74,6 +62,20 @@ flags:
     default: false
     manual: true
 
+internal-libraries:
+  jbeam-edit-transformation:
+    source-dirs: src-extra/transformation
+    dependencies: [yaml, jbeam-edit]
+
+library:
+  source-dirs: src
+  generated-other-modules: Paths_jbeam_edit
+  when:
+    - condition: flag(transformation)
+      cpp-options: -DENABLE_TRANSFORMATION
+    - condition: os(windows) && flag(windows-example-paths)
+      cpp-options: -DWINDOWS_EXAMPLE_PATHS
+
 executables:
   jbeam-edit:
     main: Main.hs
@@ -82,6 +84,7 @@ executables:
     dependencies: [jbeam-edit]
     when:
       condition: flag(transformation)
+      dependencies: [jbeam-edit-transformation]
       cpp-options: -DENABLE_TRANSFORMATION
   jbeam-edit-dump-ast:
     when:
@@ -93,7 +96,7 @@ executables:
     main: Main.hs
     source-dirs: tools/dump_ast
     ghc-options: [-threaded, -rtsopts, -with-rtsopts=-N]
-    dependencies: [pretty-simple, jbeam-edit]
+    dependencies: [pretty-simple, jbeam-edit, jbeam-edit-transformation]
 
 tests:
   jbeam-edit-test:
@@ -104,4 +107,5 @@ tests:
     build-tools: [hspec-discover]
     when:
       condition: flag(transformation)
+      dependencies: [jbeam-edit-transformation]
       cpp-options: -DENABLE_TRANSFORMATION_TESTS
