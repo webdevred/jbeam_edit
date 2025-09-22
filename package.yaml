@@ -81,7 +81,7 @@ internal-libraries:
     when:
       condition: flag(transformation)
       then:
-        dependencies: [yaml, relude]
+        dependencies: [yaml, nonempty-vector, relude]
       else:
         buildable: false
     source-dirs: src-extra/transformation

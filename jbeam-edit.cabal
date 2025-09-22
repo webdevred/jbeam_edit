@@ -148,6 +148,7 @@ library jbeam-edit-transformation
 
     if flag(transformation)
         build-depends:
+            nonempty-vector,
             relude,
             yaml
 
