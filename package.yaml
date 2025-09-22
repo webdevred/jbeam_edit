@@ -65,7 +65,7 @@ flags:
 internal-libraries:
   jbeam-edit-transformation:
     source-dirs: src-extra/transformation
-    dependencies: [yaml, jbeam-edit]
+    dependencies: [yaml, nonempty-vector, jbeam-edit]
 
 library:
   source-dirs: src
