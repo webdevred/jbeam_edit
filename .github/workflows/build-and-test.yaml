@@ -66,7 +66,7 @@ jobs:
         run: stack setup
       - name: Build project
         run: >-
-          stack build --fast --coverage --hpack-force --lock-file=error-on-write
+          stack build --fast --hpack-force --lock-file=error-on-write
           --ghc-options="-Werror"
       - name: Check that .cabal file has not changed except hpack comment
         shell: bash
