@@ -144,6 +144,9 @@ library jbeam-edit-transformation
         relude (Relude as Prelude),
         relude
 
+    if !flag(transformation)
+        buildable: False
+
 executable jbeam-edit
     main-is:            Main.hs
     hs-source-dirs:     app
@@ -212,9 +215,7 @@ executable jbeam-edit-dump-ast
         relude (Relude as Prelude),
         relude
 
-    if (flag(dump-ast) && flag(transformation))
-
-    else
+    if !(flag(dump-ast) && flag(transformation))
         buildable: False
 
 test-suite jbeam-edit-test
