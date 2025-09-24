@@ -1,10 +1,5 @@
 cradle:
   multi:
-    - path: ./Setup.hs
-      config:
-        cradle:
-          direct:
-            arguments: [Setup.hs]
     - path: ./examples/ast
       config:
         cradle:
