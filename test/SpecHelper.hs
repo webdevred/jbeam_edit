@@ -27,7 +27,7 @@ listFilesInDir
   :: FilePath
   -> IO [String]
 listFilesInDir dir =
-  filter (\f -> isSuffixOf ".hs" f && not (isPrefixOf ".#" f))
+  filter (\f -> isSuffixOf ".hs" f && not (".#" `isPrefixOf` f))
     <$> getDirectoryContents dir
 
 applySpecOnInput
