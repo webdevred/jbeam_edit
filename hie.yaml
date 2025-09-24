@@ -17,6 +17,8 @@ cradle:
             components:
               - path: ./src
                 component: lib:jbeam-edit
+              - path: ./src-extra/transformation
+                component: jbeam-edit:lib:jbeam-edit-transformation
               - path: ./app
                 component: exe:jbeam-edit
               - path: ./tools/dump_ast
