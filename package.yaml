@@ -65,6 +65,9 @@ flags:
 
 internal-libraries:
   jbeam-edit-transformation:
+    when:
+      condition: '!flag(transformation)'
+      buildable: false
     source-dirs: src-extra/transformation
     dependencies: [yaml, jbeam-edit]
 
@@ -89,11 +92,8 @@ executables:
       cpp-options: -DENABLE_TRANSFORMATION
   jbeam-edit-dump-ast:
     when:
-      condition: flag(dump-ast) && flag(transformation)
-      then:
-        buildable: true
-      else:
-        buildable: false
+      condition: '!(flag(dump-ast) && flag(transformation))'
+      buildable: false
     main: Main.hs
     source-dirs: tools/dump_ast
     ghc-options: [-threaded, -rtsopts, -with-rtsopts=-N]
