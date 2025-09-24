@@ -96,7 +96,7 @@ groupByPrefix
 groupByPrefix = NE.groupWith1 (dropIndex . vName . aVertex)
 
 addVertexTreeToForest
-  :: Map Text Text
+  :: UpdateNamesMap
   -> TransformationConfig
   -> Map Text Int
   -> Map VertexTreeType [AnnotatedVertex]
@@ -372,7 +372,7 @@ isObjectKeyEqual :: NP.NodeSelector -> Node -> Bool
 isObjectKeyEqual (NP.ObjectKey a) (ObjectKey (String b, _)) = a == b
 isObjectKeyEqual _ _ = False
 
-findAndUpdateTextInNode :: Map Text Text -> NC.NodeCursor -> Node -> Node
+findAndUpdateTextInNode :: UpdateNamesMap -> NC.NodeCursor -> Node -> Node
 findAndUpdateTextInNode m cursor node =
   case node of
     Array arr

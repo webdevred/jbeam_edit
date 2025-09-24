@@ -101,7 +101,7 @@ isSupportVertex v =
     Nothing -> True
     Just (_, c) -> not (isDigit c)
 
-metaMapFromObject :: Node -> Map Text Node
+metaMapFromObject :: Node -> MetaMap
 metaMapFromObject (Object objKeys) =
   let toKV (ObjectKey (String k, v)) = Just (k, v)
       toKV _ = Nothing
@@ -119,7 +119,7 @@ addCommentToAn
 addCommentToAn ic (AnnotatedVertex comments vertex meta) = AnnotatedVertex (ic : comments) vertex meta
 
 nodesToCommentGroups
-  :: Map Text Node
+  :: MetaMap
   -> [Node]
   -> Either Text (NonEmpty AnnotatedVertex)
 nodesToCommentGroups initialMeta nodes = go initialMeta [] nodes []
