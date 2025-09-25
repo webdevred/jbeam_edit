@@ -7,7 +7,7 @@ module Parsing.Jbeam (
   parseNodesState,
 ) where
 
-import Core.Node (InternalComment (..), Node (..))
+import Core.Node (AssociationDirection (..), InternalComment (..), Node (..))
 import Parsing.Common
 import Text.Megaparsec ((<?>))
 
@@ -52,6 +52,14 @@ numberParser = do
       else
         L.scientific
 
+associationDirection :: ParseState -> AssociationDirection
+associationDirection st =
+  if not (lastNodeEndedWithNewline st)
+    then
+      PreviousNode
+    else
+      NextNode
+
 multilineCommentParser :: JbeamParser InternalComment
 multilineCommentParser = do
   st <- get
@@ -59,7 +67,7 @@ multilineCommentParser = do
         InternalComment
           { cText = text
           , cMultiline = True
-          , assocWithPrior = not (lastNodeEndedWithNewline st)
+          , cAssociationDirection = associationDirection st
           }
       parseComment = parseWord8s (multilineComment . T.strip)
   C.string "/*" >> parseComment (MP.manyTill B.asciiChar (B.string "*/"))
@@ -73,7 +81,7 @@ singlelineCommentParser = do
     InternalComment
       { cText = T.strip (decodeUtf8 (BS.pack txt))
       , cMultiline = False
-      , assocWithPrior = not (lastNodeEndedWithNewline st)
+      , cAssociationDirection = associationDirection st
       }
 
 commentParser :: JbeamParser Node

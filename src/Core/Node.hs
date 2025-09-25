@@ -4,8 +4,10 @@ module Core.Node (
   isNumberNode,
   isStringNode,
   isComplexNode,
+  commentIsAttachedToPreviousNode,
   Node (..),
   InternalComment (..),
+  AssociationDirection (..),
   Object,
   Array,
 ) where
@@ -19,10 +21,13 @@ type ObjectKey = (Node, Node)
 
 type Array = Vector Node
 
+data AssociationDirection = PreviousNode | NextNode
+  deriving (Eq, Ord, Read, Show)
+
 data InternalComment = InternalComment
   { cText :: Text
   , cMultiline :: Bool
-  , assocWithPrior :: Bool
+  , cAssociationDirection :: AssociationDirection
   }
   deriving (Eq, Ord, Read, Show)
 
@@ -55,6 +60,10 @@ data Node
   | Comment InternalComment
   | Null
   deriving (Eq, Ord, Read, Show)
+
+commentIsAttachedToPreviousNode :: InternalComment -> Bool
+commentIsAttachedToPreviousNode (InternalComment _ _ PreviousNode) = True
+commentIsAttachedToPreviousNode (InternalComment _ _ NextNode) = False
 
 isCommentNode :: Node -> Bool
 isCommentNode (Comment _) = True

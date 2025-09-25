@@ -36,7 +36,7 @@ multilineCommentSpec =
   [
     ( "/* test */"
     , Comment
-        (InternalComment {cText = "test", cMultiline = True, assocWithPrior = False})
+        (InternalComment {cText = "test", cMultiline = True, cAssociationDirection = NextNode})
     )
   ]
 
@@ -45,7 +45,7 @@ singlelineCommentSpec =
   [
     ( "// test \n"
     , Comment
-        (InternalComment {cText = "test", cMultiline = False, assocWithPrior = False})
+        (InternalComment {cText = "test", cMultiline = False, cAssociationDirection = NextNode})
     )
   ,
     ( "[\"test\", \"test\" // cool comment \n ]"
@@ -57,7 +57,7 @@ singlelineCommentSpec =
                 ( InternalComment
                     { cText = "cool comment"
                     , cMultiline = False
-                    , assocWithPrior = True
+                    , cAssociationDirection = PreviousNode
                     }
                 )
             ]

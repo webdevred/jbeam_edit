@@ -5,7 +5,13 @@ module Formatting (
   RuleSet (..),
 ) where
 
-import Core.Node (InternalComment (..), Node (..), isCommentNode, isComplexNode)
+import Core.Node (
+  InternalComment (..),
+  Node (..),
+  commentIsAttachedToPreviousNode,
+  isCommentNode,
+  isComplexNode,
+ )
 import Core.NodeCursor (newCursor)
 import Data.Char (isSpace)
 import Data.Scientific (FPFormat (Fixed), formatScientific)
@@ -44,7 +50,7 @@ addDelimiters rs index c complexChildren acc ns@(node : rest)
   where
     assocPriorComment = do
       (Comment cmt, rest') <- uncons rest
-      guard (assocWithPrior cmt)
+      guard (commentIsAttachedToPreviousNode cmt)
       pure (Comment cmt, rest')
 
     applyCrumbAndFormat =
@@ -75,8 +81,9 @@ doFormatNode rs cursor nodes =
       any isComplexNode nodes && not (noComplexNewLine rs cursor)
 
 formatComment :: InternalComment -> Text
-formatComment (InternalComment {cMultiline = False, cText = c, assocWithPrior = True}) = "// " <> c
-formatComment (InternalComment {cMultiline = False, cText = c}) = "\n// " <> c
+formatComment ic@(InternalComment {cMultiline = False, cText = c})
+  | commentIsAttachedToPreviousNode ic = "// " <> c
+  | otherwise = "\n// " <> c
 formatComment (InternalComment {cMultiline = True, cText = c}) = T.concat ["/* ", c, " */"]
 
 formatScalarNode :: Node -> Text

@@ -35,7 +35,7 @@ sideCommentText RightTree = "Right side"
 sideCommentText SupportTree = "Support nodes"
 
 sideComment :: VertexTreeType -> InternalComment
-sideComment t = InternalComment (sideCommentText t) False False
+sideComment t = InternalComment (sideCommentText t) False NextNode
 
 buildTreeForType
   :: VertexConnMap
@@ -70,7 +70,7 @@ addPrefixComments (x :| xs) = x :| map addToCG xs
   where
     addToCG ((AnnotatedVertex comments vertex meta) :| cgs) =
       let commentName = dropIndex $ vName vertex
-          newComment = InternalComment ("prefix group " <> commentName) False False
+          newComment = InternalComment ("prefix group " <> commentName) False NextNode
        in AnnotatedVertex (newComment : comments) vertex meta :| cgs
 
 addSupportVertex
@@ -234,7 +234,7 @@ commentGroupToNodesWithPrev prevMeta (AnnotatedVertex comments vertex meta) =
         | (k, v) <- M.assocs localsMeta
         ]
 
-      (postComments, preComments) = partition assocWithPrior comments
+      (postComments, preComments) = partition commentIsAttachedToPreviousNode comments
 
       vertexArray :: Node
       vertexArray =
