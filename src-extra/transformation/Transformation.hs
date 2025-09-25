@@ -65,13 +65,13 @@ buildTreeForType conns supThr originalForest treeType groupsOrig =
 addPrefixComments
   :: NonEmpty (NonEmpty AnnotatedVertex)
   -> NonEmpty (NonEmpty AnnotatedVertex)
-addPrefixComments (x :| []) = one x
-addPrefixComments (x :| xs) = x :| map addToCG xs
+addPrefixComments (av :| []) = one av
+addPrefixComments (av :| avs) = av :| map addToAnnotatedVertex avs
   where
-    addToCG ((AnnotatedVertex comments vertex meta) :| cgs) =
+    addToAnnotatedVertex ((AnnotatedVertex comments vertex meta) :| avs') =
       let commentName = dropIndex $ vName vertex
           newComment = InternalComment ("prefix group " <> commentName) False NextNode
-       in AnnotatedVertex (newComment : comments) vertex meta :| cgs
+       in AnnotatedVertex (newComment : comments) vertex meta :| avs'
 
 addSupportVertex
   :: AnnotatedVertex
@@ -188,7 +188,7 @@ getVertexNamesInForest =
       ( \(VertexTree _ groups) ->
           M.fromList $
             map
-              (\cg -> let v = aVertex cg in ((vX v, vY v, vZ v), vName v))
+              (\av -> let v = aVertex av in ((vX v, vY v, vZ v), vName v))
               (NE.toList $ sconcat groups)
       )
 
@@ -201,7 +201,7 @@ vertexTreeToNodesWithPrev prevMeta _ (VertexTree topComments groups) =
   let topNodes = NE.fromList $ map Comment topComments
 
       stepVertex pm av =
-        let (nodes, newMeta) = commentGroupToNodesWithPrev pm av
+        let (nodes, newMeta) = annotatedVertexToNodesWithPrev pm av
          in (newMeta, NE.fromList nodes)
 
       stepGroup pm avGroup =
@@ -220,11 +220,11 @@ removeIdenticalMeta = M.differenceWithKey diff
       | v1 == v2 = Nothing
       | otherwise = Just v1
 
-commentGroupToNodesWithPrev
+annotatedVertexToNodesWithPrev
   :: MetaMap
   -> AnnotatedVertex
   -> ([Node], MetaMap)
-commentGroupToNodesWithPrev prevMeta (AnnotatedVertex comments vertex meta) =
+annotatedVertexToNodesWithPrev prevMeta (AnnotatedVertex comments vertex meta) =
   let localsMeta = removeIdenticalMeta meta prevMeta
 
       newPrevMeta = M.union localsMeta prevMeta
@@ -266,9 +266,9 @@ vertexForestToNodeVector initialMeta vf =
 treesOrder :: [VertexTreeType]
 treesOrder = [LeftTree, MiddleTree, RightTree, SupportTree]
 
-compareCG
+compareAV
   :: Scientific -> VertexTreeType -> AnnotatedVertex -> AnnotatedVertex -> Ordering
-compareCG thr treeType vertex1 vertex2 =
+compareAV thr treeType vertex1 vertex2 =
   let supportNameCompare =
         bool
           EQ
@@ -336,7 +336,7 @@ sortVertices newNames tfCfg treeType groups =
           then
             sconcat . groupByPrefix $ groups
           else groups
-      sortedGroups = NE.sortBy (compareCG thr treeType) groups'
+      sortedGroups = NE.sortBy (compareAV thr treeType) groups'
 
       renamedGroups =
         snd $ mapAccumL (assignNames newNames brks treeType) M.empty sortedGroups

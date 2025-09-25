@@ -118,11 +118,11 @@ addCommentToAn
   -> AnnotatedVertex
 addCommentToAn ic (AnnotatedVertex comments vertex meta) = AnnotatedVertex (ic : comments) vertex meta
 
-nodesToCommentGroups
+nodesToAnnotatedVertices
   :: MetaMap
   -> [Node]
   -> Either Text (NonEmpty AnnotatedVertex)
-nodesToCommentGroups initialMeta nodes = go initialMeta [] nodes []
+nodesToAnnotatedVertices initialMeta nodes = go initialMeta [] nodes []
   where
     go _ _ [] acc =
       case reverse acc of
@@ -131,8 +131,8 @@ nodesToCommentGroups initialMeta nodes = go initialMeta [] nodes []
     go pendingMeta pendingComments (n : ns) acc =
       case newVertex n of
         Just v ->
-          let cg = AnnotatedVertex (reverse pendingComments) v pendingMeta
-           in go pendingMeta [] ns (cg : acc)
+          let av = AnnotatedVertex (reverse pendingComments) v pendingMeta
+           in go pendingMeta [] ns (av : acc)
         Nothing
           | isObjectNode n ->
               let newMeta = M.union (metaMapFromObject n) pendingMeta
@@ -161,12 +161,12 @@ newVertexTree brks vertexNames vertexForest nodes =
    in case breakVertices vertexPrefix vertexNames nodes' of
         Left err -> Left err
         Right (vertexNames', vertexNodes, rest') ->
-          case nodesToCommentGroups topMeta vertexNodes of
+          case nodesToAnnotatedVertices topMeta vertexNodes of
             Left err -> Left err
-            Right cgNe ->
-              let firstCG = head cgNe
-                  vertexTree = VertexTree topComments (one cgNe)
-               in case determineGroup' brks (aVertex firstCG) of
+            Right avNE ->
+              let firstAv = head avNE
+                  vertexTree = VertexTree topComments (one avNE)
+               in case determineGroup' brks (aVertex firstAv) of
                     Just treeType ->
                       let updatedForest = M.insertWith combineTrees treeType vertexTree vertexForest
                        in Right (vertexNames', treeType, vertexTree, updatedForest, rest')
