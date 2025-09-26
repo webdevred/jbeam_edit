@@ -57,7 +57,7 @@ processNodes opts outFile nodes formattingConfig = do
 applyTransform :: Options -> Node -> IO (Either Text Node)
 #ifdef ENABLE_TRANSFORMATION
 applyTransform opts node = do
-  tfConfig <- loadTransformationConfig
+  tfConfig <- loadTransformationConfig ".jbeam-edit.yaml"
   pure (transform (optUpdateNames opts) tfConfig node)
 #else
 applyTransform _ = pure . Right

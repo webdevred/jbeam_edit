@@ -13,22 +13,25 @@ import Formatting
 import Config
 import Data.Map qualified as M
 
-topNodeSpec :: FilePath -> FilePath -> Spec
-topNodeSpec inFilename outFilename = do
+topNodeSpec :: String -> TransformationConfig -> FilePath -> FilePath -> Spec
+topNodeSpec cfName tfConfig inFilename outFilename = do
   let inputPath = "examples/ast/jbeam/" ++ inFilename
   input <- runIO $ baseReadFile inputPath
   output <- runIO $ baseReadFile outFilename
-  let desc = "should transform AST in " ++ inFilename ++ " to Jbeam in " ++ outFilename
+  let desc = "with " ++ cfName ++ ": should transform AST in " ++ inFilename ++ " to Jbeam in " ++ outFilename
   describe desc . works $
-    formatNode newRuleSet <$> transform M.empty newTransformationConfig (read input) `shouldBe` Right (toText output)
+    formatNode newRuleSet <$> transform M.empty tfConfig (read input) `shouldBe` Right (toText output)
 
 spec :: Spec
 spec = do
+  let exampleConfigPath = "examples/jbeam-edit.yaml"
+  tfConfig <- runIO $ loadTransformationConfig exampleConfigPath
   inputFiles <-
     runIO $ listFilesInDir "examples/ast/jbeam"
-  let outputFile inFile = "examples/transformed_jbeam/" ++ takeWhile (/= '.') inFile ++ ".jbeam"
-      testInputFile inFile = topNodeSpec inFile (outputFile inFile)
-  mapM_ testInputFile inputFiles
+  let outputFile cfName inFile = "examples/transformed_jbeam/" ++ takeWhile (/= '.') inFile ++ "-" ++ cfName ++ ".jbeam"
+      testInputFile cfName tfConfig' inFile = topNodeSpec cfName tfConfig' inFile (outputFile cfName inFile)
+  mapM_ (testInputFile "cfg-default" newTransformationConfig) inputFiles
+  mapM_ (testInputFile "cfg-example" tfConfig) inputFiles
 #else
 spec :: Spec
 spec = pass
