@@ -99,9 +99,9 @@ instance FromJSON TransformationConfig where
       <*> o .:? "x-group-breakpoints" .!= defaultBreakpoints
       <*> o .:? "support-threshold" .!= defaultSupportThreshold
 
-loadTransformationConfig :: IO TransformationConfig
-loadTransformationConfig = do
-  res <- decodeFileEither ".jbeam-edit.yaml"
+loadTransformationConfig :: FilePath -> IO TransformationConfig
+loadTransformationConfig filename = do
+  res <- decodeFileEither filename
   pure $ case res of
     Right tc -> tc
     Left _ ->

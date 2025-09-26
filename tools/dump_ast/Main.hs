@@ -19,7 +19,8 @@ import Data.Map qualified as M
 import System.IO qualified as IO (readFile)
 
 main :: IO ()
-main =
+main = do
+  exampleCfg <- loadTransformationConfig "examples/jbeam-edit.yaml"
   let examplesDir = "examples"
       jbflInputDir = examplesDir </> "jbfl"
       jbeamInputDir = examplesDir </> "jbeam"
@@ -43,7 +44,17 @@ main =
           | jbeamAST <- jbeamASTs
           , jbflAST <- jbflASTs
           ]
-        mapM_ (dumpTransformedJbeam jbeamAstDir transformedDir) jbeamFiles
+        mapM_
+          ( dumpTransformedJbeam
+              "cfg-default"
+              newTransformationConfig
+              jbeamAstDir
+              transformedDir
+          )
+          jbeamFiles
+        mapM_
+          (dumpTransformedJbeam "cfg-example" exampleCfg jbeamAstDir transformedDir)
+          jbeamFiles
 
 saveDump :: String -> Text -> IO ()
 saveDump outFile formatted =
@@ -88,13 +99,14 @@ dumpFormattedJbeam outDir (jbeamFile, ruleFile) = do
       let outFile = outDir </> filename
        in saveDump outFile contents
 
-dumpTransformedJbeam :: FilePath -> FilePath -> FilePath -> IO ()
-dumpTransformedJbeam jbeamInputAstDir outDir jbeamFile = do
+dumpTransformedJbeam
+  :: String -> TransformationConfig -> FilePath -> FilePath -> FilePath -> IO ()
+dumpTransformedJbeam cfName tfConfig jbeamInputAstDir outDir jbeamFile = do
   jbeam <-
     read <$> IO.readFile (jbeamInputAstDir </> (takeBaseName jbeamFile <> ".hs"))
-  let outFilename = takeBaseName jbeamFile ++ ".jbeam"
+  let outFilename = takeBaseName jbeamFile ++ "-" ++ cfName ++ ".jbeam"
   transformedJbeam <-
-    case transform M.empty newTransformationConfig jbeam of
+    case transform M.empty tfConfig jbeam of
       Left err -> do
         putTextLn $ "error occurred during transformation" <> err
         exitFailure
