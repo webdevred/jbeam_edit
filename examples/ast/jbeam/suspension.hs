@@ -23,7 +23,7 @@ Object
                 ( InternalComment
                     { cText = "--Nodes--"
                     , cMultiline = False
-                    , assocWithPrior = False
+                    , cAssociationDirection = NextNode
                     }
                 )
             , ObjectKey
@@ -425,7 +425,7 @@ Object
                 ( InternalComment
                     { cText = "--Beams--"
                     , cMultiline = False
-                    , assocWithPrior = False
+                    , cAssociationDirection = NextNode
                     }
                 )
             , ObjectKey
@@ -439,7 +439,7 @@ Object
                         ( InternalComment
                             { cText = "Structural beams"
                             , cMultiline = False
-                            , assocWithPrior = False
+                            , cAssociationDirection = NextNode
                             }
                         )
                     , Object
@@ -466,7 +466,7 @@ Object
                         ( InternalComment
                             { cText = "Front end"
                             , cMultiline = False
-                            , assocWithPrior = False
+                            , cAssociationDirection = NextNode
                             }
                         )
                     , Object
@@ -575,7 +575,7 @@ Object
                         ( InternalComment
                             { cText = "Middle"
                             , cMultiline = False
-                            , assocWithPrior = False
+                            , cAssociationDirection = NextNode
                             }
                         )
                     , Object
@@ -720,7 +720,7 @@ Object
                         ( InternalComment
                             { cText = "Rear end"
                             , cMultiline = False
-                            , assocWithPrior = False
+                            , cAssociationDirection = NextNode
                             }
                         )
                     , Object
@@ -869,14 +869,14 @@ Object
                         ( InternalComment
                             { cText = "Crossing beams"
                             , cMultiline = False
-                            , assocWithPrior = False
+                            , cAssociationDirection = NextNode
                             }
                         )
                     , Comment
                         ( InternalComment
                             { cText = "Front end"
                             , cMultiline = False
-                            , assocWithPrior = False
+                            , cAssociationDirection = NextNode
                             }
                         )
                     , Object
@@ -953,7 +953,7 @@ Object
                         ( InternalComment
                             { cText = "Middle"
                             , cMultiline = False
-                            , assocWithPrior = False
+                            , cAssociationDirection = NextNode
                             }
                         )
                     , Object
@@ -1062,7 +1062,7 @@ Object
                         ( InternalComment
                             { cText = "Rear end"
                             , cMultiline = False
-                            , assocWithPrior = False
+                            , cAssociationDirection = NextNode
                             }
                         )
                     , Object
@@ -1171,14 +1171,14 @@ Object
                         ( InternalComment
                             { cText = "Support beams"
                             , cMultiline = False
-                            , assocWithPrior = False
+                            , cAssociationDirection = NextNode
                             }
                         )
                     , Comment
                         ( InternalComment
                             { cText = "Front end"
                             , cMultiline = False
-                            , assocWithPrior = False
+                            , cAssociationDirection = NextNode
                             }
                         )
                     , Object
@@ -1247,7 +1247,7 @@ Object
                         ( InternalComment
                             { cText = "Middle"
                             , cMultiline = False
-                            , assocWithPrior = False
+                            , cAssociationDirection = NextNode
                             }
                         )
                     , Object
@@ -1332,7 +1332,7 @@ Object
                         ( InternalComment
                             { cText = "Rear end"
                             , cMultiline = False
-                            , assocWithPrior = False
+                            , cAssociationDirection = NextNode
                             }
                         )
                     , Object
@@ -1409,7 +1409,7 @@ Object
                         ( InternalComment
                             { cText = "Front crush"
                             , cMultiline = False
-                            , assocWithPrior = False
+                            , cAssociationDirection = NextNode
                             }
                         )
                     , Object
@@ -1432,7 +1432,7 @@ Object
                 ( InternalComment
                     { cText = "--Collision Triangles--"
                     , cMultiline = False
-                    , assocWithPrior = False
+                    , cAssociationDirection = NextNode
                     }
                 )
             , ObjectKey
