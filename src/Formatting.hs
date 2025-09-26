@@ -42,7 +42,7 @@ addDelimiters rs index c complexChildren acc ns@(node : rest)
       case assocPriorComment of
         Just (comment, rest') ->
           let formatted =
-                (applyCrumbAndFormat <> ", " <> formatWithCursor rs c comment : acc)
+                (applyCrumbAndFormat <> ", " <> formatComment comment : acc)
            in addDelimiters rs index c complexChildren formatted rest'
         Nothing ->
           let new_acc = T.concat [applyCrumbAndFormat, comma, space, newline] : acc
@@ -51,7 +51,7 @@ addDelimiters rs index c complexChildren acc ns@(node : rest)
     assocPriorComment = do
       (Comment cmt, rest') <- uncons rest
       guard (commentIsAttachedToPreviousNode cmt)
-      pure (Comment cmt, rest')
+      pure (cmt, rest')
 
     applyCrumbAndFormat =
       NC.applyCrumb (NC.ArrayIndex index) c (formatWithCursor rs) node
@@ -87,7 +87,6 @@ formatComment ic@(InternalComment {cMultiline = False, cText = c})
 formatComment (InternalComment {cMultiline = True, cText = c}) = T.concat ["/* ", c, " */"]
 
 formatScalarNode :: Node -> Text
-formatScalarNode (Comment c) = formatComment c
 formatScalarNode (String s) = T.concat ["\"", s, "\""]
 formatScalarNode (Number n) = toText . formatScientific Fixed Nothing $ n
 formatScalarNode (Bool True) = "true"
@@ -105,6 +104,7 @@ formatWithCursor rs cursor (Object o)
 formatWithCursor rs cursor (ObjectKey (k, v)) =
   let formatWithKeyContext = NC.applyObjCrumb k cursor (formatWithCursor rs)
    in T.concat [formatWithKeyContext k, " : ", formatWithKeyContext v]
+formatWithCursor _ _ (Comment comment) = formatComment comment
 formatWithCursor rs cursor n =
   let ps = findPropertiesForCursor cursor rs
    in applyPadLogic formatScalarNode ps n
