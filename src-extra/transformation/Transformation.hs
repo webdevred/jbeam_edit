@@ -314,8 +314,10 @@ assignNames newNames brks treeType prefixMap av =
         | T.length prefix' >= 3
             && T.last prefix' == 's' =
             updatedPrefix (T.init prefix') <> one 's' <> typeSpecific
-        | otherwise =
+        | T.length prefix' < 2 =
             updatedPrefix prefix <> one 's' <> typeSpecific
+        | otherwise =
+            updatedPrefix prefix' <> one 's' <> typeSpecific
       lastIdx = M.findWithDefault 0 cleanPrefix prefixMap
       newName = renameVertexId treeType lastIdx cleanPrefix
       newVertex = v {vName = newName}
