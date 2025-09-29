@@ -29,8 +29,8 @@ main = do
       transformedDir = examplesDir </> "transformed_jbeam"
    in do
         jbeamFiles <-
-          filter (isSuffixOf ".jbeam") <$> getDirectoryContents jbeamInputDir
-        jbflFiles <- filter (isSuffixOf ".jbfl") <$> getDirectoryContents jbflInputDir
+          filter (isSuffixOf ".jbeam") <$> getDirectoryContents' jbeamInputDir
+        jbflFiles <- filter (isSuffixOf ".jbfl") <$> getDirectoryContents' jbflInputDir
         jbeamASTs <- mapM (dumpJbeamAST jbeamInputDir jbeamAstDir) jbeamFiles
         jbflASTs <- mapM (dumpJbflAST jbflInputDir jbflAstDir) jbflFiles
         mapM_
@@ -50,6 +50,9 @@ main = do
         mapM_
           (dumpTransformedJbeam "cfg-example" exampleCfg jbeamAstDir transformedDir)
           jbeamFiles
+
+getDirectoryContents' :: FilePath -> IO [String]
+getDirectoryContents' path = filter (not . isPrefixOf ".#") <$> getDirectoryContents path
 
 saveDump :: String -> Text -> IO ()
 saveDump outFile formatted =
