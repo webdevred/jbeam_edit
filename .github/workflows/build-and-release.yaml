@@ -82,6 +82,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-cabal-${{ matrix.ghc }}-${{ matrix.label }}
             ${{ runner.os }}-cabal-${{ matrix.ghc }}-
+      - name: Build dependencies, good to do separate for caching
+        run: cabal build --project-file cabal.project.release --only-dependencies
       - name: Build executables
         run: cabal build exe:jbeam-edit --project-file cabal.project.release
       - name: Run tests (GHC ${{ matrix.ghc }})
