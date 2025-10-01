@@ -43,12 +43,19 @@ main = do
           ( dumpTransformedJbeam
               "cfg-default"
               newTransformationConfig
+              jbflAstDir
               jbeamAstDir
               transformedDir
           )
           jbeamFiles
         mapM_
-          (dumpTransformedJbeam "cfg-example" exampleCfg jbeamAstDir transformedDir)
+          ( dumpTransformedJbeam
+              "cfg-example"
+              exampleCfg
+              jbflAstDir
+              jbeamAstDir
+              transformedDir
+          )
           jbeamFiles
 
 getDirectoryContents' :: FilePath -> IO [String]
@@ -98,10 +105,17 @@ dumpFormattedJbeam outDir (jbeamFile, ruleFile) = do
        in saveDump outFile contents
 
 dumpTransformedJbeam
-  :: String -> TransformationConfig -> FilePath -> FilePath -> FilePath -> IO ()
-dumpTransformedJbeam cfName tfConfig jbeamInputAstDir outDir jbeamFile = do
+  :: String
+  -> TransformationConfig
+  -> FilePath
+  -> FilePath
+  -> FilePath
+  -> FilePath
+  -> IO ()
+dumpTransformedJbeam cfName tfConfig rsDirPath jbeamInputAstDir outDir jbeamFile = do
   jbeam <-
     read <$> IO.readFile (jbeamInputAstDir </> (takeBaseName jbeamFile <> ".hs"))
+  rs <- read <$> IO.readFile (rsDirPath </> "minimal.hs")
   let outFilename = takeBaseName jbeamFile ++ "-" ++ cfName ++ ".jbeam"
   transformedJbeam <-
     case transform M.empty tfConfig jbeam of
@@ -109,7 +123,7 @@ dumpTransformedJbeam cfName tfConfig jbeamInputAstDir outDir jbeamFile = do
         putTextLn $ "error occurred during transformation" <> err
         exitFailure
       Right jbeam' -> pure jbeam'
-  dump outFilename (formatNode newRuleSet transformedJbeam)
+  dump outFilename (formatNode rs transformedJbeam)
   where
     dump filename contents =
       let outFile = outDir </> filename
