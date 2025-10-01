@@ -1,5 +1,6 @@
 module Formatting (
   formatNode,
+  formatWithCursor,
   formatScalarNode,
   newRuleSet,
   RuleSet (..),
@@ -36,7 +37,7 @@ addDelimiters rs index c complexChildren acc ns@(node : rest)
   | complexChildren && null acc =
       addDelimiters rs index c complexChildren ["\n"] ns
   | isCommentNode node =
-      let formatted = (formatWithCursor rs c node <> "\n") : acc
+      let formatted = ("\n" <> formatWithCursor rs c node <> "\n") : acc
        in addDelimiters rs index c complexChildren formatted rest
   | otherwise =
       case assocPriorComment of
@@ -81,9 +82,7 @@ doFormatNode rs cursor nodes =
       any isComplexNode nodes && not (noComplexNewLine rs cursor)
 
 formatComment :: InternalComment -> Text
-formatComment ic@(InternalComment {cMultiline = False, cText = c})
-  | commentIsAttachedToPreviousNode ic = "// " <> c
-  | otherwise = "\n// " <> c
+formatComment (InternalComment {cMultiline = False, cText = c}) = "// " <> c
 formatComment (InternalComment {cMultiline = True, cText = c}) = T.concat ["/* ", c, " */"]
 
 formatScalarNode :: Node -> Text
@@ -110,4 +109,4 @@ formatWithCursor rs cursor n =
    in applyPadLogic formatScalarNode ps n
 
 formatNode :: RuleSet -> Node -> Text
-formatNode rs = formatWithCursor rs newCursor
+formatNode rs node = formatWithCursor rs newCursor node <> one '\n'

@@ -182,6 +182,9 @@ executable jbeam-edit
         cpp-options:   -DENABLE_TRANSFORMATION
         build-depends: jbeam-edit-transformation
 
+    if os(windows)
+        cpp-options: -DENABLE_WINDOWS_NEWLINES
+
 executable jbeam-edit-dump-ast
     main-is:            Main.hs
     hs-source-dirs:     tools/dump_ast

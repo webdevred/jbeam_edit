@@ -2,6 +2,7 @@ module FormattingSpec (
   spec,
 ) where
 
+import Core.NodeCursor (newCursor)
 import Formatting
 import Relude.Unsafe (read)
 import SpecHelper
@@ -29,7 +30,7 @@ multilineCommentSpec :: [(String, Node)]
 multilineCommentSpec = [("/* test */", Comment (InternalComment "test" True NextNode))]
 
 singlelineCommentSpec :: [(String, Node)]
-singlelineCommentSpec = [("\n// test", Comment (InternalComment "test" False NextNode))]
+singlelineCommentSpec = [("// test", Comment (InternalComment "test" False NextNode))]
 
 arraySpec :: [(String, Node)]
 arraySpec =
@@ -82,7 +83,7 @@ spec = do
       applySpecOnInput
         descFun
         shouldBe
-        (formatNode newRuleSet node)
+        (formatWithCursor newRuleSet newCursor node)
         (fromString jbeam)
     descFun jbeam node = "should format " ++ show node ++ " as " ++ jbeam
     specs =
