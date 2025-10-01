@@ -13,10 +13,14 @@ echo "suspension.jbeam: $TMP_DIR/suspension.${LABEL}.jbeam"
 ./dist/release/jbeam-edit -i "$TMP_DIR/fender.${LABEL}.jbeam"
 ./dist/release/jbeam-edit -i "$TMP_DIR/suspension.${LABEL}.jbeam"
 
+custom_diff () {
+    diff --color=always --suppress-common-lines "$1" "$2"
+}
+
 if [[ -n $LABEL ]] && [[ "$LABEL" == "experimental" ]]; then
-  diff -q "$TMP_DIR/fender.experimental.jbeam" ./examples/transformed_jbeam/fender-cfg-default.jbeam
-  diff -q "$TMP_DIR/suspension.experimental.jbeam" ./examples/transformed_jbeam/suspension-cfg-default.jbeam
+  custom_diff "$TMP_DIR/fender.experimental.jbeam" ./examples/transformed_jbeam/fender-cfg-default.jbeam
+  custom_diff "$TMP_DIR/suspension.experimental.jbeam" ./examples/transformed_jbeam/suspension-cfg-default.jbeam
 else
-  diff -q "$TMP_DIR/fender.stable.jbeam" ./examples/formatted_jbeam/fender-minimal-jbfl.jbeam
-  diff -q "$TMP_DIR/suspension.stable.jbeam" ./examples/formatted_jbeam/suspension-minimal-jbfl.jbeam
+  custom_diff "$TMP_DIR/fender.stable.jbeam" ./examples/formatted_jbeam/fender-minimal-jbfl.jbeam
+  custom_diff "$TMP_DIR/suspension.stable.jbeam" ./examples/formatted_jbeam/suspension-minimal-jbfl.jbeam
 fi
