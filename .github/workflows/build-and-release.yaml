@@ -57,6 +57,7 @@ jobs:
         if: "!startsWith(github.ref, 'refs/tags/')"
         run: cabal configure --project-file cabal.project.release --enable-tests
       - name: Configure Cabal with flags from matrix
+        if: matrix.label == 'experimental'
         shell: bash
         run: |
           printf 'package jbeam-edit\n  flags: %s' $MATRIX_FLAGS >> cabal.project.release.local
@@ -82,11 +83,25 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-cabal-${{ matrix.ghc }}-${{ matrix.label }}
             ${{ runner.os }}-cabal-${{ matrix.ghc }}-
+      - name: Build dependencies, good to do separate for caching
+        run: cabal build --project-file cabal.project.release --only-dependencies
       - name: Build executables
         run: cabal build exe:jbeam-edit --project-file cabal.project.release
       - name: Run tests (GHC ${{ matrix.ghc }})
         if: "!startsWith(github.ref, 'refs/tags/')"
         run: cabal test --project-file cabal.project.release
+      - name: Enforce CRLF newlines on windows
+        run: bash ./.github/scripts/replace_newlines.sh
+        shell: bash
+      - name: Test executable
+        shell: bash
+        run: bash ./.github/scripts/test_release.sh
+        env:
+          RELEASE_DIR: dist/release
+          ZIP_DIR: dist/zip_temp
+          DIST_NEWSTYLE: dist-newstyle
+          CABAL_FILE: jbeam-edit.cabal
+          LABEL: ${{ matrix.label}}
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:

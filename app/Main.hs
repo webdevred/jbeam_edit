@@ -12,6 +12,10 @@ import IOUtils
 import Parsing.Jbeam (parseNodes)
 import System.Directory (copyFile)
 
+#ifdef ENABLE_WINDOWS_NEWLINES
+import Data.Text qualified as T
+#endif
+
 #ifdef ENABLE_TRANSFORMATION
 import Transformation (transform)
 import Config (loadTransformationConfig)
@@ -50,9 +54,18 @@ processNodes opts outFile nodes formattingConfig = do
       writeFileLBS outFile
         . encodeUtf8
         . toLText
+        . replaceNewlines
         . formatNode formattingConfig
         $ transformedNode'
     Left err -> putTextLn err
+
+#ifdef ENABLE_WINDOWS_NEWLINES
+replaceNewlines :: Text -> Text
+replaceNewlines = T.replace "\n" "\r\n"
+#else
+replaceNewlines :: Text -> Text
+replaceNewlines = id
+#endif
 
 applyTransform :: Options -> Node -> IO (Either Text Node)
 #ifdef ENABLE_TRANSFORMATION

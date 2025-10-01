@@ -11,4 +11,4 @@ package *
 package jbeam-edit
   haddock-executables: True
   haddock-internal: True
-  haddock-tests: True
+  flags: +dump-ast +transformation -windows-example-paths
