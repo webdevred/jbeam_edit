@@ -3,7 +3,7 @@
     "information" : {"authors" : "gittarrgy01", "name" : "Fenders"},
     "slotType" : "cot_fender",
     "nodes" : [
-      ["id", "posX", "posY", "posZ"],
+      [    "id",   "posX",   "posY",   "posZ"],
       {"frictionCoef" : 0.7},
       {"nodeMaterial" : "|NM_METAL"},
 
@@ -12,44 +12,44 @@
       {"group" : "cot_fender_l"},
       {"nodeWeight" : 0.65},
       {"selfCollision" : true},
-      ["bfl0", 0.739, -1.845, 0.716],
-      ["bfl1", 0.959, -1.762, 0.576],
-      ["bfl2", 0.855, -1.788, 0.707],
-      ["bfl3", 0.948, -1.435, 0.73],
-      ["bfl4", 0.963, -1.024, 0.112],
-      ["bfl5", 0.778, -1.008, 0.873],
-      ["bfl6", 0.987, -0.743, 0.109],
-      ["bfl7", 0.812, -0.759, 0.896],
+      [  "bfl0",    0.739,   -1.845,    0.716],
+      [  "bfl1",    0.959,   -1.762,    0.576],
+      [  "bfl2",    0.855,   -1.788,    0.707],
+      [  "bfl3",    0.948,   -1.435,    0.730],
+      [  "bfl4",    0.963,   -1.024,    0.112],
+      [  "bfl5",    0.778,   -1.008,    0.873],
+      [  "bfl6",    0.987,   -0.743,    0.109],
+      [  "bfl7",    0.812,   -0.759,    0.896],
 
       // Right side
       {"group" : "cot_fender_r"},
-      ["bfr0", -0.691, -1.829, 0.716],
-      ["bfr1", -0.906, -1.737, 0.578],
-      ["bfr2", -0.807, -1.769, 0.707],
-      ["bfr3", -0.89, -1.409, 0.729],
-      ["bfr4", -0.899, -1.005, 0.112],
-      ["bfr5", -0.715, -0.991, 0.873],
-      ["bfr6", -0.916, -0.742, 0.112],
-      ["bfr7", -0.734, -0.746, 0.888],
+      [  "bfr0",   -0.691,   -1.829,    0.716],
+      [  "bfr1",   -0.906,   -1.737,    0.578],
+      [  "bfr2",   -0.807,   -1.769,    0.707],
+      [  "bfr3",   -0.890,   -1.409,    0.729],
+      [  "bfr4",   -0.899,   -1.005,    0.112],
+      [  "bfr5",   -0.715,   -0.991,    0.873],
+      [  "bfr6",   -0.916,   -0.742,    0.112],
+      [  "bfr7",   -0.734,   -0.746,    0.888],
 
       // Support nodes
       {"collision" : false},
       {"group" : ""},
       {"nodeWeight" : 1.2},
       {"selfCollision" : false},
-      ["bfsl", 0.684, -1.079, 0.507],
-      ["bfsr", -0.623, -1.064, 0.507],
+      [  "bfsl",    0.684,   -1.079,    0.507],
+      [  "bfsr",   -0.623,   -1.064,    0.507],
       {"collision" : true},
       {"group" : "cot_fender_l"},
       {"nodeWeight" : 0.65},
       {"selfCollision" : true},
-      ["bfsl1", 0.756, -1.413, 0.843],
-      ["bfsl2", 0.964, -1.072, 0.507],
-      ["bfsl3", 0.987, -0.744, 0.494],
+      [ "bfsl1",    0.756,   -1.413,    0.843],
+      [ "bfsl2",    0.964,   -1.072,    0.507],
+      [ "bfsl3",    0.987,   -0.744,    0.494],
       {"group" : "cot_fender_r"},
-      ["bfsr1", -0.7, -1.397, 0.843],
-      ["bfsr2", -0.9, -1.053, 0.508],
-      ["bfsr3", -0.917, -0.746, 0.494]
+      [ "bfsr1",   -0.700,   -1.397,    0.843],
+      [ "bfsr2",   -0.900,   -1.053,    0.508],
+      [ "bfsr3",   -0.917,   -0.746,    0.494]
     ],
     "beams" : [
       ["id1:", "id2:"],
@@ -276,22 +276,10 @@
     ],
     "flexbodies" : [
       ["mesh", "[group]:", "nonFlexMaterials"],
-      [
-        "impala_fender_l",
-        ["cot_fender_l"]
-      ],
-      [
-        "impala_fender_inter_l",
-        ["cot_fender_l"]
-      ],
-      [
-        "impala_fender_r",
-        ["cot_fender_r"]
-      ],
-      [
-        "impala_fender_inter_r",
-        ["cot_fender_r"]
-      ]
+      ["impala_fender_l", ["cot_fender_l"]],
+      ["impala_fender_inter_l", ["cot_fender_l"]],
+      ["impala_fender_r", ["cot_fender_r"]],
+      ["impala_fender_inter_r", ["cot_fender_r"]]
     ]
   }
 }
