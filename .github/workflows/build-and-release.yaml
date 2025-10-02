@@ -50,20 +50,11 @@ jobs:
           ghc-version: ${{ matrix.ghc }}
           cabal-version: latest
           cabal-update: true
-      - name: Enable optimization for building on tags
-        if: startsWith(github.ref, 'refs/tags/')
-        run: cabal configure --project-file cabal.project.release -O2
-      - name: Enable tests for non-tags
-        if: "!startsWith(github.ref, 'refs/tags/')"
-        run: cabal configure --project-file cabal.project.release --enable-tests
-      - name: Configure Cabal with flags from matrix
-        if: matrix.label == 'experimental'
-        shell: bash
-        run: |
-          printf 'package jbeam-edit\n  flags: %s' $MATRIX_FLAGS >> cabal.project.release.local
-          echo "contents of cabal.project.release.local"
-          cat cabal.project.release.local
+      - name: Configure
+        run: bash ./.github/scripts/configure_project.sh
         env:
+          GITHUB_REF: ${{ github.ref }}
+          LABEL: ${{ matrix.label }}
           MATRIX_FLAGS: ${{ matrix.flags }}
       - name: Cache GHC, Cabal store, and build artifacts
         uses: actions/cache@v4.3.0
