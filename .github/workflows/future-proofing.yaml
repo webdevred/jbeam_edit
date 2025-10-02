@@ -31,6 +31,7 @@ jobs:
         run: |
           echo "GHC Version: ${{ steps.get-ghc.outputs.ghc-version }}"
           echo "Cabal Store Path: ${{ steps.setup-ghc.outputs.cabal-store }}"
+      - run: cabal freeze --project-file cabal.project.release
       - name: Cache GHC, Cabal store, and build artifacts
         uses: actions/cache@v4.3.0
         with:
@@ -41,7 +42,7 @@ jobs:
             ${{ runner.os }}-cabal-${{
               steps.get-ghc.outputs.ghc-version
             }}-${{
-              hashFiles('**/package.yaml')
+              hashFiles('**/dist-newstyle/**/plan.json')
             }}
           restore-keys: |
             ${{ runner.os }}-cabal-${{ steps.get-ghc.outputs.ghc-version }}-
