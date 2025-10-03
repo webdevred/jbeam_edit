@@ -4,11 +4,11 @@ write-ghc-environment-files: always
 package *
   optimization: 0
   debug-info: True
-  tests: True
   documentation: True
   library-for-ghci: True
 
 package jbeam-edit
+  tests: True
   haddock-executables: True
   haddock-internal: True
   flags: +dump-ast +transformation -windows-example-paths

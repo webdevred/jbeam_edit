@@ -1,5 +1,4 @@
 import: cabal.project
-tests: False
 executable-static: True
 
 package *
@@ -9,4 +8,5 @@ package *
     -with-rtsopts=-N
 
 package jbeam-edit
+  tests: False
   flags: -dump-ast -transformation +windows-example-paths

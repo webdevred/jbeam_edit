@@ -1,6 +1,7 @@
 packages: .
 optimization: False
+tests: False
 
 package jbeam-edit
-  tests: True
+  tests: False
   flags: -dump-ast -transformation -windows-example-paths
