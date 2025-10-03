@@ -7,6 +7,7 @@ on:
 
 jobs:
   lint-and-format:
+    if: github.event.pull_request.draft != true
     name: Lint and format
     runs-on: ubuntu-latest
     steps:
