@@ -15,6 +15,8 @@ import Data.Yaml.Aeson (
   FromJSON (..),
   withText,
  )
+import Data.Vector.NonEmpty
+import Data.Vector
 
 type VertexForest = Map VertexTreeType VertexTree
 
@@ -32,11 +34,11 @@ instance FromJSON VertexTreeType where
       "MiddleTree" -> pure MiddleTree
       "RightTree" -> pure RightTree
       "SupportTree" -> fail "SupportTree not allowed in breakpoints"
-      _ -> fail $ "Unknown VertexTreeType: " ++ toString t
+      _ -> fail $ "Unknown VertexTreeType: " <> toString t
 
 data VertexTree = VertexTree
   { tComments :: [InternalComment]
-  , tAnnotatedVertices :: NonEmpty (NonEmpty AnnotatedVertex)
+  , tAnnotatedVertices :: NonEmptyVector (NonEmptyVector AnnotatedVertex)
   }
   deriving (Show)
 
@@ -50,7 +52,7 @@ data Vertex = Vertex
   deriving (Eq, Show)
 
 data AnnotatedVertex = AnnotatedVertex
-  { aComments :: [InternalComment]
+  { aComments :: Vector InternalComment
   , aVertex :: Vertex
   , aMeta :: MetaMap
   }

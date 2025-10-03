@@ -11,13 +11,15 @@ import Config
 import Core.Node
 import Data.Char (isDigit)
 import Types
-
+import Data.Vector.NonEmpty qualified as NEV
+import Data.Vector.NonEmpty (NonEmptyVector(..))
 import Core.NodePath qualified as NP
 import Data.List.NonEmpty qualified as NE
 import Data.Map qualified as M
 import Data.Set qualified as S
 import Data.Text qualified as T
 import Data.Vector qualified as V
+import Data.Vector (Vector)
 
 newVertex :: Node -> Maybe Vertex
 newVertex (Array ns) = f . V.toList $ ns
@@ -43,11 +45,12 @@ hasVertexPrefix vertexPrefix1 node =
 getVertexName :: Node -> Maybe Text
 getVertexName = fmap vName . newVertex
 
-getFirstVertexName :: [Node] -> Maybe Text
-getFirstVertexName (node : _) = getVertexName node
-getFirstVertexName _ = Nothing
+getFirstVertexName :: Vector Node -> Maybe Text
+getFirstVertexName nodes  = do
+  (node,_) <- V.uncons nodes
+  getVertexName node
 
-getVertexPrefix :: [Node] -> Maybe Text
+getVertexPrefix :: Vector Node -> Maybe Text
 getVertexPrefix nodes = do
   firstVertexName <- getFirstVertexName nodes
   (_, vertexIndex) <- T.unsnoc firstVertexName
@@ -151,12 +154,12 @@ newVertexTree
   :: XGroupBreakpoints
   -> Set Text
   -> VertexForest
-  -> NonEmpty Node
+  -> NonEmptyVector Node
   -> Either Text (Set Text, VertexTreeType, VertexTree, VertexForest, [Node])
 newVertexTree brks vertexNames vertexForest nodes =
-  let (topNodes, nodes') = NE.span isNonVertex nodes
-      topComments = mapMaybe toInternalComment topNodes
-      topMeta = M.unions . map metaMapFromObject . filter isObjectNode $ topNodes
+  let (topNodes, nodes') = NEV.span isNonVertex nodes
+      topComments = V.mapMaybe toInternalComment topNodes
+      topMeta = M.unions . V.map metaMapFromObject $ topNodes
       vertexPrefix = getVertexPrefix nodes'
    in case breakVertices vertexPrefix vertexNames nodes' of
         Left err -> Left err
@@ -165,7 +168,7 @@ newVertexTree brks vertexNames vertexForest nodes =
             Left err -> Left err
             Right avNE ->
               let firstAv = head avNE
-                  vertexTree = VertexTree topComments (one avNE)
+                  vertexTree = VertexTree topComments (NEV.singleton avNE)
                in case determineGroup' brks (aVertex firstAv) of
                     Just treeType ->
                       let updatedForest = M.insertWith combineTrees treeType vertexTree vertexForest
