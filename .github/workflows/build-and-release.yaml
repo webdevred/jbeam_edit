@@ -56,7 +56,14 @@ jobs:
           GITHUB_REF: ${{ github.ref }}
           LABEL: ${{ matrix.label }}
           MATRIX_FLAGS: ${{ matrix.flags }}
-      - run: cabal freeze --project-file cabal.project.release
+      - name: Freeze and check dependencies
+        shell: bash
+        run: |-
+          cabal freeze --project-file cabal.project.release
+          PLAN_PATH=$(find dist-newstyle -name plan.json)
+          cat $PLAN_PATH | jq -c '."install-plan" | map (."pkg-name")'
+          echo "number of dependencies"
+          cat $PLAN_PATH | jq -r '."install-plan" | map (."pkg-name").[]' | wc -l
       - name: Cache GHC, Cabal store, and build artifacts
         uses: actions/cache@v4.3.0
         if: "!startsWith(github.ref, 'refs/tags/')"
