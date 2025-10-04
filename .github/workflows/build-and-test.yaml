@@ -12,6 +12,7 @@ permissions:
 
 jobs:
   build-with-stack:
+    if: github.event.pull_request.draft != true
     name: Build and test on ${{ matrix.os }}
     runs-on: ${{ matrix.runner }}
     strategy:
@@ -125,6 +126,7 @@ jobs:
           ubuntu-version: latest
           version: 0.1.7.1
   build-with-cabal:
+    if: github.event.pull_request.draft != true
     name: Build and test with Cabal (GHC ${{ matrix.ghc }})
     needs: generate-matrix
     runs-on: ubuntu-latest

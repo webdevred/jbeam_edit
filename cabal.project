@@ -1,5 +1,6 @@
 packages: .
 optimization: False
+tests: False
 
 package jbeam-edit
   tests: True
