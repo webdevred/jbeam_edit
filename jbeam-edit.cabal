@@ -49,6 +49,11 @@ flag dump-ast
     default:     False
     manual:      True
 
+flag lsp-server
+    description: Enable LSP server (experimental)
+    default:     False
+    manual:      True
+
 flag transformation
     description: Enable transformation (experimental)
     default:     False
@@ -231,6 +236,40 @@ executable jbeam-edit-dump-ast
 
     else
         buildable: False
+
+executable jbeam-lsp-server
+    main-is:            Main.hs
+    hs-source-dirs:     app-extra/jbeam-lsp-server
+    other-modules:      Paths_jbeam_edit
+    autogen-modules:    Paths_jbeam_edit
+    default-language:   Haskell2010
+    default-extensions: OverloadedStrings ImportQualifiedPost
+    ghc-options:
+        -Wall -Wcompat -Widentities -Wincomplete-record-updates
+        -Wincomplete-uni-patterns -Wmissing-export-lists
+        -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
+        -threaded -rtsopts -with-rtsopts=-N
+
+    build-depends:
+        aeson-pretty,
+        base >=4.17 && <5,
+        bytestring >=0.12,
+        containers >=0.6,
+        directory >=1.3,
+        filepath >=1.4,
+        jbeam-edit,
+        lsp >=2.7,
+        megaparsec >=9.6,
+        prettyprinter,
+        relude >=1.2,
+        scientific >=0.3,
+        text >=2.1,
+        vector >=0.13
+
+    mixins:
+        base hiding (Prelude),
+        relude (Relude as Prelude),
+        relude
 
 test-suite jbeam-edit-test
     type:               exitcode-stdio-1.0
