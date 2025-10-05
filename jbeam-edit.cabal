@@ -31,9 +31,12 @@ extra-source-files:
     JBFL_DOCS.md
     examples/README.md
     examples/jbeam/fender.jbeam
+    examples/jbeam/frame.jbeam
     examples/jbeam/suspension.jbeam
     examples/formatted_jbeam/fender-complex-jbfl.jbeam
     examples/formatted_jbeam/fender-minimal-jbfl.jbeam
+    examples/formatted_jbeam/frame-complex-jbfl.jbeam
+    examples/formatted_jbeam/frame-minimal-jbfl.jbeam
     examples/formatted_jbeam/suspension-complex-jbfl.jbeam
     examples/formatted_jbeam/suspension-minimal-jbfl.jbeam
 
