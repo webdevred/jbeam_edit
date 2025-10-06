@@ -1,75 +1,150 @@
-# Examples Directory
+# Examples directory
 
 <!--toc:start-->
 - [Examples Directory](#examples-directory)
   - [Example JBeam Files](#example-jbeam-files)
   - [JBFL Configuration Files](#jbfl-configuration-files)
+  - [AST Source Examples (Haskell)](#ast-source-examples-haskell)
+  - [Formatted JBeam Outputs](#formatted-jbeam-outputs)
+  - [Invalid JBeam Examples](#invalid-jbeam-examples)
+  - [Transformed JBeam Outputs](#transformed-jbeam-outputs)
   - [How JBFL Affects Formatting](#how-jbfl-affects-formatting)
   - [Using These Examples](#using-these-examples)
+  - [YAML Configuration File](#yaml-configuration-file)
 <!--toc:end-->
 
-This file guides you through example files and formatting rules to help you learn and test jbeam-edit's features hands-on. It includes example JBeam files and JBFL rule files to explore the tool's capabilities.
+This directory provides hands-on examples and test materials to explore **jbeam-edit**’s parsing, formatting, and transformation capabilities.
+It includes raw `.jbeam` files, example `.jbfl` configuration rules, parsed AST representations in Haskell, and automatically formatted or transformed outputs.
 
 ## Example JBeam Files
 
+**Directory:** `examples/jbeam/`
+
+Contains the base `.jbeam` files used for parsing, formatting, and transformation tests.
+
 - `fender.jbeam`
-  - A simple, clean example JBeam file demonstrating basic parsing
-    and formatting. Running jbeam-edit on this file will:
-    - Parse the entire structure including comments
-    - Format the file with consistent indentation and spacing
-    - Automatically sort and rename nodes sequentially (e.g., "bf1" becomes "bf0", etc.)
-    - Update all references accordingly
-    - Automatically move vertices into their correct groups (e.g., LeftTree, MiddleTree, RightTree) to maintain proper structure
+  A simple, clean JBeam file demonstrating basic parsing and formatting.
+  Running `jbeam-edit` on this file will:
+  - Parse the full structure, including comments
+  - Apply consistent indentation and spacing
+  - Sequentially rename nodes (e.g., `bf1`-> `bf0`)
+  - Update references accordingly
+  - Organize vertices into logical groups (e.g., `LeftTree`, `MiddleTree`, `RightTree`)
+
+- `frame.jbeam`
+A JBeam file representing a structural vehicle frame with two separate node prefixes.
+This file is intended to test how jbeam-edit merges multiple prefix trees into a single consistent structure.
+Running jbeam-edit on this file will:
+- Parse nodes and beams across both prefix groups
+- Merge the two prefix trees while preserving structural relationships
+- Sequentially rename nodes and update all cross-prefix references
+- Demonstrate jbeam-edit’s handling of multi-prefix structures for intermediate-level transformation scenarios
 
 - `suspension.jbeam`
-  - A complex example JBeam file modeling a vehicle suspension
-    assembly. Running jbeam-edit on this file will:
-    - Parse all nodes, beams, and collision triangles
-    - Sort and rename nodes with attention to structural relationships
-    - Update beam references consistently with renamed nodes
-    - Maintain groupings and structural integrity for suspension parts
-    - Demonstrate the tool's capabilities on realistic, advanced files
+  A complex example modeling a vehicle suspension assembly.
+  Demonstrates:
+  - Parsing of nodes, beams, and collision triangles
+  - Structural renaming with reference updates
+  - Preservation of group relationships and suspension geometry
 
-## JBFL Configuration Files
+## JBFL configuration files
 
-- `minimal.jbfl`
-  Defines a minimal set of formatting rules, focusing on basic indentation and spacing. Ideal for quick, clean formatting without much customization.
+**Directory:** `examples/jbfl/`
 
-- `complex.jbfl`
-  Contains detailed rules demonstrating advanced formatting capabilities such as controlling padding, decimal precision, and line breaks using  JBFL patterns.
+Contains `.jbfl` configuration files that define formatting rules.
 
-## How JBFL Affects Formatting
+- `minimal.jbfl` — Provides a simple configuration with basic indentation and spacing.
+- `complex.jbfl`: Demonstrates advanced padding, decimal precision, and line control.
 
-JBFL (JBeam Formatting Language) is a declarative mini-language that lets you specify how different parts of the JBeam file should be formatted:
+Switch between these configurations to see how JBFL rules influence formatting.
 
-- Match sections of the data tree with wildcard patterns
-- Control padding amounts, decimal precision, and newline behavior
-- Customize formatting to fit your preferences or project standards
+## AST source examples
 
-By swapping between the minimal and complex JBFL configs, you can see
-how formatting behavior changes, making the tool flexible for different workflows.
+**Directory:** `examples/ast/`
 
-## Using These Examples
+Contains Haskell source files showing parsed AST representations of `.jbeam` and `.jbfl` files.
+
+- `ast/jbeam/fender.hs`
+- `ast/jbeam/frame.hs`
+- `ast/jbeam/suspension.hs`
+- `ast/jbfl/minimal.hs`
+- `ast/jbfl/complex.hs`
+
+These are used primarily for debugging, testing, and verifying Megaparsec-based parser correctness.
+
+## Formatted JBeam Outputs
+
+**Directory:** `examples/formatted_jbeam/`
+
+Contains formatted `.jbeam` outputs produced using different JBFL configurations.
+
+- `fender-minimal-jbfl.jbeam`
+- `fender-complex-jbfl.jbeam`
+- `frame-minimal-jbfl.jbeam`
+- `frame-complex-jbfl.jbeam`
+- `suspension-minimal-jbfl.jbeam`
+- `suspension-complex-jbfl.jbeam`
+
+These illustrate how rule variations affect indentation, padding, and numeric formatting.
+
+## Invalid JBeam Examples
+
+**Directory:** `examples/invalid_jbeam/`
+
+Contains malformed JBeam files to test parser error handling.
+
+- `invalid_fender.jbeam`: Intentionally invalid syntax to validate parser robustness and error reporting.
+
+## Transformed JBeam Outputs
+
+**Directory:** `examples/transformed_jbeam/`
+
+Contains JBeam files generated by transformation mode (`--transformation` flag) or configuration-driven edits.
+
+- `fender-cfg-default.jbeam`
+- `fender-cfg-example.jbeam`
+- `frame-cfg-default.jbeam`
+- `frame-cfg-example.jbeam`
+- `suspension-cfg-default.jbeam`
+- `suspension-cfg-example.jbeam`
+
+These files show how node renaming, reference updating, and rule-driven transformations are applied.
+
+## How JBFL affects formatting
+
+JBFL (JBeam Formatting Language) is a declarative configuration syntax controlling layout behavior for `.jbeam` files.
+
+- Wildcard-based section targeting
+- Decimal and padding control
+- Optional newlines and grouping preferences
+
+By switching between the **minimal** and **complex** `.jbfl` configurations, you can observe changes in `formatted_jbeam/`.
+
+## Using these examples
 
 To format an example file with the minimal configuration:
 
 ```bash
 jbeam-edit -cminimal
-stack exec jbeam-edit -- examples/jbeam/fender.jbeam
+jbeam-edit examples/jbeam/fender.jbeam
 ```
 
 To try the complex configuration, generate it first and run:
 
 ```bash
 jbeam-edit -ccomplex
-stack exec jbeam-edit -- examples/jbeam/suspension.jbeam
+jbeam-edit examples/jbeam/suspension.jbeam
 ```
 
-Feel free to modify these examples or create your own to better suit your projects.
+The resulting formatted outputs will be written to `examples/formatted_jbeam/`.
 
-These examples provide a practical way to understand and customize how jbeam-edit handles your JBeam files.
+## yaml configuration file for transformation
 
-For complete documentation and usage, please refer to the root
-[README.md](../README.md).
+The yaml configuration file allows the user to configure custom transformation settings such as a custom support threshold, custom breakpoints for vertex trees or custom support threshold.
 
-See also [JBFL_DOCS.md](../JBFL_DOCS.md) for detailed information on the JBFL formatting language.
+**File:** `examples/jbeam-edit.yaml`
+
+---
+
+For complete documentation, refer to the root [README.md](../README.md).
+See also [JBFL_DOCS.md](../JBFL_DOCS.md#) for more details about JBFL syntax and capabilities.
