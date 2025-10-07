@@ -57,14 +57,10 @@ jobs:
           LABEL: ${{ matrix.label }}
           MATRIX_FLAGS: ${{ matrix.flags }}
       - name: Freeze and check dependencies
+        env:
+          CABAL_PROJECT: cabal.project.release
         shell: bash
-        run: |-
-          cabal freeze --project-file cabal.project.release
-          PLAN_PATH=$(find dist-newstyle -name plan.json)
-          JQ_QUERY='."install-plan" | map (."pkg-name") | unique'
-          cat $PLAN_PATH | jq -c "$JQ_QUERY"
-          echo "number of dependencies"
-          cat $PLAN_PATH | jq -r "${JQ_QUERY}.[]" | wc -l
+        run: bash ./.github/scripts/freeze_dependencies.sh
       - name: Cache GHC, Cabal store, and build artifacts
         uses: actions/cache@v4.3.0
         if: "!startsWith(github.ref, 'refs/tags/')"
