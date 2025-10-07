@@ -175,7 +175,7 @@ jobs:
           find dist -type f -name '*.zip' -print0 | xargs -0 -I{} mv {} dist_flat/
           ls -la dist_flat
       - name: Create GitHub Release and upload zips
-        uses: softprops/action-gh-release@v2.3.3
+        uses: softprops/action-gh-release@v2.3.4
         with:
           tag_name: ${{ github.ref_name }}
           draft: true
