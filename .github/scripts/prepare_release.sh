@@ -17,11 +17,4 @@ fi
 
 cp "$SETUP_EXE" "$ZIP_DIR/"
 
-for f in README.md JBFL_DOCS.md LICENSE; do
-  SRC="$RELEASE_DIR/$f"
-  if [ -f "$SRC" ]; then
-    cp "$SRC" "$ZIP_DIR/"
-  else
-    echo "Warning: $f not found in release folder, skipping."
-  fi
-done
+7z a -tzip "dist/jbeam-edit-${GITHUB_REF_NAME}-${LABEL}.zip" ./dist/zip_temp/*

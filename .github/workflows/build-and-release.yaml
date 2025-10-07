@@ -95,7 +95,7 @@ jobs:
         shell: bash
       - name: Test executable
         shell: bash
-        run: bash ./.github/scripts/test_release.sh
+        run: bash ./.github/scripts/prepare_installer.sh
         env:
           RELEASE_DIR: dist/release
           ZIP_DIR: dist/zip_temp
@@ -103,35 +103,28 @@ jobs:
           CABAL_FILE: jbeam-edit.cabal
           LABEL: ${{ matrix.label}}
       - name: Upload build artifact
+        if: startsWith(github.ref, 'refs/tags/')
         uses: actions/upload-artifact@v4
         with:
           name: jbeam-edit-${{ matrix.ghc }}-${{ matrix.label }}
-          path: dist-newstyle
+          path: dist
   prepare-for-release:
+    if: startsWith(github.ref, 'refs/tags/')
     runs-on: windows-latest
     needs: [build-for-release, get-newest-supported-ghc]
-    if: startsWith(github.ref, 'refs/tags/')
     name: Prepare release for Windows
     strategy:
       matrix: ${{ fromJSON(needs.get-newest-supported-ghc.outputs.matrix) }}
     env:
-      RELEASE_DIR: dist/release
-      ZIP_DIR: dist/zip_temp
-      DIST_NEWSTYLE: dist-newstyle
-      CABAL_FILE: jbeam-edit.cabal
+      RELEASE_DIR: ./dist/release
+      ZIP_DIR: ./dist/zip_temp
     steps:
       - uses: actions/checkout@v5
       - name: Download build artifact
         uses: actions/download-artifact@v5.0.0
         with:
           name: jbeam-edit-${{ matrix.ghc }}-${{ matrix.label }}
-          path: ${{ env.DIST_NEWSTYLE }}
-      - name: Extract files from cabal
-        shell: bash
-        run: bash .github/scripts/copy_example_files.sh
-      - name: Copy exe to release folder
-        shell: bash
-        run: bash .github/scripts/copy_exe_to_release.sh
+          path: dist
       - name: Build Inno Setup Installer
         uses: Minionguyjpro/Inno-Setup-Action@v1.2.7
         with:
@@ -139,15 +132,7 @@ jobs:
           options: /O+
       - name: Prepare release
         shell: bash
-        run: bash .github/scripts/prepare_release.sh
-      - name: Package the release
-        shell: powershell
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $zipFile = "$env:GITHUB_WORKSPACE\dist\jbeam-edit-${env:GITHUB_REF_NAME}-${env:LABEL}.zip"
-          $zipDir = "$env:GITHUB_WORKSPACE\dist\zip_temp"
-          Add-Type -AssemblyName System.IO.Compression.FileSystem
-          [System.IO.Compression.ZipFile]::CreateFromDirectory($zipDir, $zipFile)
+        run: bash ./.github/scripts/prepare_release.sh
         env:
           LABEL: ${{ matrix.label}}
       - name: Upload zip artifact
