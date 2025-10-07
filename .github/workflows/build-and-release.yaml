@@ -104,7 +104,7 @@ jobs:
           LABEL: ${{ matrix.label}}
       - name: Upload build artifact
         if: startsWith(github.ref, 'refs/tags/')
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.6.2
         with:
           name: jbeam-edit-${{ matrix.ghc }}-${{ matrix.label }}
           path: dist
