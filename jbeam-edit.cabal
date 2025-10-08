@@ -240,7 +240,12 @@ executable jbeam-edit-dump-ast
 executable jbeam-lsp-server
     main-is:            Main.hs
     hs-source-dirs:     app-extra/jbeam-lsp-server
-    other-modules:      Paths_jbeam_edit
+    other-modules:
+        Handlers.Formatting
+        Server
+        Services.DocumentStore
+        Paths_jbeam_edit
+
     autogen-modules:    Paths_jbeam_edit
     default-language:   Haskell2010
     default-extensions: OverloadedStrings ImportQualifiedPost
@@ -268,11 +273,8 @@ executable jbeam-lsp-server
         relude (Relude as Prelude),
         relude
 
-    if flag(lsp-server)
-        build-depends:
-            aeson-pretty,
-            lsp >=2.7,
-            prettyprinter
+    if (flag(lsp-server) && impl(ghc >=9.6.6))
+        build-depends: lsp >=2.7
 
     else
         buildable: False

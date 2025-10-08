@@ -1,6 +1,8 @@
-{-# OPTIONS_GHC -Wno-deprecations #-}
+module Main (
+  main,
+) where
 
-module Main (main) where
+import Server (runServer)
 
 main :: IO ()
-main = undefined
+main = void runServer
