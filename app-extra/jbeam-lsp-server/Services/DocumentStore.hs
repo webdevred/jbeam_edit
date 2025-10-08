@@ -12,7 +12,9 @@ type DocumentStore = MVar (M.Map Uri T.Text)
 
 {-# NOINLINE store #-}
 store :: DocumentStore
-store = unsafePerformIO (newMVar M.empty)
+store = unsafePerformIO $ do
+  putStrLn "[Info] Initializing DocumentStore"
+  newMVar M.empty
 
 open :: Uri -> T.Text -> IO ()
 open uri text = modifyMVar_ store (pure . M.insert uri text)
