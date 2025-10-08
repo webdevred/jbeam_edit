@@ -6,6 +6,9 @@
 
 module Server (runServer) where
 
+import Formatting.Rules (RuleSet)
+
+import Formatting.Config qualified as FmtCfg
 import Handlers.Formatting qualified as Formatting
 import Language.LSP.Protocol.Message qualified as Msg
 import Language.LSP.Protocol.Types qualified as J (
@@ -21,19 +24,30 @@ import Language.LSP.Protocol.Types qualified as J (
 import Language.LSP.Server qualified as S
 import Services.DocumentStore qualified as Docs
 
+staticHandlers :: RuleSet -> S.Handlers (S.LspM config)
+staticHandlers rs =
+  mconcat
+    [ S.notificationHandler Msg.SMethod_Initialized $ \_notif ->
+        liftIO $ putStrLn "Client initialized"
+    , S.notificationHandler Msg.SMethod_WorkspaceDidChangeConfiguration $ \_notif ->
+        liftIO $ putStrLn "Configuration changed"
+    , S.notificationHandler Msg.SMethod_TextDocumentDidOpen handleDidOpen
+    , S.notificationHandler Msg.SMethod_TextDocumentDidChange handleDidChange
+    ]
+    <> Formatting.handlers rs
+
 -- | Starta LSP-servern
 runServer :: IO Int
-runServer =
+runServer = do
+  ruleSet <- FmtCfg.readFormattingConfig
   S.runServer $
     S.ServerDefinition
-      { defaultConfig = ()
+      { configSection = "jbeam-lsp"
+      , parseConfig = \_ _ -> Right ()
+      , onConfigChange = const >> pure $ pass
+      , defaultConfig = ()
       , doInitialize = \env _req -> pure (Right env)
-      , staticHandlers = \_caps ->
-          mconcat
-            [ Formatting.handlers
-            , S.notificationHandler Msg.SMethod_TextDocumentDidOpen handleDidOpen
-            , S.notificationHandler Msg.SMethod_TextDocumentDidChange handleDidChange
-            ]
+      , staticHandlers = const $ staticHandlers ruleSet
       , interpretHandler = \env -> S.Iso (S.runLspT env) liftIO
       , options = S.defaultOptions
       }
