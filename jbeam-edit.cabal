@@ -290,6 +290,7 @@ test-suite jbeam-edit-test
         Core.NodeSpec
         Formatting.RulesSpec
         FormattingSpec
+        LspSpec
         Parsing.DSLSpec
         Parsing.JbeamSpec
         SpecHelper
@@ -324,6 +325,12 @@ test-suite jbeam-edit-test
         base hiding (Prelude),
         relude (Relude as Prelude),
         relude
+
+    if (flag(lsp-server) && impl(ghc >=9.6.6))
+        cpp-options:   -DENABLE_LSP_TESTS
+        build-depends:
+            lsp >=2.7,
+            lsp-test
 
     if flag(transformation)
         cpp-options:   -DENABLE_TRANSFORMATION_TESTS

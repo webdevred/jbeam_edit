@@ -134,6 +134,9 @@ tests:
     dependencies: [jbeam-edit, hspec>=2.11, hspec-megaparsec>=2.2]
     build-tools: [hspec-discover]
     when:
-      condition: flag(transformation)
-      dependencies: [jbeam-edit-transformation]
-      cpp-options: -DENABLE_TRANSFORMATION_TESTS
+      - condition: flag(lsp-server) && impl(ghc >= 9.6.6)
+        dependencies: [lsp-test, lsp>=2.7]
+        cpp-options: -DENABLE_LSP_TESTS
+      - condition: flag(transformation)
+        dependencies: [jbeam-edit-transformation]
+        cpp-options: -DENABLE_TRANSFORMATION_TESTS
