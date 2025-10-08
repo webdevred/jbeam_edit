@@ -108,9 +108,9 @@ executables:
     source-dirs: app-extra/jbeam-lsp-server
     ghc-options: [-threaded, -rtsopts, -with-rtsopts=-N]
     when:
-      condition: flag(lsp-server)
+      condition: flag(lsp-server) && impl(ghc >= 9.6.6)
       then:
-        dependencies: [lsp>=2.7, prettyprinter, aeson-pretty]
+        dependencies: [lsp>=2.7]
       else:
         buildable: false
     dependencies: [jbeam-edit]
