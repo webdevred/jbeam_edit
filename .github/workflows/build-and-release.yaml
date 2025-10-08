@@ -82,7 +82,7 @@ jobs:
       - name: Build dependencies, good to do separate for caching
         run: cabal build --project-file cabal.project.release --only-dependencies
       - name: Build executables
-        run: cabal build exe:jbeam-edit --project-file cabal.project.release
+        run: cabal install --project-file cabal.project.release
       - name: Run tests (GHC ${{ matrix.ghc }})
         if: "!startsWith(github.ref, 'refs/tags/')"
         run: cabal test --project-file cabal.project.release

@@ -51,6 +51,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-cabal-${{ steps.get-ghc.outputs.ghc-version }}-
       - name: Build project (GHC latest)
-        run: cabal build --project-file cabal.project.ci all
+        run: cabal install --project-file cabal.project.ci all
       - name: Run tests (GHC latest)
         run: cabal test --project-file cabal.project.ci
