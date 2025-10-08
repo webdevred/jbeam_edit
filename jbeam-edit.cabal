@@ -138,15 +138,17 @@ library jbeam-edit-transformation
         relude >=1.2,
         scientific >=0.3,
         text >=2.1,
-        vector >=0.13,
-        yaml
+        vector >=0.13
 
     mixins:
         base hiding (Prelude),
         relude (Relude as Prelude),
         relude
 
-    if !flag(transformation)
+    if flag(transformation)
+        build-depends: yaml
+
+    else
         buildable: False
 
 executable jbeam-edit
@@ -210,9 +212,7 @@ executable jbeam-edit-dump-ast
         directory >=1.3,
         filepath >=1.4,
         jbeam-edit,
-        jbeam-edit-transformation,
         megaparsec >=9.6,
-        pretty-simple,
         relude >=1.2,
         scientific >=0.3,
         text >=2.1,
@@ -223,7 +223,12 @@ executable jbeam-edit-dump-ast
         relude (Relude as Prelude),
         relude
 
-    if !(flag(dump-ast) && flag(transformation))
+    if (flag(dump-ast) && flag(transformation))
+        build-depends:
+            jbeam-edit-transformation,
+            pretty-simple
+
+    else
         buildable: False
 
 test-suite jbeam-edit-test

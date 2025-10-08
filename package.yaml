@@ -70,10 +70,13 @@ flags:
 internal-libraries:
   jbeam-edit-transformation:
     when:
-      condition: '!flag(transformation)'
-      buildable: false
+      condition: flag(transformation)
+      then:
+        dependencies: [yaml]
+      else:
+        buildable: false
     source-dirs: src-extra/transformation
-    dependencies: [yaml, jbeam-edit]
+    dependencies: [jbeam-edit]
 
 library:
   source-dirs: src
@@ -98,12 +101,15 @@ executables:
         cpp-options: -DENABLE_WINDOWS_NEWLINES
   jbeam-edit-dump-ast:
     when:
-      condition: '!(flag(dump-ast) && flag(transformation))'
-      buildable: false
+      condition: (flag(dump-ast) && flag(transformation))
+      then:
+        dependencies: [pretty-simple, jbeam-edit-transformation]
+      else:
+        buildable: false
     main: Main.hs
     source-dirs: tools/dump_ast
     ghc-options: [-threaded, -rtsopts, -with-rtsopts=-N]
-    dependencies: [pretty-simple, jbeam-edit, jbeam-edit-transformation]
+    dependencies: [jbeam-edit]
 
 tests:
   jbeam-edit-test:

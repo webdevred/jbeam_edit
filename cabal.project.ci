@@ -5,4 +5,5 @@ program-options
   ghc-options: -Werror
 
 package jbeam-edit
+  tests: True
   flags: +dump-ast +transformation -windows-example-paths

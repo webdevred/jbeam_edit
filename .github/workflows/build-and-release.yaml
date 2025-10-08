@@ -50,21 +50,17 @@ jobs:
           ghc-version: ${{ matrix.ghc }}
           cabal-version: latest
           cabal-update: true
-      - name: Enable optimization for building on tags
-        if: startsWith(github.ref, 'refs/tags/')
-        run: cabal configure --project-file cabal.project.release -O2
-      - name: Enable tests for non-tags
-        if: "!startsWith(github.ref, 'refs/tags/')"
-        run: cabal configure --project-file cabal.project.release --enable-tests
-      - name: Configure Cabal with flags from matrix
-        if: matrix.label == 'experimental'
-        shell: bash
-        run: |
-          printf 'package jbeam-edit\n  flags: %s' $MATRIX_FLAGS >> cabal.project.release.local
-          echo "contents of cabal.project.release.local"
-          cat cabal.project.release.local
+      - name: Configure
+        run: bash ./.github/scripts/configure_project.sh
         env:
+          GITHUB_REF: ${{ github.ref }}
+          LABEL: ${{ matrix.label }}
           MATRIX_FLAGS: ${{ matrix.flags }}
+      - name: Freeze and check dependencies
+        env:
+          CABAL_PROJECT: cabal.project.release
+        shell: bash
+        run: bash ./.github/scripts/freeze_dependencies.sh
       - name: Cache GHC, Cabal store, and build artifacts
         uses: actions/cache@v4.3.0
         if: "!startsWith(github.ref, 'refs/tags/')"
@@ -78,7 +74,7 @@ jobs:
             }}-${{
               matrix.label
             }}-${{
-              hashFiles('**/package.yaml')
+              hashFiles('**/dist-newstyle/**/plan.json')
             }}
           restore-keys: |
             ${{ runner.os }}-cabal-${{ matrix.ghc }}-${{ matrix.label }}
@@ -95,7 +91,7 @@ jobs:
         shell: bash
       - name: Test executable
         shell: bash
-        run: bash ./.github/scripts/test_release.sh
+        run: bash ./.github/scripts/prepare_installer.sh
         env:
           RELEASE_DIR: dist/release
           ZIP_DIR: dist/zip_temp
@@ -103,35 +99,28 @@ jobs:
           CABAL_FILE: jbeam-edit.cabal
           LABEL: ${{ matrix.label}}
       - name: Upload build artifact
-        uses: actions/upload-artifact@v4
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: actions/upload-artifact@v4.6.2
         with:
           name: jbeam-edit-${{ matrix.ghc }}-${{ matrix.label }}
-          path: dist-newstyle
+          path: dist
   prepare-for-release:
+    if: startsWith(github.ref, 'refs/tags/')
     runs-on: windows-latest
     needs: [build-for-release, get-newest-supported-ghc]
-    if: startsWith(github.ref, 'refs/tags/')
     name: Prepare release for Windows
     strategy:
       matrix: ${{ fromJSON(needs.get-newest-supported-ghc.outputs.matrix) }}
     env:
-      RELEASE_DIR: dist/release
-      ZIP_DIR: dist/zip_temp
-      DIST_NEWSTYLE: dist-newstyle
-      CABAL_FILE: jbeam-edit.cabal
+      RELEASE_DIR: ./dist/release
+      ZIP_DIR: ./dist/zip_temp
     steps:
       - uses: actions/checkout@v5
       - name: Download build artifact
         uses: actions/download-artifact@v5.0.0
         with:
           name: jbeam-edit-${{ matrix.ghc }}-${{ matrix.label }}
-          path: ${{ env.DIST_NEWSTYLE }}
-      - name: Extract files from cabal
-        shell: bash
-        run: bash .github/scripts/copy_example_files.sh
-      - name: Copy exe to release folder
-        shell: bash
-        run: bash .github/scripts/copy_exe_to_release.sh
+          path: dist
       - name: Build Inno Setup Installer
         uses: Minionguyjpro/Inno-Setup-Action@v1.2.7
         with:
@@ -139,15 +128,7 @@ jobs:
           options: /O+
       - name: Prepare release
         shell: bash
-        run: bash .github/scripts/prepare_release.sh
-      - name: Package the release
-        shell: powershell
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $zipFile = "$env:GITHUB_WORKSPACE\dist\jbeam-edit-${env:GITHUB_REF_NAME}-${env:LABEL}.zip"
-          $zipDir = "$env:GITHUB_WORKSPACE\dist\zip_temp"
-          Add-Type -AssemblyName System.IO.Compression.FileSystem
-          [System.IO.Compression.ZipFile]::CreateFromDirectory($zipDir, $zipFile)
+        run: bash ./.github/scripts/prepare_release.sh
         env:
           LABEL: ${{ matrix.label}}
       - name: Upload zip artifact
