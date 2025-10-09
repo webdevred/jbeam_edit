@@ -14,14 +14,16 @@ extra-source-files:
   - examples/jbeam/*.jbeam
   - examples/formatted_jbeam/*.jbeam
 
-
 category: Command Line, Jbeam, Beamng
-
-synopsis:
-  A fast and reliable command-line tool for parsing, formatting, and editing JBeam files, supporting consistent node renaming, reference updating, and JBFL-based formatting.
-
+synopsis: A fast and reliable command-line tool for parsing, formatting, and editing
+  JBeam files, supporting consistent node renaming, reference updating, and JBFL-based
+  formatting.
 description: >-
-  jbeam-edit is a Haskell-based CLI utility for BeamNG JBeam files. It parses complete JBeam structures, preserves comments and whitespace, formats files consistently, and can automatically rename nodes and update references. Custom formatting rules are supported via JBFL (JBeam Formatting Language). See the README for usage instructions and examples: https://github.com/webdevred/jbeam-edit#readme
+  jbeam-edit is a Haskell-based CLI utility for BeamNG JBeam files. It parses complete
+  JBeam structures, preserves comments and whitespace, formats files consistently,
+  and can automatically rename nodes and update references. Custom formatting rules
+  are supported via JBFL (JBeam Formatting Language). See the README for usage instructions
+  and examples: https://github.com/webdevred/jbeam-edit#readme
 tested-with: [GHC == 9.4.7, GHC == 9.6.6]
 
 dependencies:
@@ -81,6 +83,15 @@ internal-libraries:
         buildable: false
     source-dirs: src-extra/transformation
     dependencies: [jbeam-edit]
+  jbeam-language-server:
+    when:
+      condition: flag(lsp-server) && impl(ghc >= 9.6.6)
+      then:
+        dependencies: [lsp>=2.7]
+      else:
+        buildable: false
+    source-dirs: src-extra/language-server
+    dependencies: [jbeam-edit]
 
 library:
   source-dirs: src
@@ -90,6 +101,17 @@ library:
       cpp-options: -DENABLE_TRANSFORMATION
     - condition: os(windows) && flag(windows-example-paths)
       cpp-options: -DWINDOWS_EXAMPLE_PATHS
+
+_jbeam-lsp-common: &jbeam-lsp-common
+  main: Main.hs
+  ghc-options: [-threaded, -rtsopts, -with-rtsopts=-N]
+  when:
+    condition: flag(lsp-server) && impl(ghc >= 9.6.6)
+    then:
+      dependencies: [jbeam-language-server]
+    else:
+      buildable: false
+  dependencies: [jbeam-edit]
 
 executables:
   jbeam-edit:
@@ -104,16 +126,11 @@ executables:
       - condition: os(windows)
         cpp-options: -DENABLE_WINDOWS_NEWLINES
   jbeam-lsp-server:
-    main: Main.hs
     source-dirs: app-extra/jbeam-lsp-server
-    ghc-options: [-threaded, -rtsopts, -with-rtsopts=-N]
-    when:
-      condition: flag(lsp-server) && impl(ghc >= 9.6.6)
-      then:
-        dependencies: [lsp>=2.7]
-      else:
-        buildable: false
-    dependencies: [jbeam-edit]
+    <<: *jbeam-lsp-common
+  jbeam-lsp-test-server:
+    source-dirs: tools/lsp-test-server
+    <<: *jbeam-lsp-common
   jbeam-edit-dump-ast:
     when:
       condition: (flag(dump-ast) && flag(transformation))

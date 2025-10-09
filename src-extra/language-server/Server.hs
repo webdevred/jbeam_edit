@@ -7,8 +7,8 @@
 module Server (runServer) where
 
 import Formatting.Rules (RuleSet)
+import IOUtils
 
-import Formatting.Config qualified as FmtCfg
 import Handlers.Formatting qualified as Formatting
 import Language.LSP.Protocol.Message qualified as Msg
 import Language.LSP.Protocol.Types qualified as J (
@@ -18,6 +18,8 @@ import Language.LSP.Protocol.Types qualified as J (
   TextDocumentContentChangePartial (..),
   TextDocumentContentChangeWholeDocument (..),
   TextDocumentItem (..),
+  TextDocumentSyncKind (..),
+  TextDocumentSyncOptions (..),
   VersionedTextDocumentIdentifier (..),
   type (|?) (..),
  )
@@ -28,18 +30,17 @@ staticHandlers :: RuleSet -> S.Handlers (S.LspM config)
 staticHandlers rs =
   mconcat
     [ S.notificationHandler Msg.SMethod_Initialized $ \_notif ->
-        liftIO $ putStrLn "Client initialized"
+        liftIO $ putErrorLine "Client initialized"
     , S.notificationHandler Msg.SMethod_WorkspaceDidChangeConfiguration $ \_notif ->
-        liftIO $ putStrLn "Configuration changed"
+        liftIO $ putErrorLine "Configuration changed"
     , S.notificationHandler Msg.SMethod_TextDocumentDidOpen handleDidOpen
     , S.notificationHandler Msg.SMethod_TextDocumentDidChange handleDidChange
     ]
     <> Formatting.handlers rs
 
 -- | Starta LSP-servern
-runServer :: IO Int
-runServer = do
-  ruleSet <- FmtCfg.readFormattingConfig
+runServer :: RuleSet -> IO Int
+runServer rs =
   S.runServer $
     S.ServerDefinition
       { configSection = "jbeam-lsp"
@@ -47,9 +48,21 @@ runServer = do
       , onConfigChange = const >> pure $ pass
       , defaultConfig = ()
       , doInitialize = \env _req -> pure (Right env)
-      , staticHandlers = const $ staticHandlers ruleSet
+      , staticHandlers = const $ staticHandlers rs
       , interpretHandler = \env -> S.Iso (S.runLspT env) liftIO
-      , options = S.defaultOptions
+      , options =
+          S.defaultOptions
+            { S.optTextDocumentSync =
+                Just
+                  ( J.TextDocumentSyncOptions
+                      { J._openClose = Just True
+                      , J._change = Just J.TextDocumentSyncKind_Full
+                      , J._willSave = Nothing
+                      , J._willSaveWaitUntil = Nothing
+                      , J._save = Nothing
+                      }
+                  )
+            }
       }
 
 -- | didOpen: save docuement in DocumentStore

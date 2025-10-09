@@ -1,6 +1,7 @@
 module Services.DocumentStore (open, update, get) where
 
 import Control.Concurrent.MVar hiding (newMVar, readMVar)
+import IOUtils
 import Language.LSP.Protocol.Types (Uri)
 import System.IO.Unsafe (unsafePerformIO)
 import Prelude hiding (get)
@@ -13,7 +14,7 @@ type DocumentStore = MVar (M.Map Uri T.Text)
 {-# NOINLINE store #-}
 store :: DocumentStore
 store = unsafePerformIO $ do
-  putStrLn "[Info] Initializing DocumentStore"
+  putErrorLine "[Info] Initializing DocumentStore"
   newMVar M.empty
 
 open :: Uri -> T.Text -> IO ()

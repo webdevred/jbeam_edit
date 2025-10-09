@@ -1,6 +1,6 @@
 {-# LANGUAGE CPP #-}
 
-module LspSpec (spec) where
+module WorkspaceLspSpec (spec) where
 
 import Test.Hspec
 
@@ -11,16 +11,16 @@ import qualified Data.Text.IO as T
 import System.FilePath ((</>))
 
 spec :: Spec
-spec = describe "JBeam LSP Formatter (single test)" $ do
+spec = describe "JBeam LSP Formatter" $ do
   it "formats a single JBeam file with a single JBFL rule correctly" $ do
-    runSession "jbeam-lsp-server" fullLatestClientCaps "examples" $ do
+    runSession ("jbeam-lsp-test-server " <> ("examples" </> "ast" </> "jbfl" </> "minimal.hs")) fullLatestClientCaps "examples" $ do
       let
-        jbeamFile    = "ast" </> "jbeam" </> "fender.jbeam"
-        expectedFile = "formatted_jbeam" </> "fender-minimal-jbfl.jbeam"
+        jbeamFile    = "jbeam" </> "fender.jbeam"
+        expectedFile = "examples" </> "formatted_jbeam" </> "fender-minimal-jbfl.jbeam"
 
       doc <- openDoc jbeamFile "jbeam"
 
-      formatDoc doc (LSP.FormattingOptions 2 True Nothing Nothing Nothing)
+      formatDoc doc (LSP.FormattingOptions 0 False Nothing Nothing Nothing)
 
       formatted <- documentContents doc
       expected  <- liftIO $ T.readFile expectedFile
@@ -29,5 +29,5 @@ spec = describe "JBeam LSP Formatter (single test)" $ do
 
 #else
 spec :: Spec
-spec = pure ()
+spec = pass
 #endif
