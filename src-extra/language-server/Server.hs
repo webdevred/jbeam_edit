@@ -13,10 +13,12 @@ import Handlers.Formatting qualified as Formatting
 import Language.LSP.Protocol.Message qualified as Msg
 import Language.LSP.Protocol.Types qualified as J (
   DidChangeTextDocumentParams (..),
+  DidCloseTextDocumentParams (..),
   DidOpenTextDocumentParams (..),
   TextDocumentContentChangeEvent (..),
   TextDocumentContentChangePartial (..),
   TextDocumentContentChangeWholeDocument (..),
+  TextDocumentIdentifier (..),
   TextDocumentItem (..),
   TextDocumentSyncKind (..),
   TextDocumentSyncOptions (..),
@@ -34,6 +36,7 @@ staticHandlers rs =
     , S.notificationHandler Msg.SMethod_WorkspaceDidChangeConfiguration $ \_notif ->
         liftIO $ putErrorLine "Configuration changed"
     , S.notificationHandler Msg.SMethod_TextDocumentDidOpen handleDidOpen
+    , S.notificationHandler Msg.SMethod_TextDocumentDidClose handleDidClose
     , S.notificationHandler Msg.SMethod_TextDocumentDidChange handleDidChange
     ]
     <> Formatting.handlers rs
@@ -95,3 +98,15 @@ handleDidChange (Msg.TNotificationMessage _ _ (J.DidChangeTextDocumentParams doc
             J.InL (J.TextDocumentContentChangePartial {J._text = txt}) -> liftIO $ Docs.update uri txt
             J.InR (J.TextDocumentContentChangeWholeDocument txt) -> liftIO $ Docs.update uri txt
         _ -> pass
+
+handleDidClose
+  :: forall
+    {f :: Msg.MessageDirection}
+    {m1 :: Msg.Method f Msg.Notification}
+    {m2 :: Type -> Type}
+   . ( MonadIO m2
+     , Msg.MessageParams m1 ~ J.DidCloseTextDocumentParams
+     )
+  => Msg.TNotificationMessage m1 -> m2 ()
+handleDidClose (Msg.TNotificationMessage _ _ (J.DidCloseTextDocumentParams docId)) =
+  let J.TextDocumentIdentifier {_uri = uri} = docId in liftIO (Docs.delete uri)

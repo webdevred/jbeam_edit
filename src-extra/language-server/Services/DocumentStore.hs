@@ -1,4 +1,4 @@
-module Services.DocumentStore (open, update, get) where
+module Services.DocumentStore (open, update, get, delete) where
 
 import Control.Concurrent.MVar hiding (newMVar, readMVar)
 import IOUtils
@@ -25,3 +25,6 @@ update = open
 
 get :: Uri -> IO (Maybe T.Text)
 get uri = M.lookup uri <$> readMVar store
+
+delete :: Uri -> IO ()
+delete uri = modifyMVar_ store (pure . M.delete uri)
