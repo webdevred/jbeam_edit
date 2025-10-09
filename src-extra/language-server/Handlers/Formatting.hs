@@ -6,6 +6,7 @@
 module Handlers.Formatting (handlers) where
 
 import Formatting.Rules (RuleSet)
+import IOUtils
 
 import Data.Text qualified as T
 import Formatting qualified as Fmt
@@ -36,7 +37,7 @@ handlers rs =
          )
       -> S.LspM config ()
     formattingHandler req responder = do
-      liftIO $ putStrLn "DEBUG: formattingHandler invoked"
+      liftIO $ putErrorLine "DEBUG: formattingHandler invoked"
       let Msg.TRequestMessage _ _ _ (params :: J.DocumentFormattingParams) = req
       handleParams rs params responder
 
@@ -55,12 +56,12 @@ handleParams rs params responder = do
   mText <- liftIO $ Docs.get uri
   case mText of
     Nothing -> do
-      liftIO . putStrLn $ "DEBUG: no document in store for " ++ show uri
+      liftIO . putErrorLine $ "DEBUG: no document in store for " <> show uri
       responder (Right (J.InR J.Null))
     Just txt ->
       case JbeamP.parseNodes (encodeUtf8 txt) of
         Left err -> do
-          liftIO . putStrLn $ "Parse error: " ++ show err
+          liftIO . putErrorLine $ "Parse error: " <> show err
           responder (Right (J.InR J.Null))
         Right node -> do
           let newText = Fmt.formatNode rs node
@@ -69,8 +70,12 @@ handleParams rs params responder = do
 
 wholeRange :: Text -> J.Range
 wholeRange txt =
-  let numLines = max 1 . length . lines $ txt
-      lastLineLen = T.length $ T.takeWhileEnd (/= '\n') txt
+  let ls = lines txt
+      numLines = max 1 (length ls)
+      lastLineLen =
+        case reverse ls of
+          [] -> 0
+          (lastLine : _) -> T.length lastLine
    in J.Range
         (J.Position 0 0)
         (J.Position (fromIntegral (numLines - 1)) (fromIntegral lastLineLen))

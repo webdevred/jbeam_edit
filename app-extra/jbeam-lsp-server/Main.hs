@@ -4,5 +4,9 @@ module Main (
 
 import Server (runServer)
 
+import Formatting.Config qualified as FmtCfg
+
 main :: IO ()
-main = void runServer
+main = do
+  rs <- FmtCfg.readFormattingConfig
+  void (runServer rs)

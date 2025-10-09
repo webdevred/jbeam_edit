@@ -14,6 +14,8 @@ cradle:
                 component: lib:jbeam-edit
               - path: ./src-extra/transformation
                 component: jbeam-edit:lib:jbeam-edit-transformation
+              - path: ./src-extra/language-server
+                component: jbeam-edit:lib:jbeam-lsp-server
               - path: ./app
                 component: exe:jbeam-edit
               - path: ./app-extra/jbeam-lsp-server
