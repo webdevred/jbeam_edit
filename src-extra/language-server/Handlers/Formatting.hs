@@ -78,4 +78,4 @@ wholeRange txt =
           (lastLine : _) -> T.length lastLine
    in J.Range
         (J.Position 0 0)
-        (J.Position (fromIntegral (numLines - 1)) (fromIntegral lastLineLen))
+        (J.Position (fromIntegral numLines) (fromIntegral lastLineLen))
