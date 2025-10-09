@@ -44,7 +44,7 @@ editFile opts = do
       case contents >>= parseNodes . toStrict of
         Right ns -> processNodes opts outFilename ns formattingConfig
         Left err -> putTextLn err
-    Nothing -> putTextLn "missing arg filename"
+    Nothing -> putErrorLine "missing arg filename"
 
 processNodes :: Options -> FilePath -> Node -> RuleSet -> IO ()
 processNodes opts outFile nodes formattingConfig = do
@@ -57,7 +57,7 @@ processNodes opts outFile nodes formattingConfig = do
         . replaceNewlines
         . formatNode formattingConfig
         $ transformedNode'
-    Left err -> putTextLn err
+    Left err -> putErrorLine err
 
 #ifdef ENABLE_WINDOWS_NEWLINES
 replaceNewlines :: Text -> Text

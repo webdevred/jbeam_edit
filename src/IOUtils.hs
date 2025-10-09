@@ -1,7 +1,8 @@
-module IOUtils (tryReadFile) where
+module IOUtils (tryReadFile, putErrorLine) where
 
 import Control.Exception (IOException, try)
 import GHC.IO.Exception (IOErrorType, IOException (IOError))
+import System.IO (hPutStrLn)
 
 import Data.ByteString.Lazy qualified as BL (
   ByteString,
@@ -26,3 +27,6 @@ tryReadFile noerrs fp = do
     try (readFileLBS fp)
       :: IO (Either IOException BL.ByteString)
   pure $ ioErrorMsg noerrs possiblyContent
+
+putErrorLine :: Text -> IO ()
+putErrorLine = hPutStrLn stderr . toString
