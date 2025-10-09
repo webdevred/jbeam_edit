@@ -20,6 +20,8 @@ cradle:
                 component: exe:jbeam-edit
               - path: ./app-extra/jbeam-lsp-server
                 component: jbeam-edit:exe:jbeam-lsp-server
+              - path: ./app-extra/jbeam-lsp-test-server
+                component: jbeam-edit:exe:jbeam-lsp-test-server
               - path: ./tools/dump_ast
                 component: exe:jbeam-edit-dump-ast
               - path: ./test
