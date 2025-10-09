@@ -25,6 +25,9 @@ import Language.LSP.Server qualified as S
 import Parsing.Jbeam qualified as JbeamP
 import Services.DocumentStore qualified as Docs
 
+putErrorLine' :: MonadIO m => Text -> m ()
+putErrorLine' = liftIO . putErrorLine
+
 handlers :: RuleSet -> S.Handlers (S.LspM config)
 handlers rs =
   S.requestHandler Msg.SMethod_TextDocumentFormatting formattingHandler
@@ -38,7 +41,7 @@ handlers rs =
          )
       -> S.LspM config ()
     formattingHandler req responder = do
-      liftIO $ putErrorLine "DEBUG: formattingHandler invoked"
+      putErrorLine' "DEBUG: formattingHandler invoked"
       let Msg.TRequestMessage _ _ _ (params :: J.DocumentFormattingParams) = req
       handleParams rs params responder
 
@@ -57,12 +60,12 @@ handleParams rs params responder = do
   mText <- liftIO $ Docs.get uri
   case mText of
     Nothing -> do
-      liftIO . putErrorLine $ "DEBUG: no document in store for " <> show uri
+      putErrorLine' ("DEBUG: no document in store for " <> show uri)
       responder (Right (J.InR J.Null))
     Just txt ->
       case JbeamP.parseNodes (encodeUtf8 txt) of
         Left err -> do
-          liftIO . putErrorLine $ "Parse error: " <> show err
+          liftIO . putErrorLine' $ "Parse error: " <> show err
           responder (Right (J.InR J.Null))
         Right node -> runFormatNode responder rs txt node
 
