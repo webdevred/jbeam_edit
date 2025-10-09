@@ -18,6 +18,8 @@ import Language.LSP.Protocol.Types qualified as J (
   TextDocumentContentChangePartial (..),
   TextDocumentContentChangeWholeDocument (..),
   TextDocumentItem (..),
+  TextDocumentSyncKind (..),
+  TextDocumentSyncOptions (..),
   VersionedTextDocumentIdentifier (..),
   type (|?) (..),
  )
@@ -38,7 +40,7 @@ staticHandlers rs =
 
 -- | Starta LSP-servern
 runServer :: RuleSet -> IO Int
-runServer rs = do
+runServer rs =
   S.runServer $
     S.ServerDefinition
       { configSection = "jbeam-lsp"
@@ -48,7 +50,19 @@ runServer rs = do
       , doInitialize = \env _req -> pure (Right env)
       , staticHandlers = const $ staticHandlers rs
       , interpretHandler = \env -> S.Iso (S.runLspT env) liftIO
-      , options = S.defaultOptions
+      , options =
+          S.defaultOptions
+            { S.optTextDocumentSync =
+                Just
+                  ( J.TextDocumentSyncOptions
+                      { J._openClose = Just True
+                      , J._change = Just J.TextDocumentSyncKind_Full
+                      , J._willSave = Nothing
+                      , J._willSaveWaitUntil = Nothing
+                      , J._save = Nothing
+                      }
+                  )
+            }
       }
 
 -- | didOpen: save docuement in DocumentStore

@@ -53,6 +53,14 @@ handleParams
 handleParams rs params responder = do
   let J.DocumentFormattingParams {J._textDocument = textDocId} = params
       J.TextDocumentIdentifier {J._uri = uri} = textDocId
+      runFormatNode txt node =
+        let newText = Fmt.formatNode rs node
+            edit = J.TextEdit {J._range = wholeRange txt, J._newText = newText}
+         in if newText == txt
+              then
+                responder (Right (J.InR J.Null))
+              else
+                responder (Right (J.InL [edit]))
   mText <- liftIO $ Docs.get uri
   case mText of
     Nothing -> do
@@ -63,10 +71,7 @@ handleParams rs params responder = do
         Left err -> do
           liftIO . putErrorLine $ "Parse error: " <> show err
           responder (Right (J.InR J.Null))
-        Right node -> do
-          let newText = Fmt.formatNode rs node
-              edit = J.TextEdit {J._range = wholeRange txt, J._newText = newText}
-          responder (Right (J.InL [edit]))
+        Right node -> runFormatNode txt node
 
 wholeRange :: Text -> J.Range
 wholeRange txt =
