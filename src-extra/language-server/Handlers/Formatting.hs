@@ -1,10 +1,11 @@
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE ExplicitNamespaces #-}
 {-# LANGUAGE PolyKinds #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeOperators #-}
 
 module Handlers.Formatting (handlers) where
 
+import Core.Node (Node)
 import Formatting.Rules (RuleSet)
 import IOUtils
 
@@ -53,14 +54,6 @@ handleParams
 handleParams rs params responder = do
   let J.DocumentFormattingParams {J._textDocument = textDocId} = params
       J.TextDocumentIdentifier {J._uri = uri} = textDocId
-      runFormatNode txt node =
-        let newText = Fmt.formatNode rs node
-            edit = J.TextEdit {J._range = wholeRange txt, J._newText = newText}
-         in if newText == txt
-              then
-                responder (Right (J.InR J.Null))
-              else
-                responder (Right (J.InL [edit]))
   mText <- liftIO $ Docs.get uri
   case mText of
     Nothing -> do
@@ -71,7 +64,22 @@ handleParams rs params responder = do
         Left err -> do
           liftIO . putErrorLine $ "Parse error: " <> show err
           responder (Right (J.InR J.Null))
-        Right node -> runFormatNode txt node
+        Right node -> runFormatNode responder rs txt node
+
+runFormatNode
+  :: (Either a ([J.TextEdit] J.|? J.Null) -> t)
+  -> RuleSet
+  -> Text
+  -> Node
+  -> t
+runFormatNode responder ruleSet txt node =
+  let newText = Fmt.formatNode ruleSet node
+      edit = J.TextEdit {J._range = wholeRange txt, J._newText = newText}
+   in if newText == txt
+        then
+          responder (Right (J.InR J.Null))
+        else
+          responder (Right (J.InL [edit]))
 
 wholeRange :: Text -> J.Range
 wholeRange txt =
