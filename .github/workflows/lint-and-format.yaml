@@ -34,3 +34,8 @@ jobs:
             **/*.hs
             !examples/ast/*/*.hs
           version: latest
+      - uses: reviewdog/action-shfmt@v1.0.4
+        with:
+          level: warning
+          fail_on_error: true
+          workdir: .github/scripts
