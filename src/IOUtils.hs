@@ -1,12 +1,24 @@
-module IOUtils (tryReadFile) where
+module IOUtils (tryReadFile, putErrorLine, reportInvalidNodes) where
 
 import Control.Exception (IOException, try)
+import Core.Node (Node)
+import Formatting (formatNode, newRuleSet)
 import GHC.IO.Exception (IOErrorType, IOException (IOError))
+import System.IO (hPutStrLn)
 
 import Data.ByteString.Lazy qualified as BL (
   ByteString,
  )
 import Data.Text qualified as T (append)
+
+putErrorLine :: Text -> IO ()
+putErrorLine = hPutStrLn stderr . toString
+
+reportInvalidNodes :: Text -> [Node] -> IO ()
+reportInvalidNodes msg nodes =
+  unless (null nodes) $ do
+    putErrorLine msg
+    mapM_ (putErrorLine . formatNode newRuleSet) nodes
 
 ioErrorMsg
   :: [IOErrorType]

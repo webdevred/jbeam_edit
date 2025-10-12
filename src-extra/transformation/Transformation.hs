@@ -164,9 +164,9 @@ moveVerticesInVertexForest
   :: UpdateNamesMap
   -> TransformationConfig
   -> VertexForest
-  -> VertexConnMap
-  -> Either Text VertexForest
-moveVerticesInVertexForest newNames tfCfg vertexTrees conns =
+  -> ([Node], VertexConnMap)
+  -> Either Text ([Node], VertexForest)
+moveVerticesInVertexForest newNames tfCfg vertexTrees (badBeamNodes, conns) =
   let allVertices = concatMap (NE.toList . sconcat . tAnnotatedVertices) vertexTrees
       brks = xGroupBreakpoints tfCfg
    in case mapM (groupAnnotatedVertices brks) allVertices of
@@ -177,7 +177,7 @@ moveVerticesInVertexForest newNames tfCfg vertexTrees conns =
               (addVertexTreeToForest newNames tfCfg conns groupedVertices vertexTrees)
               M.empty
               treesOrder
-          Right $ sortSupportVertices newNames tfCfg newForest
+          Right (badBeamNodes, sortSupportVertices newNames tfCfg newForest)
         Nothing -> Left "invalid breakpoint"
 
 getVertexNamesInForest
@@ -390,19 +390,25 @@ findAndUpdateTextInNode m cursor node =
     applyBreadcrumbAndUpdateText index =
       NC.applyCrumb (NC.ArrayIndex index) cursor (findAndUpdateTextInNode m)
 
-transform :: UpdateNamesMap -> TransformationConfig -> Node -> Either Text Node
+transform
+  :: UpdateNamesMap
+  -> TransformationConfig
+  -> Node
+  -> Either Text ([Node], [Node], Node)
 transform newNames tfCfg topNode =
   getVertexForest (xGroupBreakpoints tfCfg) verticesQuery topNode
     >>= getNamesAndUpdateTree
   where
     getVertexConns = vertexConns topNode
-    getNamesAndUpdateTree (globals, vertexForest) =
+    getNamesAndUpdateTree (badVertexNodes, globals, vertexForest) =
       let vertexNames = getVertexNamesInForest vertexForest
        in getVertexConns
             >>= moveVerticesInVertexForest newNames tfCfg vertexForest
-            >>= getUpdatedNamesAndUpdateGlobally globals vertexNames
-    getUpdatedNamesAndUpdateGlobally globals oldVertexNames updatedVertexForest =
+            >>= getUpdatedNamesAndUpdateGlobally badVertexNodes globals vertexNames
+    getUpdatedNamesAndUpdateGlobally badVertexNodes globals oldVertexNames (badBeamNodes, updatedVertexForest) =
       let updatedVertexNames = getVertexNamesInForest updatedVertexForest
           updateMap = M.fromList $ on zip M.elems oldVertexNames updatedVertexNames
-       in Right . findAndUpdateTextInNode updateMap newCursor $
-            updateVerticesInNode verticesQuery updatedVertexForest globals topNode
+          newTopNode =
+            findAndUpdateTextInNode updateMap newCursor $
+              updateVerticesInNode verticesQuery updatedVertexForest globals topNode
+       in Right (badVertexNodes, badBeamNodes, newTopNode)

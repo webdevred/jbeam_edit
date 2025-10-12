@@ -1,6 +1,7 @@
 module SupportVertex (vertexConns) where
 
 import Core.Node
+import Core.Result
 import Data.Vector (Vector)
 import Types
 
@@ -11,11 +12,10 @@ import Data.Vector qualified as V
 beamQuery :: NP.NodePath
 beamQuery = fromList [NP.ObjectIndex 0, NP.ObjectKey "beams"]
 
-possiblyBeam :: Node -> Maybe (Text, Text)
+possiblyBeam :: Node -> Result Node (Text, Text)
 possiblyBeam node
-  | isJust maybeBeam = maybeBeam
-  | isCommentNode node = Nothing
-  | otherwise = Nothing
+  | isCommentNode node = Empty
+  | otherwise = maybe (Bad node) Good maybeBeam
   where
     maybeBeam =
       case node of
@@ -25,14 +25,15 @@ possiblyBeam node
             _ -> Nothing
         _ -> Nothing
 
-vertexConns :: Node -> Either Text VertexConnMap
+vertexConns :: Node -> Either Text ([Node], VertexConnMap)
 vertexConns topNode = case NP.queryNodes beamQuery topNode of
   Just (Array beams) -> Right $ go beams
   _ -> Left $ "could not find " <> show beamQuery
   where
-    go :: Vector Node -> VertexConnMap
+    go :: Vector Node -> ([Node], VertexConnMap)
     go beams =
-      let beamNames = V.mapMaybe possiblyBeam beams
+      let (badNodes, beamNames) = mapResult possiblyBeam beams
           fun (beam1, beam2) = increaseBeamCount beam1 . increaseBeamCount beam2
           increaseBeamCount beamName = M.insertWith (+) beamName 1
-       in V.foldr fun M.empty beamNames
+          connCountMap = foldr fun M.empty beamNames
+       in (badNodes, connCountMap)
