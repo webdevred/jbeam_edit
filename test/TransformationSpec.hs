@@ -19,8 +19,11 @@ topNodeSpec rs cfName tfConfig inFilename outFilename = do
   input <- runIO $ baseReadFile inputPath
   output <- runIO $ baseReadFile outFilename
   let desc = "with " ++ cfName ++ ": should transform AST in " ++ inFilename ++ " to Jbeam in " ++ outFilename
-  describe desc . works $
-    formatNode rs <$> transform M.empty tfConfig (read input) `shouldBe` Right (toText output)
+      transformAndFormat =
+          do
+            (_, _, node) <- transform M.empty tfConfig (read input)
+            Right (formatNode rs node)
+  describe desc . works $ transformAndFormat `shouldBe` Right (toText output)
 
 spec :: Spec
 spec = do

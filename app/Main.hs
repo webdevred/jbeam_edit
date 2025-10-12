@@ -44,7 +44,7 @@ editFile opts = do
       case contents >>= parseNodes . toStrict of
         Right ns -> processNodes opts outFilename ns formattingConfig
         Left err -> putTextLn err
-    Nothing -> putTextLn "missing arg filename"
+    Nothing -> putErrorLine "missing arg filename"
 
 processNodes :: Options -> FilePath -> Node -> RuleSet -> IO ()
 processNodes opts outFile nodes formattingConfig = do
@@ -57,7 +57,7 @@ processNodes opts outFile nodes formattingConfig = do
         . replaceNewlines
         . formatNode formattingConfig
         $ transformedNode'
-    Left err -> putTextLn err
+    Left err -> putErrorLine err
 
 #ifdef ENABLE_WINDOWS_NEWLINES
 replaceNewlines :: Text -> Text
@@ -69,9 +69,14 @@ replaceNewlines = id
 
 applyTransform :: Options -> Node -> IO (Either Text Node)
 #ifdef ENABLE_TRANSFORMATION
-applyTransform opts node = do
+applyTransform opts topNode = do
   tfConfig <- loadTransformationConfig ".jbeam-edit.yaml"
-  pure (transform (optUpdateNames opts) tfConfig node)
+  case transform (optUpdateNames opts) tfConfig topNode of
+    Right (badVertexNodes, badBeamNodes, topNode') -> do
+      reportInvalidNodes "Invalid vertex nodes encountered:" badVertexNodes
+      reportInvalidNodes "Invalid beam nodes encountered:" badBeamNodes
+      pure (Right topNode')
+    Left err -> pure (Left err)
 #else
 applyTransform _ = pure . Right
 #endif

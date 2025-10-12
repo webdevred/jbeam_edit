@@ -66,6 +66,7 @@ library
         Core.Node
         Core.NodeCursor
         Core.NodePath
+        Core.Result
         Formatting
         Formatting.Config
         Formatting.Rules
