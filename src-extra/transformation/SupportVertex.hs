@@ -14,7 +14,7 @@ beamQuery = fromList [NP.ObjectIndex 0, NP.ObjectKey "beams"]
 
 possiblyBeam :: Node -> Result Node (Text, Text)
 possiblyBeam node
-  | isCommentNode node = Empty
+  | isCommentNode node || isObjectNode node = Empty
   | otherwise = maybe (Bad node) Good maybeBeam
   where
     maybeBeam =
