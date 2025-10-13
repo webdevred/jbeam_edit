@@ -10,6 +10,7 @@ module Core.NodePath (
 
 import Core.Node qualified as N (Node (..))
 import Data.Sequence (Seq (..))
+import Data.Text (Text)
 import Data.Vector qualified as V
 import GHC.IsList (IsList (..))
 
@@ -29,7 +30,7 @@ newtype NodePath
 instance IsList NodePath where
   type Item NodePath = NodeSelector
   fromList = NodePath . fromList
-  toList (NodePath xs) = Prelude.toList xs
+  toList (NodePath xs) = toList xs
 
 extractValInKey :: N.Node -> Maybe N.Node
 extractValInKey (N.ObjectKey (_, val)) = Just val

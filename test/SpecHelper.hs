@@ -1,7 +1,6 @@
 module SpecHelper (
   applySpecOnInput,
   works,
-  baseReadFile,
   listFilesInDir,
   module Core.Node,
   module Test.Hspec,
@@ -10,17 +9,13 @@ module SpecHelper (
 ) where
 
 import Core.Node
-import Data.List (isSuffixOf)
+import Data.List (isPrefixOf, isSuffixOf)
 import System.Directory (getDirectoryContents)
-import System.IO qualified as IO (readFile)
 import Test.Hspec
 
 type DescribeFun = (String -> String -> String)
 
 type SpecFun t1 t2 a = (t1 -> t2 -> a)
-
-baseReadFile :: FilePath -> IO String
-baseReadFile = IO.readFile
 
 listFilesInDir
   :: FilePath

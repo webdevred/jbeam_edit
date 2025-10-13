@@ -7,28 +7,28 @@ module TransformationSpec (
 import SpecHelper
 
 #ifdef ENABLE_TRANSFORMATION_TESTS
-import Relude.Unsafe (read)
 import Transformation
 import Formatting
 import Config
 import Data.Map qualified as M
+import Data.Text qualified as T
 
 topNodeSpec :: RuleSet -> String -> TransformationConfig -> FilePath -> FilePath -> Spec
 topNodeSpec rs cfName tfConfig inFilename outFilename = do
   let inputPath = "examples/ast/jbeam/" ++ inFilename
-  input <- runIO $ baseReadFile inputPath
-  output <- runIO $ baseReadFile outFilename
+  input <- runIO $ readFile inputPath
+  output <- runIO $ readFile outFilename
   let desc = "with " ++ cfName ++ ": should transform AST in " ++ inFilename ++ " to Jbeam in " ++ outFilename
       transformAndFormat =
           do
             (_, _, node) <- transform M.empty tfConfig (read input)
             Right (formatNode rs node)
-  describe desc . works $ transformAndFormat `shouldBe` Right (toText output)
+  describe desc . works $ transformAndFormat `shouldBe` Right (T.pack output)
 
 spec :: Spec
 spec = do
   let exampleConfigPath = "examples/jbeam-edit.yaml"
-  rs <- runIO $ baseReadFile "examples/ast/jbfl/minimal.hs"
+  rs <- runIO $ readFile "examples/ast/jbfl/minimal.hs"
   tfConfig <- runIO $ loadTransformationConfig exampleConfigPath
   inputFiles <-
     runIO $ listFilesInDir "examples/ast/jbeam"
@@ -38,5 +38,5 @@ spec = do
   mapM_ (testInputFile "cfg-example" tfConfig) inputFiles
 #else
 spec :: Spec
-spec = pass
+spec = pure ()
 #endif

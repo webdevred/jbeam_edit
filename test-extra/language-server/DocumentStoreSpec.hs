@@ -3,7 +3,6 @@ module DocumentStoreSpec (spec) where
 import Language.LSP.Protocol.Types (Uri (..))
 import Services.DocumentStore (delete, get, open, resetStore, update)
 import Test.Hspec
-import Prelude hiding (get)
 
 spec :: Spec
 spec =

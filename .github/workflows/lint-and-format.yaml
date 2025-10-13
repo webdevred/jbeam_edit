@@ -26,6 +26,7 @@ jobs:
       - name: Run hlint with relude hlints
         uses: haskell-actions/hlint-run@v2.4.10
         with:
+          path: src-extra
           fail-on: warning
       - name: Run fourmolu
         uses: haskell-actions/run-fourmolu@v11

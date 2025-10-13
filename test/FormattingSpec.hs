@@ -2,9 +2,12 @@ module FormattingSpec (
   spec,
 ) where
 
+import Control.Monad (forM, forM_)
 import Core.NodeCursor (newCursor)
+import Data.Text (Text)
+import Data.Text qualified as T
 import Formatting
-import Relude.Unsafe (read)
+import GHC.IsList (fromList)
 import SpecHelper
 import System.FilePath (takeBaseName, (</>))
 
@@ -61,14 +64,14 @@ dynamicJbflTests = do
   jbflFiles <- listFilesInDir jbflAstDir
 
   forM [(j, b) | j <- jbeamFiles, b <- jbflFiles] $ \(jbeamFile, jbflFile) -> do
-    jbeam <- read <$> baseReadFile (jbeamAstDir </> jbeamFile)
-    rules <- read <$> baseReadFile (jbflAstDir </> jbflFile)
+    jbeam <- read <$> readFile (jbeamAstDir </> jbeamFile)
+    rules <- read <$> readFile (jbflAstDir </> jbflFile)
 
     let formatted = formatNode rules jbeam
         baseName = takeBaseName jbeamFile ++ "-" ++ takeBaseName jbflFile
         outFile = formattedDir </> (baseName ++ "-jbfl.jbeam")
 
-    expected <- toText <$> baseReadFile outFile
+    expected <- T.pack <$> readFile outFile
     pure (formatted, expected)
 
 spec :: Spec
@@ -84,7 +87,7 @@ spec = do
         descFun
         shouldBe
         (formatWithCursor newRuleSet newCursor node)
-        (fromString jbeam)
+        (T.pack jbeam)
     descFun jbeam node = "should format " ++ show node ++ " as " ++ jbeam
     specs =
       concat
