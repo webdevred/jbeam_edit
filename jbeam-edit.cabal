@@ -49,6 +49,11 @@ flag dump-ast
     default:     False
     manual:      True
 
+flag lsp-server
+    description: Enable LSP server (experimental)
+    default:     False
+    manual:      True
+
 flag transformation
     description: Enable transformation (experimental)
     default:     False
@@ -152,6 +157,46 @@ library jbeam-edit-transformation
     else
         buildable: False
 
+library jbeam-language-server
+    exposed-modules:
+        Handlers.Formatting
+        Server
+        Services.DocumentStore
+
+    hs-source-dirs:     src-extra/language-server
+    other-modules:      Paths_jbeam_edit
+    autogen-modules:    Paths_jbeam_edit
+    default-language:   Haskell2010
+    default-extensions: OverloadedStrings ImportQualifiedPost
+    ghc-options:
+        -Wall -Wcompat -Widentities -Wincomplete-record-updates
+        -Wincomplete-uni-patterns -Wmissing-export-lists
+        -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
+
+    build-depends:
+        base >=4.17 && <5,
+        bytestring >=0.12,
+        containers >=0.6,
+        directory >=1.3,
+        filepath >=1.4,
+        jbeam-edit,
+        megaparsec >=9.6,
+        relude >=1.2,
+        scientific >=0.3,
+        text >=2.1,
+        vector >=0.13
+
+    mixins:
+        base hiding (Prelude),
+        relude (Relude as Prelude),
+        relude
+
+    if (flag(lsp-server) && impl(ghc >=9.6.6))
+        build-depends: lsp >=2.7
+
+    else
+        buildable: False
+
 executable jbeam-edit
     main-is:            Main.hs
     hs-source-dirs:     app
@@ -232,6 +277,80 @@ executable jbeam-edit-dump-ast
     else
         buildable: False
 
+executable jbeam-lsp-server
+    main-is:            Main.hs
+    hs-source-dirs:     app-extra/jbeam-lsp-server
+    other-modules:      Paths_jbeam_edit
+    autogen-modules:    Paths_jbeam_edit
+    default-language:   Haskell2010
+    default-extensions: OverloadedStrings ImportQualifiedPost
+    ghc-options:
+        -Wall -Wcompat -Widentities -Wincomplete-record-updates
+        -Wincomplete-uni-patterns -Wmissing-export-lists
+        -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
+        -threaded -rtsopts -with-rtsopts=-N
+
+    build-depends:
+        base >=4.17 && <5,
+        bytestring >=0.12,
+        containers >=0.6,
+        directory >=1.3,
+        filepath >=1.4,
+        jbeam-edit,
+        megaparsec >=9.6,
+        relude >=1.2,
+        scientific >=0.3,
+        text >=2.1,
+        vector >=0.13
+
+    mixins:
+        base hiding (Prelude),
+        relude (Relude as Prelude),
+        relude
+
+    if (flag(lsp-server) && impl(ghc >=9.6.6))
+        build-depends: jbeam-language-server
+
+    else
+        buildable: False
+
+executable jbeam-lsp-test-server
+    main-is:            Main.hs
+    hs-source-dirs:     tools/lsp-test-server
+    other-modules:      Paths_jbeam_edit
+    autogen-modules:    Paths_jbeam_edit
+    default-language:   Haskell2010
+    default-extensions: OverloadedStrings ImportQualifiedPost
+    ghc-options:
+        -Wall -Wcompat -Widentities -Wincomplete-record-updates
+        -Wincomplete-uni-patterns -Wmissing-export-lists
+        -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
+        -threaded -rtsopts -with-rtsopts=-N
+
+    build-depends:
+        base >=4.17 && <5,
+        bytestring >=0.12,
+        containers >=0.6,
+        directory >=1.3,
+        filepath >=1.4,
+        jbeam-edit,
+        megaparsec >=9.6,
+        relude >=1.2,
+        scientific >=0.3,
+        text >=2.1,
+        vector >=0.13
+
+    mixins:
+        base hiding (Prelude),
+        relude (Relude as Prelude),
+        relude
+
+    if (flag(lsp-server) && impl(ghc >=9.6.6))
+        build-depends: jbeam-language-server
+
+    else
+        buildable: False
+
 test-suite jbeam-edit-test
     type:               exitcode-stdio-1.0
     main-is:            Spec.hs
@@ -247,6 +366,7 @@ test-suite jbeam-edit-test
         Parsing.JbeamSpec
         SpecHelper
         TransformationSpec
+        WorkspaceLspSpec
         Paths_jbeam_edit
 
     autogen-modules:    Paths_jbeam_edit
@@ -277,6 +397,12 @@ test-suite jbeam-edit-test
         base hiding (Prelude),
         relude (Relude as Prelude),
         relude
+
+    if (flag(lsp-server) && impl(ghc >=9.6.6))
+        cpp-options:   -DENABLE_LSP_TESTS
+        build-depends:
+            lsp >=2.7,
+            lsp-test
 
     if flag(transformation)
         cpp-options:   -DENABLE_TRANSFORMATION_TESTS
