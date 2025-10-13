@@ -5,12 +5,16 @@ module CommandLineOptions (
   Options (..),
 ) where
 
+import Data.List qualified as L (foldl')
+import Data.Map (Map)
 import Data.Map qualified as M
+import Data.Text (Text)
 import Data.Version (showVersion)
 import Formatting.Config (ConfigType (..))
 import Paths_jbeam_edit (version)
 import System.Console.GetOpt
 import System.Environment
+import System.Exit (exitSuccess)
 
 #ifdef ENABLE_TRANSFORMATION
 import Data.Text qualified as T
@@ -36,7 +40,7 @@ startOptions =
 parseOptions :: [String] -> IO Options
 parseOptions args = do
   let (actions, nonOptions, _) = getOpt RequireOrder options args
-  opts <- foldl' (>>=) (pure startOptions) actions
+  opts <- L.foldl' (>>=) (pure startOptions) actions
   case (optInputFile opts, nonOptions) of
     (Nothing, filename : _) -> pure $ opts {optInputFile = Just filename}
     (_, _) -> pure opts
@@ -67,8 +71,8 @@ splitNames namePair =
 
 maybeNamesToUpdate :: String -> Map Text Text
 maybeNamesToUpdate names =
-  let namesList = T.split (== ',') (toText names)
-   in maybe M.empty fromList (mapM splitNames namesList)
+  let namesList = T.split (== ',') (T.pack names)
+   in maybe M.empty M.fromList (mapM splitNames namesList)
 #else
 updateNamesOption
   :: [OptDescr (Options -> IO Options)]
@@ -111,10 +115,10 @@ options =
                    let header =
                          unlines
                            [ "Usage:"
-                           , "  " <> toText prg <> " [OPTIONS] [INPUT-FILE]"
+                           , "  " ++ prg ++ " [OPTIONS] [INPUT-FILE]"
                            , ""
                            ]
-                   putStrLn (usageInfo (toString header) options)
+                   putStrLn (usageInfo header options)
                    exitSuccess
                )
            )

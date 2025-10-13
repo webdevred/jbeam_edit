@@ -13,6 +13,9 @@ import System.Environment (getExecutablePath)
 import Paths_jbeam_edit
 #endif
 
+import Control.Monad (when)
+import Data.ByteString.Lazy qualified as LBS
+import Data.Functor (($>))
 import System.Directory
 import System.FilePath (takeDirectory, (</>))
 
@@ -68,6 +71,6 @@ readFormattingConfig = do
   createRuleFileIfDoesNotExist (configDir </> "rules.jbfl")
   configPath <- getConfigPath configDir
   contents <- tryReadFile [NoSuchThing] configPath
-  case contents >>= parseDSL . toStrict of
+  case contents >>= parseDSL . LBS.toStrict of
     Right rs -> pure rs
-    Left err -> putTextLn err $> newRuleSet
+    Left err -> putErrorLine err $> newRuleSet

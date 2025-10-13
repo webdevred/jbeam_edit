@@ -5,6 +5,7 @@ module WorkspaceLspSpec (spec) where
 import Test.Hspec
 
 #ifdef ENABLE_LSP_TESTS
+import Control.Monad.IO.Class (liftIO) 
 import Language.LSP.Test
 import Language.LSP.Protocol.Types as LSP
 import qualified Data.Text.IO as T
@@ -29,5 +30,5 @@ spec = describe "JBeam LSP Formatter" $ do
 
 #else
 spec :: Spec
-spec = pass
+spec = pure ()
 #endif
