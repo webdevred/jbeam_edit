@@ -2,6 +2,7 @@ examples/jbeam/*.jbeam.bak
 cabal.project.local
 cabal.project.local~
 cabal.project.*.local
+cabal.project.*.freeze
 dist-newstyle/
 dist/
 TAGS
