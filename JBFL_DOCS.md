@@ -1,5 +1,7 @@
+# Configuration documentation: Value formatting rules
+
 <!--toc:start-->
-- [Configuration Documentation: Value Formatting Rules](#configuration-documentation-value-formatting-rules)
+- [Configuration documentation: Value formatting rules](#configuration-documentation-value-formatting-rules)
 - [Overview](#overview)
 - [Pattern Syntax](#pattern-syntax)
 - [Properties Overview](#properties-overview)
@@ -12,8 +14,6 @@
 - [Summary Table](#summary-table)
 - [Notes and Tips](#notes-and-tips)
 <!--toc:end-->
-
-# Configuration Documentation: Value Formatting Rules
 
 This documentation describes the rule-based system for formatting values inside JBeam. It explains how to use pattern matching to target specific nodes and apply formatting settings during export.
 
