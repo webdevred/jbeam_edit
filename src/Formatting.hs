@@ -6,6 +6,7 @@ module Formatting (
   RuleSet (..),
 ) where
 
+import Control.Monad (guard)
 import Core.Node (
   InternalComment (..),
   Node (..),
@@ -15,8 +16,11 @@ import Core.Node (
  )
 import Core.NodeCursor (newCursor)
 import Core.NodeCursor qualified as NC
+import Data.Bool (bool)
 import Data.Char (isSpace)
+import Data.List (uncons)
 import Data.Scientific (FPFormat (Fixed), formatScientific)
+import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Vector (Vector)
 import Data.Vector qualified as V (null, toList)
@@ -73,7 +77,7 @@ doFormatNode rs cursor nodes =
       indentationAmount = lookupIndentProperty rs cursor
    in if complexChildren
         then
-          unlines . map (applyIndentation indentationAmount) . concatMap lines $
+          T.unlines . map (applyIndentation indentationAmount) . concatMap T.lines $
             formatted
         else T.concat formatted
   where
@@ -86,7 +90,7 @@ formatComment (InternalComment {cMultiline = True, cText = c}) = T.concat ["/* "
 
 formatScalarNode :: Node -> Text
 formatScalarNode (String s) = T.concat ["\"", s, "\""]
-formatScalarNode (Number n) = toText . formatScientific Fixed Nothing $ n
+formatScalarNode (Number n) = T.pack (formatScientific Fixed Nothing n)
 formatScalarNode (Bool True) = "true"
 formatScalarNode (Bool _) = "false"
 formatScalarNode Null = "null"
@@ -108,4 +112,4 @@ formatWithCursor rs cursor n =
    in applyPadLogic formatScalarNode ps n
 
 formatNode :: RuleSet -> Node -> Text
-formatNode rs node = formatWithCursor rs newCursor node <> one '\n'
+formatNode rs node = formatWithCursor rs newCursor node <> T.singleton '\n'

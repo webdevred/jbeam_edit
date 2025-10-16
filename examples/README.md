@@ -1,16 +1,16 @@
 # Examples directory
 
 <!--toc:start-->
-- [Examples directory](#examples-directory)
+- [Examples Directory](#examples-directory)
   - [Example JBeam Files](#example-jbeam-files)
-  - [JBFL configuration files](#jbfl-configuration-files)
-  - [AST source examples](#ast-source-examples)
+  - [JBFL Configuration Files](#jbfl-configuration-files)
+  - [AST Source Examples (Haskell)](#ast-source-examples-haskell)
   - [Formatted JBeam Outputs](#formatted-jbeam-outputs)
   - [Invalid JBeam Examples](#invalid-jbeam-examples)
   - [Transformed JBeam Outputs](#transformed-jbeam-outputs)
-  - [How JBFL affects formatting](#how-jbfl-affects-formatting)
-  - [Using these examples](#using-these-examples)
-  - [yaml configuration file for transformation](#yaml-configuration-file-for-transformation)
+  - [How JBFL Affects Formatting](#how-jbfl-affects-formatting)
+  - [Using These Examples](#using-these-examples)
+  - [YAML Configuration File](#yaml-configuration-file)
 <!--toc:end-->
 
 This directory provides hands-on examples and test materials to explore **jbeam-edit**’s parsing, formatting, and transformation capabilities.

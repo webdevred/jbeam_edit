@@ -1,93 +1,93 @@
 RuleSet
-    ( fromList
-        [
-            ( NodePattern
-                ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "nodes" )
-                    , Selector
-                        ( ArrayIndex 0 )
-                    , AnyArrayIndex
-                    ]
-                )
-            , fromList
-                [
-                    ( SomeKey PadAmount
-                    , SomeProperty PadAmount 0
-                    )
+  ( fromList
+      [
+        ( NodePattern
+            ( fromList
+                [ AnyObjectKey
+                , Selector
+                    (ObjectKey "nodes")
+                , Selector
+                    (ArrayIndex 0)
+                , AnyArrayIndex
                 ]
             )
-        ,
-            ( NodePattern
-                ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "nodes" )
-                    , AnyArrayIndex
-                    , Selector
-                        ( ArrayIndex 0 )
-                    ]
-                )
-            , fromList
-                [
-                    ( SomeKey PadAmount
-                    , SomeProperty PadAmount 8
-                    )
+        , fromList
+            [
+              ( SomeKey PadAmount
+              , SomeProperty PadAmount 0
+              )
+            ]
+        )
+      ,
+        ( NodePattern
+            ( fromList
+                [ AnyObjectKey
+                , Selector
+                    (ObjectKey "nodes")
+                , AnyArrayIndex
+                , Selector
+                    (ArrayIndex 0)
                 ]
             )
-        ,
-            ( NodePattern
-                ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "nodes" )
-                    , AnyArrayIndex
-                    , AnyArrayIndex
-                    ]
-                )
-            , fromList
-                [
-                    ( SomeKey PadAmount
-                    , SomeProperty PadAmount 6
-                    )
-                ,
-                    ( SomeKey PadDecimals
-                    , SomeProperty PadDecimals 3
-                    )
+        , fromList
+            [
+              ( SomeKey PadAmount
+              , SomeProperty PadAmount 8
+              )
+            ]
+        )
+      ,
+        ( NodePattern
+            ( fromList
+                [ AnyObjectKey
+                , Selector
+                    (ObjectKey "nodes")
+                , AnyArrayIndex
+                , AnyArrayIndex
                 ]
             )
-        ,
-            ( NodePattern
-                ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "flexbodies" )
-                    , AnyArrayIndex
-                    ]
-                )
-            , fromList
-                [
-                    ( SomeKey NoComplexNewLine
-                    , SomeProperty NoComplexNewLine True
-                    )
+        , fromList
+            [
+              ( SomeKey PadAmount
+              , SomeProperty PadAmount 6
+              )
+            ,
+              ( SomeKey PadDecimals
+              , SomeProperty PadDecimals 3
+              )
+            ]
+        )
+      ,
+        ( NodePattern
+            ( fromList
+                [ AnyObjectKey
+                , Selector
+                    (ObjectKey "flexbodies")
+                , AnyArrayIndex
                 ]
             )
-        ,
-            ( NodePattern
-                ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "nodes" )
-                    , AnyArrayIndex
-                    ]
-                )
-            , fromList
-                [
-                    ( SomeKey NoComplexNewLine
-                    , SomeProperty NoComplexNewLine True
-                    )
+        , fromList
+            [
+              ( SomeKey NoComplexNewLine
+              , SomeProperty NoComplexNewLine True
+              )
+            ]
+        )
+      ,
+        ( NodePattern
+            ( fromList
+                [ AnyObjectKey
+                , Selector
+                    (ObjectKey "nodes")
+                , AnyArrayIndex
                 ]
             )
-        ]
-    )
+        , fromList
+            [
+              ( SomeKey NoComplexNewLine
+              , SomeProperty NoComplexNewLine True
+              )
+            ]
+        )
+      ]
+  )

@@ -2,7 +2,7 @@ module Formatting.RulesSpec (spec) where
 
 import Formatting
 import Formatting.Rules
-import Relude.Unsafe (read)
+import GHC.IsList (fromList)
 import SpecHelper
 
 spec :: Spec

@@ -1,7 +1,8 @@
 module Core.NodePathSpec (spec) where
 
 import Core.NodePath qualified as NP
-import Relude.Unsafe (read)
+import Data.Maybe (isJust)
+import GHC.IsList (fromList)
 import SpecHelper
 
 spec :: Spec
@@ -35,7 +36,7 @@ spec = describe "select" $ do
 
   describe "queryNodes" $ do
     let inputPath = "examples/ast/jbeam/fender.hs"
-    input <- runIO $ baseReadFile inputPath
+    input <- runIO $ readFile inputPath
     it "queryNode can retrieve nodes" $ do
       let ast = read input
           path = fromList [NP.ObjectIndex 0, NP.ObjectKey "nodes"]

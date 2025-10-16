@@ -78,7 +78,6 @@ jobs:
             }}
           restore-keys: |
             ${{ runner.os }}-cabal-${{ matrix.ghc }}-${{ matrix.label }}
-            ${{ runner.os }}-cabal-${{ matrix.ghc }}-
       - name: Build dependencies, good to do separate for caching
         run: cabal build --project-file cabal.project.release --only-dependencies
       - name: Build executables
@@ -159,7 +158,7 @@ jobs:
           find dist -type f -name '*.zip' -print0 | xargs -0 -I{} mv {} dist_flat/
           ls -la dist_flat
       - name: Create GitHub Release and upload zips
-        uses: softprops/action-gh-release@v2.4.1
+        uses: softprops/action-gh-release@v2.3.4
         with:
           tag_name: ${{ github.ref_name }}
           draft: true
