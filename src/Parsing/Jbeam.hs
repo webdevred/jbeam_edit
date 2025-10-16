@@ -8,12 +8,11 @@ module Parsing.Jbeam (
 ) where
 
 import Core.Node (AssociationDirection (..), InternalComment (..), Node (..))
-import Parsing.Common
-import Text.Megaparsec ((<?>))
-
 import Data.ByteString qualified as BS
 import Data.Text qualified as T
 import Data.Vector qualified as V (fromList)
+import Parsing.Common
+import Text.Megaparsec ((<?>))
 import Text.Megaparsec qualified as MP
 import Text.Megaparsec.Byte qualified as B
 import Text.Megaparsec.Byte.Lexer qualified as L (scientific)

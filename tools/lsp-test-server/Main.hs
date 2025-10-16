@@ -2,7 +2,6 @@ module Main (main) where
 
 import Relude.Unsafe (read)
 import Server (runServer)
-
 import System.IO qualified as IO (readFile)
 
 main :: IO ()

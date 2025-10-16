@@ -14,9 +14,12 @@ import Core.Node (
   isComplexNode,
  )
 import Core.NodeCursor (newCursor)
+import Core.NodeCursor qualified as NC
 import Data.Char (isSpace)
 import Data.Scientific (FPFormat (Fixed), formatScientific)
+import Data.Text qualified as T
 import Data.Vector (Vector)
+import Data.Vector qualified as V (null, toList)
 import Formatting.Rules (
   RuleSet (..),
   applyPadLogic,
@@ -25,10 +28,6 @@ import Formatting.Rules (
   newRuleSet,
   noComplexNewLine,
  )
-
-import Core.NodeCursor qualified as NC
-import Data.Text qualified as T
-import Data.Vector qualified as V (null, toList)
 
 addDelimiters
   :: RuleSet -> Int -> NC.NodeCursor -> Bool -> [Text] -> [Node] -> [Text]

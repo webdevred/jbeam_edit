@@ -1,13 +1,12 @@
 module Services.DocumentStore (open, update, get, delete) where
 
 import Control.Concurrent.MVar hiding (newMVar, readMVar)
+import Data.Map.Strict qualified as M
+import Data.Text qualified as T
 import IOUtils
 import Language.LSP.Protocol.Types (Uri)
 import System.IO.Unsafe (unsafePerformIO)
 import Prelude hiding (get)
-
-import Data.Map.Strict qualified as M
-import Data.Text qualified as T
 
 type DocumentStore = MVar (M.Map Uri T.Text)
 

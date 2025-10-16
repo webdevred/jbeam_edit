@@ -2,9 +2,8 @@ module Main (
   main,
 ) where
 
-import Server (runServer)
-
 import Formatting.Config qualified as FmtCfg
+import Server (runServer)
 
 main :: IO ()
 main = do

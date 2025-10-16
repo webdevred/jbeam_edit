@@ -9,15 +9,14 @@ module VertexExtraction (
 
 import Config
 import Core.Node
-import Data.Char (isDigit)
-import Types
-
 import Core.NodePath qualified as NP
+import Data.Char (isDigit)
 import Data.List.NonEmpty qualified as NE
 import Data.Map qualified as M
 import Data.Set qualified as S
 import Data.Text qualified as T
 import Data.Vector qualified as V
+import Types
 
 newVertex :: Node -> Maybe Vertex
 newVertex (Array ns) = f . V.toList $ ns

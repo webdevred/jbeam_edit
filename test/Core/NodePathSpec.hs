@@ -1,9 +1,8 @@
 module Core.NodePathSpec (spec) where
 
+import Core.NodePath qualified as NP
 import Relude.Unsafe (read)
 import SpecHelper
-
-import Core.NodePath qualified as NP
 
 spec :: Spec
 spec = describe "select" $ do

@@ -24,14 +24,13 @@ module Formatting.Rules (
 ) where
 
 import Core.Node
-import Core.NodePath (NodeSelector (..))
-import Data.Sequence (Seq (..))
-import Data.Type.Equality ((:~:) (Refl))
-
 import Core.NodeCursor qualified as NC
+import Core.NodePath (NodeSelector (..))
 import Data.Map qualified as M
+import Data.Sequence (Seq (..))
 import Data.Sequence qualified as Seq (length, null)
 import Data.Text qualified as T
+import Data.Type.Equality ((:~:) (Refl))
 import Text.Read qualified as TR
 import Text.Show qualified
 

@@ -6,11 +6,10 @@
 module Handlers.Formatting (handlers) where
 
 import Core.Node (Node)
-import Formatting.Rules (RuleSet)
-import IOUtils
-
 import Data.Text qualified as T
 import Formatting qualified as Fmt
+import Formatting.Rules (RuleSet)
+import IOUtils
 import Language.LSP.Protocol.Message qualified as Msg
 import Language.LSP.Protocol.Types qualified as J (
   DocumentFormattingParams (..),

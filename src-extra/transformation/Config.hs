@@ -13,6 +13,7 @@ module Config (
 
 import Data.Char
 import Data.Scientific (Scientific)
+import Data.Text qualified as T
 import Data.Yaml (decodeFileEither)
 import Data.Yaml.Aeson (
   FromJSON (..),
@@ -24,8 +25,6 @@ import Data.Yaml.Aeson (
   (.:?),
  )
 import Types (VertexTreeType (..))
-
-import Data.Text qualified as T
 
 defaultSortingThreshold :: Scientific
 defaultSortingThreshold = 0.05

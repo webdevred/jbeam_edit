@@ -2,6 +2,7 @@ module Parsing.DSLSpec (
   spec,
 ) where
 
+import Core.NodePath qualified as NP (NodeSelector (..))
 import Formatting.Rules
 import Parsing.Common.Helpers
 import Parsing.DSL
@@ -9,8 +10,6 @@ import Relude.Unsafe (read)
 import SpecHelper
 import Test.Hspec.Megaparsec
 import Text.Megaparsec
-
-import Core.NodePath qualified as NP (NodeSelector (..))
 
 patternSelectorSpecs :: [Spec]
 patternSelectorSpecs =

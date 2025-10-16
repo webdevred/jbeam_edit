@@ -8,11 +8,10 @@ module Core.NodePath (
   select,
 ) where
 
-import Data.Sequence (Seq (..))
-import GHC.IsList (IsList (..))
-
 import Core.Node qualified as N (Node (..))
+import Data.Sequence (Seq (..))
 import Data.Vector qualified as V
+import GHC.IsList (IsList (..))
 
 data NodeSelector
   = ArrayIndex Int
