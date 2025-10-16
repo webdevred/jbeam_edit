@@ -12,9 +12,8 @@ module Parsing.Common.Helpers (
   parseBool,
 ) where
 
-import Data.Char (isSpace)
-
 import Data.ByteString qualified as BS
+import Data.Char (isSpace)
 import Data.List.NonEmpty qualified as NE (fromList)
 import Data.Set qualified as S
 import Data.Text qualified as T

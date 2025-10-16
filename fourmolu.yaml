@@ -1,7 +1,7 @@
 indentation: 2
 column-limit: 80
 import-export-style: diff-friendly
-import-grouping: by-qualified
+import-grouping: single
 function-arrows: leading
 comma-style: leading
 indent-wheres: true

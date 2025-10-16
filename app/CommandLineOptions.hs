@@ -5,13 +5,12 @@ module CommandLineOptions (
   Options (..),
 ) where
 
+import Data.Map qualified as M
 import Data.Version (showVersion)
 import Formatting.Config (ConfigType (..))
 import Paths_jbeam_edit (version)
 import System.Console.GetOpt
 import System.Environment
-
-import Data.Map qualified as M
 
 #ifdef ENABLE_TRANSFORMATION
 import Data.Text qualified as T

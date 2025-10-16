@@ -2,10 +2,9 @@ module Core.NodeCursorSpec (spec) where
 
 import Core.Node (Node (..))
 import Core.NodeCursor
-import Test.Hspec
-
 import Core.NodePath qualified as NP
 import Data.Sequence qualified as Seq
+import Test.Hspec
 
 spec :: Spec
 spec = do

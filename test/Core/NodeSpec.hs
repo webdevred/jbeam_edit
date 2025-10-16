@@ -1,8 +1,7 @@
 module Core.NodeSpec (spec) where
 
-import SpecHelper
-
 import Data.Vector qualified as V
+import SpecHelper
 
 spec :: Spec
 spec = do

@@ -2,14 +2,13 @@ module IOUtils (tryReadFile, putErrorLine, reportInvalidNodes) where
 
 import Control.Exception (IOException, try)
 import Core.Node (Node)
-import Formatting (formatNode, newRuleSet)
-import GHC.IO.Exception (IOErrorType, IOException (IOError))
-import System.IO (hPutStrLn)
-
 import Data.ByteString.Lazy qualified as BL (
   ByteString,
  )
 import Data.Text qualified as T (append)
+import Formatting (formatNode, newRuleSet)
+import GHC.IO.Exception (IOErrorType, IOException (IOError))
+import System.IO (hPutStrLn)
 
 putErrorLine :: Text -> IO ()
 putErrorLine = hPutStrLn stderr . toString

@@ -4,17 +4,16 @@ module Main (
 
 import Config
 import Data.List (isSuffixOf)
+import Data.Map qualified as M
 import Formatting
 import Parsing.DSL (parseDSL)
 import Parsing.Jbeam (parseNodes)
 import Relude.Unsafe (read)
 import System.Directory (getDirectoryContents)
 import System.FilePath (dropExtension, takeBaseName, (</>))
+import System.IO qualified as IO (readFile)
 import Text.Pretty.Simple (defaultOutputOptionsNoColor, pStringOpt)
 import Transformation
-
-import Data.Map qualified as M
-import System.IO qualified as IO (readFile)
 
 main :: IO ()
 main = do

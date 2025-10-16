@@ -4,20 +4,19 @@ import Config
 import Control.Monad (foldM)
 import Core.Node
 import Core.NodeCursor (newCursor)
+import Core.NodeCursor qualified as NC
+import Core.NodePath qualified as NP
 import Data.List (partition)
+import Data.List.NonEmpty qualified as NE
+import Data.Map qualified as M
 import Data.Scientific (Scientific)
 import Data.Sequence (Seq (..))
+import Data.Text qualified as T
 import Data.Vector (Vector, (!), (!?), (//))
+import Data.Vector qualified as V
 import SupportVertex
 import Types
 import VertexExtraction
-
-import Core.NodeCursor qualified as NC
-import Core.NodePath qualified as NP
-import Data.List.NonEmpty qualified as NE
-import Data.Map qualified as M
-import Data.Text qualified as T
-import Data.Vector qualified as V
 
 verticesQuery :: NP.NodePath
 verticesQuery = fromList [NP.ObjectIndex 0, NP.ObjectKey "nodes"]

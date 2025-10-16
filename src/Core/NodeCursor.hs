@@ -11,9 +11,8 @@ module Core.NodeCursor (
 ) where
 
 import Core.Node (Node (..))
-import Data.Sequence (Seq (..))
-
 import Core.NodePath qualified as NP
+import Data.Sequence (Seq (..))
 import Data.Sequence qualified as Seq (empty, null)
 
 data NodeBreadcrumb

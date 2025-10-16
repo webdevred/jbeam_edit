@@ -7,9 +7,8 @@
 module Server (runServer) where
 
 import Formatting.Rules (RuleSet)
-import IOUtils
-
 import Handlers.Formatting qualified as Formatting
+import IOUtils
 import Language.LSP.Protocol.Message qualified as Msg
 import Language.LSP.Protocol.Types qualified as J (
   DidChangeTextDocumentParams (..),

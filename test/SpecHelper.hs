@@ -12,9 +12,8 @@ module SpecHelper (
 import Core.Node
 import Data.List (isSuffixOf)
 import System.Directory (getDirectoryContents)
-import Test.Hspec
-
 import System.IO qualified as IO (readFile)
+import Test.Hspec
 
 type DescribeFun = (String -> String -> String)
 

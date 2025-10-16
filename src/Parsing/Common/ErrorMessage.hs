@@ -2,13 +2,12 @@ module Parsing.Common.ErrorMessage (
   formatErrors,
 ) where
 
-import Data.Text.Encoding (decodeUtf8Lenient)
-import Parsing.Common.Helpers (charNotEqWord8, toChar, toWord8)
-
 import Data.ByteString qualified as BS
 import Data.List.NonEmpty qualified as NE
 import Data.Set qualified as S
 import Data.Text qualified as T
+import Data.Text.Encoding (decodeUtf8Lenient)
+import Parsing.Common.Helpers (charNotEqWord8, toChar, toWord8)
 import Text.Megaparsec qualified as MP
 
 joinAndFormatToks :: Set (MP.ErrorItem Word8) -> Text

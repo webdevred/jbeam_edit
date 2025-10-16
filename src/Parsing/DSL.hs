@@ -10,16 +10,15 @@ module Parsing.DSL (
 ) where
 
 import Core.NodePath
-import Data.Char (isSpace)
-import Formatting.Rules
-import Parsing.Common
-import Text.Megaparsec ((<?>))
-
 import Data.ByteString qualified as BS
+import Data.Char (isSpace)
 import Data.List.NonEmpty qualified as NE (fromList)
 import Data.Map qualified as M (fromList, fromListWith, union)
 import Data.Sequence qualified as Seq (fromList)
 import Data.Set qualified as S (fromList)
+import Formatting.Rules
+import Parsing.Common
+import Text.Megaparsec ((<?>))
 import Text.Megaparsec qualified as MP
 import Text.Megaparsec.Byte qualified as B
 import Text.Megaparsec.Byte.Lexer qualified as L (

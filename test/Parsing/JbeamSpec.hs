@@ -7,7 +7,6 @@ import Parsing.Jbeam
 import Relude.Unsafe (read)
 import SpecHelper
 import Test.Hspec.Megaparsec
-
 import Text.Megaparsec qualified as MP
 
 numberSpec :: [(String, Node)]
