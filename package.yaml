@@ -88,7 +88,7 @@ internal-libraries:
       else:
         buildable: false
     source-dirs: src-extra/transformation
-    dependencies: [jbeam-edit]
+    dependencies: [jbeam-edit, ordered-containers]
     <<: *jbeam-extra-lib
   jbeam-language-server:
     default-extensions: [DataKinds, PolyKinds]

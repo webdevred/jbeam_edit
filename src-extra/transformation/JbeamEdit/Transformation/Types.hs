@@ -9,14 +9,15 @@ module JbeamEdit.Transformation.Types (
   UpdateNamesMap,
 ) where
 
+import Data.Map.Ordered
+import JbeamEdit.Core.Node
 import Data.Scientific (Scientific)
 import Data.Yaml.Aeson (
   FromJSON (..),
   withText,
  )
-import JbeamEdit.Core.Node
 
-type VertexForest = Map VertexTreeType VertexTree
+type VertexForest = Map VertexTreeType (OMap Text VertexTree)
 
 data VertexTreeType
   = LeftTree
@@ -35,8 +36,9 @@ instance FromJSON VertexTreeType where
       _ -> fail $ "Unknown VertexTreeType: " ++ toString t
 
 data VertexTree = VertexTree
-  { tComments :: [InternalComment]
-  , tAnnotatedVertices :: NonEmpty (NonEmpty AnnotatedVertex)
+  { tIndex :: Maybe Int,
+    tComments :: [InternalComment]
+  , tAnnotatedVertices :: NonEmpty AnnotatedVertex
   }
   deriving (Show)
 

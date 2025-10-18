@@ -142,6 +142,7 @@ library jbeam-edit-transformation
         filepath >1.5.0.0,
         jbeam-edit,
         mtl,
+        ordered-containers,
         scientific,
         text >=2.0,
         vector
