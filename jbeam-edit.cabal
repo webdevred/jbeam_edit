@@ -141,6 +141,7 @@ library jbeam-edit-transformation
         filepath >=1.4,
         jbeam-edit,
         megaparsec >=9.6,
+        ordered-containers,
         relude >=1.2,
         scientific >=0.3,
         text >=2.1,

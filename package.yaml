@@ -82,7 +82,7 @@ internal-libraries:
       else:
         buildable: false
     source-dirs: src-extra/transformation
-    dependencies: [jbeam-edit]
+    dependencies: [jbeam-edit, ordered-containers]
   jbeam-language-server:
     when:
       condition: flag(lsp-server) && impl(ghc >= 9.6.6)
