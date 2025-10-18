@@ -148,6 +148,7 @@ library jbeam-edit-transformation
 
     if flag(transformation)
         build-depends:
+            ordered-containers,
             relude >=1.2,
             yaml
 
