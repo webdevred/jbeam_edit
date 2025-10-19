@@ -151,9 +151,17 @@ tests:
     dependencies: [jbeam-edit, hspec>=2.11, hspec-megaparsec>=2.2]
     build-tools: [hspec-discover]
     when:
-      - condition: flag(lsp-server) && impl(ghc >= 9.6.6)
-        dependencies: [lsp-test, lsp>=2.7]
-        cpp-options: -DENABLE_LSP_TESTS
       - condition: flag(transformation)
         dependencies: [jbeam-edit-transformation]
         cpp-options: -DENABLE_TRANSFORMATION_TESTS
+  jbeam-language-server-test:
+    main: Spec.hs
+    when:
+      - condition: flag(lsp-server) && impl(ghc >= 9.6.6)
+        then:
+          dependencies: [jbeam-edit, jbeam-language-server, hspec>=2.11, lsp-test, lsp>=2.7]
+        else:
+          buildable: false
+    source-dirs: test-extra/language-server
+    ghc-options: [-threaded, -rtsopts, -with-rtsopts=-N]
+    build-tools: [hspec-discover]

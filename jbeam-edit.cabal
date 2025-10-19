@@ -366,7 +366,6 @@ test-suite jbeam-edit-test
         Parsing.JbeamSpec
         SpecHelper
         TransformationSpec
-        WorkspaceLspSpec
         Paths_jbeam_edit
 
     autogen-modules:    Paths_jbeam_edit
@@ -398,12 +397,53 @@ test-suite jbeam-edit-test
         relude (Relude as Prelude),
         relude
 
-    if (flag(lsp-server) && impl(ghc >=9.6.6))
-        cpp-options:   -DENABLE_LSP_TESTS
-        build-depends:
-            lsp >=2.7,
-            lsp-test
-
     if flag(transformation)
         cpp-options:   -DENABLE_TRANSFORMATION_TESTS
         build-depends: jbeam-edit-transformation
+
+test-suite jbeam-language-server-test
+    type:               exitcode-stdio-1.0
+    main-is:            Spec.hs
+    build-tool-depends: hspec-discover:hspec-discover
+    hs-source-dirs:     test-extra/language-server
+    other-modules:
+        DocumentStoreSpec
+        WorkspaceLspSpec
+        Paths_jbeam_edit
+
+    autogen-modules:    Paths_jbeam_edit
+    default-language:   Haskell2010
+    default-extensions: OverloadedStrings ImportQualifiedPost
+    ghc-options:
+        -Wall -Wcompat -Widentities -Wincomplete-record-updates
+        -Wincomplete-uni-patterns -Wmissing-export-lists
+        -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
+        -threaded -rtsopts -with-rtsopts=-N
+
+    build-depends:
+        base >=4.17 && <5,
+        bytestring >=0.12,
+        containers >=0.6,
+        directory >=1.3,
+        filepath >=1.4,
+        megaparsec >=9.6,
+        relude >=1.2,
+        scientific >=0.3,
+        text >=2.1,
+        vector >=0.13
+
+    mixins:
+        base hiding (Prelude),
+        relude (Relude as Prelude),
+        relude
+
+    if (flag(lsp-server) && impl(ghc >=9.6.6))
+        build-depends:
+            hspec >=2.11,
+            jbeam-edit,
+            jbeam-language-server,
+            lsp >=2.7,
+            lsp-test
+
+    else
+        buildable: False

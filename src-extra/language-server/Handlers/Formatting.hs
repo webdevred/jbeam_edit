@@ -1,7 +1,7 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE ExplicitNamespaces #-}
 {-# LANGUAGE PolyKinds #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TypeOperators #-}
 
 module Handlers.Formatting (handlers) where
 
@@ -56,32 +56,26 @@ handleParams
 handleParams rs params responder = do
   let J.DocumentFormattingParams {J._textDocument = textDocId} = params
       J.TextDocumentIdentifier {J._uri = uri} = textDocId
+      sendNoUpdate = responder (Right (J.InR J.Null))
   mText <- liftIO $ Docs.get uri
   case mText of
-    Nothing -> do
+    Nothing ->
       putErrorLine' ("DEBUG: no document in store for " <> show uri)
-      responder (Right (J.InR J.Null))
+        >> sendNoUpdate
     Just txt ->
       case JbeamP.parseNodes (encodeUtf8 txt) of
-        Left err -> do
-          liftIO . putErrorLine' $ "Parse error: " <> show err
-          responder (Right (J.InR J.Null))
-        Right node -> runFormatNode responder rs txt node
+        Left err ->
+          putErrorLine' ("Parse error: " <> show err) >> sendNoUpdate
+        Right node ->
+          case runFormatNode rs txt node of
+            Nothing -> responder (Right (J.InR J.Null))
+            Just edit -> responder (Right (J.InL [edit]))
 
-runFormatNode
-  :: (Either a ([J.TextEdit] J.|? J.Null) -> t)
-  -> RuleSet
-  -> Text
-  -> Node
-  -> t
-runFormatNode responder ruleSet txt node =
+runFormatNode :: RuleSet -> T.Text -> Node -> Maybe J.TextEdit
+runFormatNode ruleSet txt node =
   let newText = Fmt.formatNode ruleSet node
       edit = J.TextEdit {J._range = wholeRange txt, J._newText = newText}
-   in if newText == txt
-        then
-          responder (Right (J.InR J.Null))
-        else
-          responder (Right (J.InL [edit]))
+   in bool Nothing (Just edit) (newText /= txt)
 
 wholeRange :: Text -> J.Range
 wholeRange txt =
