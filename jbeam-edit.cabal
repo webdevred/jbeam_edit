@@ -384,7 +384,6 @@ test-suite jbeam-edit-test
         directory >=1.3,
         filepath >=1.4,
         hspec >=2.11,
-        hspec-megaparsec >=2.2,
         jbeam-edit,
         megaparsec >=9.6,
         relude >=1.2,
@@ -396,6 +395,9 @@ test-suite jbeam-edit-test
         base hiding (Prelude),
         relude (Relude as Prelude),
         relude
+
+    if True
+        build-depends: hspec-megaparsec >=2.2
 
     if flag(transformation)
         cpp-options:   -DENABLE_TRANSFORMATION_TESTS
@@ -426,6 +428,8 @@ test-suite jbeam-language-server-test
         containers >=0.6,
         directory >=1.3,
         filepath >=1.4,
+        hspec >=2.11,
+        jbeam-edit,
         megaparsec >=9.6,
         relude >=1.2,
         scientific >=0.3,
@@ -439,8 +443,6 @@ test-suite jbeam-language-server-test
 
     if (flag(lsp-server) && impl(ghc >=9.6.6))
         build-depends:
-            hspec >=2.11,
-            jbeam-edit,
             jbeam-language-server,
             lsp >=2.7,
             lsp-test
