@@ -1,9 +1,9 @@
 module WorkspaceLspSpec (spec) where
 
-import Data.Text.IO qualified as T
 import Language.LSP.Protocol.Types as LSP
 import Language.LSP.Test
 import System.FilePath ((</>))
+import System.IO qualified as IO (readFile)
 import Test.Hspec
 
 spec :: Spec
@@ -22,6 +22,6 @@ spec = describe "JBeam LSP Formatter" $ do
         formatDoc doc (LSP.FormattingOptions 0 False Nothing Nothing Nothing)
 
         formatted <- documentContents doc
-        expected <- liftIO $ readFileText expectedFile
+        expected <- liftIO (toText <$> IO.readFile expectedFile)
 
         liftIO $ formatted `shouldBe` expected

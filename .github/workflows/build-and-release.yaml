@@ -81,7 +81,10 @@ jobs:
             ${{ runner.os }}-cabal-${{ matrix.ghc }}-
       - name: Build dependencies, good to do separate for caching
         run: cabal build --project-file cabal.project.release --only-dependencies
-      - name: Build executables
+      - name: Build LSP executable
+        run: |
+          cabal build exe:jbeam-lsp-server --project-file cabal.project.release || true
+      - name: Build main executable
         run: cabal build exe:jbeam-edit --project-file cabal.project.release
       - name: Build LSP test server
         run: |

@@ -1,7 +1,5 @@
 module DocumentStoreSpec (spec) where
 
-import Data.Text (Text)
-import Data.Text qualified as T
 import Language.LSP.Protocol.Types (Uri (..))
 import Services.DocumentStore (delete, get, open, resetStore, update)
 import Test.Hspec
