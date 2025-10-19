@@ -3,17 +3,22 @@
 [Setup]
 AppName=jbeam-edit
 AppVersion=0.0.3.0
-DefaultDirName={pf}\jbeam-edit
-DefaultGroupName=jbeam-edit
-OutputBaseFilename=setup
+DefaultDirName={commonpf}\jbeam-edit
+OutputBaseFilename=jbeam-edit-setup
 Compression=lzma
 SolidCompression=yes
+PrivilegesRequired=admin
+UninstallDisplayName=jbeam-edit
 
 [Files]
 Source: "..\dist\release\jbeam-edit.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\dist\release\jbeam-lsp-server.exe"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist
 Source: "..\dist\release\examples\jbfl\*"; DestDir: "{app}\examples\jbfl"; Flags: recursesubdirs createallsubdirs ignoreversion
 
-[Registry]
-  Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "Path"; \
-    ValueData: "{olddata};{app}"; Flags: preservestringtype uninsdeletevalue
+[UninstallDelete]
+Name: "{app}\*"; Type: files
+Name: "{app}"; Type: dirifempty
+
+
+[Code]
+#include "source_path.inc"
