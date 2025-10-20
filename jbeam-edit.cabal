@@ -85,7 +85,7 @@ library
     hs-source-dirs:     src
     other-modules:      Paths_jbeam_edit
     autogen-modules:    Paths_jbeam_edit
-    default-language:   Haskell2010
+    default-language:   GHC2021
     default-extensions: OverloadedStrings ImportQualifiedPost
     ghc-options:
         -Wall -Wcompat -Widentities -Wincomplete-record-updates
@@ -126,7 +126,7 @@ library jbeam-edit-transformation
     hs-source-dirs:     src-extra/transformation
     other-modules:      Paths_jbeam_edit
     autogen-modules:    Paths_jbeam_edit
-    default-language:   Haskell2010
+    default-language:   GHC2021
     default-extensions: OverloadedStrings ImportQualifiedPost
     ghc-options:
         -Wall -Wcompat -Widentities -Wincomplete-record-updates
@@ -166,7 +166,7 @@ library jbeam-language-server
     hs-source-dirs:     src-extra/language-server
     other-modules:      Paths_jbeam_edit
     autogen-modules:    Paths_jbeam_edit
-    default-language:   Haskell2010
+    default-language:   GHC2021
     default-extensions: OverloadedStrings ImportQualifiedPost
     ghc-options:
         -Wall -Wcompat -Widentities -Wincomplete-record-updates
@@ -205,7 +205,7 @@ executable jbeam-edit
         Paths_jbeam_edit
 
     autogen-modules:    Paths_jbeam_edit
-    default-language:   Haskell2010
+    default-language:   GHC2021
     default-extensions: OverloadedStrings ImportQualifiedPost
     ghc-options:
         -Wall -Wcompat -Widentities -Wincomplete-record-updates
@@ -243,7 +243,7 @@ executable jbeam-edit-dump-ast
     hs-source-dirs:     tools/dump_ast
     other-modules:      Paths_jbeam_edit
     autogen-modules:    Paths_jbeam_edit
-    default-language:   Haskell2010
+    default-language:   GHC2021
     default-extensions: OverloadedStrings ImportQualifiedPost
     ghc-options:
         -Wall -Wcompat -Widentities -Wincomplete-record-updates
@@ -282,7 +282,7 @@ executable jbeam-lsp-server
     hs-source-dirs:     exe/jbeam-lsp-server
     other-modules:      Paths_jbeam_edit
     autogen-modules:    Paths_jbeam_edit
-    default-language:   Haskell2010
+    default-language:   GHC2021
     default-extensions: OverloadedStrings ImportQualifiedPost
     ghc-options:
         -Wall -Wcompat -Widentities -Wincomplete-record-updates
@@ -319,7 +319,7 @@ executable jbeam-lsp-test-server
     hs-source-dirs:     tools/lsp-test-server
     other-modules:      Paths_jbeam_edit
     autogen-modules:    Paths_jbeam_edit
-    default-language:   Haskell2010
+    default-language:   GHC2021
     default-extensions: OverloadedStrings ImportQualifiedPost
     ghc-options:
         -Wall -Wcompat -Widentities -Wincomplete-record-updates
@@ -369,7 +369,7 @@ test-suite jbeam-edit-test
         Paths_jbeam_edit
 
     autogen-modules:    Paths_jbeam_edit
-    default-language:   Haskell2010
+    default-language:   GHC2021
     default-extensions: OverloadedStrings ImportQualifiedPost
     ghc-options:
         -Wall -Wcompat -Widentities -Wincomplete-record-updates
@@ -414,7 +414,7 @@ test-suite jbeam-language-server-test
         Paths_jbeam_edit
 
     autogen-modules:    Paths_jbeam_edit
-    default-language:   Haskell2010
+    default-language:   GHC2021
     default-extensions: OverloadedStrings ImportQualifiedPost
     ghc-options:
         -Wall -Wcompat -Widentities -Wincomplete-record-updates

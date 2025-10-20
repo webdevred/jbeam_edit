@@ -6,6 +6,7 @@ author: webdevred
 maintainer: example@example.com
 copyright: 2025 webdevred
 data-files: examples/jbfl/*.jbfl
+language: GHC2021
 
 extra-source-files:
   - README.md
