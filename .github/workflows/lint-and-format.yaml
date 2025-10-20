@@ -34,9 +34,10 @@ jobs:
             **/*.hs
             !examples/ast/*/*.hs
           version: latest
-      - run: |
-          sudo apt update 2>&1 >/dev/null
-          sudo apt install -y shfmt 2>&1 >/dev/null
+      - name: Check bash formatting
+        run: |
+          sudo apt update > /dev/null 2>&1
+          sudo apt install -y shfmt > /dev/null 2>&1
           shfmt -d .github/scripts
         env:
           FORCE_COLOR: true
