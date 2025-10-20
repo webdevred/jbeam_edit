@@ -116,7 +116,7 @@ _jbeam-lsp-common: &jbeam-lsp-common
 executables:
   jbeam-edit:
     main: Main.hs
-    source-dirs: app
+    source-dirs: exe/jbeam-edit
     ghc-options: [-threaded, -rtsopts, -with-rtsopts=-N]
     dependencies: [jbeam-edit]
     when:
@@ -126,7 +126,7 @@ executables:
       - condition: os(windows)
         cpp-options: -DENABLE_WINDOWS_NEWLINES
   jbeam-lsp-server:
-    source-dirs: app-extra/jbeam-lsp-server
+    source-dirs: exe/jbeam-lsp-server
     <<: *jbeam-lsp-common
   jbeam-lsp-test-server:
     source-dirs: tools/lsp-test-server
@@ -143,17 +143,28 @@ executables:
     ghc-options: [-threaded, -rtsopts, -with-rtsopts=-N]
     dependencies: [jbeam-edit]
 
+_jbeam-test-common: &jbeam-test-common
+  main: Spec.hs
+  ghc-options: [-threaded, -rtsopts, -with-rtsopts=-N]
+  build-tools: [hspec-discover]
+  dependencies: [jbeam-edit, hspec>=2.11]
+
 tests:
   jbeam-edit-test:
-    main: Spec.hs
+    <<: *jbeam-test-common
     source-dirs: test
-    ghc-options: [-threaded, -rtsopts, -with-rtsopts=-N]
-    dependencies: [jbeam-edit, hspec>=2.11, hspec-megaparsec>=2.2]
-    build-tools: [hspec-discover]
     when:
-      - condition: flag(lsp-server) && impl(ghc >= 9.6.6)
-        dependencies: [lsp-test, lsp>=2.7]
-        cpp-options: -DENABLE_LSP_TESTS
+      - condition: true
+        dependencies: [hspec-megaparsec>=2.2]
       - condition: flag(transformation)
         dependencies: [jbeam-edit-transformation]
         cpp-options: -DENABLE_TRANSFORMATION_TESTS
+  jbeam-language-server-test:
+    <<: *jbeam-test-common
+    source-dirs: test-extra/language-server
+    when:
+      - condition: flag(lsp-server) && impl(ghc >= 9.6.6)
+        then:
+          dependencies: [jbeam-language-server, lsp-test, lsp>=2.7]
+        else:
+          buildable: false

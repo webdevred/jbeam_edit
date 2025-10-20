@@ -1,4 +1,4 @@
-module Services.DocumentStore (open, update, get, delete) where
+module Services.DocumentStore (open, update, get, delete, resetStore) where
 
 import Control.Concurrent.MVar hiding (newMVar, readMVar)
 import Data.Map.Strict qualified as M
@@ -16,13 +16,16 @@ store = unsafePerformIO $ do
   putErrorLine "[Info] Initializing DocumentStore"
   newMVar M.empty
 
+resetStore :: IO ()
+resetStore = modifyMVar_ store (const (pure M.empty))
+
 open :: Uri -> T.Text -> IO ()
 open uri text = modifyMVar_ store (pure . M.insert uri text)
 
-update :: Uri -> T.Text -> IO ()
+update :: Uri -> Text -> IO ()
 update = open
 
-get :: Uri -> IO (Maybe T.Text)
+get :: Uri -> IO (Maybe Text)
 get uri = M.lookup uri <$> readMVar store
 
 delete :: Uri -> IO ()

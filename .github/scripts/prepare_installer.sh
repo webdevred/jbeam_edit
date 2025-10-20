@@ -49,6 +49,15 @@ fi
 cp "$EXE_PATH" "$DEST_DIR_RELEASE/jbeam-edit.exe"
 echo "Copied exe to /$DEST_DIR_RELEASE/jbeam-edit.exe"
 
+LSP_EXE_PATH=$(find "$DIST_NEWSTYLE/build" -type f -name "jbeam-lsp-server.exe" | head -n 1)
+
+if [ -z "$LSP_EXE_PATH" ]; then
+  echo "Error: No LSP exe found in '$DIST_NEWSTYLE/build', skipping."
+else
+  cp "$LSP_EXE_PATH" "$DEST_DIR_RELEASE/jbeam-lsp-server.exe"
+  echo "Copied exe to /$DEST_DIR_RELEASE/jbeam-lsp-server.exe"
+fi
+
 TMP_DIR=$(mktemp -d)
 git show HEAD:"./examples/jbeam/fender.jbeam" >"$TMP_DIR/fender.${LABEL}.jbeam"
 git show HEAD:"./examples/jbeam/suspension.jbeam" >"$TMP_DIR/suspension.${LABEL}.jbeam"

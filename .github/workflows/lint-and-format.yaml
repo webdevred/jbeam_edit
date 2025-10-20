@@ -34,8 +34,10 @@ jobs:
             **/*.hs
             !examples/ast/*/*.hs
           version: latest
-      - uses: reviewdog/action-shfmt@v1.0.4
-        with:
-          level: warning
-          fail_on_error: true
-          workdir: .github/scripts
+      - name: Check bash formatting
+        run: |
+          sudo apt update > /dev/null 2>&1
+          sudo apt install -y shfmt > /dev/null 2>&1
+          shfmt -d .github/scripts
+        env:
+          FORCE_COLOR: true

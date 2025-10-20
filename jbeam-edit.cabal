@@ -199,7 +199,7 @@ library jbeam-language-server
 
 executable jbeam-edit
     main-is:            Main.hs
-    hs-source-dirs:     app
+    hs-source-dirs:     exe/jbeam-edit
     other-modules:
         CommandLineOptions
         Paths_jbeam_edit
@@ -279,7 +279,7 @@ executable jbeam-edit-dump-ast
 
 executable jbeam-lsp-server
     main-is:            Main.hs
-    hs-source-dirs:     app-extra/jbeam-lsp-server
+    hs-source-dirs:     exe/jbeam-lsp-server
     other-modules:      Paths_jbeam_edit
     autogen-modules:    Paths_jbeam_edit
     default-language:   Haskell2010
@@ -366,6 +366,50 @@ test-suite jbeam-edit-test
         Parsing.JbeamSpec
         SpecHelper
         TransformationSpec
+        Paths_jbeam_edit
+
+    autogen-modules:    Paths_jbeam_edit
+    default-language:   Haskell2010
+    default-extensions: OverloadedStrings ImportQualifiedPost
+    ghc-options:
+        -Wall -Wcompat -Widentities -Wincomplete-record-updates
+        -Wincomplete-uni-patterns -Wmissing-export-lists
+        -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
+        -threaded -rtsopts -with-rtsopts=-N
+
+    build-depends:
+        base >=4.17 && <5,
+        bytestring >=0.12,
+        containers >=0.6,
+        directory >=1.3,
+        filepath >=1.4,
+        hspec >=2.11,
+        jbeam-edit,
+        megaparsec >=9.6,
+        relude >=1.2,
+        scientific >=0.3,
+        text >=2.1,
+        vector >=0.13
+
+    mixins:
+        base hiding (Prelude),
+        relude (Relude as Prelude),
+        relude
+
+    if True
+        build-depends: hspec-megaparsec >=2.2
+
+    if flag(transformation)
+        cpp-options:   -DENABLE_TRANSFORMATION_TESTS
+        build-depends: jbeam-edit-transformation
+
+test-suite jbeam-language-server-test
+    type:               exitcode-stdio-1.0
+    main-is:            Spec.hs
+    build-tool-depends: hspec-discover:hspec-discover
+    hs-source-dirs:     test-extra/language-server
+    other-modules:
+        DocumentStoreSpec
         WorkspaceLspSpec
         Paths_jbeam_edit
 
@@ -385,7 +429,6 @@ test-suite jbeam-edit-test
         directory >=1.3,
         filepath >=1.4,
         hspec >=2.11,
-        hspec-megaparsec >=2.2,
         jbeam-edit,
         megaparsec >=9.6,
         relude >=1.2,
@@ -399,11 +442,10 @@ test-suite jbeam-edit-test
         relude
 
     if (flag(lsp-server) && impl(ghc >=9.6.6))
-        cpp-options:   -DENABLE_LSP_TESTS
         build-depends:
+            jbeam-language-server,
             lsp >=2.7,
             lsp-test
 
-    if flag(transformation)
-        cpp-options:   -DENABLE_TRANSFORMATION_TESTS
-        build-depends: jbeam-edit-transformation
+    else
+        buildable: False
