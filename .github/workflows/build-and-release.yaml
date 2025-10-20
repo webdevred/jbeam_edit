@@ -53,7 +53,6 @@ jobs:
       - name: Configure
         run: bash ./.github/scripts/configure_project.sh
         env:
-          GITHUB_REF: ${{ github.ref }}
           LABEL: ${{ matrix.label }}
           MATRIX_FLAGS: ${{ matrix.flags }}
       - name: Freeze and check dependencies
@@ -63,7 +62,6 @@ jobs:
         run: bash ./.github/scripts/freeze_dependencies.sh
       - name: Cache GHC, Cabal store, and build artifacts
         uses: actions/cache@v4.3.0
-        if: "!startsWith(github.ref, 'refs/tags/')"
         with:
           path: |
             dist-newstyle
@@ -90,7 +88,6 @@ jobs:
         run: |
           cabal install exe:jbeam-lsp-test-server --project-file cabal.project.release || true
       - name: Run tests (GHC ${{ matrix.ghc }})
-        if: "!startsWith(github.ref, 'refs/tags/')"
         run: cabal test --project-file cabal.project.release
       - name: Enforce CRLF newlines on windows
         run: bash ./.github/scripts/replace_newlines.sh
