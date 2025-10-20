@@ -16,11 +16,11 @@ cradle:
                 component: jbeam-edit:lib:jbeam-edit-transformation
               - path: ./src-extra/language-server
                 component: jbeam-edit:lib:jbeam-language-server
-              - path: ./app
+              - path: ./exe/jbeam-edit
                 component: exe:jbeam-edit
-              - path: ./app-extra/jbeam-lsp-server
+              - path: ./exe/jbeam-lsp-server
                 component: jbeam-edit:exe:jbeam-lsp-server
-              - path: ./app-extra/jbeam-lsp-test-server
+              - path: ./tools/lsp-test-server
                 component: jbeam-edit:exe:jbeam-lsp-test-server
               - path: ./tools/dump_ast
                 component: exe:jbeam-edit-dump-ast
