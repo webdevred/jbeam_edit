@@ -15,13 +15,7 @@ git show HEAD:"$CABAL_FILE" >"$TMP_DIR/committed.cabal"
 
 HEADER_LINE=$(("$(grep -n "$HPACK_HEADER" "$TMP_DIR/committed.cabal" | cut -d: -f1)" - 1))
 
-awk -v header="$HPACK_HEADER" '
-  BEGIN { skip = 0 }
-  skip == 0 && $0 ~ header { skip = 1; next }
-  skip == 1 && /^--/ { next }
-  skip == 1 { skip = 2; next }
-  { print }
-' "$TMP_DIR/committed.cabal" >"$TMP_DIR/committed_filtered.cabal"
+awk -v header="$HPACK_HEADER" -f ./.github/script_helpers/filter_cabal_file.awk "$TMP_DIR/committed.cabal" >"$TMP_DIR/committed_filtered.cabal"
 
 MAYBE_REDUNDANT_LINE=$(awk "NR==$HEADER_LINE" "$TMP_DIR/committed_filtered.cabal")
 if [[ -z "$MAYBE_REDUNDANT_LINE" ]]; then

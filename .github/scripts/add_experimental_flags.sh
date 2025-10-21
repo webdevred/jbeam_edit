@@ -17,12 +17,7 @@ fi
 
 MATRIX_JSON=$(sed -E 's/^matrix=//' <"$MATRIX_FILE")
 
-readarray -t EXP_FLAGS < <(awk '
-  /^flag / { flag=$2; in_desc=0 }
-  /^ *description:/ { in_desc=1; if ($0 ~ /\(experimental\)/) print flag; next }
-  in_desc && /^[[:space:]]+/ { if ($0 ~ /\(experimental\)/) print flag; next }
-  /^[^[:space:]]/ { in_desc=0 }
-' "$CABAL_FILE")
+readarray -t EXP_FLAGS < <(awk -f ./.github/script_helpers/extract_flags.awk "$CABAL_FILE")
 
 ORIGINAL=$(jq --arg label "stable" '.include[0] += {label: $label}' <<<"$MATRIX_JSON")
 

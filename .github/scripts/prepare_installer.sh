@@ -17,12 +17,7 @@ mkdir -p "$DEST_DIR_ZIP"
 get_cabal_field() {
   local cabal_file="$1"
   local field="$2"
-  awk -v field="$field" '
-        BEGIN { in_field=0 }
-        $0 ~ "^"field":" { in_field=1; next }
-        in_field && /^[^[:space:]]/ { in_field=0 }
-        in_field { gsub(/^[[:space:]]+/, ""); print }
-    ' "$cabal_file"
+  awk -v field="$field" -f ./.github/script_helpers/get_cabal_field.awk "$cabal_file"
 }
 
 while IFS= read -r file; do
