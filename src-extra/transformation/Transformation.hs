@@ -6,6 +6,7 @@ import Core.Node
 import Core.NodeCursor (newCursor)
 import Core.NodeCursor qualified as NC
 import Core.NodePath qualified as NP
+import Core.Result qualified as R
 import Data.List (partition)
 import Data.List.NonEmpty qualified as NE
 import Data.Map qualified as M
@@ -163,9 +164,9 @@ moveVerticesInVertexForest
   :: UpdateNamesMap
   -> TransformationConfig
   -> VertexForest
-  -> ([Node], VertexConnMap)
-  -> Either Text ([Node], VertexForest)
-moveVerticesInVertexForest newNames tfCfg vertexTrees (badBeamNodes, conns) =
+  -> R.Results Node VertexConnMap
+  -> Either Text (R.Results Node VertexForest)
+moveVerticesInVertexForest newNames tfCfg vertexTrees (R.Results badBeamNodes conns) =
   let allVertices = concatMap (NE.toList . sconcat . tAnnotatedVertices) vertexTrees
       brks = xGroupBreakpoints tfCfg
    in case mapM (groupAnnotatedVertices brks) allVertices of
@@ -176,7 +177,7 @@ moveVerticesInVertexForest newNames tfCfg vertexTrees (badBeamNodes, conns) =
               (addVertexTreeToForest newNames tfCfg conns groupedVertices vertexTrees)
               M.empty
               treesOrder
-          Right (badBeamNodes, sortSupportVertices newNames tfCfg newForest)
+          Right . R.Results badBeamNodes $ sortSupportVertices newNames tfCfg newForest
         Nothing -> Left "invalid breakpoint"
 
 getVertexNamesInForest
@@ -404,10 +405,10 @@ transform newNames tfCfg topNode =
        in getVertexConns
             >>= moveVerticesInVertexForest newNames tfCfg vertexForest
             >>= getUpdatedNamesAndUpdateGlobally badVertexNodes globals vertexNames
-    getUpdatedNamesAndUpdateGlobally badVertexNodes globals oldVertexNames (badBeamNodes, updatedVertexForest) =
+    getUpdatedNamesAndUpdateGlobally badVertexNodes globals oldVertexNames (R.Results badBeamNodes updatedVertexForest) =
       let updatedVertexNames = getVertexNamesInForest updatedVertexForest
           updateMap = M.fromList $ on zip M.elems oldVertexNames updatedVertexNames
           newTopNode =
             findAndUpdateTextInNode updateMap newCursor $
               updateVerticesInNode verticesQuery updatedVertexForest globals topNode
-       in Right (badVertexNodes, badBeamNodes, newTopNode)
+       in Right (badVertexNodes, toList badBeamNodes, newTopNode)

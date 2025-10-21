@@ -24,15 +24,15 @@ possiblyBeam node
             _ -> Nothing
         _ -> Nothing
 
-vertexConns :: Node -> Either Text ([Node], VertexConnMap)
+vertexConns :: Node -> Either Text (Results Node VertexConnMap)
 vertexConns topNode = case NP.queryNodes beamQuery topNode of
   Just (Array beams) -> Right $ go beams
   _ -> Left $ "could not find " <> show beamQuery
   where
-    go :: Vector Node -> ([Node], VertexConnMap)
+    go :: Vector Node -> Results Node VertexConnMap
     go beams =
-      let (badNodes, beamNames) = mapResult possiblyBeam beams
+      let Results badNodes beamNames = mapResult possiblyBeam beams
           fun (beam1, beam2) = increaseBeamCount beam1 . increaseBeamCount beam2
           increaseBeamCount beamName = M.insertWith (+) beamName 1
           connCountMap = foldr fun M.empty beamNames
-       in (badNodes, connCountMap)
+       in Results badNodes connCountMap
