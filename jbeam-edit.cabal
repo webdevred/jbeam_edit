@@ -74,6 +74,7 @@ library
         Core.Result
         Formatting
         Formatting.Config
+        Formatting.RuleFormatting
         Formatting.Rules
         IOUtils
         Parsing.Common

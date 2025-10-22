@@ -19,6 +19,7 @@ module Formatting.Rules (
   comparePatternAndCursor,
   noComplexNewLine,
   lookupIndentProperty,
+  propertyName,
   newRuleSet,
   findPropertiesForCursor,
 ) where
