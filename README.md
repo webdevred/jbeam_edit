@@ -127,11 +127,7 @@ jbeam-edit your-file.jbeam
 
 ## Examples
 
-For sample `.jbeam` files and JBFL rule files, see the [Examples Directory README](examples/README.org).
-
-## Explanation of Source Code
-
-For an in-depth walkthrough of the implementation and design decisions, see [EXPLANATION_OF_SOURCE_CODE.org](EXPLANATION_OF_SOURCE_CODE.org).
+For sample `.jbeam` files and JBFL rule files, see the [Examples Directory README](examples/README.md).
 
 ## Planned Features / TODO
 
