@@ -272,7 +272,7 @@ executable jbeam-edit-dump-ast
     if (flag(dump-ast) && flag(transformation))
         build-depends:
             jbeam-edit-transformation,
-            pretty-simple
+            pretty-simple >=4.1
 
     else
         buildable: False
