@@ -12,11 +12,17 @@ module Parsing.Common.Helpers (
   parseBool,
 ) where
 
+import Control.Applicative (asum, empty)
+import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
-import Data.Char (isSpace)
+import Data.Char (chr, isSpace, ord)
+import Data.Functor ((<&>))
 import Data.List.NonEmpty qualified as NE (fromList)
 import Data.Set qualified as S
 import Data.Text qualified as T
+import Data.Text.Encoding (decodeUtf8')
+import Data.Void (Void)
+import Data.Word (Word8)
 import Text.Megaparsec qualified as MP
 import Text.Megaparsec.Byte qualified as B
 

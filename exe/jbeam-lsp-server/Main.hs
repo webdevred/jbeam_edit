@@ -2,6 +2,7 @@ module Main (
   main,
 ) where
 
+import Data.Functor (void)
 import Formatting.Config qualified as FmtCfg
 import Server (runServer)
 

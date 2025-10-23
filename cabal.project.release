@@ -10,4 +10,4 @@ package *
 
 package jbeam-edit
   tests: False
-  flags: -dump-ast -transformation +windows-example-paths
+  flags: -dump-ast -transformation -lsp-server +windows-example-paths

@@ -2,9 +2,14 @@ module Parsing.JbeamSpec (
   spec,
 ) where
 
+import Data.ByteString (ByteString)
+import Data.ByteString qualified as BS (readFile)
+import Data.Text qualified as T
+import Data.Text.Encoding (encodeUtf8)
+import Data.Vector (fromList)
+import Data.Void (Void)
 import Parsing.Common.Helpers
 import Parsing.Jbeam
-import Relude.Unsafe (read)
 import SpecHelper
 import Test.Hspec.Megaparsec
 import Text.Megaparsec qualified as MP
@@ -121,8 +126,8 @@ invalidNumberSpec =
 topNodeSpec :: FilePath -> FilePath -> Spec
 topNodeSpec inFilename outFilename = do
   let inputPath = "examples/jbeam/" ++ inFilename
-  input <- runIO $ readFileBS inputPath
-  output <- runIO $ baseReadFile outFilename
+  input <- runIO $ BS.readFile inputPath
+  output <- runIO $ readFile outFilename
   let desc = "should parse contents of " ++ inFilename ++ " to AST in " ++ outFilename
   describe desc . works $ do
     parseNodes input `shouldBe` Right (read output)
@@ -140,7 +145,7 @@ parseNodesState'
   :: JbeamParser a
   -> String
   -> Either (MP.ParseErrorBundle ByteString Void) a
-parseNodesState' parser = parseNodesState parser . fromString
+parseNodesState' parser = parseNodesState parser . encodeUtf8 . T.pack
 
 applyParserSpec :: (Eq a, Show a) => JbeamParser a -> (String, a) -> Spec
 applyParserSpec parser = uncurry $ applySpecOnInput descFun assertParsesTo
@@ -151,7 +156,7 @@ applyParserSpec parser = uncurry $ applySpecOnInput descFun assertParsesTo
 invalidTopNodeSpec :: Spec
 invalidTopNodeSpec = do
   let inputPath = "examples/invalid_jbeam/invalid_fender.jbeam"
-  input <- runIO $ readFileBS inputPath
+  input <- runIO $ BS.readFile inputPath
   let desc = "should fail for content in " ++ inputPath
   describe desc . works $
     parseNodes input

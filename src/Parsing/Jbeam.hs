@@ -7,12 +7,21 @@ module Parsing.Jbeam (
   parseNodesState,
 ) where
 
+import Control.Monad.State (State, evalState)
+import Control.Monad.State.Class
 import Core.Node (AssociationDirection (..), InternalComment (..), Node (..))
+import Data.Bifunctor (first)
+import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
+import Data.Functor (($>))
+import Data.Maybe (isNothing)
+import Data.Text (Text)
 import Data.Text qualified as T
+import Data.Text.Encoding (decodeUtf8)
 import Data.Vector qualified as V (fromList)
+import Data.Void (Void)
 import Parsing.Common
-import Text.Megaparsec ((<?>))
+import Text.Megaparsec ((<?>), (<|>))
 import Text.Megaparsec qualified as MP
 import Text.Megaparsec.Byte qualified as B
 import Text.Megaparsec.Byte.Lexer qualified as L (scientific)
@@ -27,7 +36,7 @@ type JbeamParser a = Parser (State ParseState) a
 separatorParser :: JbeamParser ()
 separatorParser = do
   ws1 <- MP.takeWhileP Nothing wordIsSpace
-  comma <- optional (MP.label "comma" $ byteChar ',')
+  comma <- MP.optional (MP.label "comma" $ byteChar ',')
   ws2 <- MP.takeWhileP Nothing wordIsSpace
 
   let hasNewline =
@@ -36,7 +45,7 @@ separatorParser = do
 
   modify (\s -> s {lastNodeEndedWithNewline = hasNewline})
 
-  pass
+  pure ()
 
 ---
 --- selectors for numbers, comments, strings and bools
@@ -123,7 +132,7 @@ arrayParser :: JbeamParser Node
 arrayParser = do
   _ <- byteChar '['
   elems <- MP.sepEndBy nodeParser separatorParser
-  _ <- optional separatorParser
+  _ <- MP.optional separatorParser
   _ <- byteChar ']'
   pure . Array . V.fromList $ elems
 
@@ -144,7 +153,7 @@ objectParser :: JbeamParser Node
 objectParser = do
   _ <- byteChar '{'
   keys <- MP.some (commentParser <|> objectKeyParser)
-  _ <- optional separatorParser
+  _ <- MP.optional separatorParser
   _ <- byteChar '}'
   pure . Object . V.fromList $ keys
 

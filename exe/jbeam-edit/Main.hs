@@ -5,12 +5,17 @@ module Main (
 ) where
 
 import CommandLineOptions
+import Control.Monad (unless)
 import Core.Node (Node)
+import Data.ByteString.Lazy qualified as LBS (fromStrict, toStrict, writeFile)
+import Data.Text (Text)
+import Data.Text.Encoding (encodeUtf8)
 import Formatting (RuleSet, formatNode)
 import Formatting.Config
 import IOUtils
 import Parsing.Jbeam (parseNodes)
 import System.Directory (copyFile)
+import System.Environment (getArgs)
 
 #ifdef ENABLE_WINDOWS_NEWLINES
 import Data.Text qualified as T
@@ -41,9 +46,9 @@ editFile opts = do
     Just filename -> do
       outFilename <- getWritabaleFilename filename opts
       contents <- tryReadFile [] filename
-      case contents >>= parseNodes . toStrict of
+      case contents >>= parseNodes . LBS.toStrict of
         Right ns -> processNodes opts outFilename ns formattingConfig
-        Left err -> putTextLn err
+        Left err -> putErrorLine err
     Nothing -> putErrorLine "missing arg filename"
 
 processNodes :: Options -> FilePath -> Node -> RuleSet -> IO ()
@@ -51,9 +56,9 @@ processNodes opts outFile nodes formattingConfig = do
   transformedNode <- applyTransform opts nodes
   case transformedNode of
     Right transformedNode' ->
-      writeFileLBS outFile
+      LBS.writeFile outFile
+        . LBS.fromStrict
         . encodeUtf8
-        . toLText
         . replaceNewlines
         . formatNode formattingConfig
         $ transformedNode'

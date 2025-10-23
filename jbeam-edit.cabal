@@ -99,15 +99,10 @@ library
         directory >=1.3,
         filepath >=1.4,
         megaparsec >=9.6,
-        relude >=1.2,
+        mtl >=2.3,
         scientific >=0.3,
         text >=2.1,
         vector >=0.13
-
-    mixins:
-        base hiding (Prelude),
-        relude (Relude as Prelude),
-        relude
 
     if flag(transformation)
         cpp-options: -DENABLE_TRANSFORMATION
@@ -141,7 +136,7 @@ library jbeam-edit-transformation
         filepath >=1.4,
         jbeam-edit,
         megaparsec >=9.6,
-        relude >=1.2,
+        mtl >=2.3,
         scientific >=0.3,
         text >=2.1,
         vector >=0.13
@@ -152,7 +147,9 @@ library jbeam-edit-transformation
         relude
 
     if flag(transformation)
-        build-depends: yaml
+        build-depends:
+            relude >=1.2,
+            yaml
 
     else
         buildable: False
@@ -181,7 +178,7 @@ library jbeam-language-server
         filepath >=1.4,
         jbeam-edit,
         megaparsec >=9.6,
-        relude >=1.2,
+        mtl >=2.3,
         scientific >=0.3,
         text >=2.1,
         vector >=0.13
@@ -192,7 +189,9 @@ library jbeam-language-server
         relude
 
     if (flag(lsp-server) && impl(ghc >=9.6.6))
-        build-depends: lsp >=2.7
+        build-depends:
+            lsp >=2.7,
+            relude >=1.2
 
     else
         buildable: False
@@ -221,15 +220,10 @@ executable jbeam-edit
         filepath >=1.4,
         jbeam-edit,
         megaparsec >=9.6,
-        relude >=1.2,
+        mtl >=2.3,
         scientific >=0.3,
         text >=2.1,
         vector >=0.13
-
-    mixins:
-        base hiding (Prelude),
-        relude (Relude as Prelude),
-        relude
 
     if flag(transformation)
         cpp-options:   -DENABLE_TRANSFORMATION
@@ -259,15 +253,10 @@ executable jbeam-edit-dump-ast
         filepath >=1.4,
         jbeam-edit,
         megaparsec >=9.6,
-        relude >=1.2,
+        mtl >=2.3,
         scientific >=0.3,
         text >=2.1,
         vector >=0.13
-
-    mixins:
-        base hiding (Prelude),
-        relude (Relude as Prelude),
-        relude
 
     if (flag(dump-ast) && flag(transformation))
         build-depends:
@@ -298,15 +287,10 @@ executable jbeam-lsp-server
         filepath >=1.4,
         jbeam-edit,
         megaparsec >=9.6,
-        relude >=1.2,
+        mtl >=2.3,
         scientific >=0.3,
         text >=2.1,
         vector >=0.13
-
-    mixins:
-        base hiding (Prelude),
-        relude (Relude as Prelude),
-        relude
 
     if (flag(lsp-server) && impl(ghc >=9.6.6))
         build-depends: jbeam-language-server
@@ -335,15 +319,10 @@ executable jbeam-lsp-test-server
         filepath >=1.4,
         jbeam-edit,
         megaparsec >=9.6,
-        relude >=1.2,
+        mtl >=2.3,
         scientific >=0.3,
         text >=2.1,
         vector >=0.13
-
-    mixins:
-        base hiding (Prelude),
-        relude (Relude as Prelude),
-        relude
 
     if (flag(lsp-server) && impl(ghc >=9.6.6))
         build-depends: jbeam-language-server
@@ -386,15 +365,10 @@ test-suite jbeam-edit-test
         hspec >=2.11,
         jbeam-edit,
         megaparsec >=9.6,
-        relude >=1.2,
+        mtl >=2.3,
         scientific >=0.3,
         text >=2.1,
         vector >=0.13
-
-    mixins:
-        base hiding (Prelude),
-        relude (Relude as Prelude),
-        relude
 
     if True
         build-depends: hspec-megaparsec >=2.2
@@ -431,15 +405,10 @@ test-suite jbeam-language-server-test
         hspec >=2.11,
         jbeam-edit,
         megaparsec >=9.6,
-        relude >=1.2,
+        mtl >=2.3,
         scientific >=0.3,
         text >=2.1,
         vector >=0.13
-
-    mixins:
-        base hiding (Prelude),
-        relude (Relude as Prelude),
-        relude
 
     if (flag(lsp-server) && impl(ghc >=9.6.6))
         build-depends:

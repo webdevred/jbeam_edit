@@ -10,12 +10,21 @@ module Parsing.DSL (
 ) where
 
 import Core.NodePath
+import Data.Bifunctor (first)
+import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
 import Data.Char (isSpace)
+import Data.Functor (void, ($>))
+import Data.Functor.Identity (Identity (..))
 import Data.List.NonEmpty qualified as NE (fromList)
+import Data.Map (Map)
 import Data.Map qualified as M (fromList, fromListWith, union)
 import Data.Sequence qualified as Seq (fromList)
 import Data.Set qualified as S (fromList)
+import Data.Text (Text)
+import Data.Text qualified as T (unpack)
+import Data.Text.Encoding (decodeUtf8')
+import Data.Word (Word8)
 import Formatting.Rules
 import Parsing.Common
 import Text.Megaparsec ((<?>))
@@ -99,7 +108,7 @@ keyPropertyPairParser = do
   skipWhiteSpace
   let unexpTok = pure . Just . MP.Tokens . NE.fromList $ key
       expToks =
-        S.fromList . map (MP.Label . NE.fromList . toString . keyName) $
+        S.fromList . map (MP.Label . NE.fromList . T.unpack . keyName) $
           allProperties
       failParser u = MP.setOffset offset *> MP.failure u expToks
       key' = tryDecodeKey key (`lookupKey` allProperties)

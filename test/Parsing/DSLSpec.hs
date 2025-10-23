@@ -3,10 +3,15 @@ module Parsing.DSLSpec (
 ) where
 
 import Core.NodePath qualified as NP (NodeSelector (..))
+import Data.ByteString (ByteString)
+import Data.ByteString qualified as BS (readFile)
+import Data.Functor.Identity (Identity (..))
+import Data.Text qualified as T
+import Data.Text.Encoding (encodeUtf8)
+import Data.Void (Void)
 import Formatting.Rules
 import Parsing.Common.Helpers
 import Parsing.DSL
-import Relude.Unsafe (read)
 import SpecHelper
 import Test.Hspec.Megaparsec
 import Text.Megaparsec
@@ -40,8 +45,8 @@ boolProperties =
 ruleSetSpec :: FilePath -> FilePath -> Spec
 ruleSetSpec inFilename outFilename = do
   let inputPath = "examples/jbfl/" ++ inFilename
-  input <- runIO $ readFileBS inputPath
-  output <- runIO $ baseReadFile outFilename
+  input <- runIO $ BS.readFile inputPath
+  output <- runIO $ readFile outFilename
   let desc = "should parse contents of " ++ inFilename ++ " to AST in " ++ outFilename
   describe desc . works $ do
     parseDSL input `shouldBe` Right (read output)
@@ -97,14 +102,14 @@ applyParserSpec
   :: (Eq a, Show a) => ParsecT Void ByteString Identity a -> (String, a) -> Spec
 applyParserSpec parser = uncurry $ applySpecOnInput descFun assertParsesTo
   where
-    assertParsesTo input = shouldParse . parse parser "" $ fromString input
+    assertParsesTo input = shouldParse . parse parser "" . encodeUtf8 $ T.pack input
     descFun input expResult = "should parse " <> input <> " to " <> expResult
 
 assertParserFailure
   :: Show a => JbflParser a -> (String, ParseError ByteString Void) -> Spec
 assertParserFailure parser (input, expError) =
   describe desc . works $
-    parse parser "" (fromString input) `shouldFailWith` expError
+    parse parser "" (encodeUtf8 $ T.pack input) `shouldFailWith` expError
   where
     desc = "should fail parsing " <> show input
 

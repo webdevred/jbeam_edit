@@ -3,13 +3,16 @@ module Main (
 ) where
 
 import Config
-import Data.List (isSuffixOf)
+import Data.ByteString.Lazy qualified as LBS
+import Data.List (isPrefixOf, isSuffixOf)
 import Data.Map qualified as M
+import Data.Text qualified as T
+import Data.Text.Lazy qualified as LT
 import Formatting
 import Parsing.DSL (parseDSL)
 import Parsing.Jbeam (parseNodes)
-import Relude.Unsafe (read)
 import System.Directory (getDirectoryContents)
+import System.Exit (exitFailure)
 import System.FilePath (dropExtension, takeBaseName, (</>))
 import System.IO qualified as IO (readFile)
 import Text.Pretty.Simple (defaultOutputOptionsNoColor, pStringOpt)
@@ -60,22 +63,22 @@ main = do
 getDirectoryContents' :: FilePath -> IO [String]
 getDirectoryContents' path = filter (not . isPrefixOf ".#") <$> getDirectoryContents path
 
-saveDump :: String -> Text -> IO ()
+saveDump :: String -> String -> IO ()
 saveDump outFile formatted =
   putStrLn ("creating " ++ outFile)
-    >> writeFileText outFile formatted
+    >> writeFile outFile formatted
 
 saveAstDump :: Show a => String -> a -> IO ()
 saveAstDump outFile contents =
   let formatted = pStringOpt defaultOutputOptionsNoColor (show contents ++ "\n")
-   in saveDump outFile (toText formatted)
+   in saveDump outFile (LT.unpack formatted)
 
 dumpJbflAST :: FilePath -> String -> String -> IO FilePath
 dumpJbflAST dir outDir filename = do
-  contents <- readFileLBS (dir </> filename)
-  case parseDSL (toStrict contents) of
+  contents <- LBS.readFile (dir </> filename)
+  case parseDSL (LBS.toStrict contents) of
     Right rs -> dump rs >> pure (outDir </> filename)
-    Left _ -> error $ "error " <> toText filename
+    Left _ -> error $ "error " ++ filename
   where
     dump contents =
       let outFile = outDir </> takeBaseName filename ++ ".hs"
@@ -83,10 +86,10 @@ dumpJbflAST dir outDir filename = do
 
 dumpJbeamAST :: FilePath -> String -> String -> IO FilePath
 dumpJbeamAST dir outDir filename = do
-  contents <- readFileLBS (dir </> filename)
-  case parseNodes (toStrict contents) of
+  contents <- LBS.readFile (dir </> filename)
+  case parseNodes (LBS.toStrict contents) of
     Right ns -> dump ns >> pure (outDir </> filename)
-    Left _ -> error $ "error " <> toText filename
+    Left _ -> error $ "error " <> filename
   where
     dump contents =
       let outFile = outDir </> takeBaseName filename ++ ".hs"
@@ -97,7 +100,7 @@ dumpFormattedJbeam outDir (jbeamFile, ruleFile) = do
   jbeam <- read <$> IO.readFile (dropExtension jbeamFile ++ ".hs")
   rs <- read <$> IO.readFile (dropExtension ruleFile ++ ".hs")
   let outFilename = takeBaseName jbeamFile ++ "-" ++ takeBaseName ruleFile ++ "-jbfl.jbeam"
-   in dump outFilename (formatNode rs jbeam)
+   in dump outFilename (T.unpack $ formatNode rs jbeam)
   where
     dump filename contents =
       let outFile = outDir </> filename
@@ -119,10 +122,10 @@ dumpTransformedJbeam cfName tfConfig rsDirPath jbeamInputAstDir outDir jbeamFile
   transformedJbeam <-
     case transform M.empty tfConfig jbeam of
       Left err -> do
-        putTextLn $ "error occurred during transformation" <> err
+        putStrLn $ "error occurred during transformation" ++ T.unpack err
         exitFailure
       Right (_, _, jbeam') -> pure jbeam'
-  dump outFilename (formatNode rs transformedJbeam)
+  dump outFilename (T.unpack $ formatNode rs transformedJbeam)
   where
     dump filename contents =
       let outFile = outDir </> filename

@@ -14,6 +14,7 @@ import Core.Node (Node (..))
 import Core.NodePath qualified as NP
 import Data.Sequence (Seq (..))
 import Data.Sequence qualified as Seq (empty, null)
+import Data.Text (Text)
 
 data NodeBreadcrumb
   = ArrayIndex Int
