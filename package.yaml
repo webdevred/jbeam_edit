@@ -61,7 +61,7 @@ flags:
     manual: true
     default: false
   lsp-server:
-    description: Enable LSP server (experimental)
+    description: Enable LSP server
     manual: true
     default: false
   lsp-test-server:

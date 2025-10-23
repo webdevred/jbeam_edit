@@ -50,7 +50,7 @@ flag dump-ast
     manual:      True
 
 flag lsp-server
-    description: Enable LSP server (experimental)
+    description: Enable LSP server
     default:     False
     manual:      True
 
