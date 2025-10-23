@@ -136,7 +136,7 @@ executables:
     when:
       condition: (flag(dump-ast) && flag(transformation))
       then:
-        dependencies: [pretty-simple, jbeam-edit-transformation]
+        dependencies: [pretty-simple>=4.1, jbeam-edit-transformation]
       else:
         buildable: false
     main: Main.hs
