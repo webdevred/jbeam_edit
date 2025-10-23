@@ -17,15 +17,20 @@ fi
 
 MATRIX_JSON=$(sed -E 's/^matrix=//' <"$MATRIX_FILE")
 
-readarray -t EXP_FLAGS < <(awk -f ./.github/script_helpers/extract_flags.awk "$CABAL_FILE")
+readarray -t STABLE_FLAGS < <(awk -f ./.github/script_helpers/extract_flags.awk "$CABAL_FILE")
+readarray -t EXP_FLAGS < <(awk -v EXPERIMENTAL_ONLY=1 -f ./.github/script_helpers/extract_flags.awk "$CABAL_FILE")
 
-ORIGINAL=$(jq --arg label "stable" '.include[0] += {label: $label}' <<<"$MATRIX_JSON")
+STABLE_FLAGS_STRING=""
+if ! [[ ${#STABLE_FLAGS[@]} -eq 0 ]]; then
+  STABLE_FLAGS_STRING=$(printf '+%s ' "${STABLE_FLAGS[@]}")
+fi
+ORIGINAL=$(jq --arg flags "$STABLE_FLAGS_STRING" --arg label "stable" '.include[0] += {flags: $flags, label: $label}' <<<"$MATRIX_JSON")
 
 if [[ ${#EXP_FLAGS[@]} -eq 0 ]]; then
   UPDATED="$ORIGINAL"
 else
   EXP_FLAGS_STRING=$(printf '+%s ' "${EXP_FLAGS[@]}")
-  EXPERIMENTAL=$(jq --arg flags "$EXP_FLAGS_STRING" --arg label "experimental" \
+  EXPERIMENTAL=$(jq --arg flags "$STABLE_FLAGS_STRING $EXP_FLAGS_STRING" --arg label "experimental" \
     '.include[0] += {flags: $flags, label: $label}' <<<"$MATRIX_JSON")
 
   UPDATED=$(jq --argjson exp_include "$(jq '.include' <<<"$EXPERIMENTAL")" \
