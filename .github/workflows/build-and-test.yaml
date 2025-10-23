@@ -120,11 +120,11 @@ jobs:
     steps:
       - name: Extract the tested GHC versions
         id: set-matrix
-        uses: kleidukos/get-tested@v0.1.7.1
+        uses: kleidukos/get-tested@ad5997403fac9419a0ea8cc0fb44fe270e6c139b
         with:
           cabal-file: jbeam-edit.cabal
           ubuntu-version: latest
-          version: 0.1.7.1
+          version: get-tested-head
   build-with-cabal:
     if: github.event.pull_request.draft != true
     name: Build and test with Cabal (GHC ${{ matrix.ghc }})
@@ -145,6 +145,12 @@ jobs:
         run: |-
           echo "GHC Version: ${{ steps.setup-ghc.outputs.ghc-version }}"
           echo "Cabal Store Path: ${{ steps.setup-ghc.outputs.cabal-store }}"
+          echo "get-tested latest: ${{ matrix.newest }}"
+          echo "get-tested oldest: ${{ matrix.oldest }}"
+      - if: |
+          matrix.oldest == true &&
+          matrix.newest == false
+        run: cabal configure --project-file cabal.project.ci --prefer-oldest
       - name: Freeze and check dependencies
         env:
           CABAL_PROJECT: cabal.project.ci
