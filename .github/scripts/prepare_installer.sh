@@ -53,6 +53,15 @@ else
   echo "Copied exe to /$DEST_DIR_RELEASE/jbeam-lsp-server.exe"
 fi
 
+RENAME_VERTICES_EXE_PATH="exe/jbeam-rename-vertices/jbeam-rename-vertices.exe"
+
+if ! [ -f "$RENAME_VERTICES_EXE_PATH" ]; then
+  echo "Error: No LSP exe found in '$DIST_NEWSTYLE/build', skipping."
+else
+  cp "$RENAME_VERTICES_EXE_PATH" "$DEST_DIR_RELEASE/jbeam-rename-vertices.exe"
+  echo "Copied exe to /$DEST_DIR_RELEASE/jbeam-rename-vertices.exe"
+fi
+
 TMP_DIR=$(mktemp -d)
 git show HEAD:"./examples/jbeam/fender.jbeam" >"$TMP_DIR/fender.${LABEL}.jbeam"
 git show HEAD:"./examples/jbeam/suspension.jbeam" >"$TMP_DIR/suspension.${LABEL}.jbeam"

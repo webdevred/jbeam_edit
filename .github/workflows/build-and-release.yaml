@@ -78,14 +78,20 @@ jobs:
             ${{ runner.os }}-cabal-${{ matrix.ghc }}-${{ matrix.label }}
       - name: Build dependencies, good to do separate for caching
         run: cabal build --project-file cabal.project.release --only-dependencies
+      - name: Build main executable
+        run: cabal build exe:jbeam-edit --project-file cabal.project.release
       - name: Build LSP executable
         run: |
           cabal build exe:jbeam-lsp-server --project-file cabal.project.release || true
-      - name: Build main executable
-        run: cabal build exe:jbeam-edit --project-file cabal.project.release
       - name: Build LSP test server
         run: |
           cabal install exe:jbeam-lsp-test-server --project-file cabal.project.release || true
+      - name: Build vertices renaming tool
+        shell: pwsh
+        if: contains(matrix.flags, ' +transformation ')
+        run: |
+          choco install freepascal --yes --no-progress
+          C:\tools\freepascal\bin\i386-win32\fpc exe/jbeam-rename-vertices/jbeam-rename-vertices.pas -Sta -XS -O2 -Xs -Sh -Sd
       - name: Run tests (GHC ${{ matrix.ghc }})
         run: cabal test --project-file cabal.project.release
       - name: Enforce CRLF newlines on windows

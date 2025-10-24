@@ -24,7 +24,7 @@ ORIGINAL=$(jq --arg label "stable" '.include[0] += {label: $label}' <<<"$MATRIX_
 if [[ ${#EXP_FLAGS[@]} -eq 0 ]]; then
   UPDATED="$ORIGINAL"
 else
-  EXP_FLAGS_STRING=$(printf '+%s ' "${EXP_FLAGS[@]}")
+  EXP_FLAGS_STRING=$(printf ' +%s ' "${EXP_FLAGS[@]}")
   EXPERIMENTAL=$(jq --arg flags "$EXP_FLAGS_STRING" --arg label "experimental" \
     '.include[0] += {flags: $flags, label: $label}' <<<"$MATRIX_JSON")
 
