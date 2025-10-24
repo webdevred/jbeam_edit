@@ -101,13 +101,11 @@ jobs:
           CABAL_FILE: jbeam-edit.cabal
           LABEL: ${{ matrix.label}}
       - name: Upload build artifact
-        if: startsWith(github.ref, 'refs/tags/')
         uses: actions/upload-artifact@v4.6.2
         with:
           name: jbeam-edit-${{ matrix.ghc }}-${{ matrix.label }}
           path: dist
   prepare-for-release:
-    if: startsWith(github.ref, 'refs/tags/')
     runs-on: windows-latest
     needs: [build-for-release, get-newest-supported-ghc]
     name: Prepare release for Windows
@@ -134,6 +132,7 @@ jobs:
         env:
           LABEL: ${{ matrix.label}}
       - name: Upload zip artifact
+        if: startsWith(github.ref, 'refs/tags/')
         uses: actions/upload-artifact@v4
         with:
           name: jbeam-edit-${{ github.ref_name }}-${{ matrix.label }}.zip
