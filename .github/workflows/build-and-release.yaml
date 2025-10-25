@@ -86,32 +86,31 @@ jobs:
       - name: Build LSP test server
         run: |
           cabal install exe:jbeam-lsp-test-server --project-file cabal.project.release || true
-      - name: Build vertices renaming tool
-        shell: pwsh
-        if: contains(matrix.flags, ' +transformation ')
-        run: |
-          choco install freepascal --yes --no-progress
-          $env:PATH = [System.Environment]::GetEnvironmentVariable("PATH","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("PATH","User")
-          fpc exe/jbeam-rename-vertices/jbeam-rename-vertices.pas -Sta -XS -O2 -Xs -Sh -Sd
       - name: Run tests (GHC ${{ matrix.ghc }})
         run: cabal test --project-file cabal.project.release
-      - name: Enforce CRLF newlines on windows
-        run: bash ./.github/scripts/replace_newlines.sh
-        shell: bash
-      - name: Test executable
-        shell: bash
-        run: bash ./.github/scripts/prepare_installer.sh
-        env:
-          RELEASE_DIR: dist/release
-          ZIP_DIR: dist/zip_temp
-          DIST_NEWSTYLE: dist-newstyle
-          CABAL_FILE: jbeam-edit.cabal
-          LABEL: ${{ matrix.label}}
       - name: Upload build artifact
         uses: actions/upload-artifact@v4.6.2
         with:
           name: jbeam-edit-${{ matrix.ghc }}-${{ matrix.label }}
-          path: dist
+          path: dist-newstyle
+  build-pascal-ui:
+    runs-on: windows-latest
+    if: contains(matrix.flags, ' transformation ')
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install Free Pascal
+        shell: pwsh
+        run: choco install freepascal --yes --no-progress
+      - name: Build Pascal UI
+        shell: pwsh
+        run: |
+          $env:PATH = [System.Environment]::GetEnvironmentVariable("PATH","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("PATH","User")
+          fpc exe/jbeam-rename-vertices/jbeam-rename-vertices.pas -Sta -XS -O2 -Xs -Sh -Sd
+      - name: Upload Pascal UI artifact
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: ui-experimental
+          path: exe/jbeam-rename-vertices/jbeam-rename-vertices.exe
   prepare-for-release:
     runs-on: windows-latest
     needs: [build-for-release, get-newest-supported-ghc]
@@ -127,7 +126,21 @@ jobs:
         uses: actions/download-artifact@v5.0.0
         with:
           name: jbeam-edit-${{ matrix.ghc }}-${{ matrix.label }}
-          path: dist
+          path: dist-newstyle
+      - name: Download Pascal UI
+        uses: actions/download-artifact@v5
+        with:
+          name: ui-experimental
+          path: dist/release
+      - name: Test executable
+        shell: bash
+        run: bash ./.github/scripts/prepare_installer.sh
+        env:
+          RELEASE_DIR: dist/release
+          ZIP_DIR: dist/zip_temp
+          DIST_NEWSTYLE: dist-newstyle
+          CABAL_FILE: jbeam-edit.cabal
+          LABEL: ${{ matrix.label}}
       - name: Build Inno Setup Installer
         uses: Minionguyjpro/Inno-Setup-Action@v1.2.7
         with:
