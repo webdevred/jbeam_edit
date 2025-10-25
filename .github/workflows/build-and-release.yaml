@@ -124,6 +124,7 @@ jobs:
           name: jbeam-edit-${{ matrix.ghc }}-${{ matrix.label }}
           path: dist-newstyle
       - name: Download Pascal UI
+        if: contains(matrix.flags, ' +transformation ')
         uses: actions/download-artifact@v5
         with:
           name: ui-experimental
