@@ -6,10 +6,14 @@ on:
     tags: [v*]
   pull_request:
 
+env:
+  CABAL_FILE: jbeam-edit.cabal
+
 jobs:
   get-newest-supported-ghc:
     name: Get the newest supported GHC
     outputs:
+      flags: ${{ steps.add-exp.outputs.flags }}
       matrix: ${{ steps.add-exp.outputs.matrix }}
     runs-on: ubuntu-latest
     steps:
@@ -25,14 +29,7 @@ jobs:
       - name: Add experimental flags
         id: add-exp
         shell: bash
-        run: |
-          echo "$OLD_MATRIX" > matrix.json
-          echo "checking input matrix"
-          cat matrix.json
-          MATRIX="$(bash ./.github/scripts/add_experimental_flags.sh matrix.json jbeam-edit.cabal)"
-          echo "checking output matrix"
-          echo $MATRIX
-          echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
+        run: bash ./.github/scripts/add_experimental_flags.sh
         env:
           OLD_MATRIX: ${{ steps.get-latest-version.outputs.matrix }}
   build-for-release:
@@ -96,7 +93,7 @@ jobs:
   build-pascal-ui:
     runs-on: windows-latest
     needs: [get-newest-supported-ghc]
-    if: contains(map fromJSON(needs.get-newest-supported-ghc.outputs.matrix) (.flags), ' +transformation ')
+    if: contains(fromJSON(needs.get-newest-supported-ghc.outputs.flags), ' +transformation ')
     steps:
       - uses: actions/checkout@v5
       - name: Install Free Pascal
@@ -140,7 +137,6 @@ jobs:
           RELEASE_DIR: dist/release
           ZIP_DIR: dist/zip_temp
           DIST_NEWSTYLE: dist-newstyle
-          CABAL_FILE: jbeam-edit.cabal
           LABEL: ${{ matrix.label}}
       - name: Build Inno Setup Installer
         uses: Minionguyjpro/Inno-Setup-Action@v1.2.7
