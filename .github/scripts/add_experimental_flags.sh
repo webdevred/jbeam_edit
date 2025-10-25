@@ -34,5 +34,5 @@ fi
 
 echo "checking output matrix:"
 
-echo "$MATRIX"
+echo "$UPDATED"
 printf "matrix=%s" "$(echo "$UPDATED" | jq -c .)" >>"$GITHUB_OUTPUT"
