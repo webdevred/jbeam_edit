@@ -2,9 +2,6 @@
 
 set -euo pipefail
 
-OLD_MATRIX="$1"
-CABAL_FILE="$2"
-
 if [[ -z "$OLD_MATRIX" || ! -f "$OLD_MATRIX" ]]; then
   exit 1
 fi
