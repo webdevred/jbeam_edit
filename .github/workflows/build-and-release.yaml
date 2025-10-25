@@ -91,7 +91,7 @@ jobs:
   build-pascal-ui:
     runs-on: windows-latest
     needs: [get-newest-supported-ghc]
-    if: contains(fromJSON(needs.get-newest-supported-ghc.outputs.flags), ' +transformation ')
+    if: needs.get-newest-supported-ghc.outputs.transformation == 'true'
     steps:
       - uses: actions/checkout@v5
       - name: Install Free Pascal

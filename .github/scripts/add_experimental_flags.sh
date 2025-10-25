@@ -29,11 +29,16 @@ else
 
   UPDATED=$(jq --argjson exp_include "$(jq '.include' <<<"$EXPERIMENTAL")" \
     '.include += $exp_include' <<<"$ORIGINAL")
-  FLAGS="$EXP_FLAGS_STRING"
 fi
 
 echo "checking output matrix:"
 
 echo "$UPDATED"
-echo "flags=$FLAGS" >>"$GITHUB_OUTPUT"
+
+if echo "$EXP_FLAGS_STRING" | grep -q ' +transformation '; then
+  echo "transformation=true"  >>"$GITHUB_OUTPUT"
+else
+  echo "transformation=false"  >>"$GITHUB_OUTPUT"
+fi
+
 printf "matrix=%s" "$(echo "$UPDATED" | jq -c .)" >>"$GITHUB_OUTPUT"
