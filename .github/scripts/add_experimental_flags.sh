@@ -11,17 +11,17 @@ if [[ -z "$CABAL_FILE" || ! -f "$CABAL_FILE" ]]; then
   exit 1
 fi
 
-echo "$OLD_MATRIX" > matrix.json
+echo "$OLD_MATRIX" >matrix.json
 
-MATRIX_JSON=$(sed -E 's/^matrix=//' < matrix.json)
+MATRIX_JSON=$(sed -E 's/^matrix=//' <matrix.json)
 
 readarray -t EXP_FLAGS < <(awk -f ./.github/script_helpers/extract_flags.awk "$CABAL_FILE")
 
 ORIGINAL=$(jq --arg label "stable" '.include[0] += {label: $label}' <<<"$MATRIX_JSON")
 
+FLAGS=""
 if [[ ${#EXP_FLAGS[@]} -eq 0 ]]; then
   UPDATED="$ORIGINAL"
-  echo "flags=null" >>"$GITHUB_OUTPUT"
 else
   EXP_FLAGS_STRING=$(printf ' +%s ' "${EXP_FLAGS[@]}")
   EXPERIMENTAL=$(jq --arg flags "$EXP_FLAGS_STRING" --arg label "experimental" \
@@ -29,10 +29,11 @@ else
 
   UPDATED=$(jq --argjson exp_include "$(jq '.include' <<<"$EXPERIMENTAL")" \
     '.include += $exp_include' <<<"$ORIGINAL")
-  printf "flags=%s\n" "$EXP_FLAGS_STRING" >>"$GITHUB_OUTPUT"
+  FLAGS="$EXP_FLAGS_STRING"
 fi
 
 echo "checking output matrix:"
 
 echo "$UPDATED"
+echo "flags=$FLAGS" >>"$GITHUB_OUTPUT"
 printf "matrix=%s" "$(echo "$UPDATED" | jq -c .)" >>"$GITHUB_OUTPUT"
