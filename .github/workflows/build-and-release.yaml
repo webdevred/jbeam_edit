@@ -98,7 +98,8 @@ jobs:
     needs: [get-newest-supported-ghc]
     strategy:
       matrix: ${{ fromJSON(needs.get-newest-supported-ghc.outputs.matrix) }}
-    if: contains(${{ matrix.flags }}, ' transformation ')
+      include:
+        - label: 'experimental'
     steps:
       - uses: actions/checkout@v5
       - name: Install Free Pascal
