@@ -8,6 +8,8 @@ package *
     -threaded
     -rtsopts
     -with-rtsopts=-N
+    -optc-Os
+    -optl-static
 
 package jbeam-edit
   tests: False
