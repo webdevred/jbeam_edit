@@ -6,9 +6,6 @@ on:
     tags: [v*]
   pull_request:
 
-env:
-  CABAL_FILE: jbeam-edit.cabal
-
 jobs:
   get-newest-supported-ghc:
     name: Get the newest supported GHC
@@ -31,6 +28,7 @@ jobs:
         shell: bash
         run: bash ./.github/scripts/add_experimental_flags.sh
         env:
+          CABAL_FILE: jbeam-edit.cabal
           OLD_MATRIX: ${{ steps.get-latest-version.outputs.matrix }}
   build-for-release:
     runs-on: windows-latest
@@ -137,6 +135,7 @@ jobs:
           RELEASE_DIR: dist/release
           ZIP_DIR: dist/zip_temp
           DIST_NEWSTYLE: dist-newstyle
+          CABAL_FILE: jbeam-edit.cabal
           LABEL: ${{ matrix.label}}
       - name: Build Inno Setup Installer
         uses: Minionguyjpro/Inno-Setup-Action@v1.2.7
