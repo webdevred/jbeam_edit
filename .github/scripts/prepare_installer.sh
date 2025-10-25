@@ -12,6 +12,8 @@ if ! [[ -f "$CABAL_FILE" ]]; then
   exit 1
 fi
 
+find examples/formatted_jbeam examples/transformed_jbeam -type f -exec sed -i 's/$/\r/' {} +
+
 mkdir -p "$DEST_DIR_RELEASE" "$DEST_DIR_ZIP"
 
 get_cabal_field() {
@@ -37,7 +39,6 @@ copy_field_files "extra-source-files" "$DEST_DIR_ZIP"
 declare -A EXES=(
   ["jbeam-edit.exe"]="$(find "$DIST_NEWSTYLE/build" -type f -name "jbeam-edit.exe" | head -n1)"
   ["jbeam-lsp-server.exe"]="$(find "$DIST_NEWSTYLE/build" -type f -name "jbeam-lsp-server.exe" | head -n1)"
-  ["jbeam-rename-vertices.exe"]="exe/jbeam-rename-vertices/jbeam-rename-vertices.exe"
 )
 
 for name in "${!EXES[@]}"; do

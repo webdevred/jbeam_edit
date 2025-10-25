@@ -10,6 +10,7 @@ jobs:
   get-newest-supported-ghc:
     name: Get the newest supported GHC
     outputs:
+      transformation: ${{ steps.add-exp.outputs.transformation }}
       matrix: ${{ steps.add-exp.outputs.matrix }}
     runs-on: ubuntu-latest
     steps:
@@ -25,15 +26,9 @@ jobs:
       - name: Add experimental flags
         id: add-exp
         shell: bash
-        run: |
-          echo "$OLD_MATRIX" > matrix.json
-          echo "checking input matrix"
-          cat matrix.json
-          MATRIX="$(bash ./.github/scripts/add_experimental_flags.sh matrix.json jbeam-edit.cabal)"
-          echo "checking output matrix"
-          echo $MATRIX
-          echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
+        run: bash ./.github/scripts/add_experimental_flags.sh
         env:
+          CABAL_FILE: jbeam-edit.cabal
           OLD_MATRIX: ${{ steps.get-latest-version.outputs.matrix }}
   build-for-release:
     runs-on: windows-latest
@@ -86,34 +81,35 @@ jobs:
       - name: Build LSP test server
         run: |
           cabal install exe:jbeam-lsp-test-server --project-file cabal.project.release || true
-      - name: Build vertices renaming tool
-        shell: pwsh
-        if: contains(matrix.flags, ' +transformation ')
-        run: |
-          choco install freepascal --yes --no-progress
-          C:\tools\freepascal\bin\i386-win32\fpc exe/jbeam-rename-vertices/jbeam-rename-vertices.pas -Sta -XS -O2 -Xs -Sh -Sd
       - name: Run tests (GHC ${{ matrix.ghc }})
         run: cabal test --project-file cabal.project.release
-      - name: Enforce CRLF newlines on windows
-        run: bash ./.github/scripts/replace_newlines.sh
-        shell: bash
-      - name: Test executable
-        shell: bash
-        run: bash ./.github/scripts/prepare_installer.sh
-        env:
-          RELEASE_DIR: dist/release
-          ZIP_DIR: dist/zip_temp
-          DIST_NEWSTYLE: dist-newstyle
-          CABAL_FILE: jbeam-edit.cabal
-          LABEL: ${{ matrix.label}}
       - name: Upload build artifact
         uses: actions/upload-artifact@v4.6.2
         with:
           name: jbeam-edit-${{ matrix.ghc }}-${{ matrix.label }}
-          path: dist
+          path: dist-newstyle
+  build-pascal-ui:
+    runs-on: windows-latest
+    needs: [get-newest-supported-ghc]
+    if: needs.get-newest-supported-ghc.outputs.transformation == 'true'
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install Free Pascal
+        shell: pwsh
+        run: choco install freepascal --yes --no-progress
+      - name: Build Pascal UI
+        shell: pwsh
+        run: |
+          $env:PATH = [System.Environment]::GetEnvironmentVariable("PATH","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("PATH","User")
+          fpc exe/jbeam-rename-vertices/jbeam-rename-vertices.pas -Sta -XS -O2 -Xs -Sh -Sd
+      - name: Upload Pascal UI artifact
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: ui-experimental
+          path: exe/jbeam-rename-vertices/jbeam-rename-vertices.exe
   prepare-for-release:
     runs-on: windows-latest
-    needs: [build-for-release, get-newest-supported-ghc]
+    needs: [build-for-release, build-pascal-ui, get-newest-supported-ghc]
     name: Prepare release for Windows
     strategy:
       matrix: ${{ fromJSON(needs.get-newest-supported-ghc.outputs.matrix) }}
@@ -126,7 +122,22 @@ jobs:
         uses: actions/download-artifact@v5.0.0
         with:
           name: jbeam-edit-${{ matrix.ghc }}-${{ matrix.label }}
-          path: dist
+          path: dist-newstyle
+      - name: Download Pascal UI
+        if: contains(matrix.flags, ' +transformation ')
+        uses: actions/download-artifact@v5
+        with:
+          name: ui-experimental
+          path: dist/release
+      - name: Test executable
+        shell: bash
+        run: bash ./.github/scripts/prepare_installer.sh
+        env:
+          RELEASE_DIR: dist/release
+          ZIP_DIR: dist/zip_temp
+          DIST_NEWSTYLE: dist-newstyle
+          CABAL_FILE: jbeam-edit.cabal
+          LABEL: ${{ matrix.label}}
       - name: Build Inno Setup Installer
         uses: Minionguyjpro/Inno-Setup-Action@v1.2.7
         with:
