@@ -1,9 +1,8 @@
 packages: .
 optimization: False
-tests: False
 
 package *
-  ghc-options: -split-sections
+  tests: False
 
 package jbeam-edit
   tests: False
