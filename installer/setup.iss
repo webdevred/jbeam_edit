@@ -12,6 +12,7 @@ UninstallDisplayName=jbeam-edit
 
 [Files]
 Source: "..\dist\release\jbeam-edit.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\dist\release\jbeam-rename-vertices.exe"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist
 Source: "..\dist\release\jbeam-lsp-server.exe"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist
 Source: "..\dist\release\examples\jbfl\*"; DestDir: "{app}\examples\jbfl"; Flags: recursesubdirs createallsubdirs ignoreversion
 
