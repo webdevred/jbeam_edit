@@ -1,79 +1,114 @@
 program JbeamRenameVertices;
 
+{$mode objfpc}{$H+}
+
 uses
-  Windows, SysUtils, ShellAPI;
+  Windows, SysUtils, Classes, IniFiles;
 
+function GetAppDataPath: string;
 var
-  hConsole: THandle;
-  filePath, src, dst, answer, renameArgs: string;
-  row: Integer;
-
-procedure ClrScr;
-var
-  csbi: TConsoleScreenBufferInfo;
-  charsWritten: DWORD;
+  buf: array[0..1023] of Char;
 begin
-  hConsole := GetStdHandle(STD_OUTPUT_HANDLE);
-  GetConsoleScreenBufferInfo(hConsole, csbi);
-
-  FillConsoleOutputCharacter(hConsole, ' ', csbi.dwSize.X * csbi.dwSize.Y, COORD(0,0), charsWritten);
-  FillConsoleOutputAttribute(hConsole, csbi.wAttributes, csbi.dwSize.X * csbi.dwSize.Y, COORD(0,0), charsWritten);
-  SetConsoleCursorPosition(hConsole, COORD(0,0));
+  if Windows.GetEnvironmentVariable('APPDATA', buf, Length(buf)) <> 0 then
+    Result := StrPas(buf) + '\jbeam-edit\'
+  else
+    Result := '';
 end;
 
-procedure SetTextColor(color: Word);
+procedure RunJbeamEdit(const args: string);
+var
+  si: TStartupInfo;
+  pi: TProcessInformation;
+  cmd: string;
 begin
-  hConsole := GetStdHandle(STD_OUTPUT_HANDLE);
-  SetConsoleTextAttribute(hConsole, color);
+  ZeroMemory(@si, SizeOf(si));
+  si.cb := SizeOf(si);
+  si.dwFlags := STARTF_USESHOWWINDOW;
+  si.wShowWindow := SW_HIDE;
+
+  ZeroMemory(@pi, SizeOf(pi));
+
+  cmd := 'jbeam-edit ' + args;
+
+  if not CreateProcess(nil, PChar(cmd), nil, nil, False, 0, nil, nil, si, pi) then
+    Writeln('Failed to run jbeam-edit.')
+  else
+  begin
+    CloseHandle(pi.hProcess);
+    CloseHandle(pi.hThread);
+  end;
 end;
 
-procedure GotoXY(x, y: Integer);
 var
-  coord: TCoord;
-begin
-  coord.X := x-1;
-  coord.Y := y-1;
-  SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
-end;
+  filePath, src, dst, renameArgs, answer, argStr: string;
+  replacements: TStringList;
+  ini: TIniFile;
+  alwaysBackup: Boolean;
+  iniPath: string;
 
 begin
   SetConsoleOutputCP(CP_UTF8);
-  renameArgs := '';
-  row := 2;
 
-  ClrScr;
-  SetTextColor(14);
-  GotoXY(10,1); WriteLn('==== JBeam Rename Vertices ====');
-  SetTextColor(7); 
-
-  GotoXY(5,row); Write('Enter file: '); ReadLn(filePath);
-  Inc(row,2);
-
-  repeat
-    GotoXY(5,row); Write('Source (what to replace): '); ReadLn(src); Inc(row);
-    GotoXY(5,row); Write('Replacement (to what): '); ReadLn(dst); Inc(row);
-
-    if renameArgs <> '' then renameArgs := renameArgs + ',';
-    renameArgs := renameArgs + src + ':' + dst;
-
-    GotoXY(5,row); Write('Add more replacements? (y/n): '); ReadLn(answer); Inc(row,2);
-  until LowerCase(answer) <> 'y';
-
-  SetTextColor(11);
-  GotoXY(5,row); WriteLn('Command: jbeam-edit -i -n "', renameArgs, '" "', filePath, '"');
-  SetTextColor(7);
-  Inc(row,2);
-
-  if ShellExecute(0, 'open', PChar('jbeam-edit'),
-                  PChar('-i -n "' + renameArgs + '" "' + filePath + '"'),
-                  nil, SW_SHOWNORMAL) <= 32 then
+  iniPath := GetAppDataPath;
+  if iniPath = '' then
   begin
-    SetTextColor(12);
-    GotoXY(5,row); WriteLn('Could not run jbeam-edit. Is it in PATH?');
-    SetTextColor(7);
-    Inc(row,2);
+    Writeln('Could not find APPDATA path.');
+    Exit;
   end;
+  ForceDirectories(iniPath);
 
-  GotoXY(5,row); WriteLn('Done!');
-  ReadLn;
+  ini := TIniFile.Create(iniPath + 'settings.ini');
+  alwaysBackup := ini.ReadBool('Settings', 'AlwaysBackup', True);
+  ini.Free;
+
+  Write('Enter full path to .jbeam file: ');
+  ReadLn(filePath);
+  if filePath = '' then Exit;
+
+  replacements := TStringList.Create;
+  try
+    renameArgs := '';
+    repeat
+      Write('Source (leave empty to finish): ');
+      ReadLn(src);
+      if src = '' then Break;
+      Write('Replacement: ');
+      ReadLn(dst);
+      if renameArgs <> '' then renameArgs := renameArgs + ',';
+      renameArgs := renameArgs + src + ':' + dst;
+    until False;
+
+    if renameArgs = '' then
+    begin
+      Writeln('No replacements entered.');
+      Exit;
+    end;
+
+    if alwaysBackup then
+      argStr := '-n "' + renameArgs + '" "' + filePath + '"'
+    else
+    begin
+      Write('Backup recommended. y=Backup, n=No Backup, c=Always No Backup: ');
+      ReadLn(answer);
+      case LowerCase(answer) of
+        'y': argStr := '-n "' + renameArgs + '" "' + filePath + '"';
+        'n': argStr := '-i -n "' + renameArgs + '" "' + filePath + '"';
+        'c':
+          begin
+            ini := TIniFile.Create(iniPath + 'settings.ini');
+            ini.WriteBool('Settings', 'AlwaysBackup', False);
+            ini.Free;
+            argStr := '-i -n "' + renameArgs + '" "' + filePath + '"';
+          end;
+      else
+        Writeln('Invalid option, using backup by default.');
+        argStr := '-n "' + renameArgs + '" "' + filePath + '"';
+      end;
+    end;
+
+    RunJbeamEdit(argStr);
+    Writeln('Done.');
+  finally
+    replacements.Free;
+  end;
 end.
