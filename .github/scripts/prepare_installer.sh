@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
-
 set -euo pipefail
 
 DIST_NEWSTYLE="${DIST_NEWSTYLE:?Environment variable DIST_NEWSTYLE is required}"
 CABAL_FILE="${CABAL_FILE:?Environment variable CABAL_FILE is required}"
 DEST_DIR_RELEASE="${RELEASE_DIR:?Environment variable RELEASE_DIR is required}"
 DEST_DIR_ZIP="${ZIP_DIR:?Environment variable ZIP_DIR is required}"
+LABEL="${LABEL:?Environment variable LABEL is required}"
 
-[[ -f "$CABAL_FILE" ]] || {
+if ! [[ -f "$CABAL_FILE" ]]; then
   echo "Error: cabal file '$CABAL_FILE' does not exist"
   exit 1
-}
-mkdir -p "$DEST_DIR_RELEASE"
-mkdir -p "$DEST_DIR_ZIP"
+fi
+
+mkdir -p "$DEST_DIR_RELEASE" "$DEST_DIR_ZIP"
 
 get_cabal_field() {
   local cabal_file="$1"
@@ -20,66 +20,56 @@ get_cabal_field() {
   awk -v field="$field" -f ./.github/script_helpers/get_cabal_field.awk "$cabal_file"
 }
 
-while IFS= read -r file; do
-  [[ -z "$file" ]] && continue
-  mkdir -p "$(dirname "$DEST_DIR_RELEASE/$file")"
-  cp -r "$file" "$DEST_DIR_RELEASE/$file"
-  mkdir -p "$(dirname "$DEST_DIR_ZIP/$file")"
-  cp -r "$file" "$DEST_DIR_ZIP/$file"
-done < <(get_cabal_field "$CABAL_FILE" "data-files")
+copy_field_files() {
+  local field="$1"
+  local dest="$2"
+  while IFS= read -r file; do
+    [[ -z "$file" ]] && continue
+    mkdir -p "$(dirname "$dest/$file")"
+    cp -r "$file" "$dest/$file"
+  done < <(get_cabal_field "$CABAL_FILE" "$field")
+}
 
-while IFS= read -r file; do
-  [[ -z "$file" ]] && continue
-  mkdir -p "$(dirname "$DEST_DIR_ZIP/$file")"
-  cp -r "$file" "$DEST_DIR_ZIP/$file"
-done < <(get_cabal_field "$CABAL_FILE" "extra-source-files")
+copy_field_files "data-files" "$DEST_DIR_RELEASE"
+copy_field_files "data-files" "$DEST_DIR_ZIP"
+copy_field_files "extra-source-files" "$DEST_DIR_ZIP"
 
-EXE_PATH=$(find "$DIST_NEWSTYLE/build" -type f -name "jbeam-edit.exe" | head -n 1)
+declare -A EXES=(
+  ["jbeam-edit.exe"]="$(find "$DIST_NEWSTYLE/build" -type f -name "jbeam-edit.exe" | head -n1)"
+  ["jbeam-lsp-server.exe"]="$(find "$DIST_NEWSTYLE/build" -type f -name "jbeam-lsp-server.exe" | head -n1)"
+  ["jbeam-rename-vertices.exe"]="exe/jbeam-rename-vertices/jbeam-rename-vertices.exe"
+)
 
-if [ -z "$EXE_PATH" ]; then
-  echo "Error: No exe found in '$DIST_NEWSTYLE/build'. Make sure the build step succeeded."
-  exit 1
-fi
-
-cp "$EXE_PATH" "$DEST_DIR_RELEASE/jbeam-edit.exe"
-echo "Copied exe to /$DEST_DIR_RELEASE/jbeam-edit.exe"
-
-LSP_EXE_PATH=$(find "$DIST_NEWSTYLE/build" -type f -name "jbeam-lsp-server.exe" | head -n 1)
-
-if [ -z "$LSP_EXE_PATH" ]; then
-  echo "Error: No LSP exe found in '$DIST_NEWSTYLE/build', skipping."
-else
-  cp "$LSP_EXE_PATH" "$DEST_DIR_RELEASE/jbeam-lsp-server.exe"
-  echo "Copied exe to /$DEST_DIR_RELEASE/jbeam-lsp-server.exe"
-fi
-
-RENAME_VERTICES_EXE_PATH="exe/jbeam-rename-vertices/jbeam-rename-vertices.exe"
-
-if ! [ -f "$RENAME_VERTICES_EXE_PATH" ]; then
-  echo "Error: No LSP exe found in '$DIST_NEWSTYLE/build', skipping."
-else
-  cp "$RENAME_VERTICES_EXE_PATH" "$DEST_DIR_RELEASE/jbeam-rename-vertices.exe"
-  echo "Copied exe to /$DEST_DIR_RELEASE/jbeam-rename-vertices.exe"
-fi
+for name in "${!EXES[@]}"; do
+  src="${EXES[$name]}"
+  if [[ -f "$src" ]]; then
+    cp "$src" "$DEST_DIR_RELEASE/$name"
+    echo "Copied $name to $DEST_DIR_RELEASE/$name"
+  elif [[ "$name" == "jbeam-edit.exe" ]]; then
+    echo "Error: $name not found at $src"
+    exit 1
+  fi
+done
 
 TMP_DIR=$(mktemp -d)
-git show HEAD:"./examples/jbeam/fender.jbeam" >"$TMP_DIR/fender.${LABEL}.jbeam"
-git show HEAD:"./examples/jbeam/suspension.jbeam" >"$TMP_DIR/suspension.${LABEL}.jbeam"
 
-echo "fender.jbeam: $TMP_DIR/fender.${LABEL}.jbeam"
-echo "suspension.jbeam: $TMP_DIR/suspension.${LABEL}.jbeam"
-
-./dist/release/jbeam-edit -i "$TMP_DIR/fender.${LABEL}.jbeam"
-./dist/release/jbeam-edit -i "$TMP_DIR/suspension.${LABEL}.jbeam"
+for filepath in ./examples/jbeam/*.jbeam; do
+  name=$(basename "$filepath" .jbeam)
+  git show HEAD:"$filepath" >"$TMP_DIR/$name.${LABEL}.jbeam"
+  echo "$name.jbeam: $TMP_DIR/$name.${LABEL}.jbeam"
+  ./dist/release/jbeam-edit -i "$TMP_DIR/$name.${LABEL}.jbeam"
+done
 
 custom_diff() {
   diff --color=always --suppress-common-lines "$1" "$2"
 }
 
-if [[ -n $LABEL ]] && [[ "$LABEL" == "experimental" ]]; then
-  custom_diff "$TMP_DIR/fender.experimental.jbeam" ./examples/transformed_jbeam/fender-cfg-default.jbeam
-  custom_diff "$TMP_DIR/suspension.experimental.jbeam" ./examples/transformed_jbeam/suspension-cfg-default.jbeam
-else
-  custom_diff "$TMP_DIR/fender.stable.jbeam" ./examples/formatted_jbeam/fender-minimal-jbfl.jbeam
-  custom_diff "$TMP_DIR/suspension.stable.jbeam" ./examples/formatted_jbeam/suspension-minimal-jbfl.jbeam
-fi
+for tmp in "$TMP_DIR"/*.jbeam; do
+  base=$(basename "$tmp")
+  name="${base%%.*}"
+  if [[ "$LABEL" == "experimental" ]]; then
+    custom_diff "$TMP_DIR/$name.experimental.jbeam" "./examples/transformed_jbeam/$name-cfg-default.jbeam"
+  else
+    custom_diff "$TMP_DIR/$name.stable.jbeam" "./examples/formatted_jbeam/$name-minimal-jbfl.jbeam"
+  fi
+done
