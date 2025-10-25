@@ -91,7 +91,8 @@ jobs:
         if: contains(matrix.flags, ' +transformation ')
         run: |
           choco install freepascal --yes --no-progress
-          C:\tools\freepascal\bin\i386-win32\fpc exe/jbeam-rename-vertices/jbeam-rename-vertices.pas -Sta -XS -O2 -Xs -Sh -Sd
+          $env:PATH = [System.Environment]::GetEnvironmentVariable("PATH","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("PATH","User")
+          fpc exe/jbeam-rename-vertices/jbeam-rename-vertices.pas -Sta -XS -O2 -Xs -Sh -Sd
       - name: Run tests (GHC ${{ matrix.ghc }})
         run: cabal test --project-file cabal.project.release
       - name: Enforce CRLF newlines on windows
