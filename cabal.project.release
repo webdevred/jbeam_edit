@@ -1,5 +1,6 @@
 import: cabal.project
 executable-static: True
+executable-stripping: True
 index-state: hackage.haskell.org 2025-10-12T21:52:54Z
 
 package *
