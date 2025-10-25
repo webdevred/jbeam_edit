@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-if [[ -z "$OLD_MATRIX" || ! -f "$OLD_MATRIX" ]]; then
+if [[ -z "$OLD_MATRIX" ]]; then
   exit 1
 fi
 
@@ -11,7 +11,9 @@ if [[ -z "$CABAL_FILE" || ! -f "$CABAL_FILE" ]]; then
   exit 1
 fi
 
-MATRIX_JSON=$(echo "$OLD_MATRIX" | sed -E 's/^matrix=//')
+echo "$OLD_MATRIX" > matrix.json
+
+MATRIX_JSON=$(sed -E 's/^matrix=//' < matrix.json)
 
 readarray -t EXP_FLAGS < <(awk -f ./.github/script_helpers/extract_flags.awk "$CABAL_FILE")
 
