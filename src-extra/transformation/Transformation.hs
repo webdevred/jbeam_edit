@@ -10,10 +10,9 @@ import Data.List (partition)
 import Data.List.NonEmpty qualified as NE
 import Data.Map qualified as M
 import Data.Scientific (Scientific)
-import Data.Sequence (Seq (..))
+import Data.Sequence (Seq (..), (!?))
+import Data.Sequence qualified as Seq
 import Data.Text qualified as T
-import Data.Vector (Vector, (!), (!?), (//))
-import Data.Vector qualified as V
 import SupportVertex
 import Types
 import VertexExtraction
@@ -229,7 +228,7 @@ annotatedVertexToNodesWithPrev prevMeta (AnnotatedVertex comments vertex meta) =
       newPrevMeta = M.union localsMeta prevMeta
 
       metaNodes =
-        [ Object (V.singleton (ObjectKey (String k, v)))
+        [ Object (one (ObjectKey (String k, v)))
         | (k, v) <- M.assocs localsMeta
         ]
 
@@ -242,7 +241,7 @@ annotatedVertexToNodesWithPrev prevMeta (AnnotatedVertex comments vertex meta) =
             y = Number (vY vertex)
             z = Number (vZ vertex)
             possiblyMeta = maybe [] (one . Object) (vMeta vertex)
-         in Array . V.fromList $ [name, x, y, z] ++ possiblyMeta
+         in Array . fromList $ [name, x, y, z] ++ possiblyMeta
    in ( map Comment preComments
           ++ metaNodes
           ++ one vertexArray
@@ -250,7 +249,7 @@ annotatedVertexToNodesWithPrev prevMeta (AnnotatedVertex comments vertex meta) =
       , newPrevMeta
       )
 
-vertexForestToNodeVector :: MetaMap -> VertexForest -> Vector Node
+vertexForestToNodeVector :: MetaMap -> VertexForest -> Seq Node
 vertexForestToNodeVector initialMeta vf =
   let step prevMeta treeType =
         case M.lookup treeType vf of
@@ -260,7 +259,7 @@ vertexForestToNodeVector initialMeta vf =
              in (prevMeta', NE.toList nodes)
 
       (_, listsOfNodes) = mapAccumL step initialMeta treesOrder
-   in V.fromList . concat $ listsOfNodes
+   in fromList . concat $ listsOfNodes
 
 treesOrder :: [VertexTreeType]
 treesOrder = [LeftTree, MiddleTree, RightTree, SupportTree]
@@ -349,22 +348,29 @@ updateVerticesInNode (NP.NodePath Empty) g globals (Array _) =
   let globalsList = NE.toList globals
       initialMeta =
         M.unions (map metaMapFromObject (NE.toList globals))
-   in Array (V.fromList globalsList <> vertexForestToNodeVector initialMeta g)
+   in Array (fromList globalsList <> vertexForestToNodeVector initialMeta g)
 updateVerticesInNode (NP.NodePath ((NP.ArrayIndex i) :<| qrest)) g globals (Array children) =
   let updateInNode nodeToUpdate =
-        children
-          // [(i, updateVerticesInNode (NP.NodePath qrest) g globals nodeToUpdate)]
+        Seq.update
+          i
+          (updateVerticesInNode (NP.NodePath qrest) g globals nodeToUpdate)
+          children
    in Array $ maybe children updateInNode (children !? i)
 updateVerticesInNode (NP.NodePath ((NP.ObjectIndex i) :<| qrest)) g globals (Object children) =
   let updateInNode _ =
-        children
-          // [(i, updateVerticesInNode (NP.NodePath qrest) g globals (children ! i))]
+        Seq.update
+          i
+          (updateVerticesInNode (NP.NodePath qrest) g globals (children `Seq.index` i))
+          children
    in Object $ maybe children updateInNode (children !? i)
 updateVerticesInNode (NP.NodePath (k@(NP.ObjectKey _) :<| qrest)) g globals (Object children) =
   let updateInNode i =
-        children
-          // [(i, updateVerticesInNode (NP.NodePath qrest) g globals (children ! i))]
-   in Object . maybe children updateInNode $ V.findIndex (isObjectKeyEqual k) children
+        Seq.update
+          i
+          (updateVerticesInNode (NP.NodePath qrest) g globals (children `Seq.index` i))
+          children
+   in Object . maybe children updateInNode $
+        Seq.findIndexL (isObjectKeyEqual k) children
 updateVerticesInNode query g globals (ObjectKey (k, v)) =
   ObjectKey (k, updateVerticesInNode query g globals v)
 updateVerticesInNode _ _ _ a = a
@@ -378,8 +384,8 @@ findAndUpdateTextInNode m cursor node =
   case node of
     Array arr
       | NC.comparePathAndCursor verticesQuery cursor -> Array arr
-      | otherwise -> Array $ V.imap applyBreadcrumbAndUpdateText arr
-    Object obj -> Object $ V.imap applyBreadcrumbAndUpdateText obj
+      | otherwise -> Array $ Seq.mapWithIndex applyBreadcrumbAndUpdateText arr
+    Object obj -> Object $ Seq.mapWithIndex applyBreadcrumbAndUpdateText obj
     ObjectKey (key, value) ->
       ObjectKey
         (key, NC.applyObjCrumb key cursor (findAndUpdateTextInNode m) value)
