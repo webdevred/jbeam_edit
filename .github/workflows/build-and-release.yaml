@@ -96,8 +96,7 @@ jobs:
   build-pascal-ui:
     runs-on: windows-latest
     needs: [get-newest-supported-ghc]
-    strategy:
-      matrix: ${{ fromJSON(needs.get-newest-supported-ghc.outputs.matrix) | .[] | select(.flags // "" | contains(" +transformation ")) }}
+    if: contains(fromJSON(needs.get-newest-supported-ghc.outputs.matrix).flags, ' +transformation ')
     steps:
       - uses: actions/checkout@v5
       - name: Install Free Pascal
