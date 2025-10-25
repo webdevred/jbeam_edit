@@ -95,6 +95,9 @@ jobs:
           path: dist-newstyle
   build-pascal-ui:
     runs-on: windows-latest
+    needs: [get-newest-supported-ghc]
+    strategy:
+      matrix: ${{ fromJSON(needs.get-newest-supported-ghc.outputs.matrix) }}
     if: contains(matrix.flags, ' transformation ')
     steps:
       - uses: actions/checkout@v5
