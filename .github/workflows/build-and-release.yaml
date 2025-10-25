@@ -10,7 +10,7 @@ jobs:
   get-newest-supported-ghc:
     name: Get the newest supported GHC
     outputs:
-      flags: ${{ steps.add-exp.outputs.flags }}
+      transformation: ${{ steps.add-exp.outputs.transformation }}
       matrix: ${{ steps.add-exp.outputs.matrix }}
     runs-on: ubuntu-latest
     steps:
