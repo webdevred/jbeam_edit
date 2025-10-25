@@ -1,47 +1,76 @@
 program JbeamRenameVertices;
 
 uses
-SysUtils, Windows;
+crt, SysUtils, Windows;
 
 var
-   filePath, src, dst, answer: string;
-   renameArgs: string;
+   filePath, src, dst, answer, renameArgs: string;
+   row: integer;
+
+procedure PrintHeader;
+begin
+   textcolor(yellow);
+   clrscr;
+   gotoxy(10,1);
+   writeln('===============================');
+   gotoxy(10,2);
+   writeln('    JBeam Rename Vertices      ');
+   gotoxy(10,3);
+   writeln('===============================');
+   textcolor(white);
+end;
 
 begin
    SetConsoleOutputCP(CP_UTF8);
-
-   Write('Enter file: ');
-   ReadLn(filePath);
-
    renameArgs := '';
+   row := 5;
+
+   PrintHeader;
+
+   gotoxy(5,row);
+   write('Enter file: ');
+   readln(filePath);
+   inc(row,2);
 
    repeat
-      Write('Source (what to replace): ');
-      ReadLn(src);
+      gotoxy(5,row);
+      write('Source (what to replace): ');
+      readln(src);
+      inc(row);
 
-      Write('Replacement (to what): ');
-      ReadLn(dst);
+      gotoxy(5,row);
+      write('Replacement (to what): ');
+      readln(dst);
+      inc(row);
 
       if renameArgs <> '' then
          renameArgs := renameArgs + ',';
       renameArgs := renameArgs + src + ':' + dst;
 
-      Write('Do you want to add more? (y/n): ');
-      ReadLn(answer);
-
+      gotoxy(5,row);
+      write('Add more replacements? (y/n): ');
+      readln(answer);
+      inc(row,2);
    until LowerCase(answer) <> 'y';
 
-   Writeln;
-   Writeln('> jbeam-edit -i -n "', renameArgs, '" "', filePath, '"');
+   textcolor(lightcyan);
+   gotoxy(5,row);
+   writeln('Command: jbeam-edit -i -n "', renameArgs, '" "', filePath, '"');
+   textcolor(white);
+   inc(row,2);
 
-   if ShellExecute(0, 'open',
-                   PChar('jbeam-edit'),
+   if ShellExecute(0, 'open', PChar('jbeam-edit'),
                    PChar('-i -n "' + renameArgs + '" "' + filePath + '"'),
                    nil, SW_SHOWNORMAL) <= 32 then
    begin
-      Writeln('Could not run jbeam-edit. Is it in PATH?');
+      textcolor(red);
+      gotoxy(5,row);
+      writeln('Could not run jbeam-edit. Is it in PATH?');
+      textcolor(white);
+      inc(row,2);
    end;
 
-   Writeln;
-   Writeln('Done!');
+   gotoxy(5,row);
+   writeln('Done!');
+   readln;
 end.
