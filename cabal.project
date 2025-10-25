@@ -2,6 +2,9 @@ packages: .
 optimization: False
 tests: False
 
+package *
+  ghc-options: -split-sections
+
 package jbeam-edit
   tests: False
   flags: -dump-ast -transformation -lsp-server -windows-example-paths
