@@ -13,14 +13,14 @@ module Core.Node (
 ) where
 
 import Data.Scientific (Scientific)
+import Data.Sequence (Seq)
 import Data.Text (Text)
-import Data.Vector (Vector)
 
-type Object = Vector Node
+type Object = Seq Node
 
 type ObjectKey = (Node, Node)
 
-type Array = Vector Node
+type Array = Seq Node
 
 data AssociationDirection = PreviousNode | NextNode
   deriving (Eq, Ord, Read, Show)

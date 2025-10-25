@@ -6,8 +6,8 @@ import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS (readFile)
 import Data.Text qualified as T
 import Data.Text.Encoding (encodeUtf8)
-import Data.Vector (fromList)
 import Data.Void (Void)
+import GHC.IsList
 import Parsing.Common.Helpers
 import Parsing.Jbeam
 import SpecHelper

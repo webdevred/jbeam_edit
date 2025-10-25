@@ -30,7 +30,6 @@ tested-with: [GHC == 9.4.7, GHC == 9.6.6]
 dependencies:
   - base >= 4.17 && < 5
   - bytestring >= 0.12
-  - vector >= 0.13
   - text >= 2.1
   - containers >= 0.6
   - megaparsec >= 9.6

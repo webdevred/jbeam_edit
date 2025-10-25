@@ -20,10 +20,10 @@ import Data.Bool (bool)
 import Data.Char (isSpace)
 import Data.List (uncons)
 import Data.Scientific (FPFormat (Fixed), formatScientific)
+import Data.Sequence (Seq (..))
+import Data.Sequence qualified as Seq (null)
 import Data.Text (Text)
 import Data.Text qualified as T
-import Data.Vector (Vector)
-import Data.Vector qualified as V (null, toList)
 import Formatting.Rules (
   RuleSet (..),
   applyPadLogic,
@@ -32,6 +32,7 @@ import Formatting.Rules (
   newRuleSet,
   noComplexNewLine,
  )
+import GHC.IsList
 
 addDelimiters
   :: RuleSet -> Int -> NC.NodeCursor -> Bool -> [Text] -> [Node] -> [Text]
@@ -69,10 +70,10 @@ applyIndentation n s
   | T.all isSpace s = s
   | otherwise = T.replicate n " " <> s
 
-doFormatNode :: RuleSet -> NC.NodeCursor -> Vector Node -> Text
+doFormatNode :: RuleSet -> NC.NodeCursor -> Seq Node -> Text
 doFormatNode rs cursor nodes =
   let formatted =
-        reverse . addDelimiters rs 0 cursor complexChildren [] . V.toList $
+        reverse . addDelimiters rs 0 cursor complexChildren [] . toList $
           nodes
       indentationAmount = lookupIndentProperty rs cursor
    in if complexChildren
@@ -98,10 +99,10 @@ formatScalarNode _ = error "Unhandled scalar node"
 
 formatWithCursor :: RuleSet -> NC.NodeCursor -> Node -> Text
 formatWithCursor rs cursor (Array a)
-  | V.null a = "[]"
+  | Seq.null a = "[]"
   | otherwise = T.concat ["[", doFormatNode rs cursor a, "]"]
 formatWithCursor rs cursor (Object o)
-  | V.null o = "{}"
+  | Seq.null o = "{}"
   | otherwise = T.concat ["{", doFormatNode rs cursor o, "}"]
 formatWithCursor rs cursor (ObjectKey (k, v)) =
   let formatWithKeyContext = NC.applyObjCrumb k cursor (formatWithCursor rs)

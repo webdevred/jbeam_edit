@@ -1,6 +1,6 @@
 module Core.NodeSpec (spec) where
 
-import Data.Vector qualified as V
+import GHC.IsList
 import SpecHelper
 
 spec :: Spec
@@ -12,7 +12,7 @@ spec = do
     )
   describe "isObjectNode" . works $
     ( do
-        isObjectNode (Object (V.singleton (ObjectKey (String "test", Number 1))))
+        isObjectNode (Object (fromList [(ObjectKey (String "test", Number 1))]))
           `shouldBe` True
         isObjectNode (Number 123) `shouldBe` False
     )
@@ -29,7 +29,7 @@ spec = do
   describe "isComplexNode" . works $
     ( do
         isComplexNode (Number 123) `shouldBe` False
-        isComplexNode (Object (V.singleton (ObjectKey (String "test", Number 1))))
+        isComplexNode (Object (fromList [ObjectKey (String "test", Number 1)]))
           `shouldBe` True
-        isComplexNode (Array (V.fromList [String "test", Number 1])) `shouldBe` True
+        isComplexNode (Array (fromList [String "test", Number 1])) `shouldBe` True
     )

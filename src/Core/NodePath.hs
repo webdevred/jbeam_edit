@@ -9,10 +9,10 @@ module Core.NodePath (
 ) where
 
 import Core.Node qualified as N (Node (..))
+import Data.Foldable qualified as F (find)
 import Data.Sequence (Seq (..))
 import Data.Text (Text)
-import Data.Vector qualified as V
-import GHC.IsList (IsList (..))
+import GHC.IsList
 
 data NodeSelector
   = ArrayIndex Int
@@ -42,18 +42,18 @@ In case the selector matches nodes at a certain point in the tree.
 And queryNodes allows use to chain the Selectors as a NodePath and perform complex queries.
 -}
 select :: NodeSelector -> N.Node -> Maybe N.Node
-select (ArrayIndex i) (N.Array ns) = getNthElem 0 (V.toList ns)
+select (ArrayIndex i) (N.Array ns) = getNthElem 0 (toList ns)
   where
     getNthElem _ [] = Nothing
     getNthElem curIndex ((N.Comment _) : rest) = getNthElem curIndex rest
     getNthElem curIndex (curElem : rest)
       | curIndex == i = Just curElem
       | otherwise = getNthElem (curIndex + 1) rest
-select (ObjectKey k) (N.Object ns) = extractValInKey =<< V.find compareKey ns
+select (ObjectKey k) (N.Object ns) = extractValInKey =<< F.find compareKey ns
   where
     compareKey (N.ObjectKey (N.String keyText, _)) = keyText == k
     compareKey _ = False
-select (ObjectIndex i) (N.Object a) = getNthKey 0 (V.toList a)
+select (ObjectIndex i) (N.Object a) = getNthKey 0 (toList a)
   where
     getNthKey _ [] = Nothing
     getNthKey curIndex ((N.ObjectKey (_, value)) : rest)
