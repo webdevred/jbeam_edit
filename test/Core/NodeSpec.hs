@@ -12,7 +12,7 @@ spec = do
     )
   describe "isObjectNode" . works $
     ( do
-        isObjectNode (Object (fromList [(ObjectKey (String "test", Number 1))]))
+        isObjectNode (Object (fromList [ObjectKey (String "test", Number 1)]))
           `shouldBe` True
         isObjectNode (Number 123) `shouldBe` False
     )

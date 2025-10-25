@@ -9,21 +9,24 @@ import System.IO qualified as IO (readFile)
 import Test.Hspec
 
 spec :: Spec
-spec = describe "JBeam LSP Formatter" $ do
-  it "formats a single JBeam file with a single JBFL rule correctly" $ do
-    runSession
+spec =
+  ( describe "JBeam LSP Formatter"
+      . it "formats a single JBeam file with a single JBFL rule correctly"
+  )
+    . runSession
       ("jbeam-lsp-test-server " <> ("examples" </> "ast" </> "jbfl" </> "minimal.hs"))
       fullLatestClientCaps
       "examples"
-      $ do
-        let jbeamFile = "jbeam" </> "fender.jbeam"
-            expectedFile = "examples" </> "formatted_jbeam" </> "fender-minimal-jbfl.jbeam"
+    $ ( do
+          let jbeamFile = "jbeam" </> "fender.jbeam"
+              expectedFile = "examples" </> "formatted_jbeam" </> "fender-minimal-jbfl.jbeam"
 
-        doc <- openDoc jbeamFile "jbeam"
+          doc <- openDoc jbeamFile "jbeam"
 
-        formatDoc doc (LSP.FormattingOptions 0 False Nothing Nothing Nothing)
+          formatDoc doc (LSP.FormattingOptions 0 False Nothing Nothing Nothing)
 
-        formatted <- documentContents doc
-        expected <- liftIO (T.pack <$> IO.readFile expectedFile)
+          formatted <- documentContents doc
+          expected <- liftIO (T.pack <$> IO.readFile expectedFile)
 
-        liftIO $ formatted `shouldBe` expected
+          liftIO $ formatted `shouldBe` expected
+      )
