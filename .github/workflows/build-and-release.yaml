@@ -109,7 +109,7 @@ jobs:
           path: exe/jbeam-rename-vertices/jbeam-rename-vertices.exe
   prepare-for-release:
     runs-on: windows-latest
-    needs: [get-newest-supported-ghc]
+    needs: [build-for-release, build-pascal-ui, get-newest-supported-ghc]
     name: Prepare release for Windows
     strategy:
       matrix: ${{ fromJSON(needs.get-newest-supported-ghc.outputs.matrix) }}
