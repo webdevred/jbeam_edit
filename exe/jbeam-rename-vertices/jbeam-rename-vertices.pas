@@ -1,7 +1,7 @@
 program JbeamRenameVertices;
 
 uses
-crt, SysUtils, Windows;
+WinCRT, SysUtils, Windows;
 
 var
    filePath, src, dst, answer, renameArgs: string;
