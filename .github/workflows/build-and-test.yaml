@@ -34,9 +34,9 @@ jobs:
       - name: Extract resolver
         id: extract
         shell: bash
-        run: |
-          RESOLVER=$(grep -E '^(snapshot|resolver):' stack.yaml | awk '{ print $2 }')
-          echo "resolver=$RESOLVER" >> $GITHUB_OUTPUT
+        run: bash ./.github/scripts/extract_resolver_and_flags_for_stack.sh
+        env:
+          CABAL_FILE: jbeam-edit.cabal
       - name: Cache global Stack dependencies
         uses: actions/cache@v4.3.0
         with:
@@ -45,7 +45,7 @@ jobs:
             stack-global-${{ matrix.os }}-${{
               steps.extract.outputs.resolver
             }}-${{
-              hashFiles('stack.yaml.lock')
+              hashFiles('stack.yaml', '**/stack.yaml.lock')
             }}
           restore-keys: |
             stack-global-${{ matrix.os }}-${{ steps.extract.outputs.resolver }}-
@@ -58,7 +58,7 @@ jobs:
             stack-local-${{ matrix.os }}-${{
               steps.extract.outputs.resolver
             }}-${{
-              hashFiles('**/stack.yaml.lock', '**/package.yaml')
+              hashFiles('**/stack.yaml', '**/stack.yaml.lock', '**/package.yaml')
             }}
           restore-keys: |
             stack-local-${{ matrix.os }}-${{ steps.extract.outputs.resolver }}-

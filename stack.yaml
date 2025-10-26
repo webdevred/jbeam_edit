@@ -3,6 +3,7 @@ packages: [.]
 
 flags:
   jbeam-edit:
+    lsp-server: false
     transformation: false
     dump-ast: false
     windows-example-paths: false
