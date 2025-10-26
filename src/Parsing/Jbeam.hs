@@ -15,10 +15,10 @@ import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
 import Data.Functor (($>))
 import Data.Maybe (isNothing)
+import Data.Sequence qualified as Seq (fromList)
 import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Text.Encoding (decodeUtf8)
-import Data.Vector qualified as V (fromList)
 import Data.Void (Void)
 import Parsing.Common
 import Text.Megaparsec ((<?>), (<|>))
@@ -134,7 +134,7 @@ arrayParser = do
   elems <- MP.sepEndBy nodeParser separatorParser
   _ <- MP.optional separatorParser
   _ <- byteChar ']'
-  pure . Array . V.fromList $ elems
+  pure . Array . Seq.fromList $ elems
 
 objectKeyParser :: JbeamParser Node
 objectKeyParser = do
@@ -155,7 +155,7 @@ objectParser = do
   keys <- MP.some (commentParser <|> objectKeyParser)
   _ <- MP.optional separatorParser
   _ <- byteChar '}'
-  pure . Object . V.fromList $ keys
+  pure . Object . Seq.fromList $ keys
 
 topNodeParser :: JbeamParser Node
 topNodeParser = nodeParser <* skipWhiteSpace <* MP.eof

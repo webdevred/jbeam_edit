@@ -15,11 +15,10 @@ import Data.List.NonEmpty qualified as NE
 import Data.Map qualified as M
 import Data.Set qualified as S
 import Data.Text qualified as T
-import Data.Vector qualified as V
 import Types
 
 newVertex :: Node -> Maybe Vertex
-newVertex (Array ns) = f . V.toList $ ns
+newVertex (Array ns) = f . toList $ ns
   where
     f [String name, Number x, Number y, Number z, Object m] =
       Just (Vertex {vName = name, vX = x, vY = y, vZ = z, vMeta = Just m})
@@ -104,7 +103,7 @@ metaMapFromObject :: Node -> MetaMap
 metaMapFromObject (Object objKeys) =
   let toKV (ObjectKey (String k, v)) = Just (k, v)
       toKV _ = Nothing
-   in M.fromList . mapMaybe toKV $ V.toList objKeys
+   in M.fromList . mapMaybe toKV $ toList objKeys
 metaMapFromObject _ = M.empty
 
 toInternalComment :: Node -> Maybe InternalComment
@@ -207,7 +206,7 @@ nodesListToTree brks nodes =
 
 objectKeysToObjects :: Map Text Node -> [Node]
 objectKeysToObjects =
-  map (\(key, value) -> Object . V.singleton $ ObjectKey (String key, value))
+  map (\(key, value) -> Object . pure $ ObjectKey (String key, value))
     . M.assocs
 
 extractFirstVertex
@@ -259,7 +258,7 @@ getVertexForest brks np topNode =
     processNode (Array ns)
       | null ns = Left "empty array at vertex path"
       | otherwise =
-          case V.toList ns of
+          case toList ns of
             (header : nodesWithoutHeader)
               | isValidVertexHeader header ->
                   case nonEmpty nodesWithoutHeader of
@@ -275,5 +274,5 @@ getVertexForest brks np topNode =
 
 isValidVertexHeader :: Node -> Bool
 isValidVertexHeader (Array header) =
-  V.length header == 4 && all isStringNode header
+  length header == 4 && all isStringNode header
 isValidVertexHeader _ = False
