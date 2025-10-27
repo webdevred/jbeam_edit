@@ -1,28 +1,26 @@
 cradle:
-  multi:
-    - path: ./examples/ast
-      config:
-        cradle:
-          none:
-    - path: ./
-      config:
-        cradle:
-          cabal:
-            cabalProject: ./cabal.project.dev
-            components:
-              - path: ./src
-                component: lib:jbeam-edit
-              - path: ./src-extra/transformation
-                component: jbeam-edit:lib:jbeam-edit-transformation
-              - path: ./src-extra/language-server
-                component: jbeam-edit:lib:jbeam-language-server
-              - path: ./exe/jbeam-edit
-                component: exe:jbeam-edit
-              - path: ./exe/jbeam-lsp-server
-                component: jbeam-edit:exe:jbeam-lsp-server
-              - path: ./tools/lsp-test-server
-                component: jbeam-edit:exe:jbeam-lsp-test-server
-              - path: ./tools/dump_ast
-                component: exe:jbeam-edit-dump-ast
-              - path: ./test
-                component: test:jbeam-edit-test
+  cabal:
+    cabalProject: ./cabal.project.dev
+    components:
+      - path: ./src
+        component: lib:jbeam-edit
+      - path: ./src-extra/transformation
+        component: jbeam-edit:lib:jbeam-edit-transformation
+      - path: ./src-extra/language-server
+        component: jbeam-edit:lib:jbeam-language-server
+      - path: ./exe/jbeam-edit/Main.hs
+        component: jbeam-edit:exe:jbeam-edit
+      - path: ./exe/jbeam-edit/CommandLineOptions.hs
+        component: jbeam-edit:exe:jbeam-edit
+      - path: ./tools/dump_ast/Main.hs
+        component: jbeam-edit:exe:jbeam-edit-dump-ast
+      - path: ./exe/jbeam-lsp-server/Main.hs
+        component: jbeam-edit:exe:jbeam-lsp-server
+      - path: ./tools/lsp-test-server/Main.hs
+        component: jbeam-edit:exe:jbeam-lsp-test-server
+      - path: ./test
+        component: jbeam-edit:test:jbeam-edit-test
+      - path: ./test-extra/transformation
+        component: jbeam-edit:test:jbeam-edit-transformation-test
+      - path: ./test-extra/language-server
+        component: jbeam-edit:test:jbeam-language-server-test
