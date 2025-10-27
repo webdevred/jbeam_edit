@@ -162,9 +162,6 @@ tests:
     when:
       - condition: true
         dependencies: [hspec-megaparsec>=2.2]
-      - condition: flag(transformation)
-        dependencies: [jbeam-edit-transformation]
-        cpp-options: -DENABLE_TRANSFORMATION_TESTS
   jbeam-language-server-test:
     <<: *jbeam-test-common
     source-dirs: test-extra/language-server
@@ -172,5 +169,16 @@ tests:
       - condition: flag(lsp-server) && impl(ghc >= 9.6.6)
         then:
           dependencies: [jbeam-language-server, lsp-test, lsp>=2.7]
+        else:
+          buildable: false
+  jbeam-edit-transformation-test:
+    <<: *jbeam-test-common
+    main: Main.hs
+    build-tools: []
+    source-dirs: test-extra/transformation
+    when:
+      - condition: flag(transformation)
+        then:
+          dependencies: [jbeam-edit-transformation]
         else:
           buildable: false

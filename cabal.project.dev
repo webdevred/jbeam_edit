@@ -7,6 +7,9 @@ package *
   documentation: True
   library-for-ghci: True
 
+package bitvec
+  library-for-ghci: False
+
 package jbeam-edit
   tests: True
   haddock-executables: True
