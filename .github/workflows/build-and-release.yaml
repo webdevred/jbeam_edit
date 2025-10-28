@@ -15,7 +15,7 @@ jobs:
     steps:
       - name: Extract the tested GHC versions
         id: get-latest-version
-        uses: Kleidukos/get-tested@ad5997403fac9419a0ea8cc0fb44fe270e6c139b
+        uses: Kleidukos/get-tested@6e361c980f1f5462df8804a6fb24e3ef04218406
         with:
           cabal-file: jbeam-edit.cabal
           windows-version: latest
