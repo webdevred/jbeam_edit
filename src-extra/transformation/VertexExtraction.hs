@@ -11,6 +11,8 @@ import Core.Node
 import Data.Char (isDigit)
 import Types
 
+import Data.Map.Ordered (OMap)
+import Data.Map.Ordered qualified as OMap
 import Core.NodePath qualified as NP
 import Data.List.NonEmpty qualified as NE
 import Data.Map qualified as M
@@ -94,13 +96,14 @@ insertTreeInForest ttype vt f =
     else
         M.insert ttype (one vt) f
 
-insertTreeInList :: VertexTree -> NonEmpty VertexTree -> NonEmpty VertexTree
-insertTreeInList (VertexTree _ newComments newVertexGroups) vts@((VertexTree oldIndex _ _) :| _) =
-  VertexTree
-    { tIndex = (+ 1) <$> oldIndex
-    , tComments = newComments
-    , tAnnotatedVertices = newVertexGroups
-    } NE.<| vts
+insertTreeInList :: VertexTree -> OMap Text VertexTree -> OMap Text VertexTree
+insertTreeInList (VertexTree _ newComments newVertexGroups) vts =
+    let oldIndex = (tIndex . snd) =<< OMap.elemAt vts 0
+    in VertexTree
+           { tIndex = (+ 1) <$> oldIndex
+           , tComments = newComments
+           , tAnnotatedVertices = newVertexGroups
+           } OMap.<| vts
 
 isSupportVertex :: Vertex -> Bool
 isSupportVertex v =
