@@ -123,27 +123,35 @@ jobs:
         uses: kleidukos/get-tested@v0.1.9.0
         with:
           cabal-file: jbeam-edit.cabal
-          ubuntu-version: 22.04
+          ubuntu-version: 24.04
           version: 0.1.9.0
   build-with-cabal:
     if: github.event.pull_request.draft != true
     name: Build and test with Cabal (GHC ${{ matrix.ghc }})
     needs: generate-matrix
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix: ${{ fromJSON(needs.generate-matrix.outputs.matrix) }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
+      - name: Get Cabal version
+        run: |
+          cabal_version=$(apt-cache show cabal-install | awk '/^Version:/ { split($2, a, "-"); print a[1] }')
+          echo "$cabal_version"
+          echo "cabal-version=${cabal_version}" >>"$GITHUB_OUTPUT"
+        id: cabal-version
       - name: Set up GHC ${{ matrix.ghc }} and Cabal
         id: setup-ghc
         uses: haskell-actions/setup@v2.8.2
         with:
           ghc-version: ${{ matrix.ghc }}
           cabal-version: latest
+          # cabal-version: ${{ steps.cabal-version.outputs.cabal-version }}
       - name: Log GHC and Cabal outputs
         run: |-
           echo "GHC Version: ${{ steps.setup-ghc.outputs.ghc-version }}"
+          echo "Cabal Version: ${{ steps.setup-ghc.outputs.cabal-version }}"
           echo "Cabal Store Path: ${{ steps.setup-ghc.outputs.cabal-store }}"
           echo "get-tested latest: ${{ matrix.newest }}"
           echo "get-tested oldest: ${{ matrix.oldest }}"
