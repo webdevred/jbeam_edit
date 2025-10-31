@@ -18,7 +18,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: ubuntu-latest
+          - os: ubuntu-22.04
             runner: ubuntu-latest
             stack-paths: |
               ~/.stack
@@ -123,7 +123,7 @@ jobs:
         uses: kleidukos/get-tested@v0.1.9.0
         with:
           cabal-file: jbeam-edit.cabal
-          ubuntu-version: latest
+          ubuntu-version: 22.04
           version: 0.1.9.0
   build-with-cabal:
     if: github.event.pull_request.draft != true
