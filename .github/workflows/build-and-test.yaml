@@ -120,7 +120,7 @@ jobs:
     steps:
       - name: Extract the tested GHC versions
         id: set-matrix
-        uses: kleidukos/get-tested@6e361c980f1f5462df8804a6fb24e3ef04218406
+        uses: kleidukos/get-tested@v0.1.9.0
         with:
           cabal-file: jbeam-edit.cabal
           ubuntu-version: latest
