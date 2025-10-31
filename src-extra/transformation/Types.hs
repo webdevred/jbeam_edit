@@ -1,6 +1,7 @@
 module Types (
   VertexForest,
   VertexTree (..),
+  VertexTreeKey (..),
   VertexTreeType (..),
   Vertex (..),
   AnnotatedVertex (..),
@@ -9,15 +10,17 @@ module Types (
   UpdateNamesMap,
 ) where
 
-import Data.Map.Ordered
 import Core.Node
+import Data.Map.Ordered
 import Data.Scientific (Scientific)
 import Data.Yaml.Aeson (
   FromJSON (..),
   withText,
  )
 
-type VertexForest = Map VertexTreeType (OMap Text VertexTree)
+data VertexTreeKey = SupportKey | PrefixKey Text
+
+type VertexForest = Map VertexTreeType (OMap VertexTreeKey VertexTree)
 
 data VertexTreeType
   = LeftTree
@@ -36,8 +39,8 @@ instance FromJSON VertexTreeType where
       _ -> fail $ "Unknown VertexTreeType: " ++ toString t
 
 data VertexTree = VertexTree
-  { tIndex :: Maybe Int,
-    tComments :: [InternalComment]
+  { tIndex :: Maybe Int
+  , tComments :: [InternalComment]
   , tAnnotatedVertices :: NonEmpty AnnotatedVertex
   }
   deriving (Show)

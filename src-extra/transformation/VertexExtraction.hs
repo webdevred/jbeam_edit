@@ -89,21 +89,22 @@ breakVertices vertexPrefix allVertexNames ns = go [] ns allVertexNames
       where
         maybeVertex = newVertex node
 
-insertTreeInForest :: VertexTreeType -> VertexTree -> VertexForest -> VertexForest
-insertTreeInForest ttype vt f =
+insertTreeInForest :: Maybe Text -> VertexTreeType -> VertexTree -> VertexForest -> VertexForest
+insertTreeInForest prefix ttype vt f =
     if M.member ttype f then
-        M.update (Just . insertTreeInList vt) ttype f
+        M.update (Just . insertTreeInList key vt) ttype f
     else
-        M.insert ttype (one vt) f
+        M.insert ttype (OMap.singleton (key, vt)) f
+    where key = maybe SupportKey PrefixKey prefix
 
-insertTreeInList :: VertexTree -> OMap Text VertexTree -> OMap Text VertexTree
-insertTreeInList (VertexTree _ newComments newVertexGroups) vts =
+insertTreeInList :: VertexTreeKey -> VertexTree -> OMap VertexTreeKey VertexTree -> OMap VertexTreeKey VertexTree
+insertTreeInList prefix (VertexTree _ newComments newVertexGroups) vts =
     let oldIndex = (tIndex . snd) =<< OMap.elemAt vts 0
-    in VertexTree
+    in (prefix, VertexTree
            { tIndex = (+ 1) <$> oldIndex
            , tComments = newComments
            , tAnnotatedVertices = newVertexGroups
-           } OMap.<| vts
+           }) OMap.<| vts
 
 isSupportVertex :: Vertex -> Bool
 isSupportVertex v =
@@ -178,7 +179,7 @@ newVertexTree brks vertexNames vertexForest nodes =
                   vertexTree = VertexTree (Just 0) topComments avNE
                in case determineGroup brks (aVertex firstAV) of
                     Just treeType ->
-                      let updatedForest = insertTreeInForest treeType vertexTree vertexForest
+                      let updatedForest = insertTreeInForest vertexPrefix treeType vertexTree vertexForest
                        in Right (vertexNames', treeType, vertexTree, updatedForest, rest')
                     Nothing -> Left "invalid breakpoint"
 
