@@ -124,7 +124,7 @@ jobs:
         with:
           cabal-file: jbeam-edit.cabal
           ubuntu-version: latest
-          version: get-tested-head
+          version: 0.1.9.0
   build-with-cabal:
     if: github.event.pull_request.draft != true
     name: Build and test with Cabal (GHC ${{ matrix.ghc }})

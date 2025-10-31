@@ -19,7 +19,7 @@ jobs:
         with:
           cabal-file: jbeam-edit.cabal
           windows-version: latest
-          version: get-tested-head
+          version: 0.1.9.0
           newest: true
       - uses: actions/checkout@v5
       - name: Add experimental flags
