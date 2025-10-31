@@ -18,7 +18,7 @@ import Data.Yaml.Aeson (
   withText,
  )
 
-data VertexTreeKey = SupportKey | PrefixKey Text
+data VertexTreeKey = SupportKey | PrefixKey Text   deriving (Eq, Ord, Show)
 
 type VertexForest = Map VertexTreeType (OMap VertexTreeKey VertexTree)
 

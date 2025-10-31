@@ -8,17 +8,17 @@ module VertexExtraction (
 
 import Config
 import Core.Node
-import Data.Char (isDigit)
-import Types
-
-import Data.Map.Ordered (OMap)
-import Data.Map.Ordered qualified as OMap
 import Core.NodePath qualified as NP
+import Data.Char (isDigit)
 import Data.List.NonEmpty qualified as NE
 import Data.Map qualified as M
+import Data.Map.Ordered (OMap)
+import Data.Map.Ordered qualified as OMap
 import Data.Set qualified as S
 import Data.Text qualified as T
 import Data.Vector qualified as V
+import Relude.Unsafe (fromJust)
+import Types
 
 newVertex :: Node -> Maybe Vertex
 newVertex (Array ns) = f . V.toList $ ns
@@ -89,22 +89,32 @@ breakVertices vertexPrefix allVertexNames ns = go [] ns allVertexNames
       where
         maybeVertex = newVertex node
 
-insertTreeInForest :: Maybe Text -> VertexTreeType -> VertexTree -> VertexForest -> VertexForest
+insertTreeInForest
+  :: Maybe Text -> VertexTreeType -> VertexTree -> VertexForest -> VertexForest
 insertTreeInForest prefix ttype vt f =
-    if M.member ttype f then
-        M.update (Just . insertTreeInList key vt) ttype f
+  if M.member ttype f
+    then
+      M.update (Just . insertTreeInList key vt) ttype f
     else
-        M.insert ttype (OMap.singleton (key, vt)) f
-    where key = maybe SupportKey PrefixKey prefix
+      M.insert ttype (OMap.singleton (key, vt)) f
+  where
+    key = maybe SupportKey PrefixKey prefix
 
-insertTreeInList :: VertexTreeKey -> VertexTree -> OMap VertexTreeKey VertexTree -> OMap VertexTreeKey VertexTree
+insertTreeInList
+  :: VertexTreeKey
+  -> VertexTree
+  -> OMap VertexTreeKey VertexTree
+  -> OMap VertexTreeKey VertexTree
 insertTreeInList prefix (VertexTree _ newComments newVertexGroups) vts =
-    let oldIndex = (tIndex . snd) =<< OMap.elemAt vts 0
-    in (prefix, VertexTree
-           { tIndex = (+ 1) <$> oldIndex
-           , tComments = newComments
-           , tAnnotatedVertices = newVertexGroups
-           }) OMap.<| vts
+  let oldIndex = (tIndex . snd) =<< OMap.elemAt vts 0
+   in ( prefix
+      , VertexTree
+          { tIndex = (+ 1) <$> oldIndex
+          , tComments = newComments
+          , tAnnotatedVertices = newVertexGroups
+          }
+      )
+        OMap.<| vts
 
 isSupportVertex :: Vertex -> Bool
 isSupportVertex v =
@@ -218,11 +228,13 @@ objectKeysToObjects =
     . M.assocs
 
 extractFirstVertex
-  :: NonEmpty VertexTree -> (AnnotatedVertex, [AnnotatedVertex])
-extractFirstVertex (firstTree :| otherTrees) =
-    let (VertexTree _ _ (firstAV :| otherFirstAVs)) = firstTree
-        rest = otherFirstAVs ++ concatMap (\(VertexTree _ _ vs) -> NE.toList vs) otherTrees
-    in (firstAV, rest)
+  :: OMap VertexTreeKey VertexTree -> (AnnotatedVertex, [AnnotatedVertex])
+extractFirstVertex vts =
+  let (key, firstTree) = fromJust $ OMap.elemAt vts 0
+      otherTrees = OMap.delete key vts
+      (VertexTree _ _ (firstAV :| otherFirstAVs)) = firstTree
+      rest = otherFirstAVs ++ concatMap (\(VertexTree _ _ vs) -> NE.toList vs) otherTrees
+   in (firstAV, rest)
 
 getVertexForestGlobals
   :: Node
@@ -235,7 +247,9 @@ getVertexForestGlobals header (treeType, vertexTrees) =
 
       vertices =
         otherFirstTreeVertices
-          ++ concatMap (NE.toList . tAnnotatedVertices) (concatMap NE.toList $ M.elems  vertexTrees)
+          ++ concatMap
+            (\(_, tree) -> NE.toList . tAnnotatedVertices $ tree)
+            (concatMap OMap.assocs $ M.elems vertexTrees)
 
       isGlobal k v =
         let otherVs = map (M.lookup k . aMeta) vertices
@@ -245,7 +259,7 @@ getVertexForestGlobals header (treeType, vertexTrees) =
       setLocals (AnnotatedVertex c v m) = AnnotatedVertex c v (M.union m localsMap)
       updatedForest =
         M.update
-          (Just . NE.map (\(VertexTree i c gs) -> VertexTree i c (NE.map setLocals gs)))
+          (Just . fmap (\(VertexTree i c gs) -> VertexTree i c (NE.map setLocals gs)))
           treeType
           vertexTrees
 
