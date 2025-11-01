@@ -35,16 +35,28 @@ vertexConns topNode vsPerType = case NP.queryNodes beamQuery topNode of
   Just (Array beams) -> Right $ go beams
   _ -> Left $ "could not find " <> show beamQuery
   where
+    typeMap :: Map Text VertexTreeType
+    typeMap = typeForNames vsPerType
+
+    updateConn :: VertexTreeType -> Text -> VertexConnMap -> VertexConnMap
+    updateConn vtype key =
+      M.insertWith
+        (M.unionWith (+))
+        vtype
+        (M.singleton key 1)
+
     go :: Vector Node -> ([Node], VertexConnMap)
     go beams =
-      let (badNodes, beamNames) = mapResult possiblyBeam beams
-          typeMap = typeForNames vsPerType
-          fun vtype (beam1, beam2) = increaseBeamCount vtype beam1 beam2 . increaseBeamCount vtype beam2 beam1
-          increaseBeamCount vtype beamName otherBeam beamAcc =
-            if M.lookup otherBeam typeMap == Just vtype
-              then
-                M.insertWith (+) beamName 1 beamAcc
-              else
-                beamAcc
-          connCountPerType vtype _ = M.insert vtype (foldr (fun vtype) M.empty beamNames)
-       in (badNodes, M.foldrWithKey connCountPerType M.empty vsPerType)
+      let (badNodes, beamPairs) = mapResult possiblyBeam beams
+          connMap = foldr updateForPair M.empty beamPairs
+       in (badNodes, connMap)
+
+    updateForPair :: (Text, Text) -> VertexConnMap -> VertexConnMap
+    updateForPair (beam1, beam2) acc =
+      let acc' = case M.lookup beam2 typeMap of
+            Just t -> updateConn t beam1 acc
+            Nothing -> acc
+          acc'' = case M.lookup beam1 typeMap of
+            Just t' -> updateConn t' beam2 acc'
+            Nothing -> acc'
+       in acc''
