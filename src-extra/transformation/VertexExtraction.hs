@@ -105,12 +105,11 @@ insertTreeInList
   -> VertexTree
   -> OMap VertexTreeKey VertexTree
   -> OMap VertexTreeKey VertexTree
-insertTreeInList prefix (VertexTree _ newComments newVertexGroups) vts =
-  let oldIndex = (tIndex . snd) =<< OMap.elemAt vts 0
+insertTreeInList prefix (VertexTree newComments newVertexGroups) vts =
+  let
    in ( prefix
       , VertexTree
-          { tIndex = (+ 1) <$> oldIndex
-          , tComments = newComments
+          { tComments = newComments
           , tAnnotatedVertices = newVertexGroups
           }
       )
@@ -186,7 +185,7 @@ newVertexTree brks vertexNames vertexForest nodes =
             Left err -> Left err
             Right avNE ->
               let firstAV = head avNE
-                  vertexTree = VertexTree (Just 0) topComments avNE
+                  vertexTree = VertexTree topComments avNE
                in case determineGroup brks (aVertex firstAV) of
                     Just treeType ->
                       let updatedForest = insertTreeInForest vertexPrefix treeType vertexTree vertexForest
@@ -232,8 +231,8 @@ extractFirstVertex
 extractFirstVertex vts =
   let (key, firstTree) = fromJust $ OMap.elemAt vts 0
       otherTrees = OMap.delete key vts
-      (VertexTree _ _ (firstAV :| otherFirstAVs)) = firstTree
-      rest = otherFirstAVs ++ concatMap (\(VertexTree _ _ vs) -> NE.toList vs) otherTrees
+      (VertexTree _ (firstAV :| otherFirstAVs)) = firstTree
+      rest = otherFirstAVs ++ concatMap (\(VertexTree _ vs) -> NE.toList vs) otherTrees
    in (firstAV, rest)
 
 getVertexForestGlobals
@@ -259,7 +258,7 @@ getVertexForestGlobals header (treeType, vertexTrees) =
       setLocals (AnnotatedVertex c v m) = AnnotatedVertex c v (M.union m localsMap)
       updatedForest =
         M.update
-          (Just . fmap (\(VertexTree i c gs) -> VertexTree i c (NE.map setLocals gs)))
+          (Just . fmap (\(VertexTree c gs) -> VertexTree c (NE.map setLocals gs)))
           treeType
           vertexTrees
 
