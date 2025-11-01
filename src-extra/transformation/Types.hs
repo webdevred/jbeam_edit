@@ -58,6 +58,6 @@ data AnnotatedVertex = AnnotatedVertex
 
 type MetaMap = Map Text Node
 
-type VertexConnMap = Map Text Int
+type VertexConnMap = Map VertexTreeType (Map Text Int)
 
 type UpdateNamesMap = Map Text Text

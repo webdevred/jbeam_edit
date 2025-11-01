@@ -24,15 +24,39 @@ possiblyBeam node
             _ -> Nothing
         _ -> Nothing
 
-vertexConns :: Node -> Either Text ([Node], VertexConnMap)
-vertexConns topNode = case NP.queryNodes beamQuery topNode of
+typeForNames :: Map VertexTreeType [AnnotatedVertex] -> Map Text VertexTreeType
+typeForNames groupedVs = M.fromList [(vName $ aVertex v, t) | (t, vs) <- M.toList groupedVs, v <- vs]
+
+vertexConns
+  :: Node
+  -> Map VertexTreeType [AnnotatedVertex]
+  -> Either Text ([Node], VertexConnMap)
+vertexConns topNode vsPerType = case NP.queryNodes beamQuery topNode of
   Just (Array beams) -> Right $ go beams
   _ -> Left $ "could not find " <> show beamQuery
   where
+    typeMap :: Map Text VertexTreeType
+    typeMap = typeForNames vsPerType
+
+    updateConn :: VertexTreeType -> Text -> VertexConnMap -> VertexConnMap
+    updateConn vtype key =
+      M.insertWith
+        (M.unionWith (+))
+        vtype
+        (M.singleton key 1)
+
     go :: Vector Node -> ([Node], VertexConnMap)
     go beams =
-      let (badNodes, beamNames) = mapResult possiblyBeam beams
-          fun (beam1, beam2) = increaseBeamCount beam1 . increaseBeamCount beam2
-          increaseBeamCount beamName = M.insertWith (+) beamName 1
-          connCountMap = foldr fun M.empty beamNames
-       in (badNodes, connCountMap)
+      let (badNodes, beamPairs) = mapResult possiblyBeam beams
+          connMap = foldr updateForPair M.empty beamPairs
+       in (badNodes, connMap)
+
+    updateForPair :: (Text, Text) -> VertexConnMap -> VertexConnMap
+    updateForPair (beam1, beam2) acc =
+      let acc' = case M.lookup beam2 typeMap of
+            Just t -> updateConn t beam1 acc
+            Nothing -> acc
+          acc'' = case M.lookup beam1 typeMap of
+            Just t' -> updateConn t' beam2 acc'
+            Nothing -> acc'
+       in acc''
