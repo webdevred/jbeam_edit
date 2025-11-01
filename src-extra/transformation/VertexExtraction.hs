@@ -2,7 +2,6 @@ module VertexExtraction (
   getVertexForest,
   determineGroup,
   determineGroup',
-  combineTrees,
   metaMapFromObject,
   dropIndex,
 ) where
@@ -13,9 +12,12 @@ import Core.NodePath qualified as NP
 import Data.Char (isDigit)
 import Data.List.NonEmpty qualified as NE
 import Data.Map qualified as M
+import Data.Map.Ordered (OMap)
+import Data.Map.Ordered qualified as OMap
 import Data.Set qualified as S
 import Data.Text qualified as T
 import Data.Vector qualified as V
+import Relude.Unsafe (fromJust)
 import Types
 
 newVertex :: Node -> Maybe Vertex
@@ -87,12 +89,31 @@ breakVertices vertexPrefix allVertexNames ns = go [] ns allVertexNames
       where
         maybeVertex = newVertex node
 
-combineTrees :: VertexTree -> VertexTree -> VertexTree
-combineTrees (VertexTree _ newVertexGroups) (VertexTree oldComments oldVertexGroups) =
-  VertexTree
-    { tComments = oldComments
-    , tAnnotatedVertices = oldVertexGroups <> newVertexGroups
-    }
+insertTreeInForest
+  :: Maybe Text -> VertexTreeType -> VertexTree -> VertexForest -> VertexForest
+insertTreeInForest prefix ttype vt f =
+  if M.member ttype f
+    then
+      M.update (Just . insertTreeInList key vt) ttype f
+    else
+      M.insert ttype (OMap.singleton (key, vt)) f
+  where
+    key = maybe SupportKey PrefixKey prefix
+
+insertTreeInList
+  :: VertexTreeKey
+  -> VertexTree
+  -> OMap VertexTreeKey VertexTree
+  -> OMap VertexTreeKey VertexTree
+insertTreeInList prefix (VertexTree newComments newVertexGroups) vts =
+  let
+   in ( prefix
+      , VertexTree
+          { tComments = newComments
+          , tAnnotatedVertices = newVertexGroups
+          }
+      )
+        OMap.<| vts
 
 isSupportVertex :: Vertex -> Bool
 isSupportVertex v =
@@ -120,40 +141,39 @@ addCommentToAn ic (AnnotatedVertex comments vertex meta) = AnnotatedVertex (ic :
 nodesToAnnotatedVertices
   :: MetaMap
   -> [Node]
-  -> Either Text ([Node], NonEmpty AnnotatedVertex)
-nodesToAnnotatedVertices initialMeta nodes = go initialMeta [] nodes ([], [])
+  -> Either Text (NonEmpty AnnotatedVertex)
+nodesToAnnotatedVertices initialMeta nodes = go initialMeta [] nodes []
   where
-    go _ _ [] (badNodes, acc) =
+    go _ _ [] acc =
       case reverse acc of
         [] -> Left "no vertices found"
-        revAcc -> Right (badNodes, fromList revAcc)
-    go pendingMeta pendingComments (n : ns) acc@(badNodes, vertices) =
+        revAcc -> Right $ fromList revAcc
+    go pendingMeta pendingComments (n : ns) acc =
       case newVertex n of
         Just v ->
           let av = AnnotatedVertex (reverse pendingComments) v pendingMeta
-           in go pendingMeta [] ns (badNodes, av : vertices)
+           in go pendingMeta [] ns (av : acc)
         Nothing
           | isObjectNode n ->
               let newMeta = M.union (metaMapFromObject n) pendingMeta
                in go newMeta pendingComments ns acc
           | isCommentNode n ->
-              case (toInternalComment n, vertices) of
+              case (toInternalComment n, acc) of
                 (Just ic@(InternalComment _ _ PreviousNode), an : ans) ->
-                  go pendingMeta pendingComments ns (badNodes, addCommentToAn ic an : ans)
+                  go pendingMeta pendingComments ns (addCommentToAn ic an : ans)
                 (Just ic, _) ->
                   go pendingMeta (ic : pendingComments) ns acc
                 (Nothing, _) ->
                   go pendingMeta pendingComments ns acc
-          | otherwise -> go pendingMeta pendingComments ns (n : badNodes, vertices)
+          | otherwise -> go pendingMeta pendingComments ns acc
 
 newVertexTree
   :: XGroupBreakpoints
   -> Set Text
-  -> [Node]
   -> VertexForest
   -> NonEmpty Node
-  -> Either Text (Set Text, [Node], VertexTreeType, VertexTree, VertexForest, [Node])
-newVertexTree brks vertexNames badAcc vertexForest nodes =
+  -> Either Text (Set Text, VertexTreeType, VertexTree, VertexForest, [Node])
+newVertexTree brks vertexNames vertexForest nodes =
   let (topNodes, nodes') = NE.span isNonVertex nodes
       topComments = mapMaybe toInternalComment topNodes
       topMeta = M.unions . map metaMapFromObject . filter isObjectNode $ topNodes
@@ -163,14 +183,13 @@ newVertexTree brks vertexNames badAcc vertexForest nodes =
         Right (vertexNames', vertexNodes, rest') ->
           case nodesToAnnotatedVertices topMeta vertexNodes of
             Left err -> Left err
-            Right (badNodes, avNE) ->
-              let firstAv = head avNE
-                  vertexTree = VertexTree topComments (one avNE)
-               in case determineGroup' brks (aVertex firstAv) of
+            Right avNE ->
+              let firstAV = head avNE
+                  vertexTree = VertexTree topComments avNE
+               in case determineGroup brks (aVertex firstAV) of
                     Just treeType ->
-                      let updatedForest = M.insertWith combineTrees treeType vertexTree vertexForest
-                       in Right
-                            (vertexNames', badNodes ++ badAcc, treeType, vertexTree, updatedForest, rest')
+                      let updatedForest = insertTreeInForest vertexPrefix treeType vertexTree vertexForest
+                       in Right (vertexNames', treeType, vertexTree, updatedForest, rest')
                     Nothing -> Left "invalid breakpoint"
 
 determineGroup :: XGroupBreakpoints -> Vertex -> Maybe VertexTreeType
@@ -185,25 +204,22 @@ determineGroup' brks v
   | otherwise = determineGroup brks v
 
 nodesListToTree
-  :: XGroupBreakpoints
-  -> NonEmpty Node
-  -> Either Text ([Node], VertexTreeType, VertexForest)
+  :: XGroupBreakpoints -> NonEmpty Node -> Either Text (VertexTreeType, VertexForest)
 nodesListToTree brks nodes =
-  case newVertexTree brks S.empty [] M.empty nodes of
+  case newVertexTree brks S.empty M.empty nodes of
     Left err -> Left err
-    Right
-      (vertexNames, badNodes, firstTreeType, _firstVertexTree, vertexForest, rest) ->
-        case nonEmpty rest of
-          Nothing -> Right (badNodes, firstTreeType, vertexForest)
-          Just nonEmptyRest -> go vertexNames badNodes vertexForest nonEmptyRest firstTreeType
+    Right (vertexNames, firstTreeType, _firstVertexTree, vertexForest, rest) ->
+      case nonEmpty rest of
+        Nothing -> Right (firstTreeType, vertexForest)
+        Just nonEmptyRest -> go vertexNames vertexForest nonEmptyRest firstTreeType
   where
-    go vertexNames badNodes acc rest firstTreeType =
-      case newVertexTree brks vertexNames badNodes acc rest of
+    go vertexNames acc rest firstTreeType =
+      case newVertexTree brks vertexNames acc rest of
         Left err -> Left err
-        Right (vertexNames', badNodes', _treeType, _vt, acc', rest') ->
+        Right (vertexNames', _treeType, _vt, acc', rest') ->
           case nonEmpty rest' of
-            Nothing -> Right (badNodes <> badNodes', firstTreeType, acc')
-            Just ne -> go vertexNames' (badNodes <> badNodes') acc' ne firstTreeType
+            Nothing -> Right (firstTreeType, acc')
+            Just ne -> go vertexNames' acc' ne firstTreeType
 
 objectKeysToObjects :: Map Text Node -> [Node]
 objectKeysToObjects =
@@ -211,25 +227,28 @@ objectKeysToObjects =
     . M.assocs
 
 extractFirstVertex
-  :: NonEmpty (NonEmpty AnnotatedVertex) -> (AnnotatedVertex, [AnnotatedVertex])
-extractFirstVertex (firstGroup :| otherGroups) =
-  let x :| xs = firstGroup
-      rest = xs ++ concatMap NE.toList otherGroups
-   in (x, rest)
+  :: OMap VertexTreeKey VertexTree -> (AnnotatedVertex, [AnnotatedVertex])
+extractFirstVertex vts =
+  let (key, firstTree) = fromJust $ OMap.elemAt vts 0
+      otherTrees = OMap.delete key vts
+      (VertexTree _ (firstAV :| otherFirstAVs)) = firstTree
+      rest = otherFirstAVs ++ concatMap (\(VertexTree _ vs) -> NE.toList vs) otherTrees
+   in (firstAV, rest)
 
 getVertexForestGlobals
-  :: [Node]
-  -> Node
+  :: Node
   -> (VertexTreeType, VertexForest)
-  -> Either Text ([Node], NonEmpty Node, VertexForest)
-getVertexForestGlobals badNodes header (treeType, vertexTrees) =
+  -> Either Text (NonEmpty Node, VertexForest)
+getVertexForestGlobals header (treeType, vertexTrees) =
   let firstVertexTree = vertexTrees M.! treeType
 
-      (firstVertex, otherFirstTreeVertices) = extractFirstVertex (tAnnotatedVertices firstVertexTree)
+      (firstVertex, otherFirstTreeVertices) = extractFirstVertex firstVertexTree
 
       vertices =
         otherFirstTreeVertices
-          ++ concatMap (NE.toList . sconcat . tAnnotatedVertices) (M.elems vertexTrees)
+          ++ concatMap
+            (\(_, tree) -> NE.toList . tAnnotatedVertices $ tree)
+            (concatMap OMap.assocs $ M.elems vertexTrees)
 
       isGlobal k v =
         let otherVs = map (M.lookup k . aMeta) vertices
@@ -239,18 +258,18 @@ getVertexForestGlobals badNodes header (treeType, vertexTrees) =
       setLocals (AnnotatedVertex c v m) = AnnotatedVertex c v (M.union m localsMap)
       updatedForest =
         M.update
-          (\(VertexTree c gs) -> Just $ VertexTree c (NE.map (NE.map setLocals) gs))
+          (Just . fmap (\(VertexTree c gs) -> VertexTree c (NE.map setLocals gs)))
           treeType
           vertexTrees
 
       globalNodes = objectKeysToObjects globalsMap
-   in Right (badNodes, header :| globalNodes, updatedForest)
+   in Right (header :| globalNodes, updatedForest)
 
 getVertexForest
   :: XGroupBreakpoints
   -> NP.NodePath
   -> Node
-  -> Either Text ([Node], NonEmpty Node, VertexForest)
+  -> Either Text (NonEmpty Node, VertexForest)
 getVertexForest brks np topNode =
   case NP.queryNodes np topNode of
     Nothing -> Left $ "could not find vertices at path " <> show np
@@ -267,8 +286,8 @@ getVertexForest brks np topNode =
                     Just ne ->
                       case nodesListToTree brks ne of
                         Left err -> Left err
-                        Right (badNodes, firstTreeType, vertexForest) ->
-                          getVertexForestGlobals badNodes header (firstTreeType, vertexForest)
+                        Right (firstTreeType, vertexForest) ->
+                          getVertexForestGlobals header (firstTreeType, vertexForest)
               | otherwise -> Left "invalid vertex header"
             _ -> Left "missing vertex header"
     processNode bad = Left $ "expected Array at vertex path, got: " <> show bad

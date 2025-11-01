@@ -1,6 +1,7 @@
 module Types (
   VertexForest,
   VertexTree (..),
+  VertexTreeKey (..),
   VertexTreeType (..),
   Vertex (..),
   AnnotatedVertex (..),
@@ -10,13 +11,16 @@ module Types (
 ) where
 
 import Core.Node
+import Data.Map.Ordered
 import Data.Scientific (Scientific)
 import Data.Yaml.Aeson (
   FromJSON (..),
   withText,
  )
 
-type VertexForest = Map VertexTreeType VertexTree
+data VertexTreeKey = SupportKey | PrefixKey Text   deriving (Eq, Ord, Show)
+
+type VertexForest = Map VertexTreeType (OMap VertexTreeKey VertexTree)
 
 data VertexTreeType
   = LeftTree
@@ -36,7 +40,7 @@ instance FromJSON VertexTreeType where
 
 data VertexTree = VertexTree
   { tComments :: [InternalComment]
-  , tAnnotatedVertices :: NonEmpty (NonEmpty AnnotatedVertex)
+  , tAnnotatedVertices :: NonEmpty AnnotatedVertex
   }
   deriving (Show)
 
