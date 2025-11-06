@@ -1,7 +1,9 @@
 # JBeam Tool in Haskell
 
-[![Build and test](https://github.com/webdevred/jbeam_edit/actions/workflows/build-and-test.yaml/badge.svg?branch=master&event=push)](https://github.com/webdevred/jbeam_edit/actions/workflows/build-and-test.yaml)
-[![Build and test with latest GHC](https://github.com/webdevred/jbeam_edit/actions/workflows/future-proofing.yaml/badge.svg?event=schedule)](https://github.com/webdevred/jbeam_edit/actions/workflows/future-proofing.yaml)
+[![Build & test (dev)](https://github.com/webdevred/jbeam_edit/actions/workflows/build-and-test.yaml/badge.svg)](https://github.com/webdevred/jbeam_edit/actions/workflows/build-and-test.yaml)
+[![Build & test (latest)](https://github.com/webdevred/jbeam_edit/actions/workflows/future-proofing.yaml/badge.svg?branch=master&event=schedule)](https://github.com/webdevred/jbeam_edit/actions/workflows/future-proofing.yaml)
+[![Build for release](https://github.com/webdevred/jbeam_edit/actions/workflows/build-and-release.yaml/badge.svg?branch=master)](https://github.com/webdevred/jbeam_edit/actions/workflows/build-and-release.yaml)
+[![Lint & format](https://github.com/webdevred/jbeam_edit/actions/workflows/lint-and-format.yaml/badge.svg?branch=master)](https://github.com/webdevred/jbeam_edit/actions/workflows/lint-and-format.yaml)
 
 <!--toc:start-->
 - [JBeam Tool in Haskell](#jbeam-tool-in-haskell)
