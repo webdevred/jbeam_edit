@@ -1,4 +1,4 @@
-name: Build and test with latest GHC
+name: Build & test (latest GHC & deps)
 
 on:
   push:
