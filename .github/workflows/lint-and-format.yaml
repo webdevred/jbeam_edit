@@ -1,4 +1,4 @@
-name: Lint and format Haskell code
+name: Lint & format
 
 on:
   push:
