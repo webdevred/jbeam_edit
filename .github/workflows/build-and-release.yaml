@@ -108,7 +108,7 @@ jobs:
   prepare-for-release:
     runs-on: windows-latest
     needs: [build-for-release, get-newest-supported-ghc]
-    name: Prepare release for Windows
+    name: Prepare release for Windows (${{ matrix.ghc }} (${{ matrix.label}})
     strategy:
       matrix: ${{ fromJSON(needs.get-newest-supported-ghc.outputs.matrix) }}
     env:
