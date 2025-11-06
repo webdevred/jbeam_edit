@@ -181,9 +181,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-cabal-${{ matrix.ghc }}-
       - name: Build project (GHC ${{ steps.setup-ghc.outputs.ghc-version }})
-        run: cabal build --project-file cabal.project.ci all
-      - name: Build LSP test server
         run: |
-          cabal install exe:jbeam-lsp-test-server --project-file cabal.project.ci || true
+          cabal build --project-file cabal.project.ci all
+          cabal install exe:jbeam-lsp-test-server --project-file cabal.project.ci
       - name: Run tests (GHC ${{ steps.setup-ghc.outputs.ghc-version }})
         run: cabal test --project-file cabal.project.ci
