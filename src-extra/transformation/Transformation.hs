@@ -6,14 +6,15 @@ import Core.Node
 import Core.NodeCursor (newCursor)
 import Core.NodeCursor qualified as NC
 import Core.NodePath qualified as NP
-import Data.List (partition)
-import Data.List.NonEmpty qualified as NE
 import Data.Map qualified as M
 import Data.Scientific (Scientific)
+import Data.Semigroup.Foldable (fold1)
 import Data.Sequence (Seq (..))
 import Data.Text qualified as T
 import Data.Vector (Vector, (!), (!?), (//))
 import Data.Vector qualified as V
+import Data.Vector.NonEmpty (NonEmptyVector)
+import Data.Vector.NonEmpty qualified as NEV
 import SupportVertex
 import Types
 import VertexExtraction
@@ -39,44 +40,39 @@ sideComment t = InternalComment (sideCommentText t) False NextNode
 buildTreeForType
   :: VertexForest
   -> VertexTreeType
-  -> [AnnotatedVertex]
+  -> Vector AnnotatedVertex
   -> Maybe VertexTree
 buildTreeForType originalForest treeType groupsOrig =
-  nonEmpty groupsOrig >>= go
+  NEV.fromVector groupsOrig >>= go
   where
     go ne =
       let origTree = M.lookup treeType originalForest
-          topComments = maybe [] tComments origTree
+          topComments = maybe V.empty tComments origTree
           topComments' =
             if null topComments
-              then sideComment treeType : topComments
+              then V.singleton $ sideComment treeType
               else topComments
        in ( Just $
-              VertexTree topComments' (one ne)
+              VertexTree topComments' (NEV.singleton ne)
           )
 
 addPrefixComments
-  :: VertexTreeType
-  -> NonEmpty (NonEmpty AnnotatedVertex)
-  -> NonEmpty (NonEmpty AnnotatedVertex)
-addPrefixComments SupportTree avs = avs
-addPrefixComments _ (av :| []) = one av
-addPrefixComments _ (av :| avs) = av :| map addToAnnotatedVertex avs
-  where
-    addToAnnotatedVertex ((AnnotatedVertex comments vertex meta) :| avs') =
-      let commentName = dropIndex $ vName vertex
-          newComment = InternalComment ("prefix group " <> commentName) False NextNode
-       in AnnotatedVertex (newComment : comments) vertex meta :| avs'
+  :: NonEmptyVector
+       (NonEmptyVector AnnotatedVertex)
+  -> NonEmptyVector
+       (NonEmptyVector AnnotatedVertex)
+addPrefixComments _ = undefined
 
 groupByPrefix
-  :: NonEmpty AnnotatedVertex
-  -> NonEmpty (NonEmpty AnnotatedVertex)
-groupByPrefix = NE.groupWith1 (dropIndex . vName . aVertex)
+  :: NonEmptyVector AnnotatedVertex
+  -> NonEmptyVector
+       (NonEmptyVector AnnotatedVertex)
+groupByPrefix = undefined
 
 addVertexTreeToForest
   :: UpdateNamesMap
   -> TransformationConfig
-  -> Map VertexTreeType [AnnotatedVertex]
+  -> Map VertexTreeType (Vector AnnotatedVertex)
   -> VertexForest
   -> VertexForest
   -> VertexTreeType
@@ -91,17 +87,17 @@ addVertexTreeToForest newNames tf grouped forest forestAcc t =
                   groupsSorted =
                     if t /= SupportTree
                       then
-                        concatMap
-                          (NE.toList . sortVertices t newNames tf)
-                          (NE.toList groupsToSort)
+                        foldMap
+                          (NEV.toVector . sortVertices t newNames tf)
+                          (NEV.toVector groupsToSort)
                       else
-                        concatMap NE.toList groupsToSort
-               in case nonEmpty groupsSorted of
+                        foldMap NEV.toVector groupsToSort
+               in case NEV.fromVector groupsSorted of
                     Just groupsSorted' ->
                       let prefixCommentedGroups =
-                            addPrefixComments t . groupByPrefix $ groupsSorted'
+                            addPrefixComments . groupByPrefix $ groupsSorted'
                           vt' = vt {tAnnotatedVertices = prefixCommentedGroups}
-                       in Right (M.insert t vt' forestAcc)
+                       in Right $ M.insert t vt' forestAcc
                     Nothing -> Right forestAcc
             Nothing -> Right forestAcc
     Nothing -> Right forestAcc
@@ -109,10 +105,10 @@ addVertexTreeToForest newNames tf grouped forest forestAcc t =
 groupAnnotatedVertices
   :: XGroupBreakpoints
   -> AnnotatedVertex
-  -> Maybe (VertexTreeType, [AnnotatedVertex])
+  -> Maybe (VertexTreeType, Vector AnnotatedVertex)
 groupAnnotatedVertices brks g = do
   treeType <- determineGroup' brks (aVertex g)
-  pure (treeType, [g])
+  pure (treeType, pure g)
 
 updateSupportVertexName
   :: VertexTreeType
@@ -130,14 +126,14 @@ moveSupportVertices
   :: UpdateNamesMap
   -> TransformationConfig
   -> VertexConnMap
-  -> M.Map VertexTreeType [AnnotatedVertex]
-  -> (VertexForest, M.Map VertexTreeType [AnnotatedVertex])
+  -> M.Map VertexTreeType (Vector AnnotatedVertex)
+  -> (VertexForest, Map VertexTreeType (Vector AnnotatedVertex))
 moveSupportVertices newNames tfCfg connMap vsPerType =
   let supportVertices :: [(VertexTreeType, AnnotatedVertex)]
       supportVertices =
         [ (vType, av)
         | (vType, vs) <- M.toList vsPerType
-        , av <- vs
+        , av <- toList vs
         , let name = vName (aVertex av)
         , let vertexCount = length vs
               thrCount =
@@ -148,21 +144,24 @@ moveSupportVertices newNames tfCfg connMap vsPerType =
 
       vertexForest :: VertexForest
       vertexForest =
-        case nonEmpty supportVertices of
+        case NEV.fromList supportVertices of
           Nothing -> M.empty
           Just vs ->
             one
               ( SupportTree
               , VertexTree
-                  [sideComment SupportTree]
-                  ( one $
-                      sortSupportVertices newNames tfCfg (NE.map (uncurry updateSupportVertexName) vs)
+                  (V.singleton $ sideComment SupportTree)
+                  ( NEV.singleton $
+                      sortSupportVertices
+                        newNames
+                        tfCfg
+                        (NEV.map (uncurry updateSupportVertexName) vs)
                   )
               )
 
-      remainingVertices :: M.Map VertexTreeType [AnnotatedVertex]
+      remainingVertices :: M.Map VertexTreeType (Vector AnnotatedVertex)
       remainingVertices =
-        M.map (filter (`notElemByVertexName` map snd supportVertices)) vsPerType
+        M.map (V.filter (`notElemByVertexName` V.map snd (V.fromList supportVertices))) vsPerType
    in (vertexForest, remainingVertices)
 
 notElemByVertexName
@@ -177,11 +176,11 @@ moveVerticesInVertexForest
   -> VertexForest
   -> Either Text ([Node], VertexForest)
 moveVerticesInVertexForest topNode newNames tfCfg vertexTrees =
-  let allVertices = concatMap (NE.toList . sconcat . tAnnotatedVertices) vertexTrees
+  let allVertices = concatMap (toList . NEV.toVector . fold1 . tAnnotatedVertices) vertexTrees
       brks = xGroupBreakpoints tfCfg
    in case mapM (groupAnnotatedVertices brks) allVertices of
         Just movableVertices' -> do
-          let groupedVertices = M.fromListWith (++) movableVertices'
+          let groupedVertices = M.fromListWith (<>) movableVertices'
           (badBeamNodes, conns) <-
             vertexConns (maxSupportCoordinates tfCfg) topNode groupedVertices
           let (supportForest, nonSupportVertices) =
@@ -207,28 +206,28 @@ getVertexNamesInForest =
           M.fromList $
             map
               (\av -> let v = aVertex av in ((vX v, vY v, vZ v), vName v))
-              (NE.toList $ sconcat groups)
+              (NEV.toList $ fold1 groups)
       )
 
 vertexTreeToNodesWithPrev
   :: MetaMap
   -> VertexTreeType
   -> VertexTree
-  -> (MetaMap, NonEmpty Node)
+  -> (MetaMap, NonEmptyVector Node)
 vertexTreeToNodesWithPrev prevMeta _ (VertexTree topComments groups) =
-  let topNodes = map Comment topComments
+  let topNodes = V.map Comment topComments
 
       stepVertex pm av =
         let (nodes, newMeta) = annotatedVertexToNodesWithPrev pm av
-         in (newMeta, NE.fromList nodes)
+         in (newMeta, NEV.unsafeFromVector nodes)
 
       stepGroup pm avGroup =
         let (finalMeta', nodesLists) = mapAccumL stepVertex pm avGroup
-         in (finalMeta', sconcat nodesLists)
+         in (finalMeta', fold1 nodesLists)
 
       (finalMeta, groupNodesLists) = mapAccumL stepGroup prevMeta groups
 
-      allNodes = topNodes `NE.prependList` sconcat groupNodesLists
+      allNodes = NEV.unsafeFromVector $ topNodes <> NEV.toVector (fold1 groupNodesLists)
    in (finalMeta, allNodes)
 
 removeIdenticalMeta :: MetaMap -> MetaMap -> MetaMap
@@ -241,18 +240,19 @@ removeIdenticalMeta = M.differenceWithKey diff
 annotatedVertexToNodesWithPrev
   :: MetaMap
   -> AnnotatedVertex
-  -> ([Node], MetaMap)
+  -> (Vector Node, MetaMap)
 annotatedVertexToNodesWithPrev prevMeta (AnnotatedVertex comments vertex meta) =
   let localsMeta = removeIdenticalMeta meta prevMeta
 
       newPrevMeta = M.union localsMeta prevMeta
 
       metaNodes =
-        [ Object (V.singleton (ObjectKey (String k, v)))
-        | (k, v) <- M.assocs localsMeta
-        ]
+        V.fromList
+          [ Object (V.singleton (ObjectKey (String k, v)))
+          | (k, v) <- M.assocs localsMeta
+          ]
 
-      (postComments, preComments) = partition commentIsAttachedToPreviousNode comments
+      (postComments, preComments) = V.partition commentIsAttachedToPreviousNode comments
 
       vertexArray :: Node
       vertexArray =
@@ -262,10 +262,10 @@ annotatedVertexToNodesWithPrev prevMeta (AnnotatedVertex comments vertex meta) =
             z = Number (vZ vertex)
             possiblyMeta = maybe [] (one . Object) (vMeta vertex)
          in Array . V.fromList $ [name, x, y, z] ++ possiblyMeta
-   in ( map Comment preComments
-          ++ metaNodes
-          ++ one vertexArray
-          ++ map Comment postComments
+   in ( V.map Comment preComments
+          <> metaNodes
+          <> V.singleton vertexArray
+          <> V.map Comment postComments
       , newPrevMeta
       )
 
@@ -276,7 +276,7 @@ vertexForestToNodeVector initialMeta vf =
           Nothing -> (prevMeta, [])
           Just tree ->
             let (prevMeta', nodes) = vertexTreeToNodesWithPrev prevMeta treeType tree
-             in (prevMeta', NE.toList nodes)
+             in (prevMeta', NEV.toList nodes)
 
       (_, listsOfNodes) = mapAccumL step initialMeta treesOrder
    in V.fromList . concat $ listsOfNodes
@@ -318,8 +318,6 @@ assignNames newNames brks treeType prefixMap av =
       prefix = dropIndex (vName v)
       typeSpecific = maybe "" prefixForType (determineGroup brks v)
       (prefix', lastChar) = fromMaybe (error "unreachable") (T.unsnoc prefix)
-      isLmr = lastChar `elem` ['l', 'm', 'r']
-      supportPrefixChar = one 's' <> bool typeSpecific (one lastChar) isLmr
       cleanPrefix
         | treeType /= SupportTree
             && T.length prefix >= 3
@@ -327,7 +325,7 @@ assignNames newNames brks treeType prefixMap av =
             updatedPrefix (T.init prefix') <> typeSpecific
         | treeType /= SupportTree
             && T.length prefix >= 3
-            && isLmr =
+            && lastChar `elem` ['l', 'm', 'r'] =
             updatedPrefix prefix' <> typeSpecific
         | treeType /= SupportTree =
             updatedPrefix prefix <> typeSpecific
@@ -335,9 +333,9 @@ assignNames newNames brks treeType prefixMap av =
             && T.last prefix' == 's' =
             updatedPrefix (T.init prefix') <> one 's' <> typeSpecific
         | T.length prefix' < 2 =
-            updatedPrefix prefix <> supportPrefixChar
+            updatedPrefix prefix <> one 's' <> typeSpecific
         | otherwise =
-            updatedPrefix prefix' <> supportPrefixChar
+            updatedPrefix prefix' <> one 's' <> typeSpecific
       lastIdx = M.findWithDefault 0 cleanPrefix prefixMap
       newName = renameVertexId treeType lastIdx cleanPrefix
       newVertex = v {vName = newName}
@@ -347,36 +345,40 @@ assignNames newNames brks treeType prefixMap av =
 sortSupportVertices
   :: UpdateNamesMap
   -> TransformationConfig
-  -> NonEmpty AnnotatedVertex
-  -> NonEmpty AnnotatedVertex
+  -> NonEmptyVector AnnotatedVertex
+  -> NonEmptyVector AnnotatedVertex
 sortSupportVertices = sortVertices SupportTree
 
 sortVertices
   :: VertexTreeType
   -> UpdateNamesMap
   -> TransformationConfig
-  -> NonEmpty AnnotatedVertex
-  -> NonEmpty AnnotatedVertex
+  -> NonEmptyVector AnnotatedVertex
+  -> NonEmptyVector AnnotatedVertex
 sortVertices treeType newNames tfCfg groups =
   let thr = zSortingThreshold tfCfg
       brks = xGroupBreakpoints tfCfg
       groups' =
         if treeType /= SupportTree
           then
-            sconcat . groupByPrefix $ groups
+            fold1 . groupByPrefix $ groups
           else groups
-      sortedGroups = NE.sortBy (compareAV thr treeType) groups'
+      sortedGroups = undefined
 
-      renamedGroups = snd $ mapAccumL (assignNames newNames brks treeType) M.empty sortedGroups
+      renamedGroups =
+        snd $ mapAccumL (assignNames newNames brks treeType) M.empty sortedGroups
    in renamedGroups
 
 updateVerticesInNode
-  :: NP.NodePath -> VertexForest -> NE.NonEmpty Node -> Node -> Node
+  :: NP.NodePath
+  -> VertexForest
+  -> NonEmptyVector Node
+  -> Node
+  -> Node
 updateVerticesInNode (NP.NodePath Empty) g globals (Array _) =
-  let globalsList = NE.toList globals
-      initialMeta =
-        M.unions (map metaMapFromObject (NE.toList globals))
-   in Array (V.fromList globalsList <> vertexForestToNodeVector initialMeta g)
+  let initialMeta =
+        M.unions (toList $ V.map metaMapFromObject (NEV.toVector globals))
+   in Array (NEV.toVector globals <> vertexForestToNodeVector initialMeta g)
 updateVerticesInNode (NP.NodePath ((NP.ArrayIndex i) :<| qrest)) g globals (Array children) =
   let updateInNode nodeToUpdate =
         children
@@ -435,4 +437,4 @@ transform newNames tfCfg topNode =
           newTopNode =
             findAndUpdateTextInNode updateMap newCursor $
               updateVerticesInNode verticesQuery updatedVertexForest globals topNode
-       in Right (badVertexNodes, badBeamNodes, newTopNode)
+       in Right (toList badVertexNodes, badBeamNodes, newTopNode)

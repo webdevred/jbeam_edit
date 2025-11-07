@@ -4,6 +4,7 @@ import Core.Node
 import Core.NodePath qualified as NP
 import Core.Result
 import Data.Map qualified as M
+import Data.Vector (Vector)
 import Data.Vector qualified as V
 import Types
 
@@ -26,14 +27,14 @@ possiblyBeam node
 vertexConns
   :: Int
   -> Node
-  -> Map VertexTreeType [AnnotatedVertex]
+  -> Map VertexTreeType (Vector AnnotatedVertex)
   -> Either Text ([Node], VertexConnMap)
 vertexConns maxX topNode vsPerType = case NP.queryNodes beamQuery topNode of
   Just (Array beams) -> Right $ go beams
   _ -> Left $ "could not find " <> show beamQuery
   where
     go beams =
-      let (badNodes, beamPairs) = mapResult possiblyBeam beams
+      let (badNodes, beamPairs) = mapResult possiblyBeam (V.toList beams)
 
           counts :: Map Text Int
           counts =
@@ -54,7 +55,7 @@ vertexConns maxX topNode vsPerType = case NP.queryNodes beamQuery topNode of
                     maxX
                     ( sortWith
                         (Down . snd)
-                        ([(v, M.findWithDefault 0 (vName $ aVertex v) counts) | v <- vs])
+                        ([(v, M.findWithDefault 0 (vName $ aVertex v) counts) | v <- V.toList vs])
                     )
               )
               vsPerType
