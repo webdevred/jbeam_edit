@@ -81,7 +81,12 @@ internal-libraries:
     when:
       condition: flag(transformation)
       then:
-        dependencies: [yaml, nonempty-vector, semigroupoids, relude]
+        dependencies:
+          - yaml
+          - nonempty-vector
+          - vector-algorithms
+          - semigroupoids
+          - relude
       else:
         buildable: false
     source-dirs: src-extra/transformation
