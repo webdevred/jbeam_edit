@@ -150,6 +150,7 @@ library jbeam-edit-transformation
         build-depends:
             nonempty-vector,
             relude,
+            semigroupoids,
             yaml
 
     else

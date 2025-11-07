@@ -37,7 +37,7 @@ instance FromJSON VertexTreeType where
       _ -> fail $ "Unknown VertexTreeType: " <> toString t
 
 data VertexTree = VertexTree
-  { tComments :: [InternalComment]
+  { tComments :: Vector InternalComment
   , tAnnotatedVertices :: NonEmptyVector (NonEmptyVector AnnotatedVertex)
   }
   deriving (Show)
