@@ -2,7 +2,7 @@ name: Lint & format
 
 on:
   push:
-    branches: [master]
+    branches: [master, nonempty-vector]
   pull_request:
 
 jobs:

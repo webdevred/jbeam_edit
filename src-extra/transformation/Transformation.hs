@@ -6,9 +6,9 @@ import Core.Node
 import Core.NodeCursor (newCursor)
 import Core.NodeCursor qualified as NC
 import Core.NodePath qualified as NP
+import Data.Foldable1 (fold1)
 import Data.Map qualified as M
 import Data.Scientific (Scientific)
-import Data.Semigroup.Foldable (fold1)
 import Data.Sequence (Seq (..))
 import Data.Text qualified as T
 import Data.Vector (Vector, (!), (!?), (//))
@@ -217,7 +217,7 @@ getVertexNamesInForest =
           M.fromList $
             map
               (\av -> let v = aVertex av in ((vX v, vY v, vZ v), vName v))
-              (NEV.toList $ fold1 groups)
+              (NEV.toList $ VH.fold1 groups)
       )
 
 vertexTreeToNodesWithPrev
@@ -234,11 +234,11 @@ vertexTreeToNodesWithPrev prevMeta _ (VertexTree topComments groups) =
 
       stepGroup pm avGroup =
         let (finalMeta', nodesLists) = mapAccumL stepVertex pm avGroup
-         in (finalMeta', fold1 nodesLists)
+         in (finalMeta', VH.fold1 nodesLists)
 
       (finalMeta, groupNodesLists) = mapAccumL stepGroup prevMeta groups
 
-      allNodes = NEV.unsafeFromVector $ topNodes <> NEV.toVector (fold1 groupNodesLists)
+      allNodes = NEV.unsafeFromVector $ topNodes <> NEV.toVector (VH.fold1 groupNodesLists)
    in (finalMeta, allNodes)
 
 removeIdenticalMeta :: MetaMap -> MetaMap -> MetaMap
@@ -372,7 +372,7 @@ sortVertices treeType newNames tfCfg groups =
       groups' =
         if treeType /= SupportTree
           then
-            fold1 . groupByPrefix $ groups
+            VH.fold1 . groupByPrefix $ groups
           else groups
       sortedGroups = VH.sortBy (compareAV thr treeType) groups'
 

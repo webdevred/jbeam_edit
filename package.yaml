@@ -85,7 +85,6 @@ internal-libraries:
           - yaml
           - nonempty-vector >= 0.2.1
           - vector-algorithms
-          - semigroupoids
           - relude
       else:
         buildable: false
@@ -97,7 +96,7 @@ internal-libraries:
     when:
       condition: flag(lsp-server)
       then:
-        dependencies: [lsp >= 2.7, relude]
+        dependencies: [lsp >= 2.7, lsp-types >= 2.3, relude]
       else:
         buildable: false
     source-dirs: src-extra/language-server

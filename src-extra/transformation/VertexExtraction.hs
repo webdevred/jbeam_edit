@@ -12,7 +12,6 @@ import Core.Node
 import Core.NodePath qualified as NP
 import Data.Char (isDigit)
 import Data.Map qualified as M
-import Data.Semigroup.Foldable (fold1)
 import Data.Set qualified as S
 import Data.Text qualified as T
 import Data.Vector (Vector)
@@ -20,6 +19,7 @@ import Data.Vector qualified as V
 import Data.Vector.NonEmpty (NonEmptyVector)
 import Data.Vector.NonEmpty qualified as NEV
 import Types
+import VectorHelpers qualified as VH
 
 newVertex :: Node -> Maybe Vertex
 newVertex (Array ns) = f . V.toList $ ns
@@ -239,7 +239,7 @@ getVertexForestGlobals badNodes header (treeType, vertexTrees) =
 
       vertices =
         otherFirstTreeVertices
-          <> foldMap (NEV.toVector . fold1 . tAnnotatedVertices) (M.elems vertexTrees)
+          <> foldMap (NEV.toVector . VH.fold1 . tAnnotatedVertices) (M.elems vertexTrees)
 
       isGlobal k v =
         let otherVs = V.map (M.lookup k . aMeta) vertices

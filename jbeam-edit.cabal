@@ -151,7 +151,6 @@ library jbeam-edit-transformation
         build-depends:
             nonempty-vector >=0.2.1,
             relude,
-            semigroupoids,
             vector-algorithms,
             yaml
 
@@ -196,6 +195,7 @@ library jbeam-language-server
     if flag(lsp-server)
         build-depends:
             lsp >=2.7,
+            lsp-types >=2.3,
             relude
 
     else
