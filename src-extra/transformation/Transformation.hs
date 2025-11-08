@@ -162,7 +162,9 @@ moveSupportVertices newNames tfCfg connMap vsPerType =
 
       remainingVertices :: M.Map VertexTreeType (Vector AnnotatedVertex)
       remainingVertices =
-        M.map (V.filter (`notElemByVertexName` V.map snd (V.fromList supportVertices))) vsPerType
+        M.map
+          (V.filter (`notElemByVertexName` V.map snd (V.fromList supportVertices)))
+          vsPerType
    in (vertexForest, remainingVertices)
 
 notElemByVertexName

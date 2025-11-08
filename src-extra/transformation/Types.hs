@@ -11,12 +11,12 @@ module Types (
 
 import Core.Node
 import Data.Scientific (Scientific)
+import Data.Vector
+import Data.Vector.NonEmpty
 import Data.Yaml.Aeson (
   FromJSON (..),
   withText,
  )
-import Data.Vector.NonEmpty
-import Data.Vector
 
 type VertexForest = Map VertexTreeType VertexTree
 
