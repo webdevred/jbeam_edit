@@ -62,7 +62,15 @@ addPrefixComments
        (NonEmptyVector AnnotatedVertex)
   -> NonEmptyVector
        (NonEmptyVector AnnotatedVertex)
-addPrefixComments _ = undefined
+addPrefixComments allAvGroups =
+  let (avGroup, avGroups) = NEV.uncons allAvGroups
+   in avGroup `NEV.consV` V.map addToAnnotatedVertex avGroups
+  where
+    addToAnnotatedVertex avs =
+      let commentName = dropIndex $ vName vertex
+          (AnnotatedVertex comments vertex meta, innerAvs) = NEV.uncons avs
+          newComment = pure $ InternalComment ("prefix group " <> commentName) False NextNode
+       in AnnotatedVertex (newComment <> comments) vertex meta `NEV.consV` innerAvs
 
 groupByPrefix
   :: NonEmptyVector AnnotatedVertex
