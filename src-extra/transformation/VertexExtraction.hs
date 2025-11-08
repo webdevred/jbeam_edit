@@ -85,7 +85,7 @@ breakVertices vertexPrefix allVertexNames ns = go V.empty ns allVertexNames
                 Nothing -> go (V.cons node acc) rest vertexNames
                 Just _
                   | hasVertexPrefix vertexPrefix node
-                      || (isNothing vertexPrefix && any isSupportVertex maybeVertex) ->
+                      || isNothing vertexPrefix && any isSupportVertex maybeVertex ->
                       isCollision node vertexNames >>= go (V.cons node acc) rest
                   | otherwise ->
                       let (metaBefore, currentTree) = V.span isNonVertex acc
