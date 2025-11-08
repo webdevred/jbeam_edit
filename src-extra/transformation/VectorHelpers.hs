@@ -1,7 +1,7 @@
 module VectorHelpers (groupWith1, sortBy) where
 
 import Data.Vector qualified as V
-import Data.Vector.Algorithms.Intro qualified as I (sortBy)
+import Data.Vector.Algorithms.Tim qualified as Tim (sortBy)
 import Data.Vector.NonEmpty (NonEmptyVector)
 import Data.Vector.NonEmpty qualified as NEV
 import Prelude hiding (sortBy)
@@ -24,6 +24,6 @@ sortBy f vec =
     V.create
       ( do
           mvec <- V.thaw (NEV.toVector vec)
-          I.sortBy f mvec
+          Tim.sortBy f mvec
           pure mvec
       )
