@@ -90,7 +90,7 @@ internal-libraries:
       else:
         buildable: false
     source-dirs: src-extra/transformation
-    dependencies: [jbeam-edit]
+    dependencies: [jbeam-edit, vector >= 0.13]
     <<: *jbeam-extra-lib
   jbeam-language-server:
     default-extensions: [DataKinds, PolyKinds]

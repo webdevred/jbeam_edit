@@ -140,7 +140,7 @@ library jbeam-edit-transformation
         mtl,
         scientific,
         text >=2.0,
-        vector
+        vector >=0.13
 
     mixins:
         base hiding (Prelude),
