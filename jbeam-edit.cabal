@@ -149,7 +149,7 @@ library jbeam-edit-transformation
 
     if flag(transformation)
         build-depends:
-            nonempty-vector,
+            nonempty-vector >=0.2.1,
             relude,
             semigroupoids,
             vector-algorithms,

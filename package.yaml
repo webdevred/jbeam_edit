@@ -83,7 +83,7 @@ internal-libraries:
       then:
         dependencies:
           - yaml
-          - nonempty-vector
+          - nonempty-vector >= 0.2.1
           - vector-algorithms
           - semigroupoids
           - relude
