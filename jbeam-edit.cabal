@@ -117,6 +117,7 @@ library jbeam-edit-transformation
         SupportVertex
         Transformation
         Types
+        VectorHelpers
         VertexExtraction
 
     hs-source-dirs:     src-extra/transformation

@@ -17,6 +17,7 @@ import Data.Vector.NonEmpty (NonEmptyVector)
 import Data.Vector.NonEmpty qualified as NEV
 import SupportVertex
 import Types
+import VectorHelpers qualified as VH
 import VertexExtraction
 
 verticesQuery :: NP.NodePath
@@ -67,7 +68,7 @@ groupByPrefix
   :: NonEmptyVector AnnotatedVertex
   -> NonEmptyVector
        (NonEmptyVector AnnotatedVertex)
-groupByPrefix = undefined
+groupByPrefix = VH.groupWith1 (dropIndex . vName . aVertex)
 
 addVertexTreeToForest
   :: UpdateNamesMap
@@ -363,7 +364,7 @@ sortVertices treeType newNames tfCfg groups =
           then
             fold1 . groupByPrefix $ groups
           else groups
-      sortedGroups = undefined
+      sortedGroups = VH.sortBy (compareAV thr treeType) groups'
 
       renamedGroups =
         snd $ mapAccumL (assignNames newNames brks treeType) M.empty sortedGroups
