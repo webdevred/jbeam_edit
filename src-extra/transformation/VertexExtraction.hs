@@ -93,7 +93,7 @@ breakVertices vertexPrefix allVertexNames ns = go V.empty ns allVertexNames
                             then Right (vertexNames, V.singleton node, metaBefore <> rest)
                             else
                               Right
-                                (vertexNames, V.reverse currentTree, V.reverse metaBefore <> V.cons node rest)
+                                (vertexNames, V.reverse currentTree, metaBefore <> V.cons node rest)
 
 combineTrees :: VertexTree -> VertexTree -> VertexTree
 combineTrees (VertexTree _ newVertexGroups) (VertexTree oldComments oldVertexGroups) =
