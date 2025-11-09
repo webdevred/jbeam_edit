@@ -8,22 +8,28 @@ import System.FilePath ((</>))
 import System.IO qualified as IO (readFile)
 import Test.Hspec
 
+exampleJbflFilepath :: FilePath
+exampleJbflFilepath = "examples" </> "ast" </> "jbfl" </> "minimal.hs"
+
 spec :: Spec
-spec = describe "JBeam LSP Formatter" $ do
-  it "formats a single JBeam file with a single JBFL rule correctly" $ do
-    runSession
-      ("jbeam-lsp-test-server " <> ("examples" </> "ast" </> "jbfl" </> "minimal.hs"))
+spec =
+  ( describe "JBeam LSP Formatter"
+      . it "formats a single JBeam file with a single JBFL rule correctly"
+  )
+    . runSession
+      ("jbeam-lsp-test-server " <> exampleJbflFilepath)
       fullLatestClientCaps
       "examples"
-      $ do
-        let jbeamFile = "jbeam" </> "fender.jbeam"
-            expectedFile = "examples" </> "formatted_jbeam" </> "fender-minimal-jbfl.jbeam"
+    $ ( do
+          let jbeamFile = "jbeam" </> "fender.jbeam"
+              expectedFile = "examples" </> "formatted_jbeam" </> "fender-minimal-jbfl.jbeam"
 
-        doc <- openDoc jbeamFile "jbeam"
+          doc <- openDoc jbeamFile "jbeam"
 
-        formatDoc doc (LSP.FormattingOptions 0 False Nothing Nothing Nothing)
+          formatDoc doc (LSP.FormattingOptions 0 False Nothing Nothing Nothing)
 
-        formatted <- documentContents doc
-        expected <- liftIO (T.pack <$> IO.readFile expectedFile)
+          formatted <- documentContents doc
+          expected <- liftIO (T.pack <$> IO.readFile expectedFile)
 
-        liftIO $ formatted `shouldBe` expected
+          liftIO $ formatted `shouldBe` expected
+      )
