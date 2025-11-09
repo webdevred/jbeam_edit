@@ -14,17 +14,15 @@ jobs:
   build-with-stack:
     if: github.event.pull_request.draft != true
     name: Build and test on ${{ matrix.os }}
-    runs-on: ${{ matrix.runner }}
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         include:
           - os: ubuntu-22.04
-            runner: ubuntu-latest
             stack-paths: |
               ~/.stack
               ~/.ghc
           - os: windows-latest
-            runner: windows-latest
             stack-paths: |
               ~\AppData\Roaming\stack
               ~\AppData\Local\Programs\stack\x86_64-windows
@@ -88,7 +86,7 @@ jobs:
           fi
       - name: Prepare coverage report
         if: |
-          matrix.os == 'ubuntu-latest' &&
+          startsWith(matrix.os, 'ubuntu-') &&
           github.event_name == 'push' &&
           github.ref == 'refs/heads/master'
         run: |
@@ -96,7 +94,7 @@ jobs:
           cp -r $(find .stack-work/install -name hpc) coverage/
       - name: Upload artifact
         if: |
-          matrix.os == 'ubuntu-latest' &&
+          startsWith(matrix.os, 'ubuntu-') &&
           github.event_name == 'push' &&
           github.ref == 'refs/heads/master'
         uses: actions/upload-pages-artifact@v4
@@ -107,7 +105,7 @@ jobs:
           name: github-pages
           url: ${{ steps.deployment.outputs.page_url }}
         if: |
-          matrix.os == 'ubuntu-latest' &&
+          startsWith(matrix.os, 'ubuntu-') &&
           github.event_name == 'push' &&
           github.ref == 'refs/heads/master'
         id: deployment
