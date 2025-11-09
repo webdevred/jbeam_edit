@@ -1,6 +1,4 @@
-{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE ExplicitNamespaces #-}
-{-# LANGUAGE PolyKinds #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Handlers.Formatting (handlers) where

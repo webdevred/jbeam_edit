@@ -164,7 +164,9 @@ library jbeam-language-server
     other-modules:      Paths_jbeam_edit
     autogen-modules:    Paths_jbeam_edit
     default-language:   GHC2021
-    default-extensions: OverloadedStrings ImportQualifiedPost
+    default-extensions:
+        OverloadedStrings ImportQualifiedPost DataKinds PolyKinds
+
     ghc-options:
         -Wall -Wcompat -Widentities -Wincomplete-record-updates
         -Wincomplete-uni-patterns -Wmissing-export-lists
