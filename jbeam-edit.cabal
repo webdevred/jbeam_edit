@@ -364,7 +364,9 @@ test-suite jbeam-edit-test
         vector
 
     if True
-        build-depends: hspec-megaparsec
+        build-depends:
+            hspec-megaparsec,
+            megaparsec
 
 test-suite jbeam-edit-transformation-test
     type:               exitcode-stdio-1.0

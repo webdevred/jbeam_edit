@@ -162,7 +162,7 @@ tests:
     source-dirs: test
     when:
       - condition: true
-        dependencies: [hspec-megaparsec]
+        dependencies: [megaparsec, hspec-megaparsec]
   jbeam-language-server-test:
     <<: *jbeam-test-common
     source-dirs: test-extra/language-server
