@@ -33,7 +33,6 @@ dependencies:
   - vector
   - text >= 2.0
   - containers
-  - megaparsec
   - scientific
   - directory
   - filepath
@@ -100,8 +99,10 @@ internal-libraries:
     <<: *jbeam-extra-lib
 
 library:
+  ghc-options: [-Wunused-packages]
   source-dirs: src
   generated-other-modules: Paths_jbeam_edit
+  dependencies: [megaparsec]
   when:
     - condition: flag(transformation)
       cpp-options: -DENABLE_TRANSFORMATION
@@ -161,7 +162,7 @@ tests:
     source-dirs: test
     when:
       - condition: true
-        dependencies: [hspec-megaparsec]
+        dependencies: [megaparsec, hspec-megaparsec]
   jbeam-language-server-test:
     <<: *jbeam-test-common
     source-dirs: test-extra/language-server

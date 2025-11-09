@@ -91,6 +91,7 @@ library
         -Wall -Wcompat -Widentities -Wincomplete-record-updates
         -Wincomplete-uni-patterns -Wmissing-export-lists
         -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
+        -Wunused-packages
 
     build-depends:
         base >=4.17 && <5,
@@ -135,7 +136,6 @@ library jbeam-edit-transformation
         directory,
         filepath,
         jbeam-edit,
-        megaparsec,
         mtl,
         scientific,
         text >=2.0,
@@ -177,7 +177,6 @@ library jbeam-language-server
         directory,
         filepath,
         jbeam-edit,
-        megaparsec,
         mtl,
         scientific,
         text >=2.0,
@@ -219,7 +218,6 @@ executable jbeam-edit
         directory,
         filepath,
         jbeam-edit,
-        megaparsec,
         mtl,
         scientific,
         text >=2.0,
@@ -252,7 +250,6 @@ executable jbeam-edit-dump-ast
         directory,
         filepath,
         jbeam-edit,
-        megaparsec,
         mtl,
         scientific,
         text >=2.0,
@@ -286,7 +283,6 @@ executable jbeam-lsp-server
         directory,
         filepath,
         jbeam-edit,
-        megaparsec,
         mtl,
         scientific,
         text >=2.0,
@@ -318,7 +314,6 @@ executable jbeam-lsp-test-server
         directory,
         filepath,
         jbeam-edit,
-        megaparsec,
         mtl,
         scientific,
         text >=2.0,
@@ -363,14 +358,15 @@ test-suite jbeam-edit-test
         filepath,
         hspec,
         jbeam-edit,
-        megaparsec,
         mtl,
         scientific,
         text >=2.0,
         vector
 
     if True
-        build-depends: hspec-megaparsec
+        build-depends:
+            hspec-megaparsec,
+            megaparsec
 
 test-suite jbeam-edit-transformation-test
     type:               exitcode-stdio-1.0
@@ -394,7 +390,6 @@ test-suite jbeam-edit-transformation-test
         filepath,
         hspec,
         jbeam-edit,
-        megaparsec,
         mtl,
         scientific,
         text >=2.0,
@@ -433,7 +428,6 @@ test-suite jbeam-language-server-test
         filepath,
         hspec,
         jbeam-edit,
-        megaparsec,
         mtl,
         scientific,
         text >=2.0,

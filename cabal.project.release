@@ -1,5 +1,6 @@
 import: cabal.project
 executable-static: True
+executable-stripping: True
 index-state: hackage.haskell.org 2025-10-12T21:52:54Z
 
 package *
@@ -7,6 +8,10 @@ package *
     -threaded
     -rtsopts
     -with-rtsopts=-N
+    -split-sections
+    -optc-Os
+    -optl-static
+    -fignore-asserts
 
 package jbeam-edit
   tests: False
