@@ -1,3 +1,6 @@
+- extensions:
+  - default: true
+  - {name: LambdaCase, within: []}
 - warn: {name: Use explicit module export list}
 - group: {name: dollar, enabled: true}
 - group: {name: teaching, enabled: true}
