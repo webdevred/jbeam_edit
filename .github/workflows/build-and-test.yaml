@@ -153,7 +153,8 @@ jobs:
           echo "Cabal Store Path: ${{ steps.setup-ghc.outputs.cabal-store }}"
           echo "get-tested latest: ${{ matrix.newest }}"
           echo "get-tested oldest: ${{ matrix.oldest }}"
-      - if: |
+      - name: Configure with oldest dependencies (GHC oldest version)
+        if: |
           matrix.oldest == true &&
           matrix.newest == false
         run: cabal configure --project-file cabal.project.ci --prefer-oldest
