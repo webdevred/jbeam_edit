@@ -43,7 +43,7 @@ vertexConns topNode vsPerType = case NP.queryNodes beamQuery topNode of
       M.insertWith
         (M.unionWith (+))
         vtype
-        (M.singleton key 1)
+        (one (key, 1))
 
     go :: Vector Node -> ([Node], VertexConnMap)
     go beams =

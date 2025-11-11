@@ -24,6 +24,7 @@ import Data.Yaml.Aeson (
   (.:),
   (.:?),
  )
+import IOUtils
 import Types (VertexTreeType (..))
 
 defaultSortingThreshold :: Scientific
@@ -101,10 +102,13 @@ instance FromJSON TransformationConfig where
 loadTransformationConfig :: FilePath -> IO TransformationConfig
 loadTransformationConfig filename = do
   res <- decodeFileEither filename
-  pure $ case res of
-    Right tc -> tc
-    Left _ ->
-      TransformationConfig
-        defaultSortingThreshold
-        defaultBreakpoints
-        defaultSupportThreshold
+  case res of
+    Right tc -> pure tc
+    Left err -> do
+      putErrorLine $ show err
+      pure
+        ( TransformationConfig
+            defaultSortingThreshold
+            defaultBreakpoints
+            defaultSupportThreshold
+        )

@@ -56,6 +56,9 @@ data AnnotatedVertex = AnnotatedVertex
   }
   deriving (Show)
 
+instance Eq AnnotatedVertex where
+  v1 == v2 = on (==) (vName . aVertex) v1 v2
+
 type MetaMap = Map Text Node
 
 type VertexConnMap = Map VertexTreeType (Map Text Int)

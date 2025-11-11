@@ -21,7 +21,9 @@ import Data.Text qualified as T
 
 #ifdef ENABLE_TRANSFORMATION
 import Transformation (transform)
-import Config (loadTransformationConfig)
+import System.FilePath ((</>))
+import Config
+import System.Directory (getCurrentDirectory)
 #endif
 
 main :: IO ()
@@ -73,7 +75,8 @@ replaceNewlines = id
 applyTransform :: Options -> Node -> IO (Either Text Node)
 #ifdef ENABLE_TRANSFORMATION
 applyTransform opts topNode = do
-  tfConfig <- loadTransformationConfig ".jbeam-edit.yaml"
+  cwd <- getCurrentDirectory
+  tfConfig <- loadTransformationConfig $ cwd </> ".jbeam-edit.yaml"
   case transform (optUpdateNames opts) tfConfig topNode of
     Right (badVertexNodes, badBeamNodes, topNode') -> do
       reportInvalidNodes "Invalid vertex nodes encountered:" badVertexNodes

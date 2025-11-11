@@ -4,4 +4,4 @@ support-threshold: 80
 x-breakpoints:
   LeftTree: '>= 0.09'
   Middle: '> -0.09'
-  RightTree: <= -0.09
+  RightTree: '<= -0.09'

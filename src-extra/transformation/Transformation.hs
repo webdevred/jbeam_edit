@@ -56,10 +56,12 @@ buildTreeForType originalForest treeType groupsOrig =
           )
 
 addPrefixComments
-  :: NonEmpty (NonEmpty AnnotatedVertex)
+  :: VertexTreeType
   -> NonEmpty (NonEmpty AnnotatedVertex)
-addPrefixComments (av :| []) = one av
-addPrefixComments (av :| avs) = av :| map addToAnnotatedVertex avs
+  -> NonEmpty (NonEmpty AnnotatedVertex)
+addPrefixComments SupportTree avs = avs
+addPrefixComments _ (av :| []) = one av
+addPrefixComments _ (av :| avs) = av :| map addToAnnotatedVertex avs
   where
     addToAnnotatedVertex ((AnnotatedVertex comments vertex meta) :| avs') =
       let commentName = dropIndex $ vName vertex
@@ -97,7 +99,7 @@ addVertexTreeToForest newNames tf grouped forest forestAcc t =
                in case nonEmpty groupsSorted of
                     Just groupsSorted' ->
                       let prefixCommentedGroups =
-                            addPrefixComments . groupByPrefix $ groupsSorted'
+                            addPrefixComments t . groupByPrefix $ groupsSorted'
                           vt' = vt {tAnnotatedVertices = prefixCommentedGroups}
                        in Right (M.insert t vt' forestAcc)
                     Nothing -> Right forestAcc
@@ -113,27 +115,86 @@ groupAnnotatedVertices brks g = do
   pure (treeType, [g])
 
 sortedPairs :: Map Text Int -> [(Text, Int)]
-sortedPairs = sortBy (comparing (Down . snd)) . M.toList
+sortedPairs = sortWith (Down . snd) . M.toList
 
 topXPerTypeUniqueVertexName
-  :: Int -> VertexConnMap -> [(VertexTreeType, Text, Int)]
+  :: Int -> VertexConnMap -> Map Text [(VertexTreeType, Int)]
 topXPerTypeUniqueVertexName x m =
-  let sortedPerType = [(vtt, sortedPairs inner) | (vtt, inner) <- M.toList m]
-      allTriples = [(vtt, txt, c) | (vtt, inner) <- M.toList m, (txt, c) <- M.toList inner]
+  let sortedPerType =
+        [(vtt, sortedPairs inner) | (vtt, inner) <- M.toList m]
+
+      allTriples =
+        [(vtt, txt, c) | (vtt, inner) <- M.toList m, (txt, c) <- M.toList inner]
+
       bestPerText =
         M.fromListWith
           (\t1@(_, _, c1) t2@(_, _, c2) -> if c1 >= c2 then t1 else t2)
           [(txt, (vtt, txt, c)) | (vtt, txt, c) <- allTriples]
+
       takePerType (vtt, pairs) =
-        take
-          x
-          [ (vtt, txt, c)
-          | (txt, c) <- pairs
-          , case M.lookup txt bestPerText of
-              Just (vtt', _, _) -> vtt' == vtt
-              Nothing -> False
-          ]
-   in concatMap takePerType sortedPerType
+        [ (txt, [(vtt, c)])
+        | (txt, c) <- take x pairs
+        , case M.lookup txt bestPerText of
+            Just (vtt', _, _) -> vtt' == vtt
+            Nothing -> False
+        ]
+   in M.fromListWith (++) (concatMap takePerType sortedPerType)
+
+moveSupportVertices
+  :: Int
+  -> Double
+  -> VertexConnMap
+  -> Map VertexTreeType [AnnotatedVertex]
+  -> (VertexForest, Map VertexTreeType [AnnotatedVertex])
+moveSupportVertices maxX supThr connMap vsPerType =
+  let nameMapPerText :: Map Text [(VertexTreeType, Int)]
+      nameMapPerText = topXPerTypeUniqueVertexName maxX connMap
+
+      supportVerticesPerType :: Map VertexTreeType [AnnotatedVertex]
+      supportVerticesPerType =
+        M.mapWithKey
+          ( \vtt vs ->
+              [ av
+              | av <- vs
+              , let name = vName (aVertex av)
+              , name `M.member` nameMapPerText
+              , case M.lookup vtt connMap >>= M.lookup name of
+                  Just connCount ->
+                    let vertexCount = length vs
+                     in fromIntegral connCount >= (supThr * fromIntegral vertexCount) / 100
+                  Nothing -> False
+              ]
+          )
+          vsPerType
+
+      supportVerticesList :: [AnnotatedVertex]
+      supportVerticesList = concat (M.elems supportVerticesPerType)
+
+      supportTree :: Maybe (VertexTreeType, VertexTree)
+      supportTree =
+        case supportVerticesList of
+          [] -> Nothing
+          svs ->
+            Just
+              ( SupportTree
+              , VertexTree
+                  { tComments = []
+                  , tAnnotatedVertices = NE.fromList [NE.fromList svs]
+                  }
+              )
+
+      vertexForest :: VertexForest
+      vertexForest =
+        case supportTree of
+          Nothing -> M.empty
+          Just (k, vt) -> one (k, vt)
+
+      remainingVerticesPerType :: Map VertexTreeType [AnnotatedVertex]
+      remainingVerticesPerType =
+        M.mapWithKey
+          (\_vtt vs -> filter (`notElem` supportVerticesList) vs)
+          vsPerType
+   in (vertexForest, remainingVerticesPerType)
 
 moveVerticesInVertexForest
   :: Node
@@ -148,10 +209,11 @@ moveVerticesInVertexForest topNode newNames tfCfg vertexTrees = do
         Just movableVertices' -> do
           let groupedVertices = M.fromListWith (++) movableVertices'
           (badBeamNodes, conns) <- vertexConns topNode groupedVertices
+          let (supportForest, nonSupportVertices) = moveSupportVertices 1 (supportThreshold tfCfg) conns groupedVertices
           newForest <-
             foldM
-              (addVertexTreeToForest newNames tfCfg groupedVertices vertexTrees)
-              M.empty
+              (addVertexTreeToForest newNames tfCfg nonSupportVertices vertexTrees)
+              supportForest
               treesOrder
           Right (badBeamNodes, newForest)
         Nothing -> Left "invalid breakpoint"
@@ -172,9 +234,9 @@ vertexTreeToNodesWithPrev
   :: MetaMap
   -> VertexTreeType
   -> VertexTree
-  -> (MetaMap, NE.NonEmpty Node)
+  -> (MetaMap, NonEmpty Node)
 vertexTreeToNodesWithPrev prevMeta _ (VertexTree topComments groups) =
-  let topNodes = NE.fromList $ map Comment topComments
+  let topNodes = map Comment topComments
 
       stepVertex pm av =
         let (nodes, newMeta) = annotatedVertexToNodesWithPrev pm av
@@ -186,7 +248,7 @@ vertexTreeToNodesWithPrev prevMeta _ (VertexTree topComments groups) =
 
       (finalMeta, groupNodesLists) = mapAccumL stepGroup prevMeta groups
 
-      allNodes = topNodes <> sconcat groupNodesLists
+      allNodes = topNodes `NE.prependList` sconcat groupNodesLists
    in (finalMeta, allNodes)
 
 removeIdenticalMeta :: MetaMap -> MetaMap -> MetaMap
