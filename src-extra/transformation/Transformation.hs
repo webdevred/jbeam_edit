@@ -114,9 +114,6 @@ groupAnnotatedVertices brks g = do
   treeType <- determineGroup' brks (aVertex g)
   pure (treeType, [g])
 
-isLmr :: Char -> Bool
-isLmr lastChar = lastChar `elem` ['l', 'm', 'r']
-
 updateSupportVertexName
   :: VertexTreeType
   -> AnnotatedVertex
@@ -127,10 +124,7 @@ updateSupportVertexName vType (AnnotatedVertex c v m) = AnnotatedVertex c (v {vN
     newName =
       case T.unsnoc name of
         Nothing -> name
-        Just (prefix, lastChar) ->
-          if isLmr lastChar
-            then prefix <> prefixForType vType
-            else name
+        Just (prefix, _) -> prefix <> prefixForType vType
 
 moveSupportVertices
   :: UpdateNamesMap
@@ -139,9 +133,9 @@ moveSupportVertices
   -> M.Map VertexTreeType [AnnotatedVertex]
   -> (VertexForest, M.Map VertexTreeType [AnnotatedVertex])
 moveSupportVertices newNames tfCfg connMap vsPerType =
-  let supportVertices :: [AnnotatedVertex]
+  let supportVertices :: [(VertexTreeType, AnnotatedVertex)]
       supportVertices =
-        [ updateSupportVertexName vType av
+        [ (vType, av)
         | (vType, vs) <- M.toList vsPerType
         , av <- vs
         , let name = vName (aVertex av)
@@ -161,12 +155,14 @@ moveSupportVertices newNames tfCfg connMap vsPerType =
               ( SupportTree
               , VertexTree
                   [sideComment SupportTree]
-                  (one $ sortSupportVertices newNames tfCfg vs)
+                  ( one $
+                      sortSupportVertices newNames tfCfg (NE.map (uncurry updateSupportVertexName) vs)
+                  )
               )
 
       remainingVertices :: M.Map VertexTreeType [AnnotatedVertex]
       remainingVertices =
-        M.map (filter (`notElemByVertexName` supportVertices)) vsPerType
+        M.map (filter (`notElemByVertexName` map snd supportVertices)) vsPerType
    in (vertexForest, remainingVertices)
 
 notElemByVertexName
@@ -322,7 +318,8 @@ assignNames newNames brks treeType prefixMap av =
       prefix = dropIndex (vName v)
       typeSpecific = maybe "" prefixForType (determineGroup brks v)
       (prefix', lastChar) = fromMaybe (error "unreachable") (T.unsnoc prefix)
-      supportPrefixChar = one 's' <> bool typeSpecific (one lastChar) (isLmr lastChar)
+      isLmr = lastChar `elem` ['l', 'm', 'r']
+      supportPrefixChar = one 's' <> bool typeSpecific (one lastChar) isLmr
       cleanPrefix
         | treeType /= SupportTree
             && T.length prefix >= 3
@@ -330,7 +327,7 @@ assignNames newNames brks treeType prefixMap av =
             updatedPrefix (T.init prefix') <> typeSpecific
         | treeType /= SupportTree
             && T.length prefix >= 3
-            && isLmr lastChar =
+            && isLmr =
             updatedPrefix prefix' <> typeSpecific
         | treeType /= SupportTree =
             updatedPrefix prefix <> typeSpecific
