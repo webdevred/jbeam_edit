@@ -1,6 +1,6 @@
 {-# LANGUAGE DerivingStrategies #-}
 
-module Core.NodeCursor (
+module JbeamEdit.Core.NodeCursor (
   NodeCursor (..),
   NodeBreadcrumb (..),
   applyCrumb,
@@ -10,11 +10,11 @@ module Core.NodeCursor (
   newCursor,
 ) where
 
-import Core.Node (Node (..))
-import Core.NodePath qualified as NP
 import Data.Sequence (Seq (..))
 import Data.Sequence qualified as Seq (empty, null)
 import Data.Text (Text)
+import JbeamEdit.Core.Node (Node (..))
+import JbeamEdit.Core.NodePath qualified as NP
 
 data NodeBreadcrumb
   = ArrayIndex Int

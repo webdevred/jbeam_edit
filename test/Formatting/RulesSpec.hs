@@ -1,8 +1,8 @@
 module Formatting.RulesSpec (spec) where
 
-import Formatting
-import Formatting.Rules
 import GHC.IsList (fromList)
+import JbeamEdit.Formatting
+import JbeamEdit.Formatting.Rules
 import SpecHelper
 
 spec :: Spec

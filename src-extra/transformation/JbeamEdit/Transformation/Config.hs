@@ -1,7 +1,7 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DerivingStrategies #-}
 
-module Config (
+module JbeamEdit.Transformation.Config (
   loadTransformationConfig,
   applyOperator,
   newTransformationConfig,
@@ -26,8 +26,8 @@ import Data.Yaml.Aeson (
   (.:),
   (.:?),
  )
-import IOUtils
-import Types (VertexTreeType (..))
+import JbeamEdit.IOUtils
+import JbeamEdit.Transformation.Types (VertexTreeType (..))
 
 defaultSortingThreshold :: Scientific
 defaultSortingThreshold = 0.05

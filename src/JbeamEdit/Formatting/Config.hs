@@ -1,11 +1,11 @@
 {-# LANGUAGE CPP #-}
 
-module Formatting.Config (readFormattingConfig, copyToConfigDir, ConfigType (..)) where
+module JbeamEdit.Formatting.Config (readFormattingConfig, copyToConfigDir, ConfigType (..)) where
 
-import Formatting.Rules
 import GHC.IO.Exception (IOErrorType (NoSuchThing))
-import IOUtils
-import Parsing.DSL (parseDSL)
+import JbeamEdit.Formatting.Rules
+import JbeamEdit.IOUtils
+import JbeamEdit.Parsing.DSL (parseDSL)
 
 #if WINDOWS_EXAMPLE_PATHS
 import System.Environment (getExecutablePath)

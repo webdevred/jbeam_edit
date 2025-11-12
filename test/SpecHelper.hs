@@ -2,14 +2,14 @@ module SpecHelper (
   applySpecOnInput,
   works,
   listFilesInDir,
-  module Core.Node,
+  module JbeamEdit.Core.Node,
   module Test.Hspec,
   DescribeFun,
   SpecFun,
 ) where
 
-import Core.Node
 import Data.List (isPrefixOf, isSuffixOf)
+import JbeamEdit.Core.Node
 import System.Directory (getDirectoryContents)
 import Test.Hspec
 

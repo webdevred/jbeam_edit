@@ -1,11 +1,6 @@
-module Transformation (transform) where
+module JbeamEdit.Transformation (transform) where
 
-import Config
 import Control.Monad (foldM)
-import Core.Node
-import Core.NodeCursor (newCursor)
-import Core.NodeCursor qualified as NC
-import Core.NodePath qualified as NP
 import Data.List (partition)
 import Data.List.NonEmpty qualified as NE
 import Data.Map qualified as M
@@ -14,9 +9,14 @@ import Data.Sequence (Seq (..))
 import Data.Text qualified as T
 import Data.Vector (Vector, (!), (!?), (//))
 import Data.Vector qualified as V
-import SupportVertex
-import Types
-import VertexExtraction
+import JbeamEdit.Core.Node
+import JbeamEdit.Core.NodeCursor (newCursor)
+import JbeamEdit.Core.NodeCursor qualified as NC
+import JbeamEdit.Core.NodePath qualified as NP
+import JbeamEdit.Transformation.Config
+import JbeamEdit.Transformation.SupportVertex
+import JbeamEdit.Transformation.Types
+import JbeamEdit.Transformation.VertexExtraction
 
 verticesQuery :: NP.NodePath
 verticesQuery = fromList [NP.ObjectIndex 0, NP.ObjectKey "nodes"]

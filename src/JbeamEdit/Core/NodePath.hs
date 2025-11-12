@@ -1,18 +1,18 @@
 {-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE TypeFamilies #-}
 
-module Core.NodePath (
+module JbeamEdit.Core.NodePath (
   NodePath (..),
   NodeSelector (..),
   queryNodes,
   select,
 ) where
 
-import Core.Node qualified as N (Node (..))
 import Data.Sequence (Seq (..))
 import Data.Text (Text)
 import Data.Vector qualified as V
 import GHC.IsList (IsList (..))
+import JbeamEdit.Core.Node qualified as N (Node (..))
 
 data NodeSelector
   = ArrayIndex Int

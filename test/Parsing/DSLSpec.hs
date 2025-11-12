@@ -2,16 +2,16 @@ module Parsing.DSLSpec (
   spec,
 ) where
 
-import Core.NodePath qualified as NP (NodeSelector (..))
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS (readFile)
 import Data.Functor.Identity (Identity (..))
 import Data.Text qualified as T
 import Data.Text.Encoding (encodeUtf8)
 import Data.Void (Void)
-import Formatting.Rules
-import Parsing.Common.Helpers
-import Parsing.DSL
+import JbeamEdit.Core.NodePath qualified as NP (NodeSelector (..))
+import JbeamEdit.Formatting.Rules
+import JbeamEdit.Parsing.Common.Helpers
+import JbeamEdit.Parsing.DSL
 import SpecHelper
 import Test.Hspec.Megaparsec
 import Text.Megaparsec

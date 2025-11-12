@@ -1,4 +1,4 @@
-module Types (
+module JbeamEdit.Transformation.Types (
   VertexForest,
   VertexTree (..),
   VertexTreeType (..),
@@ -9,12 +9,12 @@ module Types (
   UpdateNamesMap,
 ) where
 
-import Core.Node
 import Data.Scientific (Scientific)
 import Data.Yaml.Aeson (
   FromJSON (..),
   withText,
  )
+import JbeamEdit.Core.Node
 
 type VertexForest = Map VertexTreeType VertexTree
 

@@ -3,11 +3,11 @@ module FormattingSpec (
 ) where
 
 import Control.Monad (forM, forM_)
-import Core.NodeCursor (newCursor)
 import Data.Text (Text)
 import Data.Text qualified as T
-import Formatting
 import GHC.IsList (fromList)
+import JbeamEdit.Core.NodeCursor (newCursor)
+import JbeamEdit.Formatting
 import SpecHelper
 import System.FilePath (takeBaseName, (</>))
 

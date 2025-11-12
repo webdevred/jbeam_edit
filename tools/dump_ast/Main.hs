@@ -2,21 +2,21 @@ module Main (
   main,
 ) where
 
-import Config
 import Data.ByteString.Lazy qualified as LBS
 import Data.List (isPrefixOf, isSuffixOf)
 import Data.Map qualified as M
 import Data.Text qualified as T
 import Data.Text.Lazy qualified as LT
-import Formatting
-import Parsing.DSL (parseDSL)
-import Parsing.Jbeam (parseNodes)
+import JbeamEdit.Formatting
+import JbeamEdit.Parsing.DSL (parseDSL)
+import JbeamEdit.Parsing.Jbeam (parseNodes)
+import JbeamEdit.Transformation
+import JbeamEdit.Transformation.Config
 import System.Directory (getCurrentDirectory, getDirectoryContents)
 import System.Exit (exitFailure)
 import System.FilePath (dropExtension, takeBaseName, (</>))
 import System.IO qualified as IO (readFile)
 import Text.Pretty.Simple (defaultOutputOptionsNoColor, pStringOpt)
-import Transformation
 
 main :: IO ()
 main = do

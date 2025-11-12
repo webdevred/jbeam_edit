@@ -8,7 +8,7 @@ import Data.Map (Map)
 import Data.Map qualified as M
 import Data.Text (Text)
 import Data.Version (showVersion)
-import Formatting.Config (ConfigType (..))
+import JbeamEdit.Formatting.Config (ConfigType (..))
 import Paths_jbeam_edit (version)
 import System.Console.GetOpt
 import System.Environment
