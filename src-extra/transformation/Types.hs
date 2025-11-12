@@ -54,10 +54,10 @@ data AnnotatedVertex = AnnotatedVertex
   , aVertex :: Vertex
   , aMeta :: MetaMap
   }
-  deriving (Show)
+  deriving (Eq, Show)
 
 type MetaMap = Map Text Node
 
-type VertexConnMap = Map Text Int
+type VertexConnMap = Map Text (VertexTreeType, Int)
 
 type UpdateNamesMap = Map Text Text

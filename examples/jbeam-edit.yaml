@@ -1,7 +1,11 @@
 z-sorting-threshold: 0.05
-support-threshold: 80
+support-threshold: 96
+max-support-coordinates: 3
 
-x-breakpoints:
-  LeftTree: '>= 0.09'
-  Middle: '> -0.09'
-  RightTree: <= -0.09
+x-group-breakpoints:
+  - breakpoint: ">= 0.09"
+    vertex-type: LeftTree
+  - breakpoint: "> -0.09"
+    vertex-type: MiddleTree
+  - breakpoint: "<= -0.09"
+    vertex-type: RightTree

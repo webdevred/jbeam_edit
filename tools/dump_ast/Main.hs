@@ -11,7 +11,7 @@ import Data.Text.Lazy qualified as LT
 import Formatting
 import Parsing.DSL (parseDSL)
 import Parsing.Jbeam (parseNodes)
-import System.Directory (getDirectoryContents)
+import System.Directory (getCurrentDirectory, getDirectoryContents)
 import System.Exit (exitFailure)
 import System.FilePath (dropExtension, takeBaseName, (</>))
 import System.IO qualified as IO (readFile)
@@ -20,7 +20,9 @@ import Transformation
 
 main :: IO ()
 main = do
-  exampleCfg <- loadTransformationConfig "examples/jbeam-edit.yaml"
+  cwd <- getCurrentDirectory
+  exampleCfg <-
+    loadTransformationConfig $ cwd </> "examples" </> "jbeam-edit.yaml"
   let examplesDir = "examples"
       jbflInputDir = examplesDir </> "jbfl"
       jbeamInputDir = examplesDir </> "jbeam"

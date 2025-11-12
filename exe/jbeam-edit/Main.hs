@@ -19,9 +19,13 @@ import System.Environment (getArgs)
 import Data.Text qualified as T
 #endif
 
+import System.FilePath (dropExtension)
+
 #ifdef ENABLE_TRANSFORMATION
 import Transformation (transform)
-import Config (loadTransformationConfig)
+import System.FilePath ((</>))
+import Config
+import System.Directory (getCurrentDirectory)
 #endif
 
 main :: IO ()
@@ -33,9 +37,12 @@ main = do
     _ -> editFile opts
 
 getWritabaleFilename :: FilePath -> Options -> IO FilePath
-getWritabaleFilename filename opts =
-  unless (optInPlace opts) (copyFile filename (filename <> ".bak"))
-    >> pure filename
+getWritabaleFilename filename opts = do
+  let backupFilename = dropExtension filename <> ".bak.jbeam"
+  unless
+    (optInPlace opts)
+    (copyFile filename backupFilename)
+  pure filename
 
 editFile :: Options -> IO ()
 editFile opts = do
@@ -73,7 +80,8 @@ replaceNewlines = id
 applyTransform :: Options -> Node -> IO (Either Text Node)
 #ifdef ENABLE_TRANSFORMATION
 applyTransform opts topNode = do
-  tfConfig <- loadTransformationConfig ".jbeam-edit.yaml"
+  cwd <- getCurrentDirectory
+  tfConfig <- loadTransformationConfig $ cwd </> ".jbeam-edit.yaml"
   case transform (optUpdateNames opts) tfConfig topNode of
     Right (badVertexNodes, badBeamNodes, topNode') -> do
       reportInvalidNodes "Invalid vertex nodes encountered:" badVertexNodes

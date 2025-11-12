@@ -9,6 +9,7 @@ TAGS
 .hpc/
 .stack-work/
 .ghc.environment.*
+.jbeam-edit.yaml
 **/*~
 **/#*#
 **/.#*

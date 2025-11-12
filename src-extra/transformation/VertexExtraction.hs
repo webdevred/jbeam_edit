@@ -175,7 +175,7 @@ newVertexTree brks vertexNames badAcc vertexForest nodes =
 
 determineGroup :: XGroupBreakpoints -> Vertex -> Maybe VertexTreeType
 determineGroup (XGroupBreakpoints brks) v =
-  case [vtype | (XGroupBreakpoint f, vtype) <- brks, f (vX v)] of
+  case [vtype | (XGroupBreakpoint f brk, vtype) <- brks, applyOperator f (vX v) brk] of
     (vtype : _) -> Just vtype
     [] -> Nothing
 

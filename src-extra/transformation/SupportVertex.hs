@@ -4,7 +4,6 @@ import Core.Node
 import Core.NodePath qualified as NP
 import Core.Result
 import Data.Map qualified as M
-import Data.Vector (Vector)
 import Data.Vector qualified as V
 import Types
 
@@ -24,15 +23,47 @@ possiblyBeam node
             _ -> Nothing
         _ -> Nothing
 
-vertexConns :: Node -> Either Text ([Node], VertexConnMap)
-vertexConns topNode = case NP.queryNodes beamQuery topNode of
+vertexConns
+  :: Int
+  -> Node
+  -> Map VertexTreeType [AnnotatedVertex]
+  -> Either Text ([Node], VertexConnMap)
+vertexConns maxX topNode vsPerType = case NP.queryNodes beamQuery topNode of
   Just (Array beams) -> Right $ go beams
   _ -> Left $ "could not find " <> show beamQuery
   where
-    go :: Vector Node -> ([Node], VertexConnMap)
     go beams =
-      let (badNodes, beamNames) = mapResult possiblyBeam beams
-          fun (beam1, beam2) = increaseBeamCount beam1 . increaseBeamCount beam2
-          increaseBeamCount beamName = M.insertWith (+) beamName 1
-          connCountMap = foldr fun M.empty beamNames
-       in (badNodes, connCountMap)
+      let (badNodes, beamPairs) = mapResult possiblyBeam beams
+
+          counts :: Map Text Int
+          counts =
+            foldr
+              ( \(a, b) acc ->
+                  acc
+                    & M.insertWith (+) a 1
+                    & M.insertWith (+) b 1
+              )
+              M.empty
+              beamPairs
+
+          topVerticesPerType :: Map VertexTreeType [(AnnotatedVertex, Int)]
+          topVerticesPerType =
+            M.map
+              ( \vs ->
+                  take
+                    maxX
+                    ( sortWith
+                        (Down . snd)
+                        ([(v, M.findWithDefault 0 (vName $ aVertex v) counts) | v <- vs])
+                    )
+              )
+              vsPerType
+
+          vertexConnMap :: VertexConnMap
+          vertexConnMap =
+            M.fromList
+              [ (vName $ aVertex v, (t, c))
+              | (t, vs) <- M.toList topVerticesPerType
+              , (v, c) <- vs
+              ]
+       in (badNodes, vertexConnMap)

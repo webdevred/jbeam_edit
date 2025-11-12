@@ -1,7 +1,9 @@
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DerivingStrategies #-}
 
 module Config (
   loadTransformationConfig,
+  applyOperator,
   newTransformationConfig,
   TransformationConfig (..),
   XGroupBreakpoint (..),
@@ -9,9 +11,9 @@ module Config (
   defaultSortingThreshold,
   defaultSupportThreshold,
   defaultBreakpoints,
+  defaultMaxSupportCoordinates,
 ) where
 
-import Data.Char
 import Data.Scientific (Scientific)
 import Data.Text qualified as T
 import Data.Yaml (decodeFileEither)
@@ -24,6 +26,7 @@ import Data.Yaml.Aeson (
   (.:),
   (.:?),
  )
+import IOUtils
 import Types (VertexTreeType (..))
 
 defaultSortingThreshold :: Scientific
@@ -32,18 +35,22 @@ defaultSortingThreshold = 0.05
 defaultSupportThreshold :: Double
 defaultSupportThreshold = 96
 
+defaultMaxSupportCoordinates :: Int
+defaultMaxSupportCoordinates = 3
+
 defaultBreakpoints :: XGroupBreakpoints
 defaultBreakpoints =
   XGroupBreakpoints
-    [ (XGroupBreakpoint (>= 0.09), LeftTree) -- x >= 0.09 → LeftTree
-    , (XGroupBreakpoint (> -0.09), MiddleTree) -- -0.09 < x < 0.09 → MiddleTree
-    , (XGroupBreakpoint (<= -0.09), RightTree) -- x <= -0.09 → RightTree
+    [ (XGroupBreakpoint OpGE 0.09, LeftTree) -- x >= 0.09 → LeftTree
+    , (XGroupBreakpoint OpLE (-0.09), RightTree) -- x <= -0.09 → RightTree
+    , (XGroupBreakpoint OpLT 0.09, MiddleTree) -- -0.09 < x < 0.09 → MiddleTree
     ]
 
 data TransformationConfig = TransformationConfig
   { zSortingThreshold :: Scientific
   , xGroupBreakpoints :: XGroupBreakpoints
   , supportThreshold :: Double
+  , maxSupportCoordinates :: Int
   }
   deriving (Generic)
 
@@ -53,15 +60,23 @@ newTransformationConfig =
     defaultSortingThreshold
     defaultBreakpoints
     defaultSupportThreshold
+    defaultMaxSupportCoordinates
 
-newtype XGroupBreakpoint = XGroupBreakpoint
-  {passingBreakpoint :: Scientific -> Bool}
+data XGroupBreakpoint = XGroupBreakpoint Operator Scientific deriving (Show)
 
-parseOperator :: Text -> Maybe (Scientific -> Scientific -> Bool)
-parseOperator ">" = Just (>)
-parseOperator "<" = Just (<)
-parseOperator "<=" = Just (<=)
-parseOperator ">=" = Just (>=)
+data Operator = OpLT | OpGT | OpLE | OpGE deriving (Show)
+
+applyOperator :: Operator -> Scientific -> Scientific -> Bool
+applyOperator OpLT x y = x < y
+applyOperator OpGT x y = x > y
+applyOperator OpLE x y = x <= y
+applyOperator OpGE x y = x >= y
+
+parseOperator :: Text -> Maybe Operator
+parseOperator ">" = Just OpGT
+parseOperator "<" = Just OpLT
+parseOperator "<=" = Just OpLE
+parseOperator ">=" = Just OpGE
 parseOperator _ = Nothing
 
 instance FromJSON XGroupBreakpoint where
@@ -70,13 +85,14 @@ instance FromJSON XGroupBreakpoint where
      in case parseOperator opTxt of
           Nothing -> fail "Invalid operator"
           Just opFunc ->
-            case readMaybe (toString $ T.dropWhile isSpace rest) of
+            case readMaybe (toString $ T.strip rest) of
               Nothing -> fail "Invalid number"
-              Just brk -> pure $ XGroupBreakpoint (`opFunc` brk)
+              Just brk -> pure $ XGroupBreakpoint opFunc brk
 
 newtype XGroupBreakpoints
   = XGroupBreakpoints
       [(XGroupBreakpoint, VertexTreeType)]
+  deriving stock (Show)
 
 instance FromJSON XGroupBreakpoints where
   parseJSON = withArray "XGroupBreakpoints" $ \arr -> do
@@ -85,7 +101,7 @@ instance FromJSON XGroupBreakpoints where
         "XGroupBreakpointEntry"
         ( \o -> do
             bp <- o .: "breakpoint"
-            vt <- o .: "vertex"
+            vt <- o .: "vertex-type"
             pure (bp, vt)
         )
         obj
@@ -97,14 +113,19 @@ instance FromJSON TransformationConfig where
       <$> o .:? "z-sorting-threshold" .!= defaultSortingThreshold
       <*> o .:? "x-group-breakpoints" .!= defaultBreakpoints
       <*> o .:? "support-threshold" .!= defaultSupportThreshold
+      <*> o .:? "max-support-coordinates" .!= defaultMaxSupportCoordinates
 
 loadTransformationConfig :: FilePath -> IO TransformationConfig
 loadTransformationConfig filename = do
   res <- decodeFileEither filename
-  pure $ case res of
-    Right tc -> tc
-    Left _ ->
-      TransformationConfig
-        defaultSortingThreshold
-        defaultBreakpoints
-        defaultSupportThreshold
+  case res of
+    Right tc -> pure tc
+    Left err -> do
+      putErrorLine $ show err
+      pure
+        ( TransformationConfig
+            defaultSortingThreshold
+            defaultBreakpoints
+            defaultSupportThreshold
+            defaultMaxSupportCoordinates
+        )
