@@ -3,7 +3,7 @@ module Main (
 ) where
 
 import CommandLineOptions
-import Control.Monad (unless)
+import Control.Monad (when)
 import Core.Node (Node)
 import Data.ByteString.Lazy qualified as LBS (fromStrict, toStrict, writeFile)
 import Data.Text (Text)
@@ -21,7 +21,7 @@ import Data.Text qualified as T
 
 #ifdef ENABLE_TRANSFORMATION
 import Transformation (transform)
-import System.FilePath ((</>))
+import System.FilePath (dropExtension, (</>))
 import Config
 import System.Directory (getCurrentDirectory)
 #endif
@@ -35,9 +35,12 @@ main = do
     _ -> editFile opts
 
 getWritabaleFilename :: FilePath -> Options -> IO FilePath
-getWritabaleFilename filename opts =
-  unless (optInPlace opts) (copyFile filename (filename <> ".bak"))
-    >> pure filename
+getWritabaleFilename filename opts = do
+  let backupFilename = dropExtension filename <> ".bak.jbeam"
+  when
+    (not $ optInPlace opts)
+    (copyFile filename backupFilename)
+  pure filename
 
 editFile :: Options -> IO ()
 editFile opts = do
