@@ -8,8 +8,8 @@ module JbeamEdit.Transformation.VertexExtraction (
 ) where
 
 import JbeamEdit.Transformation.Config
-import Core.Node
-import Core.NodePath qualified as NP
+import JbeamEdit.Core.Node
+import JbeamEdit.Core.NodePath qualified as NP
 import Data.Char (isDigit)
 import Data.List.NonEmpty qualified as NE
 import Data.Map qualified as M

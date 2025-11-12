@@ -1,7 +1,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
 
-module Parsing.DSL (
+module JbeamEdit.Parsing.DSL (
   JbflParser,
   parseDSL,
   patternSelectorParser,
@@ -9,7 +9,7 @@ module Parsing.DSL (
   ruleSetParser,
 ) where
 
-import Core.NodePath
+import JbeamEdit.Core.NodePath
 import Data.Bifunctor (first)
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
@@ -25,8 +25,8 @@ import Data.Text (Text)
 import Data.Text qualified as T (unpack)
 import Data.Text.Encoding (decodeUtf8')
 import Data.Word (Word8)
-import Formatting.Rules
-import Parsing.Common
+import JbeamEdit.Formatting.Rules
+import JbeamEdit.Parsing.Common
 import Text.Megaparsec ((<?>))
 import Text.Megaparsec qualified as MP
 import Text.Megaparsec.Byte qualified as B

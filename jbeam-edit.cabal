@@ -68,19 +68,19 @@ flag windows-example-paths
 
 library
     exposed-modules:
-        Core.Node
-        Core.NodeCursor
-        Core.NodePath
-        Core.Result
-        Formatting
-        Formatting.Config
-        Formatting.Rules
-        IOUtils
-        Parsing.Common
-        Parsing.Common.ErrorMessage
-        Parsing.Common.Helpers
-        Parsing.DSL
-        Parsing.Jbeam
+        JbeamEdit.Core.Node
+        JbeamEdit.Core.NodeCursor
+        JbeamEdit.Core.NodePath
+        JbeamEdit.Core.Result
+        JbeamEdit.Formatting
+        JbeamEdit.Formatting.Config
+        JbeamEdit.Formatting.Rules
+        JbeamEdit.IOUtils
+        JbeamEdit.Parsing.Common
+        JbeamEdit.Parsing.Common.ErrorMessage
+        JbeamEdit.Parsing.Common.Helpers
+        JbeamEdit.Parsing.DSL
+        JbeamEdit.Parsing.Jbeam
 
     hs-source-dirs:     src
     other-modules:      Paths_jbeam_edit

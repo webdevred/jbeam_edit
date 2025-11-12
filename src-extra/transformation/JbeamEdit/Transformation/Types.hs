@@ -9,7 +9,7 @@ module JbeamEdit.Transformation.Types (
   UpdateNamesMap,
 ) where
 
-import Core.Node
+import JbeamEdit.Core.Node
 import Data.Scientific (Scientific)
 import Data.Yaml.Aeson (
   FromJSON (..),

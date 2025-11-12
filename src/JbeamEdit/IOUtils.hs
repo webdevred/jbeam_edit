@@ -1,15 +1,15 @@
-module IOUtils (tryReadFile, putErrorLine, reportInvalidNodes) where
+module JbeamEdit.IOUtils (tryReadFile, putErrorLine, reportInvalidNodes) where
 
 import Control.Exception (IOException, try)
 import Control.Monad (unless)
-import Core.Node (Node)
+import JbeamEdit.Core.Node (Node)
 import Data.ByteString.Lazy qualified as BL (
   ByteString,
  )
 import Data.ByteString.Lazy qualified as LBS
 import Data.Text (Text)
 import Data.Text qualified as T (append, pack, unpack)
-import Formatting (formatNode, newRuleSet)
+import JbeamEdit.Formatting (formatNode, newRuleSet)
 import GHC.IO.Exception (IOErrorType, IOException (IOError))
 import System.IO (hPutStrLn, stderr)
 

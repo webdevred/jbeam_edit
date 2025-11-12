@@ -1,4 +1,4 @@
-module Parsing.Common.Helpers (
+module JbeamEdit.Parsing.Common.Helpers (
   Parser,
   byteChar,
   charNotEqWord8,

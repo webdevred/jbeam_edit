@@ -1,4 +1,4 @@
-module Core.Result (Result (..), mapResult) where
+module JbeamEdit.Core.Result (Result (..), mapResult) where
 
 data Result bad good = Empty | Bad bad | Good good
 

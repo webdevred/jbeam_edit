@@ -5,7 +5,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeOperators #-}
 
-module Formatting.Rules (
+module JbeamEdit.Formatting.Rules (
   NodePatternSelector (..),
   NodePattern (..),
   SomeKey (..),
@@ -23,9 +23,9 @@ module Formatting.Rules (
   findPropertiesForCursor,
 ) where
 
-import Core.Node
-import Core.NodeCursor qualified as NC
-import Core.NodePath (NodeSelector (..))
+import JbeamEdit.Core.Node
+import JbeamEdit.Core.NodeCursor qualified as NC
+import JbeamEdit.Core.NodePath (NodeSelector (..))
 import Data.Function (on)
 import Data.List (find)
 import Data.Map (Map)

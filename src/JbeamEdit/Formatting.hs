@@ -1,4 +1,4 @@
-module Formatting (
+module JbeamEdit.Formatting (
   formatNode,
   formatWithCursor,
   formatScalarNode,
@@ -7,15 +7,15 @@ module Formatting (
 ) where
 
 import Control.Monad (guard)
-import Core.Node (
+import JbeamEdit.Core.Node (
   InternalComment (..),
   Node (..),
   commentIsAttachedToPreviousNode,
   isCommentNode,
   isComplexNode,
  )
-import Core.NodeCursor (newCursor)
-import Core.NodeCursor qualified as NC
+import JbeamEdit.Core.NodeCursor (newCursor)
+import JbeamEdit.Core.NodeCursor qualified as NC
 import Data.Bool (bool)
 import Data.Char (isSpace)
 import Data.List (uncons)
@@ -24,7 +24,7 @@ import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Vector (Vector)
 import Data.Vector qualified as V (null, toList)
-import Formatting.Rules (
+import JbeamEdit.Formatting.Rules (
   RuleSet (..),
   applyPadLogic,
   findPropertiesForCursor,

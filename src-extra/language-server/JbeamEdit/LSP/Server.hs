@@ -4,9 +4,9 @@
 
 module JbeamEdit.LSP.Server (runServer) where
 
-import Formatting.Rules (RuleSet)
+import JbeamEdit.Formatting.Rules (RuleSet)
 import JbeamEdit.LSP.Handlers.Formatting qualified as Formatting
-import IOUtils
+import JbeamEdit.IOUtils
 import Language.LSP.Protocol.Message qualified as Msg
 import Language.LSP.Protocol.Types qualified as J (
   DidChangeTextDocumentParams (..),

@@ -8,8 +8,8 @@ import Data.Text qualified as T
 import Data.Text.Encoding (encodeUtf8)
 import Data.Vector (fromList)
 import Data.Void (Void)
-import Parsing.Common.Helpers
-import Parsing.Jbeam
+import JbeamEdit.Parsing.Common.Helpers
+import JbeamEdit.Parsing.Jbeam
 import SpecHelper
 import Test.Hspec.Megaparsec
 import Text.Megaparsec qualified as MP

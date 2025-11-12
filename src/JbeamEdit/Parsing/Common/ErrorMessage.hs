@@ -1,4 +1,4 @@
-module Parsing.Common.ErrorMessage (
+module JbeamEdit.Parsing.Common.ErrorMessage (
   formatErrors,
 ) where
 
@@ -12,7 +12,7 @@ import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Text.Encoding (decodeUtf8Lenient)
 import Data.Word (Word8)
-import Parsing.Common.Helpers (charNotEqWord8, toChar, toWord8)
+import JbeamEdit.Parsing.Common.Helpers (charNotEqWord8, toChar, toWord8)
 import Text.Megaparsec qualified as MP
 
 joinAndFormatToks :: Set (MP.ErrorItem Word8) -> Text

@@ -26,7 +26,7 @@ import Data.Yaml.Aeson (
   (.:),
   (.:?),
  )
-import IOUtils
+import JbeamEdit.IOUtils
 import JbeamEdit.Transformation.Types (VertexTreeType (..))
 
 defaultSortingThreshold :: Scientific

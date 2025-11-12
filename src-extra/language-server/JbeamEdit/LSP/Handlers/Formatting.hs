@@ -3,11 +3,11 @@
 
 module JbeamEdit.LSP.Handlers.Formatting (handlers) where
 
-import Core.Node (Node)
+import JbeamEdit.Core.Node (Node)
 import Data.Text qualified as T
-import Formatting qualified as Fmt
-import Formatting.Rules (RuleSet)
-import IOUtils
+import JbeamEdit.Formatting qualified as Fmt
+import JbeamEdit.Formatting.Rules (RuleSet)
+import JbeamEdit.IOUtils
 import Language.LSP.Protocol.Message qualified as Msg
 import Language.LSP.Protocol.Types qualified as J (
   DocumentFormattingParams (..),
@@ -19,7 +19,7 @@ import Language.LSP.Protocol.Types qualified as J (
   type (|?) (..),
  )
 import Language.LSP.Server qualified as S
-import Parsing.Jbeam qualified as JbeamP
+import JbeamEdit.Parsing.Jbeam qualified as JbeamP
 import JbeamEdit.LSP.Services.DocumentStore qualified as Docs
 
 putErrorLine' :: MonadIO m => Text -> m ()

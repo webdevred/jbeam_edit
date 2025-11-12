@@ -1,4 +1,4 @@
-module Core.Node (
+module JbeamEdit.Core.Node (
   isCommentNode,
   isObjectNode,
   isNumberNode,

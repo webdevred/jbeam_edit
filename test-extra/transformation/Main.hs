@@ -6,7 +6,7 @@ import JbeamEdit.Transformation.Config
 import Data.List (isPrefixOf, isSuffixOf)
 import Data.Map qualified as M
 import Data.Text qualified as T
-import Formatting
+import JbeamEdit.Formatting
 import System.Directory (getDirectoryContents)
 import Test.Hspec
 import JbeamEdit.Transformation

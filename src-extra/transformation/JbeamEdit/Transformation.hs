@@ -2,10 +2,10 @@ module JbeamEdit.Transformation (transform) where
 
 import JbeamEdit.Transformation.Config
 import Control.Monad (foldM)
-import Core.Node
-import Core.NodeCursor (newCursor)
-import Core.NodeCursor qualified as NC
-import Core.NodePath qualified as NP
+import JbeamEdit.Core.Node
+import JbeamEdit.Core.NodeCursor (newCursor)
+import JbeamEdit.Core.NodeCursor qualified as NC
+import JbeamEdit.Core.NodePath qualified as NP
 import Data.List (partition)
 import Data.List.NonEmpty qualified as NE
 import Data.Map qualified as M

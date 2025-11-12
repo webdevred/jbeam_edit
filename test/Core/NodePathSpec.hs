@@ -1,6 +1,6 @@
 module Core.NodePathSpec (spec) where
 
-import Core.NodePath qualified as NP
+import JbeamEdit.Core.NodePath qualified as NP
 import Data.Maybe (isJust)
 import GHC.IsList (fromList)
 import SpecHelper

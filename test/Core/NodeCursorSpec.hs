@@ -1,9 +1,9 @@
 module Core.NodeCursorSpec (spec) where
 
 import Control.Exception (evaluate)
-import Core.Node (Node (..))
-import Core.NodeCursor
-import Core.NodePath qualified as NP
+import JbeamEdit.Core.Node (Node (..))
+import JbeamEdit.Core.NodeCursor
+import JbeamEdit.Core.NodePath qualified as NP
 import Data.Sequence qualified as Seq
 import Test.Hspec
 
