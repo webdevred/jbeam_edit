@@ -2,6 +2,7 @@
 
 module Config (
   loadTransformationConfig,
+  applyOperator,
   newTransformationConfig,
   TransformationConfig (..),
   XGroupBreakpoint (..),
@@ -12,7 +13,6 @@ module Config (
   defaultMaxSupportCoordinates,
 ) where
 
-import Data.Char
 import Data.Scientific (Scientific)
 import Data.Text qualified as T
 import Data.Yaml (decodeFileEither)
@@ -40,9 +40,9 @@ defaultMaxSupportCoordinates = 3
 defaultBreakpoints :: XGroupBreakpoints
 defaultBreakpoints =
   XGroupBreakpoints
-    [ (XGroupBreakpoint (>= 0.09), LeftTree) -- x >= 0.09 → LeftTree
-    , (XGroupBreakpoint (> -0.09), MiddleTree) -- -0.09 < x < 0.09 → MiddleTree
-    , (XGroupBreakpoint (<= -0.09), RightTree) -- x <= -0.09 → RightTree
+    [ (XGroupBreakpoint OpGE 0.09, LeftTree)      -- x >= 0.09 → LeftTree
+    , (XGroupBreakpoint OpLE (-0.09), RightTree)  -- x <= -0.09 → RightTree
+    , (XGroupBreakpoint OpLT 0.09, MiddleTree)    -- -0.09 < x < 0.09 → MiddleTree
     ]
 
 data TransformationConfig = TransformationConfig
@@ -61,14 +61,21 @@ newTransformationConfig =
     defaultSupportThreshold
     defaultMaxSupportCoordinates
 
-newtype XGroupBreakpoint = XGroupBreakpoint
-  {passingBreakpoint :: Scientific -> Bool}
+data XGroupBreakpoint = XGroupBreakpoint Operator Scientific deriving (Show)
 
-parseOperator :: Text -> Maybe (Scientific -> Scientific -> Bool)
-parseOperator ">" = Just (>)
-parseOperator "<" = Just (<)
-parseOperator "<=" = Just (<=)
-parseOperator ">=" = Just (>=)
+data Operator = OpLT | OpGT | OpLE | OpGE deriving (Show)
+
+applyOperator :: Operator -> Scientific -> Scientific -> Bool
+applyOperator OpLT x y = x < y
+applyOperator OpGT x y = x > y
+applyOperator OpLE x y = x <= y
+applyOperator OpGE x y = x >= y
+
+parseOperator :: Text -> Maybe Operator
+parseOperator ">" = Just OpGT
+parseOperator "<" = Just OpLT
+parseOperator "<=" = Just OpLE
+parseOperator ">=" = Just OpGE
 parseOperator _ = Nothing
 
 instance FromJSON XGroupBreakpoint where
@@ -77,13 +84,14 @@ instance FromJSON XGroupBreakpoint where
      in case parseOperator opTxt of
           Nothing -> fail "Invalid operator"
           Just opFunc ->
-            case readMaybe (toString $ T.dropWhile isSpace rest) of
+            case readMaybe (toString $ T.strip rest) of
               Nothing -> fail "Invalid number"
-              Just brk -> pure $ XGroupBreakpoint (`opFunc` brk)
+              Just brk -> pure $ XGroupBreakpoint opFunc brk
 
 newtype XGroupBreakpoints
   = XGroupBreakpoints
       [(XGroupBreakpoint, VertexTreeType)]
+  deriving (Show)
 
 instance FromJSON XGroupBreakpoints where
   parseJSON = withArray "XGroupBreakpoints" $ \arr -> do
