@@ -384,7 +384,7 @@ Object
                         ]
                     , Comment
                         ( InternalComment
-                            { cText = "suport for rear"
+                            { cText = "support for rear"
                             , cMultiline = False
                             , cAssociationDirection = PreviousNode
                             }
