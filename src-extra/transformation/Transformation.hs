@@ -6,7 +6,7 @@ import Core.Node
 import Core.NodeCursor (newCursor)
 import Core.NodeCursor qualified as NC
 import Core.NodePath qualified as NP
-import Data.Foldable1 (fold1)
+import VectorHelpers
 import Data.Map qualified as M
 import Data.Scientific (Scientific)
 import Data.Sequence (Seq (..))
