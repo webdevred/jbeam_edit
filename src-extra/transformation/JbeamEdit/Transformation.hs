@@ -13,6 +13,7 @@ import JbeamEdit.Core.Node
 import JbeamEdit.Core.NodeCursor (newCursor)
 import JbeamEdit.Core.NodeCursor qualified as NC
 import JbeamEdit.Core.NodePath qualified as NP
+import JbeamEdit.Core.Result (Results (..))
 import JbeamEdit.Transformation.Config
 import JbeamEdit.Transformation.SupportVertex
 import JbeamEdit.Transformation.Types
@@ -187,7 +188,7 @@ moveVerticesInVertexForest topNode newNames tfCfg vertexTrees =
    in case mapM (groupAnnotatedVertices brks) allVertices of
         Just movableVertices' -> do
           let groupedVertices = M.fromListWith (++) movableVertices'
-          (badBeamNodes, conns) <-
+          Results badBeamNodes conns <-
             vertexConns (maxSupportCoordinates tfCfg) topNode groupedVertices
           let (supportForest, nonSupportVertices) =
                 moveSupportVertices

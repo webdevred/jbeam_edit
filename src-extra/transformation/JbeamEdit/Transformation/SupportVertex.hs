@@ -27,13 +27,13 @@ vertexConns
   :: Int
   -> Node
   -> Map VertexTreeType [AnnotatedVertex]
-  -> Either Text ([Node], VertexConnMap)
+  -> Either Text (Results Node VertexConnMap)
 vertexConns maxX topNode vsPerType = case NP.queryNodes beamQuery topNode of
   Just (Array beams) -> Right $ go beams
   _ -> Left $ "could not find " <> show beamQuery
   where
     go beams =
-      let (badNodes, beamPairs) = mapResult possiblyBeam beams
+      let Results badNodes beamPairs = mapResult possiblyBeam beams
 
           counts :: Map Text Int
           counts =
@@ -66,4 +66,4 @@ vertexConns maxX topNode vsPerType = case NP.queryNodes beamQuery topNode of
               | (t, vs) <- M.toList topVerticesPerType
               , (v, c) <- vs
               ]
-       in (badNodes, vertexConnMap)
+       in Results badNodes vertexConnMap

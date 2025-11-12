@@ -1,14 +1,18 @@
-module JbeamEdit.Core.Result (Result (..), mapResult) where
+module JbeamEdit.Core.Result (Results (..), Result (..), mapResult) where
+
+import Data.Sequence (Seq ((:<|)))
 
 data Result bad good = Empty | Bad bad | Good good
 
+data Results bad goods = Results [bad] goods
+
 mapResult
   :: Foldable t
-  => (b -> Result a1 a2) -> t b -> ([a1], [a2])
-mapResult f = foldr f' ([], [])
+  => (a -> Result b g) -> t a -> Results b (Seq g)
+mapResult f = foldr f' (Results mempty mempty)
   where
-    f' val (bad, good) =
+    f' val results@(Results bad good) =
       case f val of
-        Empty -> (bad, good)
-        Bad newBad -> (newBad : bad, good)
-        Good newGood -> (bad, newGood : good)
+        Empty -> results
+        Bad newBad -> Results (newBad : bad) good
+        Good newGood -> Results bad (newGood :<| good)
