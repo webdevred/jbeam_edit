@@ -148,8 +148,13 @@ moveSupportVertices newNames tfCfg connMap vsPerType =
 
       remainingVertices :: M.Map VertexTreeType [AnnotatedVertex]
       remainingVertices =
-        M.map (filter (`notElem` supportVertices)) vsPerType
+        M.map (filter (`notElemByVertexName` supportVertices)) vsPerType
    in (vertexForest, remainingVertices)
+
+notElemByVertexName
+  :: Foldable t
+  => AnnotatedVertex -> t AnnotatedVertex -> Bool
+notElemByVertexName vertex = not . any (on (==) (vName . aVertex) vertex)
 
 moveVerticesInVertexForest
   :: Node
