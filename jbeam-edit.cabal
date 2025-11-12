@@ -113,11 +113,11 @@ library
 
 library jbeam-edit-transformation
     exposed-modules:
-        Config
-        SupportVertex
-        Transformation
-        Types
-        VertexExtraction
+        JbeamEdit.Transformation
+        JbeamEdit.Transformation.Config
+        JbeamEdit.Transformation.SupportVertex
+        JbeamEdit.Transformation.Types
+        JbeamEdit.Transformation.VertexExtraction
 
     hs-source-dirs:     src-extra/transformation
     other-modules:      Paths_jbeam_edit

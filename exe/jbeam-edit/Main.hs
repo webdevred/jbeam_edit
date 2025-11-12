@@ -22,9 +22,9 @@ import Data.Text qualified as T
 import System.FilePath (dropExtension)
 
 #ifdef ENABLE_TRANSFORMATION
-import Transformation (transform)
+import JbeamEdit.Transformation (transform)
 import System.FilePath ((</>))
-import Config
+import JbeamEdit.Transformation.Config
 import System.Directory (getCurrentDirectory)
 #endif
 

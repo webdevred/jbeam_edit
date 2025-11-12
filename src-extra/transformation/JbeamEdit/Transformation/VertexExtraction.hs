@@ -1,4 +1,4 @@
-module VertexExtraction (
+module JbeamEdit.Transformation.VertexExtraction (
   getVertexForest,
   determineGroup,
   determineGroup',
@@ -7,7 +7,7 @@ module VertexExtraction (
   dropIndex,
 ) where
 
-import Config
+import JbeamEdit.Transformation.Config
 import Core.Node
 import Core.NodePath qualified as NP
 import Data.Char (isDigit)
@@ -16,7 +16,7 @@ import Data.Map qualified as M
 import Data.Set qualified as S
 import Data.Text qualified as T
 import Data.Vector qualified as V
-import Types
+import JbeamEdit.Transformation.Types
 
 newVertex :: Node -> Maybe Vertex
 newVertex (Array ns) = f . V.toList $ ns

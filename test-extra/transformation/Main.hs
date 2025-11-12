@@ -2,14 +2,14 @@ module Main (
   main,
 ) where
 
-import Config
+import JbeamEdit.Transformation.Config
 import Data.List (isPrefixOf, isSuffixOf)
 import Data.Map qualified as M
 import Data.Text qualified as T
 import Formatting
 import System.Directory (getDirectoryContents)
 import Test.Hspec
-import Transformation
+import JbeamEdit.Transformation
 
 listFilesInDir
   :: FilePath

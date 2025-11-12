@@ -1,4 +1,4 @@
-module Types (
+module JbeamEdit.Transformation.Types (
   VertexForest,
   VertexTree (..),
   VertexTreeType (..),

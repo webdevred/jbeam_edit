@@ -2,7 +2,7 @@ module Main (
   main,
 ) where
 
-import Config
+import JbeamEdit.Transformation.Config
 import Data.ByteString.Lazy qualified as LBS
 import Data.List (isPrefixOf, isSuffixOf)
 import Data.Map qualified as M
@@ -16,7 +16,7 @@ import System.Exit (exitFailure)
 import System.FilePath (dropExtension, takeBaseName, (</>))
 import System.IO qualified as IO (readFile)
 import Text.Pretty.Simple (defaultOutputOptionsNoColor, pStringOpt)
-import Transformation
+import JbeamEdit.Transformation
 
 main :: IO ()
 main = do

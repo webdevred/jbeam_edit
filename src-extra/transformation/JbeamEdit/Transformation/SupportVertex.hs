@@ -1,11 +1,11 @@
-module SupportVertex (vertexConns) where
+module JbeamEdit.Transformation.SupportVertex (vertexConns) where
 
 import Core.Node
 import Core.NodePath qualified as NP
 import Core.Result
 import Data.Map qualified as M
 import Data.Vector qualified as V
-import Types
+import JbeamEdit.Transformation.Types
 
 beamQuery :: NP.NodePath
 beamQuery = fromList [NP.ObjectIndex 0, NP.ObjectKey "beams"]
