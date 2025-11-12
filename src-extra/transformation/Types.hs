@@ -47,7 +47,10 @@ data Vertex = Vertex
   , vZ :: Scientific
   , vMeta :: Maybe Object
   }
-  deriving (Eq, Show)
+  deriving (Show)
+
+instance Eq Vertex where
+  (==) = (==) `on` vName
 
 data AnnotatedVertex = AnnotatedVertex
   { aComments :: [InternalComment]
@@ -57,7 +60,7 @@ data AnnotatedVertex = AnnotatedVertex
   deriving (Show)
 
 instance Eq AnnotatedVertex where
-  v1 == v2 = on (==) (vName . aVertex) v1 v2
+  (==) = (==) `on` aVertex
 
 type MetaMap = Map Text Node
 
