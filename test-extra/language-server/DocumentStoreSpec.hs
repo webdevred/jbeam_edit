@@ -1,7 +1,13 @@
 module DocumentStoreSpec (spec) where
 
+import JbeamEdit.LSP.Services.DocumentStore (
+  delete,
+  get,
+  open,
+  resetStore,
+  update,
+ )
 import Language.LSP.Protocol.Types (Uri (..))
-import JbeamEdit.LSP.Services.DocumentStore (delete, get, open, resetStore, update)
 import Test.Hspec
 
 spec :: Spec

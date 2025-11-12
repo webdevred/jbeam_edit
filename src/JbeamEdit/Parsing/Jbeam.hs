@@ -9,7 +9,6 @@ module JbeamEdit.Parsing.Jbeam (
 
 import Control.Monad.State (State, evalState)
 import Control.Monad.State.Class
-import JbeamEdit.Core.Node (AssociationDirection (..), InternalComment (..), Node (..))
 import Data.Bifunctor (first)
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
@@ -20,6 +19,11 @@ import Data.Text qualified as T
 import Data.Text.Encoding (decodeUtf8)
 import Data.Vector qualified as V (fromList)
 import Data.Void (Void)
+import JbeamEdit.Core.Node (
+  AssociationDirection (..),
+  InternalComment (..),
+  Node (..),
+ )
 import JbeamEdit.Parsing.Common
 import Text.Megaparsec ((<?>), (<|>))
 import Text.Megaparsec qualified as MP

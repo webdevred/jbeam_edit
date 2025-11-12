@@ -23,9 +23,6 @@ module JbeamEdit.Formatting.Rules (
   findPropertiesForCursor,
 ) where
 
-import JbeamEdit.Core.Node
-import JbeamEdit.Core.NodeCursor qualified as NC
-import JbeamEdit.Core.NodePath (NodeSelector (..))
 import Data.Function (on)
 import Data.List (find)
 import Data.Map (Map)
@@ -37,6 +34,9 @@ import Data.Sequence qualified as Seq (length, null)
 import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Type.Equality ((:~:) (Refl))
+import JbeamEdit.Core.Node
+import JbeamEdit.Core.NodeCursor qualified as NC
+import JbeamEdit.Core.NodePath (NodeSelector (..))
 import Text.Read qualified as TR
 
 data NodePatternSelector

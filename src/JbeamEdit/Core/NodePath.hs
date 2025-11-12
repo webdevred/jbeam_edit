@@ -8,11 +8,11 @@ module JbeamEdit.Core.NodePath (
   select,
 ) where
 
-import JbeamEdit.Core.Node qualified as N (Node (..))
 import Data.Sequence (Seq (..))
 import Data.Text (Text)
 import Data.Vector qualified as V
 import GHC.IsList (IsList (..))
+import JbeamEdit.Core.Node qualified as N (Node (..))
 
 data NodeSelector
   = ArrayIndex Int

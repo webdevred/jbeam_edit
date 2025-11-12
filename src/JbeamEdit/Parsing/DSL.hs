@@ -9,7 +9,6 @@ module JbeamEdit.Parsing.DSL (
   ruleSetParser,
 ) where
 
-import JbeamEdit.Core.NodePath
 import Data.Bifunctor (first)
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
@@ -25,6 +24,7 @@ import Data.Text (Text)
 import Data.Text qualified as T (unpack)
 import Data.Text.Encoding (decodeUtf8')
 import Data.Word (Word8)
+import JbeamEdit.Core.NodePath
 import JbeamEdit.Formatting.Rules
 import JbeamEdit.Parsing.Common
 import Text.Megaparsec ((<?>))

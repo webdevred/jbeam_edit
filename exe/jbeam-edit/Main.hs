@@ -4,14 +4,14 @@ module Main (
 
 import CommandLineOptions
 import Control.Monad (unless)
-import Core.Node (Node)
 import Data.ByteString.Lazy qualified as LBS (fromStrict, toStrict, writeFile)
 import Data.Text (Text)
 import Data.Text.Encoding (encodeUtf8)
-import Formatting (RuleSet, formatNode)
-import Formatting.Config
-import IOUtils
-import Parsing.Jbeam (parseNodes)
+import JbeamEdit.Core.Node (Node)
+import JbeamEdit.Formatting (RuleSet, formatNode)
+import JbeamEdit.Formatting.Config
+import JbeamEdit.IOUtils
+import JbeamEdit.Parsing.Jbeam (parseNodes)
 import System.Directory (copyFile)
 import System.Environment (getArgs)
 

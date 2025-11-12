@@ -1,10 +1,10 @@
 module JbeamEdit.Transformation.SupportVertex (vertexConns) where
 
+import Data.Map qualified as M
+import Data.Vector qualified as V
 import JbeamEdit.Core.Node
 import JbeamEdit.Core.NodePath qualified as NP
 import JbeamEdit.Core.Result
-import Data.Map qualified as M
-import Data.Vector qualified as V
 import JbeamEdit.Transformation.Types
 
 beamQuery :: NP.NodePath

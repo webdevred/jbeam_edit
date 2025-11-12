@@ -7,15 +7,15 @@ module JbeamEdit.Transformation.VertexExtraction (
   dropIndex,
 ) where
 
-import JbeamEdit.Transformation.Config
-import JbeamEdit.Core.Node
-import JbeamEdit.Core.NodePath qualified as NP
 import Data.Char (isDigit)
 import Data.List.NonEmpty qualified as NE
 import Data.Map qualified as M
 import Data.Set qualified as S
 import Data.Text qualified as T
 import Data.Vector qualified as V
+import JbeamEdit.Core.Node
+import JbeamEdit.Core.NodePath qualified as NP
+import JbeamEdit.Transformation.Config
 import JbeamEdit.Transformation.Types
 
 newVertex :: Node -> Maybe Vertex

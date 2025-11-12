@@ -1,7 +1,7 @@
 module Main (main) where
 
 import Data.Functor (void)
-import Server (runServer)
+import JbeamEdit.LSP.Server (runServer)
 import System.Environment (getArgs)
 import System.Exit (exitFailure)
 import System.IO qualified as IO (readFile)

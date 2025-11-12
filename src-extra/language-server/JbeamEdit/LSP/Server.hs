@@ -5,8 +5,9 @@
 module JbeamEdit.LSP.Server (runServer) where
 
 import JbeamEdit.Formatting.Rules (RuleSet)
-import JbeamEdit.LSP.Handlers.Formatting qualified as Formatting
 import JbeamEdit.IOUtils
+import JbeamEdit.LSP.Handlers.Formatting qualified as Formatting
+import JbeamEdit.LSP.Services.DocumentStore qualified as Docs
 import Language.LSP.Protocol.Message qualified as Msg
 import Language.LSP.Protocol.Types qualified as J (
   DidChangeTextDocumentParams (..),
@@ -23,7 +24,6 @@ import Language.LSP.Protocol.Types qualified as J (
   type (|?) (..),
  )
 import Language.LSP.Server qualified as S
-import JbeamEdit.LSP.Services.DocumentStore qualified as Docs
 
 staticHandlers :: RuleSet -> S.Handlers (S.LspM config)
 staticHandlers rs =

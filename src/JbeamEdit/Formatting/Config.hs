@@ -2,8 +2,8 @@
 
 module JbeamEdit.Formatting.Config (readFormattingConfig, copyToConfigDir, ConfigType (..)) where
 
-import JbeamEdit.Formatting.Rules
 import GHC.IO.Exception (IOErrorType (NoSuchThing))
+import JbeamEdit.Formatting.Rules
 import JbeamEdit.IOUtils
 import JbeamEdit.Parsing.DSL (parseDSL)
 

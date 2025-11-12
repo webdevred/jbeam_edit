@@ -1,7 +1,7 @@
 - extensions:
   - default: true
   - {name: LambdaCase, within: []}
-  - {name: CPP, within: [Formatting.Config]}
+  - {name: CPP, within: [JbeamEdit.Formatting.Config]}
 - modules:
   - {name: '**', qualifiedStyle: post}
 - warn: {name: Use explicit module export list}

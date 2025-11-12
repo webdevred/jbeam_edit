@@ -8,8 +8,8 @@ module SpecHelper (
   SpecFun,
 ) where
 
-import JbeamEdit.Core.Node
 import Data.List (isPrefixOf, isSuffixOf)
+import JbeamEdit.Core.Node
 import System.Directory (getDirectoryContents)
 import Test.Hspec
 
