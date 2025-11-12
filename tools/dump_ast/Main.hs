@@ -21,7 +21,8 @@ import Transformation
 main :: IO ()
 main = do
   cwd <- getCurrentDirectory
-  exampleCfg <- loadTransformationConfig $ cwd </> "examples" </> "jbeam-edit.yaml"
+  exampleCfg <-
+    loadTransformationConfig $ cwd </> "examples" </> "jbeam-edit.yaml"
   let examplesDir = "examples"
       jbflInputDir = examplesDir </> "jbfl"
       jbeamInputDir = examplesDir </> "jbeam"

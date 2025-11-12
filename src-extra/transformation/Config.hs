@@ -1,4 +1,5 @@
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DerivingStrategies #-}
 
 module Config (
   loadTransformationConfig,
@@ -40,9 +41,9 @@ defaultMaxSupportCoordinates = 3
 defaultBreakpoints :: XGroupBreakpoints
 defaultBreakpoints =
   XGroupBreakpoints
-    [ (XGroupBreakpoint OpGE 0.09, LeftTree)      -- x >= 0.09 → LeftTree
-    , (XGroupBreakpoint OpLE (-0.09), RightTree)  -- x <= -0.09 → RightTree
-    , (XGroupBreakpoint OpLT 0.09, MiddleTree)    -- -0.09 < x < 0.09 → MiddleTree
+    [ (XGroupBreakpoint OpGE 0.09, LeftTree) -- x >= 0.09 → LeftTree
+    , (XGroupBreakpoint OpLE (-0.09), RightTree) -- x <= -0.09 → RightTree
+    , (XGroupBreakpoint OpLT 0.09, MiddleTree) -- -0.09 < x < 0.09 → MiddleTree
     ]
 
 data TransformationConfig = TransformationConfig
@@ -91,7 +92,7 @@ instance FromJSON XGroupBreakpoint where
 newtype XGroupBreakpoints
   = XGroupBreakpoints
       [(XGroupBreakpoint, VertexTreeType)]
-  deriving (Show)
+  deriving stock (Show)
 
 instance FromJSON XGroupBreakpoints where
   parseJSON = withArray "XGroupBreakpoints" $ \arr -> do

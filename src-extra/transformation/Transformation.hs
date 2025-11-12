@@ -129,7 +129,7 @@ moveSupportVertices newNames tfCfg connMap vsPerType =
         , let name = vName (aVertex av)
         , let vertexCount = length vs
               thrCount =
-                max 1 (round $ (supportThreshold tfCfg / 100) * fromIntegral vertexCount)
+                max 1 (round $ supportThreshold tfCfg / 100 * fromIntegral vertexCount)
         , Just (_bestType, count) <- [M.lookup name connMap]
         , count >= thrCount
         ]
@@ -139,10 +139,12 @@ moveSupportVertices newNames tfCfg connMap vsPerType =
         case nonEmpty supportVertices of
           Nothing -> M.empty
           Just vs ->
-            M.singleton SupportTree $
-              VertexTree
-                [sideComment SupportTree]
-                (one $ sortSupportVertices newNames tfCfg vs)
+            one
+              ( SupportTree
+              , VertexTree
+                  [sideComment SupportTree]
+                  (one $ sortSupportVertices newNames tfCfg vs)
+              )
 
       remainingVertices :: M.Map VertexTreeType [AnnotatedVertex]
       remainingVertices =
@@ -155,7 +157,7 @@ moveVerticesInVertexForest
   -> TransformationConfig
   -> VertexForest
   -> Either Text ([Node], VertexForest)
-moveVerticesInVertexForest topNode newNames tfCfg vertexTrees = do
+moveVerticesInVertexForest topNode newNames tfCfg vertexTrees =
   let allVertices = concatMap (NE.toList . sconcat . tAnnotatedVertices) vertexTrees
       brks = xGroupBreakpoints tfCfg
    in case mapM (groupAnnotatedVertices brks) allVertices of

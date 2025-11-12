@@ -52,7 +52,7 @@ vertexConns maxX topNode vsPerType = case NP.queryNodes beamQuery topNode of
               ( \vs ->
                   take
                     maxX
-                    ( sortOn
+                    ( sortWith
                         (Down . snd)
                         ([(v, M.findWithDefault 0 (vName $ aVertex v) counts) | v <- vs])
                     )
