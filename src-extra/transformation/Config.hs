@@ -9,6 +9,7 @@ module Config (
   defaultSortingThreshold,
   defaultSupportThreshold,
   defaultBreakpoints,
+  defaultMaxSupportCoordinates,
 ) where
 
 import Data.Char
@@ -33,6 +34,9 @@ defaultSortingThreshold = 0.05
 defaultSupportThreshold :: Double
 defaultSupportThreshold = 96
 
+defaultMaxSupportCoordinates :: Int
+defaultMaxSupportCoordinates = 3
+
 defaultBreakpoints :: XGroupBreakpoints
 defaultBreakpoints =
   XGroupBreakpoints
@@ -45,6 +49,7 @@ data TransformationConfig = TransformationConfig
   { zSortingThreshold :: Scientific
   , xGroupBreakpoints :: XGroupBreakpoints
   , supportThreshold :: Double
+  , maxSupportCoordinates :: Int
   }
   deriving (Generic)
 
@@ -54,6 +59,7 @@ newTransformationConfig =
     defaultSortingThreshold
     defaultBreakpoints
     defaultSupportThreshold
+    defaultMaxSupportCoordinates
 
 newtype XGroupBreakpoint = XGroupBreakpoint
   {passingBreakpoint :: Scientific -> Bool}
@@ -86,7 +92,7 @@ instance FromJSON XGroupBreakpoints where
         "XGroupBreakpointEntry"
         ( \o -> do
             bp <- o .: "breakpoint"
-            vt <- o .: "vertex"
+            vt <- o .: "vertex-type"
             pure (bp, vt)
         )
         obj
@@ -98,6 +104,7 @@ instance FromJSON TransformationConfig where
       <$> o .:? "z-sorting-threshold" .!= defaultSortingThreshold
       <*> o .:? "x-group-breakpoints" .!= defaultBreakpoints
       <*> o .:? "support-threshold" .!= defaultSupportThreshold
+      <*> o .:? "max-support-coordinates" .!= defaultMaxSupportCoordinates
 
 loadTransformationConfig :: FilePath -> IO TransformationConfig
 loadTransformationConfig filename = do
@@ -111,4 +118,5 @@ loadTransformationConfig filename = do
             defaultSortingThreshold
             defaultBreakpoints
             defaultSupportThreshold
+            defaultMaxSupportCoordinates
         )

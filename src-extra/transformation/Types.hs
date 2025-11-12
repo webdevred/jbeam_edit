@@ -61,6 +61,6 @@ instance Eq AnnotatedVertex where
 
 type MetaMap = Map Text Node
 
-type VertexConnMap = Map VertexTreeType (Map Text Int)
+type VertexConnMap = Map Text (VertexTreeType, Int)
 
 type UpdateNamesMap = Map Text Text

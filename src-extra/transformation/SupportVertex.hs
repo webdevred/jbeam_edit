@@ -4,7 +4,6 @@ import Core.Node
 import Core.NodePath qualified as NP
 import Core.Result
 import Data.Map qualified as M
-import Data.Vector (Vector)
 import Data.Vector qualified as V
 import Types
 
@@ -24,39 +23,47 @@ possiblyBeam node
             _ -> Nothing
         _ -> Nothing
 
-typeForNames :: Map VertexTreeType [AnnotatedVertex] -> Map Text VertexTreeType
-typeForNames groupedVs = M.fromList [(vName $ aVertex v, t) | (t, vs) <- M.toList groupedVs, v <- vs]
-
 vertexConns
-  :: Node
+  :: Int
+  -> Node
   -> Map VertexTreeType [AnnotatedVertex]
   -> Either Text ([Node], VertexConnMap)
-vertexConns topNode vsPerType = case NP.queryNodes beamQuery topNode of
+vertexConns maxX topNode vsPerType = case NP.queryNodes beamQuery topNode of
   Just (Array beams) -> Right $ go beams
   _ -> Left $ "could not find " <> show beamQuery
   where
-    typeMap :: Map Text VertexTreeType
-    typeMap = typeForNames vsPerType
-
-    updateConn :: VertexTreeType -> Text -> VertexConnMap -> VertexConnMap
-    updateConn vtype key =
-      M.insertWith
-        (M.unionWith (+))
-        vtype
-        (one (key, 1))
-
-    go :: Vector Node -> ([Node], VertexConnMap)
     go beams =
       let (badNodes, beamPairs) = mapResult possiblyBeam beams
-          connMap = foldr updateForPair M.empty beamPairs
-       in (badNodes, connMap)
 
-    updateForPair :: (Text, Text) -> VertexConnMap -> VertexConnMap
-    updateForPair (beam1, beam2) acc =
-      let acc' = case M.lookup beam2 typeMap of
-            Just t -> updateConn t beam1 acc
-            Nothing -> acc
-          acc'' = case M.lookup beam1 typeMap of
-            Just t' -> updateConn t' beam2 acc'
-            Nothing -> acc'
-       in acc''
+          counts :: Map Text Int
+          counts =
+            foldr
+              ( \(a, b) acc ->
+                  acc
+                    & M.insertWith (+) a 1
+                    & M.insertWith (+) b 1
+              )
+              M.empty
+              beamPairs
+
+          topVerticesPerType :: Map VertexTreeType [(AnnotatedVertex, Int)]
+          topVerticesPerType =
+            M.map
+              ( \vs ->
+                  take
+                    maxX
+                    ( sortOn
+                        (Down . snd)
+                        ([(v, M.findWithDefault 0 (vName $ aVertex v) counts) | v <- vs])
+                    )
+              )
+              vsPerType
+
+          vertexConnMap :: VertexConnMap
+          vertexConnMap =
+            M.fromList
+              [ (vName $ aVertex v, (t, c))
+              | (t, vs) <- M.toList topVerticesPerType
+              , (v, c) <- vs
+              ]
+       in (badNodes, vertexConnMap)
