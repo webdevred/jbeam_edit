@@ -6,7 +6,6 @@ import Core.Node
 import Core.NodeCursor (newCursor)
 import Core.NodeCursor qualified as NC
 import Core.NodePath qualified as NP
-import VectorHelpers
 import Data.Map qualified as M
 import Data.Scientific (Scientific)
 import Data.Sequence (Seq (..))
@@ -17,6 +16,7 @@ import Data.Vector.NonEmpty (NonEmptyVector)
 import Data.Vector.NonEmpty qualified as NEV
 import SupportVertex
 import Types
+import VectorHelpers
 import VectorHelpers qualified as VH
 import VertexExtraction
 
