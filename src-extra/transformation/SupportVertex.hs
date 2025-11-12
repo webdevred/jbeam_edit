@@ -34,7 +34,7 @@ vertexConns maxX topNode vsPerType = case NP.queryNodes beamQuery topNode of
   _ -> Left $ "could not find " <> show beamQuery
   where
     go beams =
-      let (badNodes, beamPairs) = mapResult possiblyBeam (V.toList beams)
+      let (badNodes, beamPairs) = mapResult possiblyBeam beams
 
           counts :: Map Text Int
           counts =
