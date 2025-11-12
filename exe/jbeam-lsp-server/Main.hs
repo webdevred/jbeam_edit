@@ -4,7 +4,7 @@ module Main (
 
 import Data.Functor (void)
 import Formatting.Config qualified as FmtCfg
-import Server (runServer)
+import JbeamEdit.LSP.Server (runServer)
 
 main :: IO ()
 main = do

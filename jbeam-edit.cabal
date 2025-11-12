@@ -156,9 +156,9 @@ library jbeam-edit-transformation
 
 library jbeam-language-server
     exposed-modules:
-        Handlers.Formatting
-        Server
-        Services.DocumentStore
+        JbeamEdit.LSP.Handlers.Formatting
+        JbeamEdit.LSP.Server
+        JbeamEdit.LSP.Services.DocumentStore
 
     hs-source-dirs:     src-extra/language-server
     other-modules:      Paths_jbeam_edit

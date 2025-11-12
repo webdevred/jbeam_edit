@@ -2,10 +2,10 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TypeOperators #-}
 
-module Server (runServer) where
+module JbeamEdit.LSP.Server (runServer) where
 
 import Formatting.Rules (RuleSet)
-import Handlers.Formatting qualified as Formatting
+import JbeamEdit.LSP.Handlers.Formatting qualified as Formatting
 import IOUtils
 import Language.LSP.Protocol.Message qualified as Msg
 import Language.LSP.Protocol.Types qualified as J (
@@ -23,7 +23,7 @@ import Language.LSP.Protocol.Types qualified as J (
   type (|?) (..),
  )
 import Language.LSP.Server qualified as S
-import Services.DocumentStore qualified as Docs
+import JbeamEdit.LSP.Services.DocumentStore qualified as Docs
 
 staticHandlers :: RuleSet -> S.Handlers (S.LspM config)
 staticHandlers rs =

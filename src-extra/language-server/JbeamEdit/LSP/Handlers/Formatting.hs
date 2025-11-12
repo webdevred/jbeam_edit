@@ -1,7 +1,7 @@
 {-# LANGUAGE ExplicitNamespaces #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Handlers.Formatting (handlers) where
+module JbeamEdit.LSP.Handlers.Formatting (handlers) where
 
 import Core.Node (Node)
 import Data.Text qualified as T
@@ -20,7 +20,7 @@ import Language.LSP.Protocol.Types qualified as J (
  )
 import Language.LSP.Server qualified as S
 import Parsing.Jbeam qualified as JbeamP
-import Services.DocumentStore qualified as Docs
+import JbeamEdit.LSP.Services.DocumentStore qualified as Docs
 
 putErrorLine' :: MonadIO m => Text -> m ()
 putErrorLine' = liftIO . putErrorLine

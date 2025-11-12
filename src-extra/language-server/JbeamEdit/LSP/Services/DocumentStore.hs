@@ -1,4 +1,4 @@
-module Services.DocumentStore (open, update, get, delete, resetStore) where
+module JbeamEdit.LSP.Services.DocumentStore (open, update, get, delete, resetStore) where
 
 import Control.Concurrent.MVar hiding (newMVar, readMVar)
 import Data.Map.Strict qualified as M
