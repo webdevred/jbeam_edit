@@ -27,7 +27,7 @@ workspaceSpec cwd =
     . it "formats a single JBeam file with a single JBFL rule correctly"
     $ ( do
           runSession
-            ("jbeam-lsp-server --rules-path=" <> exampleJbflFilepath cwd)
+            ("jbeam-lsp-server --rules-path=\"" <> exampleJbflFilepath cwd <> "\"")
             fullLatestClientCaps
             "examples"
             $ do
