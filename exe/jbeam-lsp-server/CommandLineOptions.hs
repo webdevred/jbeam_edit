@@ -11,7 +11,7 @@ import System.Exit (exitSuccess)
 newtype Options = Options
   { optRulesFile :: Maybe FilePath
   }
-  deriving (Show)
+  deriving stock (Show)
 
 startOptions :: Options
 startOptions =
