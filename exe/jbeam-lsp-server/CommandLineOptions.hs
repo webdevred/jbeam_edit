@@ -20,7 +20,7 @@ startOptions =
     }
 
 trimQuotes :: String -> String
-trimQuotes ('"':xs) = trimQuotesEnd xs
+trimQuotes ('"' : xs) = trimQuotesEnd xs
   where
     trimQuotesEnd [] = []
     trimQuotesEnd s@[_] | last s == '"' = init s
