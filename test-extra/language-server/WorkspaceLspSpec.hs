@@ -22,20 +22,24 @@ spec = do
   workspaceSpec cwd
 
 workspaceSpec :: FilePath -> Spec
-workspaceSpec cwd = describe "JBeam LSP Formatter" . it "formats a single JBeam file with a single JBFL rule correctly" $ (do
-  runSession
-    ("jbeam-lsp-server --rules-path=" <> exampleJbflFilepath cwd)
-    fullLatestClientCaps
-    "examples"
-    $ do
-      let jbeamFile = "jbeam" </> "fender.jbeam"
-          expectedFile = "examples" </> "formatted_jbeam" </> "fender-minimal-jbfl.jbeam"
+workspaceSpec cwd =
+  describe "JBeam LSP Formatter"
+    . it "formats a single JBeam file with a single JBFL rule correctly"
+    $ ( do
+          runSession
+            ("jbeam-lsp-server --rules-path=" <> exampleJbflFilepath cwd)
+            fullLatestClientCaps
+            "examples"
+            $ do
+              let jbeamFile = "jbeam" </> "fender.jbeam"
+                  expectedFile = "examples" </> "formatted_jbeam" </> "fender-minimal-jbfl.jbeam"
 
-      doc <- openDoc jbeamFile "jbeam"
+              doc <- openDoc jbeamFile "jbeam"
 
-      formatDoc doc (LSP.FormattingOptions 0 False Nothing Nothing Nothing)
+              formatDoc doc (LSP.FormattingOptions 0 False Nothing Nothing Nothing)
 
-      formatted <- documentContents doc
-      expected <- liftIO (T.pack <$> IO.readFile expectedFile)
+              formatted <- documentContents doc
+              expected <- liftIO (T.pack <$> IO.readFile expectedFile)
 
-      liftIO $ formatted `shouldBe` expected)
+              liftIO $ formatted `shouldBe` expected
+      )
