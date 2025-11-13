@@ -45,7 +45,7 @@ source-repository head
     location: https://github.com/webdevred/jbeam-edit
 
 flag dump-ast
-    description: Enable building the dump-ast executable
+    description: Enable building the dump-ast executable (dev-only)
     default:     False
     manual:      True
 
@@ -53,6 +53,10 @@ flag lsp-server
     description: Enable LSP server (experimental)
     default:     False
     manual:      True
+
+flag lsp-test-server
+    description: Enable LSP test server (dev-only)
+    default:     False
 
 flag transformation
     description: Enable transformation (experimental)
@@ -268,38 +272,10 @@ executable jbeam-edit-dump-ast
 executable jbeam-lsp-server
     main-is:            Main.hs
     hs-source-dirs:     exe/jbeam-lsp-server
-    other-modules:      Paths_jbeam_edit
-    autogen-modules:    Paths_jbeam_edit
-    default-language:   GHC2021
-    default-extensions: OverloadedStrings ImportQualifiedPost
-    ghc-options:
-        -Wall -Wcompat -Widentities -Wincomplete-record-updates
-        -Wincomplete-uni-patterns -Wmissing-export-lists
-        -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
-        -threaded -rtsopts -with-rtsopts=-N
+    other-modules:
+        CommandLineOptions
+        Paths_jbeam_edit
 
-    build-depends:
-        base >=4.17 && <5,
-        bytestring,
-        containers,
-        directory,
-        filepath,
-        jbeam-edit,
-        mtl,
-        scientific,
-        text >=2.0,
-        vector
-
-    if flag(lsp-server)
-        build-depends: jbeam-language-server
-
-    else
-        buildable: False
-
-executable jbeam-lsp-test-server
-    main-is:            Main.hs
-    hs-source-dirs:     tools/lsp-test-server
-    other-modules:      Paths_jbeam_edit
     autogen-modules:    Paths_jbeam_edit
     default-language:   GHC2021
     default-extensions: OverloadedStrings ImportQualifiedPost
@@ -436,6 +412,7 @@ test-suite jbeam-language-server-test
         vector
 
     if flag(lsp-server)
+        build-tool-depends: jbeam-edit:jbeam-lsp-server
         build-depends:
             jbeam-language-server,
             lsp >=2.7,

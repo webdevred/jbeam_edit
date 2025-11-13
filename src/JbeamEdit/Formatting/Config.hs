@@ -28,8 +28,9 @@ getRelativeJbflSourcePath ComplexConfig = "examples" </> "jbfl" </> "complex.jbf
 getConfigDir :: IO FilePath
 getConfigDir = getXdgDirectory XdgConfig "jbeam_edit"
 
-getConfigPath :: FilePath -> IO FilePath
-getConfigPath userConfigDir = do
+getConfigPath :: Maybe FilePath -> FilePath -> IO FilePath
+getConfigPath (Just userProvidedPath) _ = pure userProvidedPath
+getConfigPath Nothing userConfigDir = do
   projectConfigPath <- fmap (</> ".jbeam_edit.jbfl") getCurrentDirectory
   projectConfigExists <- doesFileExist projectConfigPath
   if projectConfigExists
@@ -65,11 +66,11 @@ createRuleFileIfDoesNotExist configPath =
   doesFileExist configPath
     >>= (`when` copyConfigFile configPath MinimalConfig) . not
 
-readFormattingConfig :: IO RuleSet
-readFormattingConfig = do
+readFormattingConfig :: Maybe FilePath -> IO RuleSet
+readFormattingConfig maybeJbflPath = do
   configDir <- getConfigDir
   createRuleFileIfDoesNotExist (configDir </> "rules.jbfl")
-  configPath <- getConfigPath configDir
+  configPath <- getConfigPath maybeJbflPath configDir
   contents <- tryReadFile [NoSuchThing] configPath
   case contents >>= parseDSL . LBS.toStrict of
     Right rs -> pure rs
