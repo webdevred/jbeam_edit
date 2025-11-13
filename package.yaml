@@ -53,7 +53,7 @@ ghc-options:
 
 flags:
   dump-ast:
-    description: Enable building the dump-ast executable
+    description: Enable building the dump-ast executable (dev-only)
     manual: true
     default: false
   transformation:
@@ -63,6 +63,10 @@ flags:
   lsp-server:
     description: Enable LSP server (experimental)
     manual: true
+    default: false
+  lsp-test-server:
+    description: Enable LSP test server (dev-only)
+    manual: false
     default: false
   windows-example-paths:
     description: Use executable-relative example paths (for Windows release builds)
@@ -103,6 +107,7 @@ library:
   ghc-options: [-Wunused-packages]
   source-dirs: src
   generated-other-modules: Paths_jbeam_edit
+  default-extensions: [DerivingStrategies]
   dependencies: [megaparsec]
   when:
     - condition: flag(transformation)
@@ -113,12 +118,6 @@ library:
 _jbeam-lsp-common: &jbeam-lsp-common
   main: Main.hs
   ghc-options: [-threaded, -rtsopts, -with-rtsopts=-N]
-  when:
-    condition: flag(lsp-server)
-    then:
-      dependencies: [jbeam-language-server]
-    else:
-      buildable: false
   dependencies: [jbeam-edit]
 
 executables:
@@ -136,9 +135,12 @@ executables:
         cpp-options: -DENABLE_WINDOWS_NEWLINES
   jbeam-lsp-server:
     source-dirs: exe/jbeam-lsp-server
-    <<: *jbeam-lsp-common
-  jbeam-lsp-test-server:
-    source-dirs: tools/lsp-test-server
+    when:
+      condition: flag(lsp-server)
+      then:
+        dependencies: [jbeam-language-server]
+      else:
+        buildable: false
     <<: *jbeam-lsp-common
   jbeam-edit-dump-ast:
     when:
@@ -171,6 +173,7 @@ tests:
     when:
       - condition: flag(lsp-server)
         then:
+          build-tools: jbeam-edit:jbeam-lsp-server
           dependencies: [jbeam-language-server, lsp-test, lsp >= 2.7]
         else:
           buildable: false

@@ -1,5 +1,3 @@
-{-# LANGUAGE DerivingStrategies #-}
-
 module JbeamEdit.Core.NodeCursor (
   NodeCursor (..),
   NodeBreadcrumb (..),

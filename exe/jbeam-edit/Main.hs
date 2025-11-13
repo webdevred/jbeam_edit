@@ -46,7 +46,7 @@ getWritabaleFilename filename opts = do
 
 editFile :: Options -> IO ()
 editFile opts = do
-  formattingConfig <- readFormattingConfig
+  formattingConfig <- readFormattingConfig Nothing
   case optInputFile opts of
     Just filename -> do
       outFilename <- getWritabaleFilename filename opts

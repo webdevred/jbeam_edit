@@ -83,9 +83,6 @@ jobs:
           cabal build exe:jbeam-lsp-server --project-file cabal.project.release || true
       - name: Build main executable
         run: cabal build exe:jbeam-edit --project-file cabal.project.release
-      - name: Build LSP test server
-        run: |
-          cabal install exe:jbeam-lsp-test-server --project-file cabal.project.release || true
       - name: Run tests (GHC ${{ matrix.ghc }})
         run: cabal test --project-file cabal.project.release
       - name: Enforce CRLF newlines on windows
