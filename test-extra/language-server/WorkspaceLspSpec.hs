@@ -21,25 +21,30 @@ spec = do
   cwd <- runIO getCurrentDirectory
   workspaceSpec cwd
 
+runJbeamSession :: FilePath -> Session a -> IO a
+runJbeamSession cwd =
+  runSession
+    ("jbeam-lsp-server -c " <> exampleJbflFilepath cwd)
+    fullLatestClientCaps
+    "examples"
+
+formatVerify :: Session ()
+formatVerify = do
+  let jbeamFile = "jbeam" </> "fender.jbeam"
+      expectedFile = "examples" </> "formatted_jbeam" </> "fender-minimal-jbfl.jbeam"
+
+  doc <- openDoc jbeamFile "jbeam"
+
+  formatDoc doc (LSP.FormattingOptions 0 False Nothing Nothing Nothing)
+
+  formatted <- documentContents doc
+  expected <- liftIO (T.pack <$> IO.readFile expectedFile)
+
+  liftIO $ formatted `shouldBe` expected
+
 workspaceSpec :: FilePath -> Spec
 workspaceSpec cwd =
-  describe "JBeam LSP Formatter"
-    . it "formats a single JBeam file with a single JBFL rule correctly"
-    $ ( do
-          runSession
-            ("jbeam-lsp-server -c " <> exampleJbflFilepath cwd)
-            fullLatestClientCaps
-            "examples"
-            $ do
-              let jbeamFile = "jbeam" </> "fender.jbeam"
-                  expectedFile = "examples" </> "formatted_jbeam" </> "fender-minimal-jbfl.jbeam"
-
-              doc <- openDoc jbeamFile "jbeam"
-
-              formatDoc doc (LSP.FormattingOptions 0 False Nothing Nothing Nothing)
-
-              formatted <- documentContents doc
-              expected <- liftIO (T.pack <$> IO.readFile expectedFile)
-
-              liftIO $ formatted `shouldBe` expected
-      )
+  let label =
+        describe "JBeam LSP Formatter"
+          . it "formats a single JBeam file with a single JBFL rule correctly"
+   in label . runJbeamSession cwd $ formatVerify
