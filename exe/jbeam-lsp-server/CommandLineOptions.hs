@@ -19,6 +19,14 @@ startOptions =
     { optRulesFile = Nothing
     }
 
+trimQuotes :: String -> String
+trimQuotes ('"':xs) = trimQuotesEnd xs
+  where
+    trimQuotesEnd [] = []
+    trimQuotesEnd s@[_] | last s == '"' = init s
+    trimQuotesEnd s = s
+trimQuotes s = s
+
 parseOptions :: [String] -> IO Options
 parseOptions args = do
   let (actions, nonOptions, _) = getOpt RequireOrder options args
@@ -26,7 +34,7 @@ parseOptions args = do
   case optRulesFile opts of
     Nothing ->
       case nonOptions of
-        [file] -> pure opts {optRulesFile = Just file}
+        [file] -> pure opts {optRulesFile = Just $ trimQuotes file}
         [] -> pure opts
         _ -> do
           putStrLn "Too many arguments."

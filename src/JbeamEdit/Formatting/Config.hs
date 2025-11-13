@@ -2,6 +2,7 @@
 
 module JbeamEdit.Formatting.Config (readFormattingConfig, copyToConfigDir, ConfigType (..)) where
 
+import Data.Text (pack)
 import GHC.IO.Exception (IOErrorType (NoSuchThing))
 import JbeamEdit.Formatting.Rules
 import JbeamEdit.IOUtils
@@ -69,7 +70,11 @@ createRuleFileIfDoesNotExist configPath =
 readFormattingConfig :: Maybe FilePath -> IO RuleSet
 readFormattingConfig maybeJbflPath = do
   configDir <- getConfigDir
-  createRuleFileIfDoesNotExist (configDir </> "rules.jbfl")
+  case maybeJbflPath of
+    Just jbfl ->
+      putErrorLine $ "Loading jbfl: " <> pack jbfl
+    Nothing ->
+      createRuleFileIfDoesNotExist (configDir </> "rules.jbfl")
   configPath <- getConfigPath maybeJbflPath configDir
   contents <- tryReadFile [NoSuchThing] configPath
   case contents >>= parseDSL . LBS.toStrict of
