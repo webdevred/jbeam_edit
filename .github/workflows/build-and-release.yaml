@@ -2,7 +2,7 @@ name: Build for release
 
 on:
   push:
-    branches: [master]
+    branches: [master, nonempty-vector]
     tags: [v*]
   pull_request:
 
