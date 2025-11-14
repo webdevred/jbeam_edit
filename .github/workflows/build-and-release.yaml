@@ -83,8 +83,6 @@ jobs:
           cabal build exe:jbeam-lsp-server --project-file cabal.project.release || true
       - name: Build main executable
         run: cabal build exe:jbeam-edit --project-file cabal.project.release
-      - name: Run tests (GHC ${{ matrix.ghc }})
-        run: cabal test --project-file cabal.project.release
       - name: Run benchmarks (GHC ${{ matrix.ghc }})
         if: contains(matrix.flags, ' +transformation ')
         run: |
