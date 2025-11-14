@@ -278,7 +278,10 @@ executable jbeam-edit-dump-ast
 executable jbeam-lsp-server
     main-is:            Main.hs
     hs-source-dirs:     exe/jbeam-lsp-server
-    other-modules:      Paths_jbeam_edit
+    other-modules:
+        CommandLineOptions
+        Paths_jbeam_edit
+
     autogen-modules:    Paths_jbeam_edit
     default-language:   GHC2021
     default-extensions: OverloadedStrings ImportQualifiedPost
