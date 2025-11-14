@@ -77,6 +77,6 @@ readFormattingConfig maybeJbflPath = do
       createRuleFileIfDoesNotExist (configDir </> "rules.jbfl")
   configPath <- getConfigPath maybeJbflPath configDir
   contents <- tryReadFile [NoSuchThing] configPath
-  case contents >>= parseDSL . LBS.toStrict of
+  case contents >>= parseDSL of
     Right rs -> pure rs
     Left err -> putErrorLine err $> newRuleSet

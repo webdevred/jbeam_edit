@@ -10,8 +10,8 @@ module JbeamEdit.Parsing.DSL (
 ) where
 
 import Data.Bifunctor (first)
-import Data.ByteString (ByteString)
-import Data.ByteString qualified as BS
+import Data.ByteString.Lazy (ByteString)
+import Data.ByteString.Lazy qualified as BS
 import Data.Char (isSpace)
 import Data.Functor (void, ($>))
 import Data.Functor.Identity (Identity (..))
@@ -73,7 +73,7 @@ patternParser = skipWhiteSpace *> patternSelectors <* skipWhiteSpace
 
 tryDecodeKey :: [Word8] -> (Text -> Maybe SomeKey) -> Maybe SomeKey
 tryDecodeKey bs f =
-  case decodeUtf8' (BS.pack bs) of
+  case decodeUtf8' (BS.toStrict $ BS.pack bs) of
     Right text' -> f text'
     Left _ -> Nothing
 
@@ -133,7 +133,7 @@ ruleSetParser = RuleSet . M.fromListWith M.union <$> MP.some singleRuleSet
   where
     singleRuleSet = skipComment *> ruleParser <* skipComment
 
-parseDSL :: ByteString -> Either Text RuleSet
+parseDSL :: BS.ByteString -> Either Text RuleSet
 parseDSL input
   | BS.null input = pure newRuleSet
   | otherwise =

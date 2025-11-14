@@ -4,7 +4,7 @@ module Main (
 
 import CommandLineOptions
 import Control.Monad (unless)
-import Data.ByteString.Lazy qualified as LBS (fromStrict, toStrict, writeFile)
+import Data.ByteString.Lazy qualified as LBS (fromStrict, writeFile)
 import Data.Text (Text)
 import Data.Text.Encoding (encodeUtf8)
 import JbeamEdit.Core.Node (Node)
@@ -51,7 +51,7 @@ editFile opts = do
     Just filename -> do
       outFilename <- getWritabaleFilename filename opts
       contents <- tryReadFile [] filename
-      case contents >>= parseNodes . LBS.toStrict of
+      case contents >>= parseNodes of
         Right ns -> processNodes opts outFilename ns formattingConfig
         Left err -> putErrorLine err
     Nothing -> putErrorLine "missing arg filename"

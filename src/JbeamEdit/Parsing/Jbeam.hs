@@ -10,8 +10,8 @@ module JbeamEdit.Parsing.Jbeam (
 import Control.Monad.State (State, evalState)
 import Control.Monad.State.Class
 import Data.Bifunctor (first)
-import Data.ByteString (ByteString)
-import Data.ByteString qualified as BS
+import Data.ByteString.Lazy (ByteString)
+import Data.ByteString.Lazy qualified as BS
 import Data.Functor (($>))
 import Data.Maybe (isNothing)
 import Data.Text (Text)
@@ -91,7 +91,7 @@ singlelineCommentParser = do
   txt <- MP.some (MP.satisfy (charNotEqWord8 '\n'))
   pure
     InternalComment
-      { cText = T.strip (decodeUtf8 (BS.pack txt))
+      { cText = T.strip . decodeUtf8 . BS.toStrict $ BS.pack txt
       , cMultiline = False
       , cAssociationDirection = associationDirection st
       }

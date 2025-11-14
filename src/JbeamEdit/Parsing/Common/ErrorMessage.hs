@@ -2,15 +2,17 @@ module JbeamEdit.Parsing.Common.ErrorMessage (
   formatErrors,
 ) where
 
-import Data.ByteString (ByteString)
-import Data.ByteString qualified as BS
+import Data.ByteString.Lazy (ByteString)
+import Data.ByteString.Lazy qualified as BS
 import Data.Function (on)
 import Data.List.NonEmpty qualified as NE
 import Data.Set (Set)
 import Data.Set qualified as S
 import Data.Text (Text)
 import Data.Text qualified as T
-import Data.Text.Encoding (decodeUtf8Lenient)
+import Data.Text.Lazy qualified as TL
+import Data.Text.Lazy.Encoding (decodeUtf8With)
+import Data.Text.Encoding.Error (lenientDecode)
 import Data.Word (Word8)
 import JbeamEdit.Parsing.Common.Helpers (charNotEqWord8, toChar, toWord8)
 import Text.Megaparsec qualified as MP
@@ -34,12 +36,12 @@ formatTok toks =
 
 errorAreaAndLineNumber :: Int -> ByteString -> (Text, Text)
 errorAreaAndLineNumber pos inputNotParsed =
-  let (begin, end) = BS.splitAt pos inputNotParsed
+  let (begin, end) = BS.splitAt (fromIntegral pos) inputNotParsed
       fstPartOfLine = BS.takeWhileEnd (charNotEqWord8 '\n') begin
       sndPartOfLine = BS.takeWhile (charNotEqWord8 '\n') end
       lineNumber = BS.count (toWord8 '\n') begin
       errorArea =
-        T.strip $ on (<>) decodeUtf8Lenient fstPartOfLine sndPartOfLine
+        T.strip . TL.toStrict $ on (<>) (decodeUtf8With lenientDecode) fstPartOfLine sndPartOfLine
    in (errorArea, T.pack $ show lineNumber)
 
 wrap :: Semigroup a => a -> a -> a -> a
