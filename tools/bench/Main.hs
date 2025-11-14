@@ -1,53 +1,61 @@
+{-# OPTIONS_GHC -Wno-incomplete-uni-patterns #-}
+
 module Main (main) where
 
 import Criterion.Main
+import Data.ByteString qualified as BS
 import Data.List (isSuffixOf)
 import Data.Map qualified as M
 import Data.Text qualified as T
 import JbeamEdit.Formatting
+import JbeamEdit.Parsing.DSL (parseDSL)
+import JbeamEdit.Parsing.Jbeam (parseNodes)
 import JbeamEdit.Transformation
 import JbeamEdit.Transformation.Config
 import System.Directory
 import System.FilePath
 
-loadAst :: Read a => FilePath -> IO a
-loadAst path = read <$> readFile path
+loadFile :: FilePath -> IO BS.ByteString
+loadFile = BS.readFile
 
 main :: IO ()
 main = do
   cwd <- getCurrentDirectory
-  let examplesDir = cwd </> "examples"
-      astDir = examplesDir </> "ast"
-      jbeamAstDir = astDir </> "jbeam"
-      jbflAstDir = astDir </> "jbfl"
+  let jbeamDir = cwd </> "examples" </> "jbeam"
+      jbflDir = cwd </> "examples" </> "jbfl"
+
+  jbeamFiles <- filter (isSuffixOf ".jbeam") <$> listDirectory jbeamDir
+  jbflFiles <- filter (isSuffixOf ".jbfl") <$> listDirectory jbflDir
 
   let cfg = newTransformationConfig
 
-  jbeamFiles <- filter (isSuffixOf ".hs") <$> listDirectory jbeamAstDir
-  ruleFiles <- filter (isSuffixOf ".hs") <$> listDirectory jbflAstDir
-
-  jbeamAsts <- mapM (\f -> loadAst (jbeamAstDir </> f)) jbeamFiles
-  ruleAsts <- mapM (\f -> loadAst (jbflAstDir </> f)) ruleFiles
-
   let combos =
-        [ (jFile, rFile, jAst, rAst)
-        | (jFile, jAst) <- zip jbeamFiles jbeamAsts
-        , (rFile, rAst) <- zip ruleFiles ruleAsts
+        [ (jFile, rFile)
+        | jFile <- jbeamFiles
+        , rFile <- jbflFiles
         ]
 
-  let benchFormat (jName, rName, jAst, rAst) =
-        bench (jName ++ " + " ++ rName ++ " [format]") $
-          nf (T.length . formatNode rAst) jAst
+  let benchFormat (jName, rName) =
+        bench (jName ++ " + " ++ rName ++ " [format]") . nfIO $
+          ( do
+              jText <- loadFile (jbeamDir </> jName)
+              rText <- loadFile (jbflDir </> rName)
+              let (Right jAst) = parseNodes jText
+                  (Right rAst) = parseDSL rText
+              pure $ formatNode rAst jAst
+          )
 
-  let benchTransformFormat (jName, rName, jAst, rAst) =
-        bench (jName ++ " + " ++ rName ++ " [transform+format]") $
-          nf
-            ( \ast ->
-                case transform M.empty cfg ast of
-                  Right (_, _, outAst) -> T.length (formatNode rAst outAst)
-                  Left err -> error (T.unpack err)
-            )
-            jAst
+  let benchTransformFormat (jName, rName) =
+        bench (jName ++ " + " ++ rName ++ " [transform+format]") . nfIO $
+          ( do
+              jText <- loadFile (jbeamDir </> jName)
+              rText <- loadFile (jbflDir </> rName)
+              let (Right jAst) = parseNodes jText
+                  (Right rAst) = parseDSL rText
+              case transform M.empty cfg jAst of
+                Right (_, _, outAst) -> pure $ formatNode rAst outAst
+                Left err -> error (T.unpack err)
+          )
 
   defaultMain
     [ bgroup "format-only" (map benchFormat combos)
