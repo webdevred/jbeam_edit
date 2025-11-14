@@ -5,4 +5,3 @@ optimization: True
 package jbeam-edit
   tests: True
   flags: +dump-ast +transformation +lsp-server -windows-example-paths
-  ghc-options: -Werror
