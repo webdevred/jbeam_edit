@@ -2,10 +2,8 @@ module Parsing.JbeamSpec (
   spec,
 ) where
 
-import Data.ByteString (ByteString)
-import Data.ByteString qualified as BS (readFile)
-import Data.Text qualified as T
-import Data.Text.Encoding (encodeUtf8)
+import Data.ByteString.Lazy (ByteString)
+import Data.ByteString.Lazy qualified as BS (readFile)
 import Data.Vector (fromList)
 import Data.Void (Void)
 import JbeamEdit.Parsing.Common.Helpers
@@ -145,7 +143,7 @@ parseNodesState'
   :: JbeamParser a
   -> String
   -> Either (MP.ParseErrorBundle ByteString Void) a
-parseNodesState' parser = parseNodesState parser . encodeUtf8 . T.pack
+parseNodesState' parser = parseNodesState parser . textToLazyByteString
 
 applyParserSpec :: (Eq a, Show a) => JbeamParser a -> (String, a) -> Spec
 applyParserSpec parser = uncurry $ applySpecOnInput descFun assertParsesTo

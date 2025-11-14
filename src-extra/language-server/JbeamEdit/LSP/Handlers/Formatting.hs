@@ -61,7 +61,7 @@ handleParams rs params responder = do
       putErrorLine' ("DEBUG: no document in store for " <> show uri)
         >> sendNoUpdate
     Just txt ->
-      case JbeamP.parseNodes (encodeUtf8 txt) of
+      case JbeamP.parseNodes . fromStrict . encodeUtf8 $ txt of
         Left err ->
           putErrorLine' ("Parse error: " <> show err) >> sendNoUpdate
         Right node ->

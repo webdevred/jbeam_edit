@@ -2,8 +2,8 @@ module Parsing.DSLSpec (
   spec,
 ) where
 
-import Data.ByteString (ByteString)
-import Data.ByteString qualified as BS (readFile)
+import Data.ByteString.Lazy (ByteString)
+import Data.ByteString.Lazy qualified as BS (fromStrict, readFile)
 import Data.Functor.Identity (Identity (..))
 import Data.Text qualified as T
 import Data.Text.Encoding (encodeUtf8)
@@ -102,14 +102,15 @@ applyParserSpec
   :: (Eq a, Show a) => ParsecT Void ByteString Identity a -> (String, a) -> Spec
 applyParserSpec parser = uncurry $ applySpecOnInput descFun assertParsesTo
   where
-    assertParsesTo input = shouldParse . parse parser "" . encodeUtf8 $ T.pack input
+    assertParsesTo input = shouldParse . parse parser "" . BS.fromStrict . encodeUtf8 $ T.pack input
     descFun input expResult = "should parse " <> input <> " to " <> expResult
 
 assertParserFailure
   :: Show a => JbflParser a -> (String, ParseError ByteString Void) -> Spec
 assertParserFailure parser (input, expError) =
   describe desc . works $
-    parse parser "" (encodeUtf8 $ T.pack input) `shouldFailWith` expError
+    parse parser "" (textToLazyByteString input)
+      `shouldFailWith` expError
   where
     desc = "should fail parsing " <> show input
 

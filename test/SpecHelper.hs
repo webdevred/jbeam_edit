@@ -1,4 +1,5 @@
 module SpecHelper (
+  textToLazyByteString,
   applySpecOnInput,
   works,
   listFilesInDir,
@@ -8,7 +9,11 @@ module SpecHelper (
   SpecFun,
 ) where
 
+import Data.ByteString.Lazy (ByteString)
+import Data.ByteString.Lazy qualified as BS (fromStrict)
 import Data.List (isPrefixOf, isSuffixOf)
+import Data.Text qualified as T
+import Data.Text.Encoding (encodeUtf8)
 import JbeamEdit.Core.Node
 import System.Directory (getDirectoryContents)
 import Test.Hspec
@@ -37,3 +42,6 @@ applySpecOnInput descFun spec input expResult =
 
 works :: Example a => a -> SpecWith (Arg a)
 works = it "works"
+
+textToLazyByteString :: String -> ByteString
+textToLazyByteString = BS.fromStrict . encodeUtf8 . T.pack

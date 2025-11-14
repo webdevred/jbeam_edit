@@ -13,8 +13,8 @@ module JbeamEdit.Parsing.Common.Helpers (
 ) where
 
 import Control.Applicative (asum, empty)
-import Data.ByteString (ByteString)
-import Data.ByteString qualified as BS
+import Data.ByteString.Lazy (ByteString)
+import Data.ByteString.Lazy qualified as BS
 import Data.Char (chr, isSpace, ord)
 import Data.Functor ((<&>))
 import Data.List.NonEmpty qualified as NE (fromList)
@@ -55,7 +55,7 @@ skipWhiteSpace = B.space
 parseWord8s :: (T.Text -> a) -> Parser m [Word8] -> Parser m a
 parseWord8s f bsParser = do
   bs' <- bsParser
-  case decodeUtf8' (BS.pack bs') of
+  case decodeUtf8' (BS.toStrict $ BS.pack bs') of
     Right text' -> pure (f text')
     Left _ -> empty
 
