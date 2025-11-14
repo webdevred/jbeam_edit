@@ -165,8 +165,6 @@ benchmarks:
           dependencies: [criterion, jbeam-edit-transformation]
         else:
           buildable: false
-    ghc-options:
-      - -O
     
 _jbeam-test-common: &jbeam-test-common
   main: Spec.hs
