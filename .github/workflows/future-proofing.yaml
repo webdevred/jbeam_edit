@@ -54,7 +54,7 @@ jobs:
         run: cabal build --project-file cabal.project.ci all
       - name: Run tests (GHC latest)
         run: cabal test --project-file cabal.project.ci
-      - name: Run benchmarks (GHC ${{ matrix.ghc }})
+      - name: Run benchmarks (GHC ${{ steps.get-ghc.outputs.ghc-version }})
         run: |
           echo "Running benchmarks for jbeam-edit"
           cabal bench --project-file cabal.project.ci --benchmark-options="--verbosity=1"
