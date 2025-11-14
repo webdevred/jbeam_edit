@@ -1,6 +1,6 @@
 import: cabal.project
 test-show-details: direct
-optimization: True
+write-ghc-environment-files: never
 
 package jbeam-edit
   tests: True

@@ -31,6 +31,12 @@ jobs:
         run: |
           echo "GHC Version: ${{ steps.get-ghc.outputs.ghc-version }}"
           echo "Cabal Store Path: ${{ steps.setup-ghc.outputs.cabal-store }}"
+      - name: Enable tests and benchmarks
+        shell: bash
+        run: |-
+          cabal configure --project-file cabal.project.ci -O1 --enable-tests --enable-benchmarks
+          echo "contents of cabal.project.ci.local"
+          cat cabal.project.ci.local
       - name: Freeze and check dependencies
         env:
           CABAL_PROJECT: cabal.project.ci
@@ -50,6 +56,8 @@ jobs:
             }}
           restore-keys: |
             ${{ runner.os }}-cabal-${{ steps.get-ghc.outputs.ghc-version }}-
+      - name: Build dependencies, good to do separate for caching
+        run: cabal build --project-file cabal.project.ci --only-dependencies
       - name: Build project (GHC latest)
         run: cabal build --project-file cabal.project.ci all
       - name: Run tests (GHC latest)
