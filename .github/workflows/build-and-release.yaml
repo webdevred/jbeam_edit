@@ -2,7 +2,7 @@ name: Build for release
 
 on:
   push:
-    branches: [master,nonempty-vector]
+    branches: [master]
     tags: [v*]
   pull_request:
 
@@ -83,11 +83,13 @@ jobs:
           cabal build exe:jbeam-lsp-server --project-file cabal.project.release || true
       - name: Build main executable
         run: cabal build exe:jbeam-edit --project-file cabal.project.release
-      - name: Build LSP test server
-        run: |
-          cabal install exe:jbeam-lsp-test-server --project-file cabal.project.release || true
       - name: Run tests (GHC ${{ matrix.ghc }})
         run: cabal test --project-file cabal.project.release
+      - name: Run benchmarks (GHC ${{ matrix.ghc }})
+        if: contains(matrix.flags, ' +transformation ')
+        run: |
+          echo "Running benchmarks for jbeam-edit"
+          cabal bench --project-file cabal.project.release --benchmark-options="--verbosity=1"
       - name: Enforce CRLF newlines on windows
         run: bash ./.github/scripts/replace_newlines.sh
         shell: bash
