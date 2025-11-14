@@ -2,7 +2,7 @@ name: Build for release
 
 on:
   push:
-    branches: [master]
+    branches: [master, lazy-bytestring]
     tags: [v*]
   pull_request:
 
