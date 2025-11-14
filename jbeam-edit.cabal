@@ -443,3 +443,36 @@ test-suite jbeam-language-server-test
 
     else
         buildable: False
+
+benchmark jbeam-edit-bench
+    type:               exitcode-stdio-1.0
+    main-is:            Main.hs
+    hs-source-dirs:     tools/bench
+    other-modules:      Paths_jbeam_edit
+    autogen-modules:    Paths_jbeam_edit
+    default-language:   GHC2021
+    default-extensions: OverloadedStrings ImportQualifiedPost
+    ghc-options:
+        -Wall -Wcompat -Widentities -Wincomplete-record-updates
+        -Wincomplete-uni-patterns -Wmissing-export-lists
+        -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -O
+
+    build-depends:
+        base,
+        bytestring,
+        containers,
+        directory,
+        filepath,
+        jbeam-edit,
+        mtl,
+        scientific,
+        text >=2.0,
+        vector
+
+    if flag(transformation)
+        build-depends:
+            criterion,
+            jbeam-edit-transformation
+
+    else
+        buildable: False
