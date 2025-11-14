@@ -3,7 +3,7 @@
 module Main (main) where
 
 import Criterion.Main
-import Data.ByteString qualified as BS
+import Data.ByteString.Lazy qualified as BS
 import Data.List (isSuffixOf)
 import Data.Map qualified as M
 import Data.Text qualified as T
