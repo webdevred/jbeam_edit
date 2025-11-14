@@ -4,9 +4,9 @@ import Criterion.Main
 import Data.List (isSuffixOf)
 import Data.Map qualified as M
 import Data.Text qualified as T
-import JbeamEdit.Formatting
-import JbeamEdit.Transformation
-import JbeamEdit.Transformation.Config
+import Formatting
+import Transformation
+import Config
 import System.Directory
 import System.FilePath
 
