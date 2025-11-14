@@ -10,6 +10,8 @@ cradle:
         component: jbeam-edit:lib:jbeam-language-server
       - path: ./exe/jbeam-edit/Main.hs
         component: jbeam-edit:exe:jbeam-edit
+      - path: ./tools/bench/Main.hs
+        component: jbeam-edit:bench:jbeam-edit-bench
       - path: ./exe/jbeam-edit/CommandLineOptions.hs
         component: jbeam-edit:exe:jbeam-edit
       - path: ./tools/dump_ast/Main.hs

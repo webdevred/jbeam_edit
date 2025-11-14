@@ -85,6 +85,11 @@ jobs:
         run: cabal build exe:jbeam-edit --project-file cabal.project.release
       - name: Run tests (GHC ${{ matrix.ghc }})
         run: cabal test --project-file cabal.project.release
+      - name: Run benchmarks (GHC ${{ matrix.ghc }})
+        if: contains(matrix.flags, ' +transformation ')
+        run: |
+          echo "Running benchmarks for jbeam-edit"
+          cabal bench --project-file cabal.project.release --benchmark-options="--verbosity=1"
       - name: Enforce CRLF newlines on windows
         run: bash ./.github/scripts/replace_newlines.sh
         shell: bash

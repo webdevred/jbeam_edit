@@ -1,5 +1,6 @@
 import: cabal.project
 test-show-details: direct
+optimization: True
 
 package jbeam-edit
   tests: True
