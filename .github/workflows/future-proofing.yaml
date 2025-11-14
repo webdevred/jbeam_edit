@@ -52,8 +52,9 @@ jobs:
             ${{ runner.os }}-cabal-${{ steps.get-ghc.outputs.ghc-version }}-
       - name: Build project (GHC latest)
         run: cabal build --project-file cabal.project.ci all
-      - name: Build LSP test server
-        continue-on-error: true
-        run: cabal install exe:jbeam-lsp-test-server --project-file cabal.project.ci
       - name: Run tests (GHC latest)
         run: cabal test --project-file cabal.project.ci
+      - name: Run benchmarks (GHC ${{ matrix.ghc }})
+        run: |
+          echo "Running benchmarks for jbeam-edit"
+          cabal bench --project-file cabal.project.ci --benchmark-options="--verbosity=1"
