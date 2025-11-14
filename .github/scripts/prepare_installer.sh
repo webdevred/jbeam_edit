@@ -62,6 +62,8 @@ git show HEAD:"./examples/jbeam/suspension.jbeam" >"$TMP_DIR/suspension.${LABEL}
 echo "fender.jbeam: $TMP_DIR/fender.${LABEL}.jbeam"
 echo "suspension.jbeam: $TMP_DIR/suspension.${LABEL}.jbeam"
 
+cp ./examples/jbeam-edit.yaml ./.jbeam-edit.yaml
+
 ./dist/release/jbeam-edit -i "$TMP_DIR/fender.${LABEL}.jbeam"
 ./dist/release/jbeam-edit -i "$TMP_DIR/suspension.${LABEL}.jbeam"
 
@@ -70,8 +72,8 @@ custom_diff() {
 }
 
 if [[ -n $LABEL ]] && [[ "$LABEL" == "experimental" ]]; then
-  custom_diff "$TMP_DIR/fender.experimental.jbeam" ./examples/transformed_jbeam/fender-cfg-default.jbeam
-  custom_diff "$TMP_DIR/suspension.experimental.jbeam" ./examples/transformed_jbeam/suspension-cfg-default.jbeam
+  custom_diff "$TMP_DIR/fender.experimental.jbeam" ./examples/transformed_jbeam/fender-cfg-example.jbeam
+  custom_diff "$TMP_DIR/suspension.experimental.jbeam" ./examples/transformed_jbeam/suspension-cfg-example.jbeam
 else
   custom_diff "$TMP_DIR/fender.stable.jbeam" ./examples/formatted_jbeam/fender-minimal-jbfl.jbeam
   custom_diff "$TMP_DIR/suspension.stable.jbeam" ./examples/formatted_jbeam/suspension-minimal-jbfl.jbeam
