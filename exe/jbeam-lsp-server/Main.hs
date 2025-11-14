@@ -2,11 +2,15 @@ module Main (
   main,
 ) where
 
+import CommandLineOptions
 import Data.Functor (void)
-import Formatting.Config qualified as FmtCfg
-import Server (runServer)
+import JbeamEdit.Formatting.Config qualified as FmtCfg
+import JbeamEdit.LSP.Server (runServer)
+import System.Environment (getArgs)
 
 main :: IO ()
 main = do
-  rs <- FmtCfg.readFormattingConfig
+  args <- getArgs
+  opts <- parseOptions args
+  rs <- FmtCfg.readFormattingConfig (optRulesFile opts)
   void (runServer rs)
