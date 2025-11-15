@@ -10,7 +10,6 @@ module JbeamEdit.Parsing.DSL (
 ) where
 
 import Data.Bifunctor (first)
-import Data.ByteString.Lazy (ByteString)
 import Data.ByteString.Lazy qualified as BS
 import Data.Char (isSpace)
 import Data.Functor (void, ($>))

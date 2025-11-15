@@ -15,7 +15,6 @@ import Paths_jbeam_edit
 #endif
 
 import Control.Monad (when)
-import Data.ByteString.Lazy qualified as LBS
 import Data.Functor (($>))
 import System.Directory
 import System.FilePath (takeDirectory, (</>))
