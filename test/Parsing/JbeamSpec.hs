@@ -86,6 +86,26 @@ arraySpec =
 objectSpec :: [(String, Node)]
 objectSpec =
   [
+    ( "{}"
+    , Object
+        (fromList [])
+    )
+  ,
+    ( "{ }"
+    , Object
+        (fromList [])
+    )
+  ,
+    ( "{\n//test\n\"test\" : 1, \"test2\" : 2}"
+    , Object
+        ( fromList
+            [ Comment (InternalComment "test" False NextNode)
+            , ObjectKey (String "test", Number 1)
+            , ObjectKey (String "test2", Number 2)
+            ]
+        )
+    )
+  ,
     ( "{\"test\" : 1, \"test2\" : 2}"
     , Object
         ( fromList

@@ -16,7 +16,7 @@ import Data.Functor (($>))
 import Data.Maybe (isNothing)
 import Data.Text (Text)
 import Data.Text qualified as T
-import Data.Text.Encoding (decodeUtf8)
+import Data.Text.Encoding (decodeUtf8Lenient)
 import Data.Vector qualified as V (fromList)
 import Data.Void (Void)
 import JbeamEdit.Core.Node (
@@ -91,7 +91,7 @@ singlelineCommentParser = do
   txt <- MP.some (MP.satisfy (charNotEqWord8 '\n'))
   pure
     InternalComment
-      { cText = T.strip . decodeUtf8 . BS.toStrict $ BS.pack txt
+      { cText = T.strip . decodeUtf8Lenient . BS.toStrict $ BS.pack txt
       , cMultiline = False
       , cAssociationDirection = associationDirection st
       }
@@ -156,7 +156,8 @@ objectKeyParser = do
 objectParser :: JbeamParser Node
 objectParser = do
   _ <- byteChar '{'
-  keys <- MP.some (commentParser <|> objectKeyParser)
+  skipWhiteSpace
+  keys <- MP.many (commentParser <|> objectKeyParser)
   _ <- MP.optional separatorParser
   _ <- byteChar '}'
   pure . Object . V.fromList $ keys
