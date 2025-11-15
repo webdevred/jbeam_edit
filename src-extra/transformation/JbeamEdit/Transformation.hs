@@ -121,10 +121,7 @@ updateSupportVertexName
 updateSupportVertexName vType (AnnotatedVertex c v m) = AnnotatedVertex c (v {vName = newName}) m
   where
     name = vName v
-    newName =
-      case T.unsnoc name of
-        Nothing -> name
-        Just (prefix, _) -> prefix <> prefixForType vType
+    newName = dropIndex name <> prefixForType vType
 
 moveSupportVertices
   :: UpdateNamesMap
@@ -146,6 +143,10 @@ moveSupportVertices newNames tfCfg connMap vsPerType =
         , count >= thrCount
         ]
 
+      brks = xGroupBreakpoints tfCfg
+
+      assignSupportNames = assignNames newNames brks SupportTree
+
       vertexForest :: VertexForest
       vertexForest =
         case nonEmpty supportVertices of
@@ -155,8 +156,12 @@ moveSupportVertices newNames tfCfg connMap vsPerType =
               ( SupportTree
               , VertexTree
                   [sideComment SupportTree]
-                  ( one $
-                      sortSupportVertices newNames tfCfg (NE.map (uncurry updateSupportVertexName) vs)
+                  ( one
+                      . snd
+                      . mapAccumL
+                        assignSupportNames
+                        M.empty
+                      $ NE.map (uncurry updateSupportVertexName) vs
                   )
               )
 
@@ -343,13 +348,6 @@ assignNames newNames brks treeType prefixMap av =
       newVertex = v {vName = newName}
       prefixMap' = M.insert cleanPrefix (lastIdx + 1) prefixMap
    in (prefixMap', av {aVertex = newVertex})
-
-sortSupportVertices
-  :: UpdateNamesMap
-  -> TransformationConfig
-  -> NonEmpty AnnotatedVertex
-  -> NonEmpty AnnotatedVertex
-sortSupportVertices = sortVertices SupportTree
 
 sortVertices
   :: VertexTreeType

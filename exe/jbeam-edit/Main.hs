@@ -3,7 +3,7 @@ module Main (
 ) where
 
 import CommandLineOptions
-import Control.Monad (unless)
+import Control.Monad (when)
 import Data.ByteString.Lazy qualified as LBS (fromStrict, writeFile)
 import Data.Text (Text)
 import Data.Text.Encoding (encodeUtf8)
@@ -12,7 +12,7 @@ import JbeamEdit.Formatting (RuleSet, formatNode)
 import JbeamEdit.Formatting.Config
 import JbeamEdit.IOUtils
 import JbeamEdit.Parsing.Jbeam (parseNodes)
-import System.Directory (copyFile)
+import System.Directory (copyFile, doesFileExist)
 import System.Environment (getArgs)
 
 #ifdef ENABLE_WINDOWS_NEWLINES
@@ -36,23 +36,23 @@ main = do
     Options {optCopyJbflConfig = Just configType} -> copyToConfigDir configType
     _ -> editFile opts
 
-getWritabaleFilename :: FilePath -> Options -> IO FilePath
-getWritabaleFilename filename opts = do
+createBackupFile :: FilePath -> Options -> IO ()
+createBackupFile filename opts = do
   let backupFilename = dropExtension filename <> ".bak.jbeam"
-  unless
-    (optInPlace opts)
+  doesExist <- doesFileExist filename
+  when
+    (not (optInPlace opts) && doesExist)
     (copyFile filename backupFilename)
-  pure filename
 
 editFile :: Options -> IO ()
 editFile opts = do
   formattingConfig <- readFormattingConfig Nothing
   case optInputFile opts of
     Just filename -> do
-      outFilename <- getWritabaleFilename filename opts
+      createBackupFile filename opts
       contents <- tryReadFile [] filename
       case contents >>= parseNodes of
-        Right ns -> processNodes opts outFilename ns formattingConfig
+        Right ns -> processNodes opts filename ns formattingConfig
         Left err -> putErrorLine err
     Nothing -> putErrorLine "missing arg filename"
 
