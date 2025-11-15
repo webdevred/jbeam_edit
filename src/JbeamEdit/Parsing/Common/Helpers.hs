@@ -13,8 +13,8 @@ module JbeamEdit.Parsing.Common.Helpers (
 ) where
 
 import Control.Applicative (asum, empty)
-import Data.ByteString.Lazy (ByteString)
-import Data.ByteString.Lazy qualified as BS
+import Data.ByteString qualified as BS
+import Data.ByteString.Lazy qualified as LBS
 import Data.Char (chr, isSpace, ord)
 import Data.Functor ((<&>))
 import Data.List.NonEmpty qualified as NE (fromList)
@@ -26,7 +26,7 @@ import Data.Word (Word8)
 import Text.Megaparsec qualified as MP
 import Text.Megaparsec.Byte qualified as B
 
-type Parser m a = MP.ParsecT Void ByteString m a
+type Parser m a = MP.ParsecT Void LBS.ByteString m a
 
 ---
 --- helpers
@@ -55,7 +55,7 @@ skipWhiteSpace = B.space
 parseWord8s :: (T.Text -> a) -> Parser m [Word8] -> Parser m a
 parseWord8s f bsParser = do
   bs' <- bsParser
-  case decodeUtf8' (BS.toStrict $ BS.pack bs') of
+  case decodeUtf8' (BS.pack bs') of
     Right text' -> pure (f text')
     Left _ -> empty
 
@@ -63,7 +63,7 @@ failingParser :: [String] -> Parser m a
 failingParser expLabels = unexpTok >>= flip MP.failure expToks
   where
     unexpTok =
-      Just . MP.Tokens . NE.fromList . BS.unpack
+      Just . MP.Tokens . NE.fromList . LBS.unpack
         <$> MP.takeWhile1P Nothing isNotFinalChar
     expToks = S.fromList . map (MP.Label . NE.fromList) $ expLabels
     isNotFinalChar w =
