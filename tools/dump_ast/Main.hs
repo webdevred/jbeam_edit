@@ -78,7 +78,7 @@ saveAstDump outFile contents =
 dumpJbflAST :: FilePath -> String -> String -> IO FilePath
 dumpJbflAST dir outDir filename = do
   contents <- LBS.readFile (dir </> filename)
-  case parseDSL (LBS.toStrict contents) of
+  case parseDSL contents of
     Right rs -> dump rs >> pure (outDir </> filename)
     Left _ -> error $ "error " ++ filename
   where
@@ -89,7 +89,7 @@ dumpJbflAST dir outDir filename = do
 dumpJbeamAST :: FilePath -> String -> String -> IO FilePath
 dumpJbeamAST dir outDir filename = do
   contents <- LBS.readFile (dir </> filename)
-  case parseNodes (LBS.toStrict contents) of
+  case parseNodes contents of
     Right ns -> dump ns >> pure (outDir </> filename)
     Left _ -> error $ "error " <> filename
   where
