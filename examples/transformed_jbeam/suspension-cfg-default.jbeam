@@ -81,12 +81,12 @@
 
       // Support nodes
       {"nodeWeight" : 3.5},
-      [  "rlsm",    0.053,    1.710,    0.565],
+      [  "rlsm",    0.053,    1.710,    0.565], // support
       {"selfCollision" : true},
-      [ "rlsm1",    0.053,   -0.024,    0.578],
+      [ "rlsm1",    0.053,   -0.024,    0.578], // support
       {"nodeWeight" : 3.8},
       {"selfCollision" : false},
-      [ "rlsm2",    0.053,   -1.314,    0.382]
+      [ "rlsm2",    0.053,   -1.314,    0.382], // support
     ],
 
     // --Beams--

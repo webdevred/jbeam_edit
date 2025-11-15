@@ -171,6 +171,13 @@ Object
                             ( -1.314 )
                         , Number 0.382
                         ]
+                    , Comment
+                        ( InternalComment
+                            { cText = "support"
+                            , cMultiline = False
+                            , cAssociationDirection = PreviousNode
+                            }
+                        )
                     , Object
                         [ ObjectKey
                             ( String "selfCollision"
@@ -220,6 +227,13 @@ Object
                             ( -2.4e-2 )
                         , Number 0.578
                         ]
+                    , Comment
+                        ( InternalComment
+                            { cText = "support"
+                            , cMultiline = False
+                            , cAssociationDirection = PreviousNode
+                            }
+                        )
                     , Array
                         [ String "rl20"
                         , Number 0.837
@@ -426,6 +440,13 @@ Object
                         , Number 1.71
                         , Number 0.565
                         ]
+                    , Comment
+                        ( InternalComment
+                            { cText = "support"
+                            , cMultiline = False
+                            , cAssociationDirection = PreviousNode
+                            }
+                        )
                     , Array
                         [ String "rl49"
                         , Number 0.558
