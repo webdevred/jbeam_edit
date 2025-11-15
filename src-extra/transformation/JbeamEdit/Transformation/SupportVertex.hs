@@ -19,7 +19,7 @@ possiblyBeam node
       case node of
         (Array beamVec) ->
           case V.toList beamVec of
-            [String vertex1, String vertex2] -> Just (vertex1, vertex2)
+            (String vertex1 : String vertex2 : _) -> Just (vertex1, vertex2)
             _ -> Nothing
         _ -> Nothing
 
