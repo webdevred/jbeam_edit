@@ -93,6 +93,7 @@ propertyParser (SomeKey key) = do
 
 parseValueForKey :: PropertyKey a -> JbflParser a
 parseValueForKey NoComplexNewLine = parseBool <?> "bool"
+parseValueForKey ForceComplexNewLine = parseBool <?> "bool"
 parseValueForKey PadAmount = L.decimal <?> "integer"
 parseValueForKey PadDecimals = L.decimal <?> "integer"
 parseValueForKey Indent = L.decimal <?> "integer"

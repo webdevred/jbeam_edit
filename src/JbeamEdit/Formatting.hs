@@ -28,6 +28,7 @@ import JbeamEdit.Formatting.Rules (
   RuleSet (..),
   applyPadLogic,
   findPropertiesForCursor,
+  forceComplexNewLine,
   lookupIndentProperty,
   newRuleSet,
   noComplexNewLine,
@@ -101,7 +102,8 @@ doFormatNode rs cursor nodes =
         else T.concat formatted
   where
     complexChildren =
-      any isComplexNode nodes && not (noComplexNewLine rs cursor)
+      forceComplexNewLine rs cursor
+        || (any isComplexNode nodes && not (noComplexNewLine rs cursor))
 
 formatComment :: InternalComment -> Text
 formatComment (InternalComment {cMultiline = False, cText = c}) = "// " <> c
