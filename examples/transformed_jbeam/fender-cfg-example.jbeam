@@ -51,10 +51,10 @@
 
       // Structural beams
       {"beamType" : "|NORMAL"},
-      {"beamSpring" : 451000.0, "beamDamp" : 50.0},
+      {"beamSpring" : 451000, "beamDamp" : 50},
       {"beamStrength" : "FLT_MAX"},
       {"deformLimitExpansion" : 1.1},
-      {"beamDeform" : 6000.0},
+      {"beamDeform" : 6000},
 
       // Front
       ["bfr0", "bfr4"],
@@ -71,7 +71,7 @@
       ["bfl4", "bfl2"],
 
       // Middle
-      {"beamDeform" : 12000.0},
+      {"beamDeform" : 12000},
       ["bfl6", "bfl3"],
       ["bfr6", "bfr3"],
       ["bfl4", "bfl7"],
@@ -141,8 +141,8 @@
       ["bfr10", "bfsr"],
 
       // Front rigid
-      {"beamSpring" : 350000.0, "beamDamp" : 115.0},
-      {"beamDeform" : 900.0},
+      {"beamSpring" : 350000, "beamDamp" : 115},
+      {"beamDeform" : 900},
 
       // Left side
       ["bfl3", "bfl9"],
@@ -154,7 +154,7 @@
 
       // Attachment beams
       {"beamType" : "|NORMAL"},
-      {"beamSpring" : 501000.0, "beamDamp" : 75.0, "beamStrength" : 20000.0, "beamDeform" : 1000.0},
+      {"beamSpring" : 501000, "beamDamp" : 75, "beamStrength" : 20000, "beamDeform" : 1000},
       {"deformLimitExpansion" : ""},
 
       // Frame
@@ -163,7 +163,7 @@
 
       // Front
       {"breakGroup" : "fender_l"},
-      {"breakGroupType" : 1.0},
+      {"breakGroupType" : 1},
       ["bfl1", "fr17"],
       ["bfl1", "fr9"],
       ["bfl2", "fr17"],
@@ -172,16 +172,16 @@
       ["bfl0", "fr9"],
 
       // Middle
-      {"beamDeform" : 18000.0},
-      {"beamStrength" : 4000.0},
-      {"breakGroupType" : 1.0},
+      {"beamDeform" : 18000},
+      {"beamStrength" : 4000},
+      {"breakGroupType" : 1},
       ["bfl3", "fr17"],
       ["bfl4", "fr17"],
       ["bfl4", "fr9"],
-      {"breakGroupType" : 0.0},
+      {"breakGroupType" : 0},
 
       // Rear
-      {"beamStrength" : 16000.0, "beamDeform" : 12000.0},
+      {"beamStrength" : 16000, "beamDeform" : 12000},
       ["bfl5", "fr18"],
       ["bfl5", "fr27"],
       ["bfl6", "fr17"],
@@ -198,9 +198,9 @@
       // Right side
 
       // Front
-      {"beamStrength" : 20000.0, "beamDeform" : 1000.0},
+      {"beamStrength" : 20000, "beamDeform" : 1000},
       {"breakGroup" : "fender_r"},
-      {"breakGroupType" : 1.0},
+      {"breakGroupType" : 1},
       ["bfr1", "fr16"],
       ["bfr1", "fr7"],
       ["bfr2", "fr16"],
@@ -209,16 +209,16 @@
       ["bfr0", "fr7"],
 
       // Middle
-      {"beamDeform" : 18000.0},
-      {"beamStrength" : 4000.0},
-      {"breakGroupType" : 1.0},
+      {"beamDeform" : 18000},
+      {"beamStrength" : 4000},
+      {"breakGroupType" : 1},
       ["bfr3", "fr16"],
       ["bfr4", "fr16"],
       ["bfr4", "fr7"],
-      {"breakGroupType" : 0.0},
+      {"breakGroupType" : 0},
 
       // Rear
-      {"beamStrength" : 16000.0, "beamDeform" : 12000.0},
+      {"beamStrength" : 16000, "beamDeform" : 12000},
       ["bfr5", "fr19"],
       ["bfr5", "fr32"],
       ["bfr6", "fr16"],
@@ -231,7 +231,7 @@
       ["bfr9", "fr20"],
       ["bfr10", "fr16"],
       ["bfr10", "fr34"],
-      {"beamStrength" : 16000.0, "beamDeform" : "FLT_MAX"},
+      {"beamStrength" : 16000, "beamDeform" : "FLT_MAX"},
 
       // Body
 
