@@ -23,6 +23,7 @@ data Options = Options
   , optCopyJbflConfig :: Maybe ConfigType
   , optInputFile :: Maybe FilePath
   , optUpdateNames :: Map Text Text
+  , optTransformation :: Bool
   }
   deriving (Show)
 
@@ -33,6 +34,7 @@ startOptions =
     , optInputFile = Nothing
     , optCopyJbflConfig = Nothing
     , optUpdateNames = M.empty
+    , optTransformation = False
     }
 
 parseOptions :: [String] -> IO Options
@@ -59,7 +61,15 @@ updateNamesOption =
         (\names opt -> pure opt {optUpdateNames = maybeNamesToUpdate names})
         "ORIGINAL_VERT_PREFIX:NEW_VERT_PREFIX,..."
     )
-    "Update vertex names" ]
+    "Update vertex names"
+    , Option
+    "t"
+    ["transform"]
+    ( NoArg
+        (\opt -> pure opt {optTransformation = True})
+    )
+    "Enable transformation"
+  ]
 
 splitNames :: Text -> Maybe (Text, Text)
 splitNames namePair =
