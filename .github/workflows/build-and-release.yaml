@@ -15,11 +15,11 @@ jobs:
     steps:
       - name: Extract the tested GHC versions
         id: get-latest-version
-        uses: Kleidukos/get-tested@a2bf953460edad0ece4f6ad16fc782dc4381a7c3
+        uses: Kleidukos/get-tested@v0.1.9.1
         with:
           cabal-file: jbeam-edit.cabal
           windows-version: latest
-          version: 0.1.9.0
+          version: 0.1.9.1
           newest: true
       - uses: actions/checkout@v5
       - name: Add experimental flags
