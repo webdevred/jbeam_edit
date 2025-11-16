@@ -91,7 +91,7 @@ library
     autogen-modules:    Paths_jbeam_edit
     default-language:   GHC2021
     default-extensions:
-        OverloadedStrings ImportQualifiedPost DerivingStrategies MultiWayIf
+        OverloadedStrings ImportQualifiedPost DerivingStrategies
 
     ghc-options:
         -Wall -Wcompat -Widentities -Wincomplete-record-updates

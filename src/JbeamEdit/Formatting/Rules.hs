@@ -171,13 +171,13 @@ lookupProp targetKey m =
     Nothing -> Nothing
 
 applyDecimalPadding :: Int -> Text -> Text
-applyDecimalPadding padDecimals node =
-  let (int, frac) = T.breakOnEnd "." node
-      paddedFrac = T.justifyLeft padDecimals '0' frac
-   in if
-        | padDecimals /= 0 -> int <> paddedFrac
-        | T.isSuffixOf ".0" node -> T.dropEnd 2 node
-        | otherwise -> node
+applyDecimalPadding padDecimals node
+  | padDecimals /= 0 =
+      let (int, frac) = T.breakOnEnd "." node
+          paddedFrac = T.justifyLeft padDecimals '0' frac
+       in int <> paddedFrac
+  | T.isSuffixOf ".0" node = T.dropEnd 2 node
+  | otherwise = node
 
 applyPadLogic :: (Node -> Text) -> Rule -> Node -> Text
 applyPadLogic f rs n =
