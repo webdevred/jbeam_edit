@@ -15,9 +15,17 @@ import Data.Text (Text)
 import JbeamEdit.Core.Node (Node (..), isObjectKeyNode)
 import JbeamEdit.Core.NodePath qualified as NP
 
+{- | A breadcrumb represents a single step in a `NodeCursor`.
+It can be one of:
+
+* `ArrayIndex Int` : a position within an array
+* `ObjectIndex Int` : a temporary position within an object, used before the key is assigned
+* `ObjectIndexAndKey (Int, Text)` : a complete position within an object including index and key
+-}
 data NodeBreadcrumb
   = ArrayIndex Int
-  | ObjectIndex Int
+  | -- TODO: Refactor half ObjectIndexAndKey handling to something cleaner
+    ObjectIndex Int
   | ObjectIndexAndKey (Int, Text)
   deriving (Eq, Show)
 
