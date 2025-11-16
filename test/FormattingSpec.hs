@@ -13,11 +13,11 @@ import System.FilePath (takeBaseName, (</>))
 
 numberSpec :: [(String, Node)]
 numberSpec =
-  [ ("123.0", Number 123)
+  [ ("123", Number 123)
   , ("123.123", Number 123.123)
-  , ("-123.0", Number (-123))
+  , ("-123", Number (-123))
   , ("-123.123", Number (-123.123))
-  , ("0.0", Number 0.0)
+  , ("0", Number 0.0)
   ]
 
 stringSpec :: [(String, Node)]
@@ -37,13 +37,13 @@ singlelineCommentSpec = [("// test", Comment (InternalComment "test" False NextN
 
 arraySpec :: [(String, Node)]
 arraySpec =
-  [ ("[1.0, 2.0, 3.0]", Array (fromList [Number 1, Number 2, Number 3]))
+  [ ("[1, 2, 3]", Array (fromList [Number 1, Number 2, Number 3]))
   ]
 
 objectSpec :: [(String, Node)]
 objectSpec =
   [
-    ( "{\"test\" : 1.0, \"test2\" : 2.0}"
+    ( "{\"test\" : 1, \"test2\" : 2}"
     , Object
         ( fromList
             [ ObjectKey (String "test", Number 1)

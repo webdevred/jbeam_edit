@@ -76,10 +76,10 @@
 
       // Structural beams
       {"beamStrength" : "FLT_MAX", "beamSpring" : "3800000"},
-      {"beamDamp" : 130.0, "deformLimit" : 1.1},
+      {"beamDamp" : 130, "deformLimit" : 1.1},
 
       // Front end
-      {"beamDeform" : 20600.0, "deformLimit" : 1.1},
+      {"beamDeform" : 20600, "deformLimit" : 1.1},
       ["rl3", "rl5"],
       ["rl0", "rl3"],
       ["rl8", "rl3"],
@@ -105,7 +105,7 @@
       ["rl1", "rl7"],
 
       // Middle
-      {"beamDeform" : 27000.0},
+      {"beamDeform" : 27000},
       ["rl16", "rl15"],
       ["rl20", "rl30"],
       ["rl16", "rl23"],
@@ -141,7 +141,7 @@
       ["rl27", "rl26"],
 
       // Rear end
-      {"beamDeform" : 22000.0},
+      {"beamDeform" : 22000},
       ["rl37", "rl34"],
       ["rl39", "rl41"],
       ["rl44", "rl46"],
@@ -180,7 +180,7 @@
       // Crossing beams
 
       // Front end
-      {"beamDeform" : 16000.0},
+      {"beamDeform" : 16000},
       ["rl4", "rl2"],
       ["rl0", "rl8"],
       ["rl16", "rl10"],
@@ -199,7 +199,7 @@
       ["rl18", "rl12"],
 
       // Middle
-      {"beamDeform" : 6500.0},
+      {"beamDeform" : 6500},
       ["rl16", "rl20"],
       ["rl15", "rl23"],
       ["rl18", "rl28"],
@@ -226,7 +226,7 @@
       ["rl21", "rl22"],
 
       // Rear end
-      {"beamDeform" : 16000.0},
+      {"beamDeform" : 16000},
       ["rl54", "rl45"],
       ["rl32", "rl36"],
       ["rl36", "rl41"],
@@ -255,7 +255,7 @@
       // Support beams
 
       // Front end
-      {"beamDeform" : 19000.0},
+      {"beamDeform" : 19000},
       ["rl8", "rl14"],
       ["rl9", "rl14"],
       ["rl14", "rl3"],
@@ -272,7 +272,7 @@
       ["rl14", "rl11"],
 
       // Middle
-      {"beamDeform" : 11000.0},
+      {"beamDeform" : 11000},
       ["rl27", "rl19"],
       ["rl26", "rl19"],
       ["rl24", "rl19"],
@@ -293,7 +293,7 @@
       ["rl19", "rl30"],
 
       // Rear end
-      {"beamDeform" : 19000.0},
+      {"beamDeform" : 19000},
       ["rl48", "rl51"],
       ["rl48", "rl54"],
       ["rl45", "rl48"],
@@ -312,7 +312,7 @@
       ["rl48", "rl46"],
 
       // Front crush
-      {"beamDeform" : 8500.0},
+      {"beamDeform" : 8500},
       ["rl17", "rl9"],
       ["rl15", "rl8"]
     ],

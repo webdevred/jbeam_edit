@@ -79,6 +79,7 @@ replaceNewlines = id
 
 applyTransform :: Options -> Node -> IO (Either Text Node)
 #ifdef ENABLE_TRANSFORMATION
+applyTransform (Options {optTransformation = False}) topNode = pure (Right topNode)
 applyTransform opts topNode = do
   cwd <- getCurrentDirectory
   tfConfig <- loadTransformationConfig $ cwd </> ".jbeam-edit.yaml"
