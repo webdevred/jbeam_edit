@@ -40,7 +40,7 @@ addDelimiters rs index c complexChildren acc ns@(node : rest)
   | complexChildren && null acc =
       addDelimiters rs index c complexChildren ["\n"] ns
   | isCommentNode node =
-      let formatted = ("\n" <> formatWithCursor rs c node <> "\n") : acc
+      let formatted = (newlineBeforeComment <> formatWithCursor rs c node <> "\n") : acc
        in addDelimiters rs index c complexChildren formatted rest
   | otherwise =
       case assocPriorComment of
@@ -57,6 +57,7 @@ addDelimiters rs index c complexChildren acc ns@(node : rest)
       guard (commentIsAttachedToPreviousNode cmt)
       pure (cmt, rest')
 
+    newlineBeforeComment = bool "\n" "" (["\n"] == acc)
     applyCrumbAndFormat = NC.applyCrumb c (formatWithCursor rs) index node
     newIndex = index + 1
     comma = bool "," "" $ null rest
