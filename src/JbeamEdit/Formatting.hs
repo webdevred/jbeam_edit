@@ -57,8 +57,7 @@ addDelimiters rs index c complexChildren acc ns@(node : rest)
       guard (commentIsAttachedToPreviousNode cmt)
       pure (cmt, rest')
 
-    applyCrumbAndFormat =
-      NC.applyCrumb (NC.ArrayIndex index) c (formatWithCursor rs) node
+    applyCrumbAndFormat = NC.applyCrumb c (formatWithCursor rs) index node
     newIndex = index + 1
     comma = bool "," "" $ null rest
     space = bool " " "" $ null rest || complexChildren

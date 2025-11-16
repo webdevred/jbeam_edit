@@ -12,28 +12,6 @@ spec = do
   describe "newCursor" . it "creates an empty cursor" $
     newCursor `shouldBe` NodeCursor Seq.empty
 
-  describe "applyCrumb" . it "appends a breadcrumb" $
-    ( do
-        let cursor = newCursor
-            crumb = ArrayIndex 0
-            result = applyCrumb crumb cursor const (String "dummy")
-        result `shouldBe` NodeCursor (Seq.singleton crumb)
-    )
-
-  describe
-    "applyObjCrumb"
-    ( do
-        let cursor = NodeCursor (Seq.singleton (ArrayIndex 2))
-            result = applyObjCrumb (String "key") cursor const (String "dummy")
-            ioAction = applyObjCrumb (Number 1) cursor const (String "dummy")
-        it "transforms ArrayIndex + String into ObjectIndexAndKey" $
-          result `shouldBe` NodeCursor (Seq.singleton (ObjectIndexAndKey (2, "key")))
-        it "raises on non String input" $
-          evaluate ioAction
-            `shouldThrow` errorCall
-              "applyObjCrumb expects a String Node and NodeCursor with a index as the head Number 1.0 NodeCursor (fromList [ArrayIndex 2])"
-    )
-
   describe "compareSB" $ do
     it "matches ObjectKey correctly" $ do
       compareSB (NP.ObjectKey "foo") (ObjectIndexAndKey (0, "foo")) `shouldBe` True

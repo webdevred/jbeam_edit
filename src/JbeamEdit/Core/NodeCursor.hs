@@ -1,6 +1,6 @@
 module JbeamEdit.Core.NodeCursor (
   NodeCursor (..),
-  NodeBreadcrumb (..),
+  NodeBreadcrumb (ArrayIndex, ObjectIndexAndKey),
   applyCrumb,
   applyObjCrumb,
   compareSB,
@@ -8,14 +8,16 @@ module JbeamEdit.Core.NodeCursor (
   newCursor,
 ) where
 
+import Data.Bool (bool)
 import Data.Sequence (Seq (..))
 import Data.Sequence qualified as Seq (empty, null)
 import Data.Text (Text)
-import JbeamEdit.Core.Node (Node (..))
+import JbeamEdit.Core.Node (Node (..), isObjectKeyNode)
 import JbeamEdit.Core.NodePath qualified as NP
 
 data NodeBreadcrumb
   = ArrayIndex Int
+  | ObjectIndex Int
   | ObjectIndexAndKey (Int, Text)
   deriving (Eq, Show)
 
@@ -35,16 +37,18 @@ type CursorFun a = NodeCursor -> Node -> a
 {- | applyCrumb
 This function takes a function f, a breadcrumb b, and a sequence of breadcrumbs wrapped in a NodeCursor, appends the the breadcrumb to the Sequence in the cursor and supplies the cursor to the function f. This is used whenever I update the Node tree to track where in the tree I am so, enabling checking whether I am updating at a certain point in the Node tree.
 -}
-applyCrumb :: NodeBreadcrumb -> NodeCursor -> CursorFun a -> Node -> a
-applyCrumb b (NodeCursor bs) f = f (NodeCursor $ bs :|> b)
+applyCrumb :: NodeCursor -> CursorFun a -> Int -> Node -> a
+applyCrumb (NodeCursor bs) f index node =
+  let breadcrumb = bool (ArrayIndex index) (ObjectIndex index) (isObjectKeyNode node)
+   in f (NodeCursor $ bs :|> breadcrumb) node
 
 applyObjCrumb :: Node -> NodeCursor -> CursorFun a -> Node -> a
-applyObjCrumb (String key) (NodeCursor (bs :|> (ArrayIndex i))) f =
+applyObjCrumb (String key) (NodeCursor (bs :|> (ObjectIndex i))) f =
   f (NodeCursor $ bs :|> ObjectIndexAndKey (i, key))
 applyObjCrumb key cursor _ = error $ unwords [errMsg, show key, show cursor]
   where
     errMsg =
-      "applyObjCrumb expects a String Node and NodeCursor with a index as the head"
+      "applyObjCrumb expects a String Node and NodeCursor with a ObjectIndex as the head. "
 
 type SelCrumbCompFun = NP.NodeSelector -> NodeBreadcrumb -> Bool
 

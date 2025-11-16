@@ -1,6 +1,7 @@
 module JbeamEdit.Core.Node (
   isCommentNode,
   isObjectNode,
+  isObjectKeyNode,
   isNumberNode,
   isStringNode,
   isComplexNode,
@@ -73,6 +74,10 @@ isCommentNode _ = False
 isObjectNode :: Node -> Bool
 isObjectNode (Object _) = True
 isObjectNode _ = False
+
+isObjectKeyNode :: Node -> Bool
+isObjectKeyNode (ObjectKey _) = True
+isObjectKeyNode _ = False
 
 isStringNode :: Node -> Bool
 isStringNode (String _) = True
