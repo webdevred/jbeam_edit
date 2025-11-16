@@ -411,8 +411,8 @@ findAndUpdateTextInNode m cursor node =
     String s -> String $ M.findWithDefault s s m
     _ -> node
   where
-    applyBreadcrumbAndUpdateText index =
-      NC.applyCrumb (NC.ArrayIndex index) cursor (findAndUpdateTextInNode m)
+    applyBreadcrumbAndUpdateText =
+      NC.applyCrumb cursor (findAndUpdateTextInNode m)
 
 transform
   :: UpdateNamesMap
