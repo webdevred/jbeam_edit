@@ -107,7 +107,7 @@ library:
   ghc-options: [-Wunused-packages]
   source-dirs: src
   generated-other-modules: Paths_jbeam_edit
-  default-extensions: [DerivingStrategies]
+  default-extensions: [DerivingStrategies, MultiWayIf]
   dependencies: [megaparsec]
   when:
     - condition: flag(transformation)
