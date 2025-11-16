@@ -10,7 +10,7 @@ module JbeamEdit.Core.NodeCursor (
 import Data.Sequence (Seq (..))
 import Data.Sequence qualified as Seq (empty, null)
 import Data.Text (Text)
-import JbeamEdit.Core.Node (Node (..),maybeObjectKey)
+import JbeamEdit.Core.Node (Node (..), maybeObjectKey)
 import JbeamEdit.Core.NodePath qualified as NP
 
 {- | A breadcrumb represents a single step in a `NodeCursor`.
