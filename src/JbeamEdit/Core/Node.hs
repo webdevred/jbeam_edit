@@ -4,6 +4,7 @@ module JbeamEdit.Core.Node (
   isObjectKeyNode,
   isNumberNode,
   isStringNode,
+  maybeObjectKey,
   isComplexNode,
   commentIsAttachedToPreviousNode,
   Node (..),
@@ -66,6 +67,10 @@ data Node
 commentIsAttachedToPreviousNode :: InternalComment -> Bool
 commentIsAttachedToPreviousNode (InternalComment _ _ PreviousNode) = True
 commentIsAttachedToPreviousNode (InternalComment _ _ NextNode) = False
+
+maybeObjectKey :: Node -> Maybe Text
+maybeObjectKey (ObjectKey (String key, _)) = Just key
+maybeObjectKey _ = Nothing
 
 isCommentNode :: Node -> Bool
 isCommentNode (Comment _) = True

@@ -2,31 +2,26 @@ module JbeamEdit.Core.NodeCursor (
   NodeCursor (..),
   NodeBreadcrumb (ArrayIndex, ObjectIndexAndKey),
   applyCrumb,
-  applyObjCrumb,
   compareSB,
   comparePathAndCursor,
   newCursor,
 ) where
 
-import Data.Bool (bool)
 import Data.Sequence (Seq (..))
 import Data.Sequence qualified as Seq (empty, null)
 import Data.Text (Text)
-import JbeamEdit.Core.Node (Node (..), isObjectKeyNode)
+import JbeamEdit.Core.Node (Node (..),maybeObjectKey)
 import JbeamEdit.Core.NodePath qualified as NP
 
 {- | A breadcrumb represents a single step in a `NodeCursor`.
 It can be one of:
 
 * `ArrayIndex Int` : a position within an array
-* `ObjectIndex Int` : a temporary position within an object, used before the key is assigned
 * `ObjectIndexAndKey (Int, Text)` : a complete position within an object including index and key
 -}
 data NodeBreadcrumb
   = ArrayIndex Int
-  | -- TODO: Refactor half ObjectIndexAndKey handling to something cleaner
-    ObjectIndex Int
-  | ObjectIndexAndKey (Int, Text)
+  | ObjectIndexAndKey Int Text
   deriving (Eq, Show)
 
 {- | node cursor
@@ -47,16 +42,12 @@ This function takes a function f, a breadcrumb b, and a sequence of breadcrumbs 
 -}
 applyCrumb :: NodeCursor -> CursorFun a -> Int -> Node -> a
 applyCrumb (NodeCursor bs) f index node =
-  let breadcrumb = bool (ArrayIndex index) (ObjectIndex index) (isObjectKeyNode node)
+  let breadcrumb =
+        maybe
+          (ArrayIndex index)
+          (ObjectIndexAndKey index)
+          (maybeObjectKey node)
    in f (NodeCursor $ bs :|> breadcrumb) node
-
-applyObjCrumb :: Node -> NodeCursor -> CursorFun a -> Node -> a
-applyObjCrumb (String key) (NodeCursor (bs :|> (ObjectIndex i))) f =
-  f (NodeCursor $ bs :|> ObjectIndexAndKey (i, key))
-applyObjCrumb key cursor _ = error $ unwords [errMsg, show key, show cursor]
-  where
-    errMsg =
-      "applyObjCrumb expects a String Node and NodeCursor with a ObjectIndex as the head. "
 
 type SelCrumbCompFun = NP.NodeSelector -> NodeBreadcrumb -> Bool
 
@@ -64,8 +55,8 @@ type SelCrumbCompFun = NP.NodeSelector -> NodeBreadcrumb -> Bool
 Validate whether all the selectors match the corresponding breadcrumb, returning False if either Sequence exhausts prematurely.
 -}
 compareSB :: SelCrumbCompFun
-compareSB (NP.ObjectKey s) (ObjectIndexAndKey (_, k)) = s == k
-compareSB (NP.ObjectIndex s) (ObjectIndexAndKey (i, _)) = s == i
+compareSB (NP.ObjectKey s) (ObjectIndexAndKey _ k) = s == k
+compareSB (NP.ObjectIndex s) (ObjectIndexAndKey i _) = s == i
 compareSB (NP.ArrayIndex s) (ArrayIndex i) = s == i
 compareSB _ _ = False
 

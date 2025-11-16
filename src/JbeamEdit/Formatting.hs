@@ -103,7 +103,7 @@ doFormatNode rs cursor nodes =
   where
     complexChildren =
       forceComplexNewLine rs cursor
-        || (any isComplexNode nodes && not (noComplexNewLine rs cursor))
+        || any isComplexNode nodes && not (noComplexNewLine rs cursor)
 
 formatComment :: InternalComment -> Text
 formatComment (InternalComment {cMultiline = False, cText = c}) = "// " <> c
@@ -124,9 +124,7 @@ formatWithCursor rs cursor (Array a)
 formatWithCursor rs cursor (Object o)
   | V.null o = "{}"
   | otherwise = T.concat ["{", doFormatNode rs cursor o, "}"]
-formatWithCursor rs cursor (ObjectKey (k, v)) =
-  let formatWithKeyContext = NC.applyObjCrumb k cursor (formatWithCursor rs)
-   in T.concat [formatWithKeyContext k, " : ", formatWithKeyContext v]
+formatWithCursor rs cursor (ObjectKey (k, v)) = T.concat [formatWithCursor rs cursor k, " : ", formatWithCursor rs cursor v]
 formatWithCursor _ _ (Comment comment) = formatComment comment
 formatWithCursor rs cursor n =
   let ps = findPropertiesForCursor cursor rs

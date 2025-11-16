@@ -212,7 +212,7 @@ lookupIndentProperty rs cursor =
    in fromMaybe 2 indentProperty
 
 comparePC :: NodePatternSelector -> NC.NodeBreadcrumb -> Bool
-comparePC AnyObjectKey (NC.ObjectIndexAndKey (_, _)) = True
+comparePC AnyObjectKey (NC.ObjectIndexAndKey _ _) = True
 comparePC AnyArrayIndex (NC.ArrayIndex _) = True
 comparePC (Selector s) bc = NC.compareSB s bc
 comparePC _ _ = False

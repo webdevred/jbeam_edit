@@ -11,7 +11,7 @@ import Data.Sequence (Seq (..))
 import Data.Text (Text)
 import Data.Vector qualified as V
 import GHC.IsList (IsList (..))
-import JbeamEdit.Core.Node qualified as N (Node (..))
+import JbeamEdit.Core.Node qualified as N (Node (..), maybeObjectKey)
 
 data NodeSelector
   = ArrayIndex Int
@@ -48,10 +48,7 @@ select (ArrayIndex i) (N.Array ns) = getNthElem 0 (V.toList ns)
     getNthElem curIndex (curElem : rest)
       | curIndex == i = Just curElem
       | otherwise = getNthElem (curIndex + 1) rest
-select (ObjectKey k) (N.Object ns) = extractValInKey =<< V.find compareKey ns
-  where
-    compareKey (N.ObjectKey (N.String keyText, _)) = keyText == k
-    compareKey _ = False
+select (ObjectKey k) (N.Object ns) = extractValInKey =<< V.find (elem k . N.maybeObjectKey) ns
 select (ObjectIndex i) (N.Object a) = getNthKey 0 (V.toList a)
   where
     getNthKey _ [] = Nothing
