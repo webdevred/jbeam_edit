@@ -175,9 +175,9 @@ applyDecimalPadding padDecimals node =
   let (int, frac) = T.breakOnEnd "." node
       paddedFrac = T.justifyLeft padDecimals '0' frac
    in if
-       | padDecimals /= 0 -> int <> paddedFrac
-       | T.isSuffixOf ".0" node -> T.dropEnd 2 node
-       | otherwise -> node
+        | padDecimals /= 0 -> int <> paddedFrac
+        | T.isSuffixOf ".0" node -> T.dropEnd 2 node
+        | otherwise -> node
 
 applyPadLogic :: (Node -> Text) -> Rule -> Node -> Text
 applyPadLogic f rs n =
