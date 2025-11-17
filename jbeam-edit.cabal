@@ -54,10 +54,6 @@ flag lsp-server
     default:     False
     manual:      True
 
-flag lsp-test-server
-    description: Enable LSP test server (dev-only)
-    default:     False
-
 flag transformation
     description: Enable transformation (experimental)
     default:     False
@@ -361,7 +357,7 @@ test-suite jbeam-edit-test
 
 test-suite jbeam-edit-transformation-test
     type:               exitcode-stdio-1.0
-    main-is:            Main.hs
+    main-is:            Spec.hs
     hs-source-dirs:     test-extra/transformation
     other-modules:      Paths_jbeam_edit
     autogen-modules:    Paths_jbeam_edit
@@ -387,6 +383,9 @@ test-suite jbeam-edit-transformation-test
         scientific,
         text >=2.0,
         vector
+
+    if True
+        ghc-options: -main-is Spec
 
     if flag(transformation)
         build-depends: jbeam-edit-transformation

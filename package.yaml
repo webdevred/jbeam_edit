@@ -64,10 +64,6 @@ flags:
     description: Enable LSP server (experimental)
     manual: true
     default: false
-  lsp-test-server:
-    description: Enable LSP test server (dev-only)
-    manual: false
-    default: false
   windows-example-paths:
     description: Use executable-relative example paths (for Windows release builds)
     default: false
@@ -190,10 +186,12 @@ tests:
           buildable: false
   jbeam-edit-transformation-test:
     <<: *jbeam-test-common
-    main: Main.hs
+    main: Spec.hs
     build-tools: []
     source-dirs: test-extra/transformation
     when:
+      - condition: true
+        ghc-options: "-main-is Spec"
       - condition: flag(transformation)
         then:
           dependencies: [jbeam-edit-transformation]

@@ -1,4 +1,4 @@
-module Main (
+module Spec (
   main,
 ) where
 
