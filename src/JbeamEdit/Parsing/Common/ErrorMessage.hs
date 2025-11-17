@@ -2,17 +2,14 @@ module JbeamEdit.Parsing.Common.ErrorMessage (
   formatErrors,
 ) where
 
-import Data.ByteString.Lazy (ByteString)
-import Data.ByteString.Lazy qualified as BS
+import Data.ByteString.Lazy qualified as LBS
 import Data.Function (on)
 import Data.List.NonEmpty qualified as NE
 import Data.Set (Set)
 import Data.Set qualified as S
 import Data.Text (Text)
 import Data.Text qualified as T
-import Data.Text.Encoding.Error (lenientDecode)
-import Data.Text.Lazy qualified as TL
-import Data.Text.Lazy.Encoding (decodeUtf8With)
+import Data.Text.Encoding (decodeUtf8Lenient)
 import Data.Word (Word8)
 import JbeamEdit.Parsing.Common.Helpers (charNotEqWord8, toChar, toWord8)
 import Text.Megaparsec qualified as MP
@@ -34,15 +31,15 @@ formatTok toks =
     MP.Label lab -> T.pack $ NE.toList lab
     MP.Tokens toks' -> T.pack . wrap "'" "'" . map toChar $ NE.toList toks'
 
-errorAreaAndLineNumber :: Int -> ByteString -> (Text, Text)
+errorAreaAndLineNumber :: Int -> LBS.ByteString -> (Text, Text)
 errorAreaAndLineNumber pos inputNotParsed =
-  let (begin, end) = BS.splitAt (fromIntegral pos) inputNotParsed
-      fstPartOfLine = BS.takeWhileEnd (charNotEqWord8 '\n') begin
-      sndPartOfLine = BS.takeWhile (charNotEqWord8 '\n') end
-      lineNumber = BS.count (toWord8 '\n') begin
+  let (begin, end) = LBS.splitAt (fromIntegral pos) inputNotParsed
+      fstPartOfLine = LBS.takeWhileEnd (charNotEqWord8 '\n') begin
+      sndPartOfLine = LBS.takeWhile (charNotEqWord8 '\n') end
+      lineNumber = LBS.count (toWord8 '\n') begin
       errorArea =
-        T.strip . TL.toStrict $
-          on (<>) (decodeUtf8With lenientDecode) fstPartOfLine sndPartOfLine
+        T.strip $
+          on (<>) (decodeUtf8Lenient . LBS.toStrict) fstPartOfLine sndPartOfLine
    in (errorArea, T.pack $ show lineNumber)
 
 wrap :: Semigroup a => a -> a -> a -> a
@@ -50,7 +47,7 @@ wrap l r m = l <> m <> r
 
 formatTrivialErrors
   :: Int
-  -> ByteString
+  -> LBS.ByteString
   -> Set (MP.ErrorItem Word8)
   -> Maybe (MP.ErrorItem Word8)
   -> Text
@@ -67,12 +64,12 @@ formatTrivialErrors pos inputNotParsed expToks unexpTok =
 
 formatFancyErrors
   :: Int
-  -> ByteString
+  -> LBS.ByteString
   -> Set (MP.ErrorFancy e)
   -> Text
 formatFancyErrors = error "unreachable, we dont do fancy errors so far"
 
-formatErrors :: MP.ParseErrorBundle ByteString e -> Text
+formatErrors :: MP.ParseErrorBundle LBS.ByteString e -> Text
 formatErrors bundle =
   let MP.ParseErrorBundle
         { MP.bundleErrors = bunErrs
