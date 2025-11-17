@@ -1,5 +1,3 @@
-{-# LANGUAGE DerivingStrategies #-}
-
 module CommandLineOptions (
   parseOptions,
   Options (..),

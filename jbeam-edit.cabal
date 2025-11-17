@@ -129,7 +129,9 @@ library jbeam-edit-transformation
     other-modules:      Paths_jbeam_edit
     autogen-modules:    Paths_jbeam_edit
     default-language:   GHC2021
-    default-extensions: OverloadedStrings ImportQualifiedPost
+    default-extensions:
+        OverloadedStrings ImportQualifiedPost DerivingStrategies
+
     ghc-options:
         -Wall -Wcompat -Widentities -Wincomplete-record-updates
         -Wincomplete-uni-patterns -Wmissing-export-lists
@@ -171,7 +173,8 @@ library jbeam-language-server
     autogen-modules:    Paths_jbeam_edit
     default-language:   GHC2021
     default-extensions:
-        OverloadedStrings ImportQualifiedPost DataKinds PolyKinds
+        OverloadedStrings ImportQualifiedPost DerivingStrategies DataKinds
+        PolyKinds
 
     ghc-options:
         -Wall -Wcompat -Widentities -Wincomplete-record-updates
@@ -212,7 +215,9 @@ executable jbeam-edit
 
     autogen-modules:    Paths_jbeam_edit
     default-language:   GHC2021
-    default-extensions: OverloadedStrings ImportQualifiedPost CPP
+    default-extensions:
+        OverloadedStrings ImportQualifiedPost DerivingStrategies CPP
+
     ghc-options:
         -Wall -Wcompat -Widentities -Wincomplete-record-updates
         -Wincomplete-uni-patterns -Wmissing-export-lists
@@ -244,7 +249,9 @@ executable jbeam-edit-dump-ast
     other-modules:      Paths_jbeam_edit
     autogen-modules:    Paths_jbeam_edit
     default-language:   GHC2021
-    default-extensions: OverloadedStrings ImportQualifiedPost
+    default-extensions:
+        OverloadedStrings ImportQualifiedPost DerivingStrategies
+
     ghc-options:
         -Wall -Wcompat -Widentities -Wincomplete-record-updates
         -Wincomplete-uni-patterns -Wmissing-export-lists
@@ -280,7 +287,9 @@ executable jbeam-lsp-server
 
     autogen-modules:    Paths_jbeam_edit
     default-language:   GHC2021
-    default-extensions: OverloadedStrings ImportQualifiedPost
+    default-extensions:
+        OverloadedStrings ImportQualifiedPost DerivingStrategies
+
     ghc-options:
         -Wall -Wcompat -Widentities -Wincomplete-record-updates
         -Wincomplete-uni-patterns -Wmissing-export-lists
@@ -323,7 +332,9 @@ test-suite jbeam-edit-test
 
     autogen-modules:    Paths_jbeam_edit
     default-language:   GHC2021
-    default-extensions: OverloadedStrings ImportQualifiedPost
+    default-extensions:
+        OverloadedStrings ImportQualifiedPost DerivingStrategies
+
     ghc-options:
         -Wall -Wcompat -Widentities -Wincomplete-record-updates
         -Wincomplete-uni-patterns -Wmissing-export-lists
@@ -355,7 +366,9 @@ test-suite jbeam-edit-transformation-test
     other-modules:      Paths_jbeam_edit
     autogen-modules:    Paths_jbeam_edit
     default-language:   GHC2021
-    default-extensions: OverloadedStrings ImportQualifiedPost
+    default-extensions:
+        OverloadedStrings ImportQualifiedPost DerivingStrategies
+
     ghc-options:
         -Wall -Wcompat -Widentities -Wincomplete-record-updates
         -Wincomplete-uni-patterns -Wmissing-export-lists
@@ -393,7 +406,9 @@ test-suite jbeam-language-server-test
 
     autogen-modules:    Paths_jbeam_edit
     default-language:   GHC2021
-    default-extensions: OverloadedStrings ImportQualifiedPost
+    default-extensions:
+        OverloadedStrings ImportQualifiedPost DerivingStrategies
+
     ghc-options:
         -Wall -Wcompat -Widentities -Wincomplete-record-updates
         -Wincomplete-uni-patterns -Wmissing-export-lists
@@ -430,7 +445,9 @@ benchmark jbeam-edit-bench
     other-modules:      Paths_jbeam_edit
     autogen-modules:    Paths_jbeam_edit
     default-language:   GHC2021
-    default-extensions: OverloadedStrings ImportQualifiedPost
+    default-extensions:
+        OverloadedStrings ImportQualifiedPost DerivingStrategies
+
     ghc-options:
         -Wall -Wcompat -Widentities -Wincomplete-record-updates
         -Wincomplete-uni-patterns -Wmissing-export-lists
