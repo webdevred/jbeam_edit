@@ -11,7 +11,10 @@ package bitvec
   library-for-ghci: False
 
 package jbeam-edit
+  ghc-options:
+    -haddock
+    -Wno-invalid-haddock
+
+  documentation: False
   tests: True
-  haddock-executables: True
-  haddock-internal: True
   flags: +dump-ast +transformation +lsp-server -windows-example-paths
