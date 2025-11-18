@@ -2,7 +2,7 @@ name: Build for release
 
 on:
   push:
-    branches: [master]
+    branches: [master, upgrade-ghc]
     tags: [v*]
   pull_request:
 
