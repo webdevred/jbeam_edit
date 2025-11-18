@@ -25,8 +25,9 @@ if [[ ${#EXP_FLAGS[@]} -eq 0 ]]; then
   UPDATED="$ORIGINAL"
 else
   EXP_FLAGS_STRING=$(printf '+%s ' "${EXP_FLAGS[@]}")
-  EXPERIMENTAL=$(jq --arg flags "$EXP_FLAGS_STRING" --arg label "experimental" \
-    '.include[0] += {flags: $flags, label: $label}' <<<"$MATRIX_JSON")
+  # TODO: remove this ghc version hardcoding once we migrate the whole project to a more modern ghc version
+  EXPERIMENTAL=$(jq --arg ghc "9.12.2" --arg flags "$EXP_FLAGS_STRING" --arg label "experimental" \
+    '.include[0] += {ghc : $ghc, flags: $flags, label: $label}' <<<"$MATRIX_JSON")
 
   UPDATED=$(jq --argjson exp_include "$(jq '.include' <<<"$EXPERIMENTAL")" \
     '.include += $exp_include' <<<"$ORIGINAL")
