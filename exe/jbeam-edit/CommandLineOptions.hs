@@ -3,7 +3,6 @@ module CommandLineOptions (
   Options (..),
 ) where
 
-import Data.List qualified as L (foldl')
 import Data.Map (Map)
 import Data.Map qualified as M
 import Data.Text (Text)
@@ -40,7 +39,7 @@ startOptions =
 parseOptions :: [String] -> IO Options
 parseOptions args = do
   let (actions, nonOptions, _) = getOpt RequireOrder options args
-  opts <- L.foldl' (>>=) (pure startOptions) actions
+  opts <- foldr (=<<) (pure startOptions) actions
   case (optInputFile opts, nonOptions) of
     (Nothing, filename : _) -> pure $ opts {optInputFile = Just filename}
     (_, _) -> pure opts
