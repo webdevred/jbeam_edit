@@ -25,16 +25,10 @@ jobs:
       - name: Add experimental flags
         id: add-exp
         shell: bash
-        run: |
-          echo "$OLD_MATRIX" > matrix.json
-          echo "checking input matrix"
-          cat matrix.json
-          MATRIX="$(bash ./.github/scripts/add_experimental_flags.sh matrix.json jbeam-edit.cabal)"
-          echo "checking output matrix"
-          echo $MATRIX
-          echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
+        run: bash ./.github/scripts/add_experimental_flags.sh
         env:
-          OLD_MATRIX: ${{ steps.get-latest-version.outputs.matrix }}
+          CABAL_FILE: jbeam-edit.cabal
+          MATRIX: ${{ steps.get-latest-version.outputs.matrix }}
   build-for-release:
     runs-on: windows-latest
     needs: get-newest-supported-ghc

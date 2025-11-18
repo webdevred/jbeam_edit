@@ -34,7 +34,8 @@ jobs:
       - name: Enable tests and benchmarks
         shell: bash
         run: |-
-          cabal configure --project-file cabal.project.ci -O1 --enable-tests --enable-benchmarks
+          cabal configure --project-file cabal.project.ci -O1
+          printf 'package jbeam-edit\n  benchmarks: True'>>cabal.project.ci.local
           echo "contents of cabal.project.ci.local"
           cat cabal.project.ci.local
       - name: Freeze and check dependencies
