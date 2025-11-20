@@ -40,7 +40,7 @@
 
     ("\\b\\(true\\|false\\)\\b" . font-lock-constant-face)
 
-    ("\\(\\.[a-zA-Z0-9*]+\\)+" . font-lock-function-name-face)
+    ("\\(\\.[_a-zA-Z0-9*]+\\)+" . font-lock-function-name-face)
 
     ("[{}]" . font-lock-builtin-face)
 
