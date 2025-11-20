@@ -43,7 +43,7 @@ objectKeyParser = byteChar '.' *> key
     key = parseWord8s (Selector . ObjectKey) (MP.some . MP.satisfy $ p)
     p w =
       let c = toChar w
-       in not (isSpace c) && c `notElem` ['[', '.']
+       in not (isSpace c) && c `notElem` [',', '[', '.']
 
 objectIndexParser :: JbflParser NodePatternSelector
 objectIndexParser = byteChar '.' *> index
@@ -66,7 +66,12 @@ patternSelectorParser =
     ]
 
 patternParser :: JbflParser NodePattern
-patternParser = skipWhiteSpace *> patternSelectors <* skipWhiteSpace
+patternParser = do
+  pat <- skipWhiteSpace *> patternSelectors
+  c <- MP.lookAhead B.asciiChar
+  case toChar c of
+    ',' -> byteChar ',' $> pat
+    _ -> skipWhiteSpace $> pat
   where
     patternSelectors = NodePattern . Seq.fromList <$> MP.some patternSelectorParser
 
@@ -116,19 +121,22 @@ keyPropertyPairParser = do
 separatorParser :: JbflParser ()
 separatorParser = skipWhiteSpace *> void (byteChar ';') <* skipWhiteSpace
 
-ruleParser :: JbflParser (NodePattern, Map SomeKey SomeProperty)
+ruleParser :: JbflParser ([NodePattern], Map SomeKey SomeProperty)
 ruleParser = do
-  pat <- patternParser
+  pats <- MP.some patternParser
   skipWhiteSpace
   _ <- byteChar '{'
   skipWhiteSpace
   props <- MP.some (MP.try keyPropertyPairParser)
   _ <- byteChar '}'
   skipWhiteSpace
-  pure (pat, M.fromList props)
+  pure (pats, M.fromList props)
+
+separateRulesets :: [([a], b)] -> [(a, b)]
+separateRulesets rs = [(pat, props) | (pats, props) <- rs, pat <- pats]
 
 ruleSetParser :: JbflParser RuleSet
-ruleSetParser = RuleSet . M.fromListWith M.union <$> MP.some singleRuleSet
+ruleSetParser = RuleSet . M.fromListWith M.union . separateRulesets <$> MP.some singleRuleSet
   where
     singleRuleSet = skipComment *> ruleParser <* skipComment
 
@@ -136,4 +144,5 @@ parseDSL :: BS.ByteString -> Either Text RuleSet
 parseDSL input
   | BS.null input = pure newRuleSet
   | otherwise =
-      first formatErrors . MP.parse (ruleSetParser <* MP.eof) "<input>" $ input
+      first formatErrors . MP.parse (ruleSetParser <* MP.eof) "<input>" $
+        input
