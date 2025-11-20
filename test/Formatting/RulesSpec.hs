@@ -33,4 +33,4 @@ spec = do
             , (SomeKey PadDecimals, SomeProperty PadDecimals 2)
             ]
     it "applies PadAmount and PadDecimals" $
-      applyPadLogic formatScalarNode ruleSet fakeNode `shouldBe` " 123.00"
+      applyPadLogic formatScalarNode ruleSet fakeNode `shouldBe` "123.00 "
