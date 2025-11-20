@@ -48,10 +48,6 @@ RuleSet
                 )
             , fromList
                 [
-                    ( SomeKey PadAmount
-                    , SomeProperty PadAmount 8
-                    )
-                ,
                     ( SomeKey PadDecimals
                     , SomeProperty PadDecimals 3
                     )
@@ -240,6 +236,22 @@ RuleSet
                 [
                     ( SomeKey PadAmount
                     , SomeProperty PadAmount 20
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
+                        ( ObjectKey "nodes" )
+                    , AnyArrayIndex
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey NoComplexNewLine
+                    , SomeProperty NoComplexNewLine True
                     )
                 ]
             )

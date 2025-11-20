@@ -1,11 +1,10 @@
 .*.nodes[*][*] {
     // Pad all node values to 8 chars and force 3 decimals (e.g., 1.000)
-    PadAmount: 8;
     PadDecimals: 3;
 }
 
 // Keep flexbodies inline (no extra newlines for nested content)
-.*.flexbodies[*] {
+.*.nodes[*], .*.flexbodies[*] {
     NoComplexNewLine : true;
 }
 
