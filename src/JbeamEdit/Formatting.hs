@@ -68,7 +68,10 @@ addDelimiters rs index c complexChildren acc ns@(node : rest)
     newlineBeforeComment = bool "\n" "" (["\n"] == acc)
     applyCrumbAndFormat =
       let padded = NC.applyCrumb c (formatWithCursor rs) index node
-          (formatted, spaces) = splitTrailingMinusOne (bool 1 0 $ comma == ",") padded
+          (formatted, spaces) =
+            splitTrailingMinusOne
+              (bool 1 0 $ comma == "," || isComplexNode node)
+              padded
        in formatted <> comma <> spaces
 
     newIndex = index + 1
