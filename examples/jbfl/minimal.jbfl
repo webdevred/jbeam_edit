@@ -8,3 +8,15 @@
 .*.flexbodies[*] {
     NoComplexNewLine : true;
 }
+
+.*.glowMap.signal_L, .*.glowMap.signal_R,
+.*.glowMap.checkengine, .*.glowMap.hazard,
+.*.glowMap.battery,  .*.glowMap.highbeam,
+.*.glowMap.parkingbrake, .*.glowMap.lowfuel,
+.*.glowMap.lowpressure, .*.glowMap.abs {
+    PadAmount : 20;
+}
+
+.*.glowMap.*.off .*.glowMap.*.on {
+    PadAmount : 10;
+}
