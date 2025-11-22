@@ -2,7 +2,6 @@
   "chassis_rails" : {
     "information" : {"authors" : "gittarrgy01", "name" : ""},
     "slotType" : "main",
-
     // --Nodes--
     "nodes" : [
       ["id", "posX", "posY", "posZ"],
@@ -69,7 +68,6 @@
       ["rl54", -0.451, 2.284, 0.447],
       {"group" : ""}
     ],
-
     // --Beams--
     "beams" : [
       ["id1:", "id2:"],
@@ -316,7 +314,6 @@
       ["rl17", "rl9"],
       ["rl15", "rl8"]
     ],
-
     // --Collision Triangles--
     "triangles" : [
       ["id1:", "id2:", "id3:"],
