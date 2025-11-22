@@ -1,10 +1,21 @@
 .*.nodes[*][*] {
     // Pad all node values to 8 chars and force 3 decimals (e.g., 1.000)
-    PadAmount: 8;
     PadDecimals: 3;
 }
 
 // Keep flexbodies inline (no extra newlines for nested content)
-.*.flexbodies[*] {
+.*.nodes[*], .*.flexbodies[*] {
     NoComplexNewLine : true;
+}
+
+.*.glowMap.signal_L, .*.glowMap.signal_R,
+.*.glowMap.checkengine, .*.glowMap.hazard,
+.*.glowMap.battery,  .*.glowMap.highbeam,
+.*.glowMap.parkingbrake, .*.glowMap.lowfuel,
+.*.glowMap.lowpressure, .*.glowMap.abs {
+    PadAmount : 20;
+}
+
+.*.glowMap.*.off .*.glowMap.*.on {
+    PadAmount : 10;
 }

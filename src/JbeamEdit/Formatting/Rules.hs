@@ -187,7 +187,7 @@ applyPadLogic f rs n =
         | isNumberNode n = applyDecimalPadding padDecimals (f n)
         | otherwise = f n
    in if not (isComplexNode n)
-        then T.justifyRight padAmount ' ' decimalPaddedText
+        then T.justifyLeft padAmount ' ' decimalPaddedText
         else f n
 
 noComplexNewLine :: RuleSet -> NC.NodeCursor -> Bool

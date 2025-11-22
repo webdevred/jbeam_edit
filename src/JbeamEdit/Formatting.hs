@@ -33,6 +33,18 @@ import JbeamEdit.Formatting.Rules (
   noComplexNewLine,
  )
 
+splitTrailingMinusOne :: Int -> Text -> (Text, Text)
+splitTrailingMinusOne maybeKeepOne txt =
+  let trailing = T.length (T.takeWhileEnd (== ' ') txt)
+      baseKeep =
+        if trailing == 0
+          then 0
+          else trailing - 1
+      keep = max baseKeep maybeKeepOne
+   in ( T.dropEnd trailing txt
+      , T.replicate keep " "
+      )
+
 addDelimiters
   :: RuleSet -> Int -> NC.NodeCursor -> Bool -> [Text] -> [Node] -> [Text]
 addDelimiters _ _ _ _ acc [] = acc
@@ -46,10 +58,10 @@ addDelimiters rs index c complexChildren acc ns@(node : rest)
       case assocPriorComment of
         Just (comment, rest') ->
           let formatted =
-                (applyCrumbAndFormat <> ", " <> formatComment comment : acc)
+                (applyCrumbAndFormat <> " " <> formatComment comment : acc)
            in addDelimiters rs index c complexChildren formatted rest'
         Nothing ->
-          let new_acc = T.concat [applyCrumbAndFormat, comma, space, newline] : acc
+          let new_acc = T.concat [applyCrumbAndFormat, space, newline] : acc
            in addDelimiters rs newIndex c complexChildren new_acc rest
   where
     assocPriorComment = do
@@ -58,7 +70,14 @@ addDelimiters rs index c complexChildren acc ns@(node : rest)
       pure (cmt, rest')
 
     newlineBeforeComment = bool "\n" "" (["\n"] == acc)
-    applyCrumbAndFormat = NC.applyCrumb c (formatWithCursor rs) index node
+    applyCrumbAndFormat =
+      let padded = NC.applyCrumb c (formatWithCursor rs) index node
+          (formatted, spaces) =
+            splitTrailingMinusOne
+              (bool 0 1 $ comma /= "," && space == " ")
+              padded
+       in formatted <> comma <> spaces
+
     newIndex = index + 1
     comma = bool "," "" $ null rest
     space = bool " " "" $ null rest || complexChildren
