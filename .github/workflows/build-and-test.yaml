@@ -118,7 +118,7 @@ jobs:
     steps:
       - name: Extract the tested GHC versions
         id: set-matrix
-        uses: webdevred/get-tested@f0cf7252600702c82f2a8ff9cef80b420e173071
+        uses: webdevred/get-tested@8b0e4e4a4f5b37e8dc23a435b8eec7ba82ec1fc0
         with:
           cabal-file: jbeam-edit.cabal
           ubuntu-version: 24.04
