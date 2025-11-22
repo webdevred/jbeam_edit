@@ -16,12 +16,27 @@
     // Wider for typical vertex IDs
 }
 
-.*.nodes[*] {
-    NoComplexNewLine: true;
-    // Keep nodes inline for easier reading
+// inline formatting for nodes, flexbodies, variables, and glowMap
+.*.nodes[*], .*.flexbodies[*],
+.*.variables[*], .*.glowMap.* {
+    NoComplexNewLine : true;
 }
 
-// Flexbodies usually contain nested data structures
-.*.flexbodies[*] {
-    NoComplexNewLine: true; /* compact formatting for flexbodies */
+// slots require complex line breaks
+.*.slots[*] {
+    ForceComplexNewLine: true;
+}
+
+// extra padding for glowMap indicators
+.*.glowMap.signal_L, .*.glowMap.signal_R,
+.*.glowMap.checkengine, .*.glowMap.hazard,
+.*.glowMap.battery, .*.glowMap.highbeam,
+.*.glowMap.parkingbrake, .*.glowMap.lowfuel,
+.*.glowMap.lowpressure, .*.glowMap.abs {
+    PadAmount : 20;
+}
+
+// padding for on/off states
+.*.glowMap.*.off, .*.glowMap.*.on {
+    PadAmount : 10;
 }
