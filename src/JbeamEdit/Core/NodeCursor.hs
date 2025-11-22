@@ -30,7 +30,7 @@ A Seqeunce is good choice for NodeCursor since I need to compare the first eleme
 -}
 newtype NodeCursor
   = NodeCursor (Seq NodeBreadcrumb)
-  deriving stock (Eq, Show)
+  deriving newtype (Eq, Show)
 
 newCursor :: NodeCursor
 newCursor = NodeCursor Seq.empty

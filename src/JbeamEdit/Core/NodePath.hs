@@ -29,7 +29,7 @@ A NodePath is a Sequence of selectors to that point out a certain point in a Nod
 -}
 newtype NodePath
   = NodePath (Seq NodeSelector)
-  deriving stock (Read, Show)
+  deriving newtype (Read, Show)
 
 instance IsList NodePath where
   type Item NodePath = NodeSelector
