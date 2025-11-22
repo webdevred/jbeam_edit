@@ -13,13 +13,13 @@
 - [Notes and Tips](#notes-and-tips)
 <!--toc:end-->
 
-# Configuration Documentation: Value Formatting Rules
+# Configuration documentation: value formatting rules
 
 This documentation describes the rule-based system for formatting values inside JBeam. It explains how to use pattern matching to target specific nodes and apply formatting settings during export.
 
 - Example ruleset file: [minimal.jbfl](examples/jbfl/minimal.jbfl)
 - Example input: [minimal.jbeam](examples/jbeam/minimal.jbeam)
-- Example result after formatting: [formatted_chevy_impala.jbeam](fender-minimal-jbfl.jbeam)
+- Example result after formatting: [fender-minimal-jbfl.jbeam](examples/formatted_jbeam/fender-minimal-jbfl.jbeam)
 
 # Overview
 
@@ -46,12 +46,13 @@ Typical use cases include:
 
 # Properties Overview
 
-| Setting Name       | Description                                                                                                                                                      | Applies To                                                        |
-|--------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------|
-| `PadDecimals`      | When non-zero, numeric values are padded with trailing zeros after the decimal point. The fractional part is extended to match the specified PadDecimals length. | Numeric values                                                    |
-| `PadAmount`        | Specifies the **total length** (number of characters) the formatted value should occupy.                                                                         | Any scalar except for comments                                    |
-| `NoComplexNewLine` | When true, disables multiline or indented formatting for arrays, outputting values inline.                                                                       | Any complex data structure                                        |
-| `Indent`           | When set, controls the the amount of indentation. Defaults to 2 spaces.                                                                                          | Any complex data structure with `NoComplexNewLine` set to `false` |
+| Setting Name          | Description                                                                                                                                                              | Applies To                     |
+|-----------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------|
+| `PadDecimals`         | Adds trailing zeros only if the fractional part is shorter than `PadDecimals`, leaving existing extra decimals untouched. Guarantees a minimum number of decimal digits. | Numeric values                 |
+| `PadAmount`           | Specifies the **total length** (number of characters) the formatted value should occupy.                                                                                 | Any scalar except for comments |
+| `NoComplexNewLine`    | When true, disables multiline or indented formatting for arrays, outputting values inline.                                                                               | Any complex data structure     |
+| `ForceComplexNewLine` | Forces complex structures (arrays or objects) to always use multiline and indented formatting, even if NoComplexNewLine is not set. Overrides inline formatting.         | Any complex data structure     |
+| `Indent`              | When set, controls the the amount of indentation. Defaults to 2 spaces.                                                                                                  | Any complex data structure     |
 
 # How Matching Works
 
@@ -61,6 +62,8 @@ Typical use cases include:
 - Combinations like `.*.nodes[*][*]` match all elements inside inner lists under `nodes` keys.
 - Properties apply **to each matched value individually**.
 - Matching is agnostic to the data type; however, settings may behave differently based on type.
+- ForceComplexNewLine ensures that matched complex structures are always output in multiline format with indentation.
+- If both NoComplexNewLine and ForceComplexNewLine are set, ForceComplexNewLine takes precedence.
 
 # Detailed Rules Examples
 
@@ -70,6 +73,8 @@ Typical use cases include:
 .*.nodes[*][*] {
     PadDecimals: 3;
     PadAmount: 8;
+    NoComplexNewLine: true;
+    Indent: 4;
 }
 ```
 
@@ -81,7 +86,9 @@ Typical use cases include:
 - Properties:
   - `PadDecimals: 3`
   - `PadAmount: 8`
-- Behavior: Format floats as fixed-width strings of length 8, padding with trailing zeros after the decimal point.
+  - `ForceComplexNewLine: true`
+  - `Indent: 4`
+- Behavior: Format floats as fixed-width strings of length 8, padding with trailing zeros after the decimal point, and always output nested arrays in multiline format with 4-space indentation.
 
 Examples
 
@@ -99,11 +106,7 @@ Examples
 }
 ```
 
-- Matches values in the innermost arrays under the key `beams`, where:
-  - The top-level element is an object with arbitrary keys.
-  - Each key references an object containing a key named `beams`.
-  - The value of `beams` is a 2D array (array of arrays).
-  - The rule applies to all numeric values in the innermost arrays of this 2D array.
+- Matches values in the innermost arrays under the key beams.
 - Properties:
   - `PadAmount: 8`
 - Behavior: Format floats as fixed-width strings of length 8, padded with leading spaces to align right.
@@ -120,31 +123,31 @@ Examples:
 
 - Padding applies to **all scalar types** (numbers, strings, booleans).
 - If the length of the representation of the scalar is **less than `PadAmount`**, the value is padded:
-  - With **trailing zeros** if `PadDecimals` is non-zero.
-  - With **leading spaces** otherwise.
+  - With trailing zeros **only if the fractional part has fewer digits than `PadDecimals`**. Existing extra decimals are left intact. This guarantees a **minimum number** of decimal digits.
+  - With leading spaces otherwise.
 - If the length is **equal to or greater than `PadAmount`**, **no padding or truncation occurs**; the full string is output as-is.
 
 # Examples
 
-| Value        | Initial width | PadDecimals | PadAmount | Output                       |
-|--------------|---------------|-------------|-----------|------------------------------|
-| 3.14         | 3             | 3           | 8         | 3.140                        |
-| 3.14         | 3             | 0           | 8         | 3.14 with 4 spaces before    |
-| "abc"        | 5             | 3           | 8         | "abc" with 3 spaces before   |
-| "abc"        | 5             | 0           | 8         | "abc" with 3 spaces before   |
-| true         | 4             | 0           | 6         | true with 2 spaces before    |
-| 123456789.0  | 11            | 0           | 5         | 123456789.0                  |
+| Value       | Initial width | `PadDecimals` | `PadAmount` | Output                     |
+|-------------|---------------|---------------|-------------|----------------------------|
+| 3.14        | 3             | 3             | 8           | 3.140                      |
+| 3.14        | 3             | 0             | 8           | 3.14 with 4 spaces before  |
+| "abc"       | 5             | 3             | 8           | "abc" with 3 spaces before |
+| "abc"       | 5             | 0             | 8           | "abc" with 3 spaces before |
+| true        | 4             | 0             | 6           | true with 2 spaces before  |
+| 123456789.0 | 11            | 0             | 5           | 123456789.0                |
 
 # Summary Table
 
-| Pattern          | Targeted Data                   | Properties     | Padding Behavior                                       |
-|------------------|---------------------------------|----------------|--------------------------------------------------------|
-| `.*.nodes[*][*]` | Innermost float values in nodes | PadDecimals: 3 | Trailing zeros so fractional part is at least 3 digits |
-| `.*.beams[*][*]` | Innermost float values in beams | PadAmount: 8   | Leading spaces                                         |
+| Pattern          | Targeted Data                   | Properties       | Padding Behavior                                       |
+|------------------|---------------------------------|------------------|--------------------------------------------------------|
+| `.*.nodes[*][*]` | Innermost float values in nodes | `PadDecimals: 3` | Trailing zeros so fractional part is at least 3 digits |
+| `.*.beams[*][*]` | Innermost float values in beams | `PadAmount: 8`   | Leading spaces                                         |
 
 # Notes and Tips
 
-- Patterns are powerful and flexible; combine `.*`, `[ * ]`, and object keys to precisely target values.
+- Patterns are powerful and flexible; combine `.*`, `[*]`, and object keys to precisely target values.
 - `PadDecimals` applies only to numbers, while `PadAmount` applies to all non-comment scalar values.
 - String values receive space padding regardless of `PadDecimals`.
 - Use `NoComplexNewLine` to simplify output layout when working with complex structures like lists and objects.

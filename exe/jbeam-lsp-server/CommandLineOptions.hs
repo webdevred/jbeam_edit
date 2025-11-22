@@ -3,7 +3,6 @@ module CommandLineOptions (
   Options (..),
 ) where
 
-import Data.List qualified as L (foldl')
 import System.Console.GetOpt
 import System.Environment (getProgName)
 import System.Exit (exitSuccess)
@@ -30,7 +29,7 @@ trimQuotes s = s
 parseOptions :: [String] -> IO Options
 parseOptions args = do
   let (actions, nonOptions, _) = getOpt RequireOrder options args
-  opts <- L.foldl' (>>=) (pure startOptions) actions
+  opts <- foldr (=<<) (pure startOptions) actions
   case optRulesFile opts of
     Nothing ->
       case nonOptions of

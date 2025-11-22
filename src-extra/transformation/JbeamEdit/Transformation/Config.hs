@@ -1,5 +1,4 @@
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE DerivingStrategies #-}
 
 module JbeamEdit.Transformation.Config (
   loadTransformationConfig,

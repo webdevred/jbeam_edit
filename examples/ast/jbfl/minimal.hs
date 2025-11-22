@@ -244,7 +244,55 @@ RuleSet
                 ( fromList
                     [ AnyObjectKey
                     , Selector
+                        ( ObjectKey "glowMap" )
+                    , AnyObjectKey
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey NoComplexNewLine
+                    , SomeProperty NoComplexNewLine True
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
                         ( ObjectKey "nodes" )
+                    , AnyArrayIndex
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey NoComplexNewLine
+                    , SomeProperty NoComplexNewLine True
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
+                        ( ObjectKey "slots" )
+                    , AnyArrayIndex
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey ForceComplexNewLine
+                    , SomeProperty ForceComplexNewLine True
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
+                        ( ObjectKey "variables" )
                     , AnyArrayIndex
                     ]
                 )
