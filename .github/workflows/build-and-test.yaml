@@ -2,7 +2,7 @@ name: Build & test (dev)
 
 on:
   push:
-    branches: [master]
+    branches: [master, get-tested-betatest]
   pull_request:
 
 permissions:
