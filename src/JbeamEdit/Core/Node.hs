@@ -5,6 +5,7 @@ module JbeamEdit.Core.Node (
   isNumberNode,
   isStringNode,
   maybeObjectKey,
+  isSinglelineComment,
   isComplexNode,
   commentIsAttachedToPreviousNode,
   Node (..),
@@ -91,6 +92,10 @@ isStringNode _ = False
 isNumberNode :: Node -> Bool
 isNumberNode (Number _) = True
 isNumberNode _ = False
+
+isSinglelineComment :: Node -> Bool
+isSinglelineComment (Comment (InternalComment _ False _)) = True
+isSinglelineComment _ = False
 
 isComplexNode :: Node -> Bool
 isComplexNode (Object _) = True

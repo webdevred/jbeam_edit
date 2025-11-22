@@ -21,6 +21,8 @@ import JbeamEdit.Core.Node (
   commentIsAttachedToPreviousNode,
   isCommentNode,
   isComplexNode,
+  isObjectKeyNode,
+  isSinglelineComment,
  )
 import JbeamEdit.Core.NodeCursor (newCursor)
 import JbeamEdit.Core.NodeCursor qualified as NC
@@ -70,7 +72,7 @@ addDelimiters rs index c complexChildren acc ns@(node : rest)
       guard (commentIsAttachedToPreviousNode cmt)
       pure (cmt, rest')
 
-    newlineBeforeComment = bool "\n" "" (["\n"] == acc)
+    newlineBeforeComment = bool "\n" "" $ any isObjectKeyNode rest || (["\n"] == acc)
     applyCrumbAndFormat =
       let padded = NC.applyCrumb c (formatWithCursor rs) index node
           (formatted, spaces) =
@@ -103,7 +105,8 @@ doFormatNode rs cursor nodes =
   where
     complexChildren =
       forceComplexNewLine rs cursor
-        || any isComplexNode nodes && not (noComplexNewLine rs cursor)
+        || any (liftA2 (||) isSinglelineComment isComplexNode) nodes
+          && not (noComplexNewLine rs cursor)
 
 formatComment :: InternalComment -> Text
 formatComment (InternalComment {cMultiline = False, cText = c}) = "// " <> c
