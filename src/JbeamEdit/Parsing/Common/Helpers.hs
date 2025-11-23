@@ -1,3 +1,5 @@
+{-# LANGUAGE CPP #-}
+
 module JbeamEdit.Parsing.Common.Helpers (
   Parser,
   byteChar,
@@ -13,7 +15,11 @@ module JbeamEdit.Parsing.Common.Helpers (
   parseBool,
 ) where
 
+#if !MIN_VERSION_base(4,18,0)
+import Control.Applicative (asum, empty, liftA2)
+#else
 import Control.Applicative (asum, empty)
+#endif
 import Data.ByteString qualified as BS
 import Data.ByteString.Lazy qualified as LBS
 import Data.Char (chr, isSpace, ord)
