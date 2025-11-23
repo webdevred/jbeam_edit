@@ -71,7 +71,7 @@ readFormattingConfig maybeJbflPath = do
   configDir <- getConfigDir
   case maybeJbflPath of
     Just jbfl ->
-      putErrorLine $ "Loading jbfl: " <> pack jbfl
+      putErrorStringLn $ "Loading jbfl: " ++ jbfl
     Nothing ->
       createRuleFileIfDoesNotExist (configDir </> "rules.jbfl")
   configPath <- getConfigPath maybeJbflPath configDir

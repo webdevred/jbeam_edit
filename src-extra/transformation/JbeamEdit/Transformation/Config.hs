@@ -16,7 +16,13 @@ module JbeamEdit.Transformation.Config (
 
 import Data.Scientific (Scientific)
 import Data.Text qualified as T
-import Data.Yaml (decodeFileEither)
+import Data.Yaml (
+  Object,
+  ParseException (..),
+  Parser,
+  decodeFileEither,
+  prettyPrintParseException,
+ )
 import Data.Yaml.Aeson (
   FromJSON (..),
   withArray,
@@ -107,25 +113,28 @@ instance FromJSON XGroupBreakpoints where
         obj
     pure $ XGroupBreakpoints lst
 
+parseSupportThreshold :: Object -> Parser Double
+parseSupportThreshold o = do
+  thr <- o .: "support-threshold"
+  when (thr < 1) failWithMessage $> thr
+  where
+    failWithMessage =
+      fail
+        "'support-threshold' must be a percentage value of 1 or higher (e.g., 80 or 80.8). Values below 1 (e.g., 0.80) are not allowed."
+
 instance FromJSON TransformationConfig where
   parseJSON = withObject "TransformationConfig" $ \o ->
     TransformationConfig
       <$> o .:? "z-sorting-threshold" .!= defaultSortingThreshold
       <*> o .:? "x-group-breakpoints" .!= defaultBreakpoints
-      <*> o .:? "support-threshold" .!= defaultSupportThreshold
+      <*> parseSupportThreshold o
       <*> o .:? "max-support-coordinates" .!= defaultMaxSupportCoordinates
+
+formatParseError :: ParseException -> IO ()
+formatParseError (AesonException err) = putErrorStringLn err
+formatParseError excp = putErrorStringLn (prettyPrintParseException excp)
 
 loadTransformationConfig :: FilePath -> IO TransformationConfig
 loadTransformationConfig filename = do
   res <- decodeFileEither filename
-  case res of
-    Right tc -> pure tc
-    Left err -> do
-      putErrorLine $ show err
-      pure
-        ( TransformationConfig
-            defaultSortingThreshold
-            defaultBreakpoints
-            defaultSupportThreshold
-            defaultMaxSupportCoordinates
-        )
+  either ((newTransformationConfig <$) . formatParseError) pure res

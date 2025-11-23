@@ -1,4 +1,4 @@
-module JbeamEdit.IOUtils (tryReadFile, putErrorLine, reportInvalidNodes) where
+module JbeamEdit.IOUtils (tryReadFile, putErrorLine, putErrorStringLn, reportInvalidNodes) where
 
 import Control.Exception (IOException, try)
 import Control.Monad (unless)
@@ -13,8 +13,11 @@ import JbeamEdit.Core.Node (Node)
 import JbeamEdit.Formatting (formatNode, newRuleSet)
 import System.IO (hPutStrLn, stderr)
 
+putErrorStringLn :: String -> IO ()
+putErrorStringLn = hPutStrLn stderr
+
 putErrorLine :: Text -> IO ()
-putErrorLine = hPutStrLn stderr . T.unpack
+putErrorLine = putErrorStringLn . T.unpack
 
 reportInvalidNodes :: Text -> [Node] -> IO ()
 reportInvalidNodes msg nodes =
