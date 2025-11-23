@@ -4,7 +4,9 @@
 }
 
 // Keep things inline where applicable (no extra newlines for nested content)
-.*.nodes[*], .*.flexbodies[*], .*.variables[*], .*.glowMap.* {
+.*.nodes[*], .*.flexbodies[*],
+.*.beams[*], .*.triangles[*],
+.*.variables[*], .*.glowMap.* {
     NoComplexNewLine : true;
 }
 

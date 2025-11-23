@@ -18,6 +18,7 @@
 
 // inline formatting for nodes, flexbodies, variables, and glowMap
 .*.nodes[*], .*.flexbodies[*],
+.*.beams[*], .*.triangles[*],
 .*.variables[*], .*.glowMap.* {
     NoComplexNewLine : true;
 }
