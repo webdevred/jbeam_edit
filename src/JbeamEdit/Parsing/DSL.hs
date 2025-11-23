@@ -42,9 +42,7 @@ objectKeyParser :: JbflParser NodePatternSelector
 objectKeyParser = byteChar '.' *> key
   where
     key = parseWord8s (Selector . ObjectKey) (MP.some . MP.satisfy $ p)
-    p w =
-      let c = toChar w
-       in not (isSpace c) && c `notElem` [',', '[', '.']
+    p = charBoth (not . isSpace) (`notElem` [',', '[', '.']) . toChar
 
 objectIndexParser :: JbflParser NodePatternSelector
 objectIndexParser = byteChar '.' *> index

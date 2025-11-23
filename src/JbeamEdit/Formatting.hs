@@ -82,7 +82,7 @@ addDelimiters rs index c complexChildren acc ns@(node : rest)
       guard (commentIsAttachedToPreviousNode cmt)
       pure (cmt, rest')
 
-    newlineBeforeComment = bool "\n" "" $ any isObjectKeyNode rest || (["\n"] == acc)
+    newlineBeforeComment = bool "\n" "" $ any isObjectKeyNode rest || ["\n"] == acc
     applyCrumbAndFormat =
       let padded = NC.applyCrumb c (formatWithCursor rs) index node
           (formatted, spaces) =
