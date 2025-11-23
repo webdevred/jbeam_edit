@@ -343,5 +343,20 @@ RuleSet
                     )
                 ]
             )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
+                        ( ObjectKey "sounds" )
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey ForceComplexNewLine
+                    , SomeProperty ForceComplexNewLine True
+                    )
+                ]
+            )
         ]
     )

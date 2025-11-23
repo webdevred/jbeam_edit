@@ -16,6 +16,35 @@ Object
                     ]
                 )
             , ObjectKey
+                ( String "sounds"
+                , Object
+                    [ ObjectKey
+                        ( String "impactMetal"
+                        , String "event:>Destruction>Props>fender_metal"
+                        )
+                    , ObjectKey
+                        ( String "impactGeneric"
+                        , String "event:>Destruction>Props>fender_generic"
+                        )
+                    , ObjectKey
+                        ( String "breakGeneric"
+                        , String "event:>Destruction>Props>fender_break"
+                        )
+                    , ObjectKey
+                        ( String "wind"
+                        , Bool False
+                        )
+                    , ObjectKey
+                        ( String "scrapeMetal"
+                        , Bool False
+                        )
+                    , ObjectKey
+                        ( String "scrapePlastic"
+                        , Bool False
+                        )
+                    ]
+                )
+            , ObjectKey
                 ( String "slotType"
                 , String "cot_fender"
                 )
