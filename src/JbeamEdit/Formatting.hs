@@ -1,3 +1,5 @@
+{-# LANGUAGE CPP #-}
+
 module JbeamEdit.Formatting (
   formatNode,
   formatWithCursor,
@@ -6,6 +8,9 @@ module JbeamEdit.Formatting (
   RuleSet (..),
 ) where
 
+#if !MIN_VERSION_base(4,18,0)
+import Control.Applicative (liftA2)
+#endif
 import Control.Monad (guard)
 import Data.Bool (bool)
 import Data.Char (isSpace)
@@ -21,6 +26,8 @@ import JbeamEdit.Core.Node (
   commentIsAttachedToPreviousNode,
   isCommentNode,
   isComplexNode,
+  isObjectKeyNode,
+  isSinglelineComment,
  )
 import JbeamEdit.Core.NodeCursor (newCursor)
 import JbeamEdit.Core.NodeCursor qualified as NC
@@ -28,6 +35,7 @@ import JbeamEdit.Formatting.Rules (
   RuleSet (..),
   applyPadLogic,
   findPropertiesForCursor,
+  forceComplexNewLine,
   lookupIndentProperty,
   newRuleSet,
   noComplexNewLine,
@@ -45,6 +53,10 @@ splitTrailingMinusOne maybeKeepOne txt =
       , T.replicate keep " "
       )
 
+normalizeCommentNode :: Bool -> Node -> Node
+normalizeCommentNode False (Comment (InternalComment txt False dir)) = Comment (InternalComment txt True dir)
+normalizeCommentNode _ node = node
+
 addDelimiters
   :: RuleSet -> Int -> NC.NodeCursor -> Bool -> [Text] -> [Node] -> [Text]
 addDelimiters _ _ _ _ acc [] = acc
@@ -52,7 +64,8 @@ addDelimiters rs index c complexChildren acc ns@(node : rest)
   | complexChildren && null acc =
       addDelimiters rs index c complexChildren ["\n"] ns
   | isCommentNode node =
-      let formatted = (newlineBeforeComment <> formatWithCursor rs c node <> "\n") : acc
+      let formattedComment = formatWithCursor rs c (normalizeCommentNode complexChildren node)
+          formatted = (newlineBeforeComment <> formattedComment <> "\n") : acc
        in addDelimiters rs index c complexChildren formatted rest
   | otherwise =
       case assocPriorComment of
@@ -69,7 +82,7 @@ addDelimiters rs index c complexChildren acc ns@(node : rest)
       guard (commentIsAttachedToPreviousNode cmt)
       pure (cmt, rest')
 
-    newlineBeforeComment = bool "\n" "" (["\n"] == acc)
+    newlineBeforeComment = bool "\n" "" $ any isObjectKeyNode rest || ["\n"] == acc
     applyCrumbAndFormat =
       let padded = NC.applyCrumb c (formatWithCursor rs) index node
           (formatted, spaces) =
@@ -101,7 +114,9 @@ doFormatNode rs cursor nodes =
         else T.concat formatted
   where
     complexChildren =
-      any isComplexNode nodes && not (noComplexNewLine rs cursor)
+      forceComplexNewLine rs cursor
+        || any (liftA2 (||) isSinglelineComment isComplexNode) nodes
+          && not (noComplexNewLine rs cursor)
 
 formatComment :: InternalComment -> Text
 formatComment (InternalComment {cMultiline = False, cText = c}) = "// " <> c
@@ -122,9 +137,7 @@ formatWithCursor rs cursor (Array a)
 formatWithCursor rs cursor (Object o)
   | V.null o = "{}"
   | otherwise = T.concat ["{", doFormatNode rs cursor o, "}"]
-formatWithCursor rs cursor (ObjectKey (k, v)) =
-  let formatWithKeyContext = NC.applyObjCrumb k cursor (formatWithCursor rs)
-   in T.concat [formatWithKeyContext k, " : ", formatWithKeyContext v]
+formatWithCursor rs cursor (ObjectKey (k, v)) = T.concat [formatWithCursor rs cursor k, " : ", formatWithCursor rs cursor v]
 formatWithCursor _ _ (Comment comment) = formatComment comment
 formatWithCursor rs cursor n =
   let ps = findPropertiesForCursor cursor rs

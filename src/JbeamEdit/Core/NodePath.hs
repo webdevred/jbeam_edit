@@ -9,9 +9,14 @@ module JbeamEdit.Core.NodePath (
 
 import Data.Sequence (Seq (..))
 import Data.Text (Text)
+import Data.Vector (Vector)
 import Data.Vector qualified as V
 import GHC.IsList (IsList (..))
-import JbeamEdit.Core.Node qualified as N (Node (..))
+import JbeamEdit.Core.Node qualified as N (
+  Node (..),
+  isCommentNode,
+  maybeObjectKey,
+ )
 
 data NodeSelector
   = ArrayIndex Int
@@ -24,7 +29,7 @@ A NodePath is a Sequence of selectors to that point out a certain point in a Nod
 -}
 newtype NodePath
   = NodePath (Seq NodeSelector)
-  deriving stock (Read, Show)
+  deriving newtype (Read, Show)
 
 instance IsList NodePath where
   type Item NodePath = NodeSelector
@@ -35,30 +40,21 @@ extractValInKey :: N.Node -> Maybe N.Node
 extractValInKey (N.ObjectKey (_, val)) = Just val
 extractValInKey _ = Nothing
 
+getNthNonComment
+  :: Int -> Vector N.Node -> Maybe N.Node
+getNthNonComment index nodes =
+  let nonComments = V.filter (not . N.isCommentNode) nodes
+   in nonComments V.!? index
+
 {- | select
 Takes a Node and a selector.
 In case the selector matches nodes at a certain point in the tree.
 And queryNodes allows use to chain the Selectors as a NodePath and perform complex queries.
 -}
 select :: NodeSelector -> N.Node -> Maybe N.Node
-select (ArrayIndex i) (N.Array ns) = getNthElem 0 (V.toList ns)
-  where
-    getNthElem _ [] = Nothing
-    getNthElem curIndex ((N.Comment _) : rest) = getNthElem curIndex rest
-    getNthElem curIndex (curElem : rest)
-      | curIndex == i = Just curElem
-      | otherwise = getNthElem (curIndex + 1) rest
-select (ObjectKey k) (N.Object ns) = extractValInKey =<< V.find compareKey ns
-  where
-    compareKey (N.ObjectKey (N.String keyText, _)) = keyText == k
-    compareKey _ = False
-select (ObjectIndex i) (N.Object a) = getNthKey 0 (V.toList a)
-  where
-    getNthKey _ [] = Nothing
-    getNthKey curIndex ((N.ObjectKey (_, value)) : rest)
-      | curIndex == i = Just value
-      | otherwise = getNthKey (curIndex + 1) rest
-    getNthKey curIndex (_ : obj_elems) = getNthKey curIndex obj_elems
+select (ArrayIndex i) (N.Array ns) = getNthNonComment i ns
+select (ObjectKey k) (N.Object ns) = extractValInKey =<< V.find (elem k . N.maybeObjectKey) ns
+select (ObjectIndex i) (N.Object a) = extractValInKey =<< getNthNonComment i a
 select _ _ = Nothing
 
 queryNodes :: NodePath -> N.Node -> Maybe N.Node

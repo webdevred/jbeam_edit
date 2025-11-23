@@ -18,6 +18,7 @@ module JbeamEdit.Formatting.Rules (
   applyPadLogic,
   comparePatternAndCursor,
   noComplexNewLine,
+  forceComplexNewLine,
   lookupIndentProperty,
   newRuleSet,
   findPropertiesForCursor,
@@ -65,6 +66,7 @@ instance Ord NodePattern where
 
 data PropertyKey a where
   NoComplexNewLine :: PropertyKey Bool
+  ForceComplexNewLine :: PropertyKey Bool
   PadAmount :: PropertyKey Int
   PadDecimals :: PropertyKey Int
   Indent :: PropertyKey Int
@@ -95,6 +97,7 @@ instance Eq SomeKey where
 eqKey :: PropertyKey a -> PropertyKey b -> Maybe (a :~: b)
 eqKey PadAmount PadAmount = Just Refl
 eqKey NoComplexNewLine NoComplexNewLine = Just Refl
+eqKey ForceComplexNewLine ForceComplexNewLine = Just Refl
 eqKey PadDecimals PadDecimals = Just Refl
 eqKey Indent Indent = Just Refl
 eqKey _ _ = Nothing
@@ -133,6 +136,7 @@ instance Eq SomeProperty where
 
 propertyName :: PropertyKey a -> Text
 propertyName NoComplexNewLine = "NoComplexNewLine"
+propertyName ForceComplexNewLine = "ForceComplexNewLine"
 propertyName PadAmount = "PadAmount"
 propertyName PadDecimals = "PadDecimals"
 propertyName Indent = "Indent"
@@ -144,7 +148,7 @@ lookupKey :: Text -> [SomeKey] -> Maybe SomeKey
 lookupKey txt = find (\(SomeKey k) -> propertyName k == txt)
 
 boolProperties :: [SomeKey]
-boolProperties = [SomeKey NoComplexNewLine]
+boolProperties = map SomeKey [ForceComplexNewLine, NoComplexNewLine]
 
 intProperties :: [SomeKey]
 intProperties = map SomeKey [PadAmount, PadDecimals, Indent]
@@ -190,6 +194,12 @@ applyPadLogic f rs n =
         then T.justifyLeft padAmount ' ' decimalPaddedText
         else f n
 
+forceComplexNewLine :: RuleSet -> NC.NodeCursor -> Bool
+forceComplexNewLine rs cursor =
+  let ps = findPropertiesForCursor cursor rs
+      maybeProp = lookupProp ForceComplexNewLine ps
+   in (Just True == maybeProp)
+
 noComplexNewLine :: RuleSet -> NC.NodeCursor -> Bool
 noComplexNewLine rs cursor =
   let ps = findPropertiesForCursor cursor rs
@@ -203,7 +213,7 @@ lookupIndentProperty rs cursor =
    in fromMaybe 2 indentProperty
 
 comparePC :: NodePatternSelector -> NC.NodeBreadcrumb -> Bool
-comparePC AnyObjectKey (NC.ObjectIndexAndKey (_, _)) = True
+comparePC AnyObjectKey (NC.ObjectIndexAndKey _ _) = True
 comparePC AnyArrayIndex (NC.ArrayIndex _) = True
 comparePC (Selector s) bc = NC.compareSB s bc
 comparePC _ _ = False

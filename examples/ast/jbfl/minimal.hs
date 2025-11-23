@@ -58,6 +58,22 @@ RuleSet
                 ( fromList
                     [ AnyObjectKey
                     , Selector
+                        ( ObjectKey "beams" )
+                    , AnyArrayIndex
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey NoComplexNewLine
+                    , SomeProperty NoComplexNewLine True
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
                         ( ObjectKey "flexbodies" )
                     , AnyArrayIndex
                     ]
@@ -244,6 +260,22 @@ RuleSet
                 ( fromList
                     [ AnyObjectKey
                     , Selector
+                        ( ObjectKey "glowMap" )
+                    , AnyObjectKey
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey NoComplexNewLine
+                    , SomeProperty NoComplexNewLine True
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
                         ( ObjectKey "nodes" )
                     , AnyArrayIndex
                     ]
@@ -252,6 +284,69 @@ RuleSet
                 [
                     ( SomeKey NoComplexNewLine
                     , SomeProperty NoComplexNewLine True
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
+                        ( ObjectKey "slots" )
+                    , AnyArrayIndex
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey ForceComplexNewLine
+                    , SomeProperty ForceComplexNewLine True
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
+                        ( ObjectKey "triangles" )
+                    , AnyArrayIndex
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey NoComplexNewLine
+                    , SomeProperty NoComplexNewLine True
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
+                        ( ObjectKey "variables" )
+                    , AnyArrayIndex
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey NoComplexNewLine
+                    , SomeProperty NoComplexNewLine True
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
+                        ( ObjectKey "sounds" )
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey ForceComplexNewLine
+                    , SomeProperty ForceComplexNewLine True
                     )
                 ]
             )

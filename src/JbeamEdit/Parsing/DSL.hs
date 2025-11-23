@@ -10,7 +10,8 @@ module JbeamEdit.Parsing.DSL (
 ) where
 
 import Data.Bifunctor (first)
-import Data.ByteString.Lazy qualified as BS
+import Data.ByteString qualified as BS
+import Data.ByteString.Lazy qualified as LBS
 import Data.Char (isSpace)
 import Data.Functor (void, ($>))
 import Data.Functor.Identity (Identity (..))
@@ -41,9 +42,7 @@ objectKeyParser :: JbflParser NodePatternSelector
 objectKeyParser = byteChar '.' *> key
   where
     key = parseWord8s (Selector . ObjectKey) (MP.some . MP.satisfy $ p)
-    p w =
-      let c = toChar w
-       in not (isSpace c) && c `notElem` [',', '[', '.']
+    p = charBoth (not . isSpace) (`notElem` [',', '[', '.']) . toChar
 
 objectIndexParser :: JbflParser NodePatternSelector
 objectIndexParser = byteChar '.' *> index
@@ -77,7 +76,7 @@ patternParser = do
 
 tryDecodeKey :: [Word8] -> (Text -> Maybe SomeKey) -> Maybe SomeKey
 tryDecodeKey bs f =
-  case decodeUtf8' (BS.toStrict $ BS.pack bs) of
+  case decodeUtf8' (BS.pack bs) of
     Right text' -> f text'
     Left _ -> Nothing
 
@@ -93,6 +92,7 @@ propertyParser (SomeKey key) = do
 
 parseValueForKey :: PropertyKey a -> JbflParser a
 parseValueForKey NoComplexNewLine = parseBool <?> "bool"
+parseValueForKey ForceComplexNewLine = parseBool <?> "bool"
 parseValueForKey PadAmount = L.decimal <?> "integer"
 parseValueForKey PadDecimals = L.decimal <?> "integer"
 parseValueForKey Indent = L.decimal <?> "integer"
@@ -140,9 +140,9 @@ ruleSetParser = RuleSet . M.fromListWith M.union . separateRulesets <$> MP.some 
   where
     singleRuleSet = skipComment *> ruleParser <* skipComment
 
-parseDSL :: BS.ByteString -> Either Text RuleSet
+parseDSL :: LBS.ByteString -> Either Text RuleSet
 parseDSL input
-  | BS.null input = pure newRuleSet
+  | LBS.null input = pure newRuleSet
   | otherwise =
       first formatErrors . MP.parse (ruleSetParser <* MP.eof) "<input>" $
         input

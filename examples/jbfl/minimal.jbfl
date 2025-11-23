@@ -3,9 +3,15 @@
     PadDecimals: 3;
 }
 
-// Keep flexbodies inline (no extra newlines for nested content)
-.*.nodes[*], .*.flexbodies[*] {
+// Keep things inline where applicable (no extra newlines for nested content)
+.*.nodes[*], .*.flexbodies[*],
+.*.beams[*], .*.triangles[*],
+.*.variables[*], .*.glowMap.* {
     NoComplexNewLine : true;
+}
+
+.*.slots[*], .*.sounds {
+    ForceComplexNewLine: true;
 }
 
 .*.glowMap.signal_L, .*.glowMap.signal_R,

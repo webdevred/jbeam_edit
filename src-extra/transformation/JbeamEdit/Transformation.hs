@@ -407,7 +407,7 @@ findAndUpdateTextInNode m cursor node =
     Object obj -> Object $ V.imap applyBreadcrumbAndUpdateText obj
     ObjectKey (key, value) ->
       ObjectKey
-        (key, NC.applyObjCrumb key cursor (findAndUpdateTextInNode m) value)
+        (key, findAndUpdateTextInNode m cursor value)
     String s -> String $ M.findWithDefault s s m
     _ -> node
   where

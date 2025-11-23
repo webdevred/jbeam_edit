@@ -4,6 +4,14 @@
 		"authors":"gittarrgy01",
 		"name":"Fenders",
 	},
+        "sounds": {
+            "impactMetal":"event:>Destruction>Props>fender_metal",
+            "impactGeneric":"event:>Destruction>Props>fender_generic",
+            "breakGeneric":"event:>Destruction>Props>fender_break",
+            "wind": false,
+            "scrapeMetal": false,
+            "scrapePlastic": false
+        },
 	"slotType":"cot_fender",
 
 	"nodes":[

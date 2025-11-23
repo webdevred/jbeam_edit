@@ -1,3 +1,5 @@
+{-# LANGUAGE CPP #-}
+
 module JbeamEdit.Parsing.Common.Helpers (
   Parser,
   byteChar,
@@ -7,12 +9,17 @@ module JbeamEdit.Parsing.Common.Helpers (
   toWord8,
   wordIsSpace,
   parseWord8s,
+  charBoth,
   tryParsers,
   skipWhiteSpace,
   parseBool,
 ) where
 
+#if !MIN_VERSION_base(4,18,0)
+import Control.Applicative (asum, empty, liftA2)
+#else
 import Control.Applicative (asum, empty)
+#endif
 import Data.ByteString qualified as BS
 import Data.ByteString.Lazy qualified as LBS
 import Data.Char (chr, isSpace, ord)
@@ -59,6 +66,9 @@ parseWord8s f bsParser = do
     Right text' -> pure (f text')
     Left _ -> empty
 
+charBoth :: (Char -> Bool) -> (Char -> Bool) -> Char -> Bool
+charBoth = liftA2 (&&)
+
 failingParser :: [String] -> Parser m a
 failingParser expLabels = unexpTok >>= flip MP.failure expToks
   where
@@ -66,9 +76,7 @@ failingParser expLabels = unexpTok >>= flip MP.failure expToks
       Just . MP.Tokens . NE.fromList . LBS.unpack
         <$> MP.takeWhile1P Nothing isNotFinalChar
     expToks = S.fromList . map (MP.Label . NE.fromList) $ expLabels
-    isNotFinalChar w =
-      let c = toChar w
-       in not (isSpace c) && notElem c [',', ']', '}']
+    isNotFinalChar = charBoth (not . isSpace) (`notElem` [',', ']', '}']) . toChar
 
 parseBool :: Parser m Bool
 parseBool = MP.choice [B.string "true", B.string "false"] <&> (== "true")
