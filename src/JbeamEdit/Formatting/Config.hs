@@ -2,7 +2,6 @@
 
 module JbeamEdit.Formatting.Config (readFormattingConfig, copyToConfigDir, ConfigType (..)) where
 
-import Data.Text (pack)
 import GHC.IO.Exception (IOErrorType (NoSuchThing))
 import JbeamEdit.Formatting.Rules
 import JbeamEdit.IOUtils
