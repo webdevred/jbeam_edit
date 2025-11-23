@@ -126,6 +126,12 @@ cabal update
 cabal install
 jbeam-edit your-file.jbeam
 ```
+## Tags in flag descriptions
+
+- **(experimental)**: functionality under active development
+- **(dev-only)**: tools and commands intended for developers
+- **(windows-installer-only)**: used only in Windows installer builds
+- Untagged flags are considered to be stable.
 
 ## Examples
 

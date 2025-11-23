@@ -61,7 +61,7 @@ flags:
     manual: true
     default: false
   lsp-server:
-    description: Enable LSP server (experimental)
+    description: Enable LSP server
     manual: true
     default: false
   lsp-test-server:
@@ -69,7 +69,7 @@ flags:
     manual: false
     default: false
   windows-example-paths:
-    description: Use executable-relative example paths (for Windows release builds)
+    description: Use executable-relative example paths (windows-installer-only)
     default: false
     manual: true
 
