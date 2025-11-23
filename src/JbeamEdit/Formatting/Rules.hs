@@ -97,6 +97,7 @@ instance Eq SomeKey where
 eqKey :: PropertyKey a -> PropertyKey b -> Maybe (a :~: b)
 eqKey PadAmount PadAmount = Just Refl
 eqKey NoComplexNewLine NoComplexNewLine = Just Refl
+eqKey ForceComplexNewLine ForceComplexNewLine = Just Refl
 eqKey PadDecimals PadDecimals = Just Refl
 eqKey Indent Indent = Just Refl
 eqKey _ _ = Nothing
