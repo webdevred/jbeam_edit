@@ -23,7 +23,7 @@
 }
 
 // slots require complex line breaks
-.*.slots[*] {
+.*.slots[*], .*.sounds {
     ForceComplexNewLine: true;
 }
 
