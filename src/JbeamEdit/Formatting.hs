@@ -53,6 +53,10 @@ splitTrailingMinusOne maybeKeepOne txt =
       , T.replicate keep " "
       )
 
+normalizeCommentNode :: Bool -> Node -> Node
+normalizeCommentNode False (Comment (InternalComment txt False dir)) = Comment (InternalComment txt True dir)
+normalizeCommentNode _ node = node
+
 addDelimiters
   :: RuleSet -> Int -> NC.NodeCursor -> Bool -> [Text] -> [Node] -> [Text]
 addDelimiters _ _ _ _ acc [] = acc
@@ -60,7 +64,8 @@ addDelimiters rs index c complexChildren acc ns@(node : rest)
   | complexChildren && null acc =
       addDelimiters rs index c complexChildren ["\n"] ns
   | isCommentNode node =
-      let formatted = (newlineBeforeComment <> formatWithCursor rs c node <> "\n") : acc
+      let formattedComment = formatWithCursor rs c (normalizeCommentNode complexChildren node)
+          formatted = (newlineBeforeComment <> formattedComment <> "\n") : acc
        in addDelimiters rs index c complexChildren formatted rest
   | otherwise =
       case assocPriorComment of
