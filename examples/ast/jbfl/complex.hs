@@ -332,6 +332,22 @@ RuleSet
                 ( fromList
                     [ AnyObjectKey
                     , Selector
+                        ( ObjectKey "rails" )
+                    , AnyObjectKey
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey NoComplexNewLine
+                    , SomeProperty NoComplexNewLine True
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
                         ( ObjectKey "slots" )
                     , AnyArrayIndex
                     ]
