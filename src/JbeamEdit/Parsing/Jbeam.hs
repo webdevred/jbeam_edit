@@ -7,7 +7,6 @@ module JbeamEdit.Parsing.Jbeam (
   parseNodesState,
 ) where
 
-import Debug.Trace  
 import Data.Char (isSpace)  
 import Control.Monad.State (State, evalState)
 import Control.Monad.State.Class
