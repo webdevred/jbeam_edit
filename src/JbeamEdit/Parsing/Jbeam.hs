@@ -12,6 +12,7 @@ import Control.Monad.State.Class
 import Data.Bifunctor (first)
 import Data.ByteString qualified as BS
 import Data.ByteString.Lazy qualified as LBS
+import Data.Char (isSpace)
 import Data.Functor (($>))
 import Data.Maybe (isNothing)
 import Data.Text (Text)
@@ -81,14 +82,15 @@ multilineCommentParser = do
           , cMultiline = True
           , cAssociationDirection = associationDirection st
           }
-      parseComment = parseWord8s (multilineComment . T.strip)
+      commentStripSpace = T.strip . T.unlines . filter (not . T.all isSpace) . map T.strip . T.lines
+      parseComment = parseWord8s (multilineComment . commentStripSpace)
   C.string "/*" >> parseComment (MP.manyTill B.asciiChar (B.string "*/"))
 
 singlelineCommentParser :: JbeamParser InternalComment
 singlelineCommentParser = do
   st <- get
   _ <- C.string "//"
-  txt <- MP.some (MP.satisfy (charNotEqWord8 '\n'))
+  txt <- MP.many (MP.satisfy (charNotEqWord8 '\n'))
   pure
     InternalComment
       { cText = T.strip . decodeUtf8Lenient $ BS.pack txt
@@ -157,7 +159,7 @@ objectParser :: JbeamParser Node
 objectParser = do
   _ <- byteChar '{'
   skipWhiteSpace
-  keys <- MP.many (commentParser <|> objectKeyParser)
+  keys <- MP.many (commentParser <* skipWhiteSpace <|> objectKeyParser)
   _ <- MP.optional separatorParser
   _ <- byteChar '}'
   pure . Object . V.fromList $ keys

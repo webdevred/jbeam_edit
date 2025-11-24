@@ -16,7 +16,12 @@ import System.Directory (getCurrentDirectory, getDirectoryContents)
 import System.Exit (exitFailure)
 import System.FilePath (dropExtension, takeBaseName, (</>))
 import System.IO qualified as IO (readFile)
-import Text.Pretty.Simple (defaultOutputOptionsNoColor, pStringOpt)
+import Text.Pretty.Simple (
+  StringOutputStyle (..),
+  defaultOutputOptionsNoColor,
+  outputOptionsStringStyle,
+  pStringOpt,
+ )
 
 main :: IO ()
 main = do
@@ -72,7 +77,10 @@ saveDump outFile formatted =
 
 saveAstDump :: Show a => String -> a -> IO ()
 saveAstDump outFile contents =
-  let formatted = pStringOpt defaultOutputOptionsNoColor (show contents ++ "\n")
+  let formatted =
+        pStringOpt
+          defaultOutputOptionsNoColor {outputOptionsStringStyle = Literal}
+          (show contents ++ "\n")
    in saveDump outFile (LT.unpack formatted)
 
 dumpJbflAST :: FilePath -> String -> String -> IO FilePath
