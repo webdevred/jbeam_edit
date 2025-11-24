@@ -2,7 +2,7 @@
 
 [Setup]
 AppName=jbeam-edit
-AppVersion=0.0.4.0
+AppVersion=0.0.5.0
 DefaultDirName={commonpf}\jbeam-edit
 OutputBaseFilename=jbeam-edit-setup
 Compression=lzma
