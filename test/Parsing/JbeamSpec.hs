@@ -60,7 +60,7 @@ singlelineCommentSpec =
         )
     )
   ,
-    ( "// test \n"
+    ( "// test"
     , Comment
         ( InternalComment
             { cText = "test"
