@@ -4,9 +4,9 @@
     "slotType" : "main",
     // --Nodes--
     /* The purpose of this file is prove that moving
-                          vertices between vertex tree
-                          works as intended.
-                          */
+    vertices between vertex tree
+    works as intended.
+    */
     "nodes" : [
       ["id", "posX", "posY", "posZ"],
       {"group" : "chassis_rails"},
