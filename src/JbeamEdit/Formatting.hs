@@ -18,6 +18,7 @@ import Data.List (uncons)
 import Data.Scientific (FPFormat (Fixed), formatScientific)
 import Data.Text (Text)
 import Data.Text qualified as T
+import Data.Traversable (mapAccumL)
 import Data.Vector (Vector)
 import Data.Vector qualified as V (null, toList)
 import JbeamEdit.Core.Node (
@@ -96,10 +97,17 @@ addDelimiters rs index c complexChildren acc ns@(node : rest)
     space = bool " " "" $ null rest || complexChildren
     newline = bool "" "\n" complexChildren
 
-applyIndentation :: Int -> Text -> Text
-applyIndentation n s
-  | T.all isSpace s = s
-  | otherwise = T.replicate n " " <> s
+applyIndentation :: Int -> Bool -> Text -> (Bool, Text)
+applyIndentation n inBlock s
+  | not inBlock && T.isInfixOf "/*" s =
+      (True, indent s)
+  | inBlock && T.isSuffixOf "*/" s =
+      (False, indent s)
+  | T.all isSpace s = (inBlock, s)
+  | otherwise =
+      (inBlock, indent s)
+  where
+    indent = (T.replicate n " " <>)
 
 doFormatNode :: RuleSet -> NC.NodeCursor -> Vector Node -> Text
 doFormatNode rs cursor nodes =
@@ -109,8 +117,11 @@ doFormatNode rs cursor nodes =
       indentationAmount = lookupIndentProperty rs cursor
    in if complexChildren
         then
-          T.unlines . map (applyIndentation indentationAmount) . concatMap T.lines $
-            formatted
+          T.unlines
+            . snd
+            . mapAccumL (applyIndentation indentationAmount) False
+            . concatMap T.lines
+            $ formatted
         else T.concat formatted
   where
     complexChildren =
@@ -120,7 +131,7 @@ doFormatNode rs cursor nodes =
 
 formatComment :: InternalComment -> Text
 formatComment (InternalComment {cMultiline = False, cText = c}) = "// " <> c
-formatComment (InternalComment {cMultiline = True, cText = c}) = T.concat ["/* ", c, " */"]
+formatComment (InternalComment {cMultiline = True, cText = c}) = T.concat ["/* ", c, "*/"]
 
 formatScalarNode :: Node -> Text
 formatScalarNode (String s) = T.concat ["\"", s, "\""]

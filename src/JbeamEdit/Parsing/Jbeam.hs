@@ -7,6 +7,8 @@ module JbeamEdit.Parsing.Jbeam (
   parseNodesState,
 ) where
 
+import Debug.Trace  
+import Data.Char (isSpace)  
 import Control.Monad.State (State, evalState)
 import Control.Monad.State.Class
 import Data.Bifunctor (first)
@@ -81,14 +83,15 @@ multilineCommentParser = do
           , cMultiline = True
           , cAssociationDirection = associationDirection st
           }
-      parseComment = parseWord8s (multilineComment . T.strip)
+      commentStripSpace = T.unlines . traceShowId . filter (not . T.all isSpace) . map T.strip . T.lines
+      parseComment = parseWord8s (multilineComment . commentStripSpace)
   C.string "/*" >> parseComment (MP.manyTill B.asciiChar (B.string "*/"))
 
 singlelineCommentParser :: JbeamParser InternalComment
 singlelineCommentParser = do
   st <- get
   _ <- C.string "//"
-  txt <- MP.some (MP.satisfy (charNotEqWord8 '\n'))
+  txt <- MP.many (MP.satisfy (charNotEqWord8 '\n'))
   pure
     InternalComment
       { cText = T.strip . decodeUtf8Lenient $ BS.pack txt
@@ -157,7 +160,7 @@ objectParser :: JbeamParser Node
 objectParser = do
   _ <- byteChar '{'
   skipWhiteSpace
-  keys <- MP.many (commentParser <|> objectKeyParser)
+  keys <- MP.many ((commentParser <* skipWhiteSpace) <|> objectKeyParser)
   _ <- MP.optional separatorParser
   _ <- byteChar '}'
   pure . Object . V.fromList $ keys
@@ -174,4 +177,4 @@ parseNodesState parser input =
    in evalState (MP.runParserT parser "<input>" input) initialState
 
 parseNodes :: LBS.ByteString -> Either Text Node
-parseNodes input = first formatErrors (parseNodesState topNodeParser input)
+parseNodes input =  first formatErrors (parseNodesState topNodeParser input)

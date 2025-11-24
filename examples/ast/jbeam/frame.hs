@@ -26,6 +26,16 @@ Object
                     , cAssociationDirection = NextNode
                     }
                 )
+            , Comment
+                ( InternalComment
+                    { cText = "The purpose of this file is prove that moving
+                      vertices between vertex tree
+                      works as intended.
+                      "
+                    , cMultiline = True
+                    , cAssociationDirection = NextNode
+                    }
+                )
             , ObjectKey
                 ( String "nodes"
                 , Array

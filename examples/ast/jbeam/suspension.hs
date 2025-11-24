@@ -21,6 +21,15 @@ Object
                 )
             , Comment
                 ( InternalComment
+                    { cText = "The purpose of this file is prove that moving metadata along with vertices when
+                      moving vertices works as intended.
+                      "
+                    , cMultiline = True
+                    , cAssociationDirection = NextNode
+                    }
+                )
+            , Comment
+                ( InternalComment
                     { cText = "--Nodes--"
                     , cMultiline = False
                     , cAssociationDirection = NextNode
