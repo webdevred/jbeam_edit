@@ -169,7 +169,7 @@ _jbeam-test-common: &jbeam-test-common
   main: Spec.hs
   ghc-options: [-threaded, -rtsopts, -with-rtsopts=-N]
   build-tools: [hspec-discover]
-  dependencies: [jbeam-edit, hspec]
+  dependencies: [jbeam-edit, hspec, hspec-expectations-pretty-diff]
 
 tests:
   jbeam-edit-test:

@@ -10,6 +10,7 @@ import JbeamEdit.Transformation
 import JbeamEdit.Transformation.Config
 import System.Directory (getDirectoryContents)
 import Test.Hspec
+import Test.Hspec.Expectations.Pretty qualified as HP
 
 listFilesInDir
   :: FilePath
@@ -35,7 +36,8 @@ topNodeSpec rs cfName tfConfig inFilename outFilename = do
         do
           (_, _, node) <- transform M.empty tfConfig (read input)
           Right (formatNode rs node)
-  describe desc . it "works" $ transformAndFormat `shouldBe` Right (T.pack output)
+  describe desc . it "works" $
+    transformAndFormat `HP.shouldBe` Right (T.pack output)
 
 main :: IO ()
 main = hspec $ do

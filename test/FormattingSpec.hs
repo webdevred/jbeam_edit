@@ -10,6 +10,7 @@ import JbeamEdit.Core.NodeCursor (newCursor)
 import JbeamEdit.Formatting
 import SpecHelper
 import System.FilePath (takeBaseName, (</>))
+import Test.Hspec.Expectations.Pretty qualified as HP
 
 numberSpec :: [(String, Node)]
 numberSpec =
@@ -85,7 +86,7 @@ spec = do
     formatNodeSpec (jbeam, node) =
       applySpecOnInput
         descFun
-        shouldBe
+        HP.shouldBe
         (formatWithCursor newRuleSet newCursor node)
         (T.pack jbeam)
     descFun jbeam node = "should format " ++ show node ++ " as " ++ jbeam

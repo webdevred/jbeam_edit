@@ -7,12 +7,12 @@ module JbeamEdit.Parsing.Jbeam (
   parseNodesState,
 ) where
 
-import Data.Char (isSpace)  
 import Control.Monad.State (State, evalState)
 import Control.Monad.State.Class
 import Data.Bifunctor (first)
 import Data.ByteString qualified as BS
 import Data.ByteString.Lazy qualified as LBS
+import Data.Char (isSpace)
 import Data.Functor (($>))
 import Data.Maybe (isNothing)
 import Data.Text (Text)
@@ -159,7 +159,7 @@ objectParser :: JbeamParser Node
 objectParser = do
   _ <- byteChar '{'
   skipWhiteSpace
-  keys <- MP.many ((commentParser <* skipWhiteSpace) <|> objectKeyParser)
+  keys <- MP.many (commentParser <* skipWhiteSpace <|> objectKeyParser)
   _ <- MP.optional separatorParser
   _ <- byteChar '}'
   pure . Object . V.fromList $ keys
@@ -176,4 +176,4 @@ parseNodesState parser input =
    in evalState (MP.runParserT parser "<input>" input) initialState
 
 parseNodes :: LBS.ByteString -> Either Text Node
-parseNodes input =  first formatErrors (parseNodesState topNodeParser input)
+parseNodes input = first formatErrors (parseNodesState topNodeParser input)
