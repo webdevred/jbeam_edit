@@ -83,7 +83,7 @@ multilineCommentParser = do
           , cMultiline = True
           , cAssociationDirection = associationDirection st
           }
-      commentStripSpace = T.unlines . traceShowId . filter (not . T.all isSpace) . map T.strip . T.lines
+      commentStripSpace = T.unlines . filter (not . T.all isSpace) . map T.strip . T.lines
       parseComment = parseWord8s (multilineComment . commentStripSpace)
   C.string "/*" >> parseComment (MP.manyTill B.asciiChar (B.string "*/"))
 
