@@ -7,7 +7,7 @@
 .*.nodes[*], .*.flexbodies[*],
 .*.beams[*], .*.triangles[*],
 .*.variables[*], .*.glowMap.*,
-.*.rails.* {
+.*.rails.*, .*.props[*] {
     NoComplexNewLine : true;
 }
 
