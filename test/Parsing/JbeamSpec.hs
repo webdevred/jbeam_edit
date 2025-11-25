@@ -50,7 +50,17 @@ multilineCommentSpec =
 singlelineCommentSpec :: [(String, Node)]
 singlelineCommentSpec =
   [
-    ( "// test \n"
+    ( "//\n"
+    , Comment
+        ( InternalComment
+            { cText = ""
+            , cMultiline = False
+            , cAssociationDirection = NextNode
+            }
+        )
+    )
+  ,
+    ( "// test"
     , Comment
         ( InternalComment
             { cText = "test"

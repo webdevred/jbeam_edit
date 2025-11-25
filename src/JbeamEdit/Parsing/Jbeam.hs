@@ -10,8 +10,10 @@ module JbeamEdit.Parsing.Jbeam (
 import Control.Monad.State (State, evalState)
 import Control.Monad.State.Class
 import Data.Bifunctor (first)
+import Data.Bool (bool)
 import Data.ByteString qualified as BS
 import Data.ByteString.Lazy qualified as LBS
+import Data.Char (isSpace)
 import Data.Functor (($>))
 import Data.Maybe (isNothing)
 import Data.Text (Text)
@@ -72,6 +74,14 @@ associationDirection st =
     else
       NextNode
 
+commentStripSpace :: Text -> Text
+commentStripSpace initialText =
+  let initialNewline = bool "" "\n" (T.isPrefixOf "\n" initialText)
+      trimTrailingSpaces = T.dropWhileEnd (charBoth (/= '\n') isSpace)
+      endingNewline = bool "" "\n" (T.isSuffixOf "\n" $ trimTrailingSpaces initialText)
+      go = T.intercalate "\n" . filter (not . T.all isSpace) . map T.strip . T.lines
+   in initialNewline <> go initialText <> endingNewline
+
 multilineCommentParser :: JbeamParser InternalComment
 multilineCommentParser = do
   st <- get
@@ -81,14 +91,14 @@ multilineCommentParser = do
           , cMultiline = True
           , cAssociationDirection = associationDirection st
           }
-      parseComment = parseWord8s (multilineComment . T.strip)
+      parseComment = parseWord8s (multilineComment . commentStripSpace)
   C.string "/*" >> parseComment (MP.manyTill B.asciiChar (B.string "*/"))
 
 singlelineCommentParser :: JbeamParser InternalComment
 singlelineCommentParser = do
   st <- get
   _ <- C.string "//"
-  txt <- MP.some (MP.satisfy (charNotEqWord8 '\n'))
+  txt <- MP.many (MP.satisfy (charNotEqWord8 '\n'))
   pure
     InternalComment
       { cText = T.strip . decodeUtf8Lenient $ BS.pack txt
@@ -157,7 +167,7 @@ objectParser :: JbeamParser Node
 objectParser = do
   _ <- byteChar '{'
   skipWhiteSpace
-  keys <- MP.many (commentParser <|> objectKeyParser)
+  keys <- MP.many (commentParser <* skipWhiteSpace <|> objectKeyParser)
   _ <- MP.optional separatorParser
   _ <- byteChar '}'
   pure . Object . V.fromList $ keys
