@@ -120,7 +120,15 @@ doFormatNode rs cursor nodes =
 
 formatComment :: InternalComment -> Text
 formatComment (InternalComment {cMultiline = False, cText = c}) = "// " <> c
-formatComment (InternalComment {cMultiline = True, cText = c}) = T.concat ["/* ", c, " */"]
+formatComment (InternalComment {cMultiline = True, cText = c}) =
+  "/*"
+    <> leadingSpace
+    <> c
+    <> trailingSpace
+    <> "*/"
+  where
+    leadingSpace = bool " " "" (T.isPrefixOf "\n" c)
+    trailingSpace = bool " " "" (T.isSuffixOf "\n" c)
 
 formatScalarNode :: Node -> Text
 formatScalarNode (String s) = T.concat ["\"", s, "\""]

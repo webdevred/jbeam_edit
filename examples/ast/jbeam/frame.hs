@@ -21,7 +21,7 @@ Object
                 )
             , Comment
                 ( InternalComment
-                    { cText = "The purpose of this file is prove that moving metadata\nalong with vertices when moving vertices works as intended.\nSee issue for #69 explanation on the transformation part of the codebase."
+                    { cText = "\nThe purpose of this file is prove that moving metadata\nalong with vertices when moving vertices works as intended.\nSee issue for #69 explanation on the transformation part of the codebase.\n"
                     , cMultiline = True
                     , cAssociationDirection = NextNode
                     }

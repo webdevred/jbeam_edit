@@ -10,6 +10,7 @@ module JbeamEdit.Parsing.Jbeam (
 import Control.Monad.State (State, evalState)
 import Control.Monad.State.Class
 import Data.Bifunctor (first)
+import Data.Bool (bool)
 import Data.ByteString qualified as BS
 import Data.ByteString.Lazy qualified as LBS
 import Data.Char (isSpace)
@@ -73,6 +74,14 @@ associationDirection st =
     else
       NextNode
 
+commentStripSpace :: Text -> Text
+commentStripSpace initialText =
+  let initialNewline = bool "" "\n" (T.isPrefixOf "\n" initialText)
+      trimTrailingSpaces = T.dropWhileEnd (charBoth (/= '\n') isSpace)
+      endingNewline = bool "" "\n" (T.isSuffixOf "\n" $ trimTrailingSpaces initialText)
+      go = T.intercalate "\n" . filter (not . T.all isSpace) . map T.strip . T.lines
+   in initialNewline <> go initialText <> endingNewline
+
 multilineCommentParser :: JbeamParser InternalComment
 multilineCommentParser = do
   st <- get
@@ -82,7 +91,6 @@ multilineCommentParser = do
           , cMultiline = True
           , cAssociationDirection = associationDirection st
           }
-      commentStripSpace = T.strip . T.unlines . filter (not . T.all isSpace) . map T.strip . T.lines
       parseComment = parseWord8s (multilineComment . commentStripSpace)
   C.string "/*" >> parseComment (MP.manyTill B.asciiChar (B.string "*/"))
 

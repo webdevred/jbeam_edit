@@ -5,11 +5,9 @@
 		"name":"",
 	},
 	"slotType":"main",
-/*
-The purpose of this file is prove that moving metadata along with vertices when
+/* The purpose of this file is prove that moving metadata along with vertices when
 moving vertices works as intended.
-See issue for #69 explanation on the transformation part of the codebase.
-*/
+See issue for #69 explanation on the transformation part of the codebase. */
 //--Nodes--
 	"nodes":[
 		["id", "posX", "posY", "posZ"],
