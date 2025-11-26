@@ -5,13 +5,14 @@ import Control.Monad (unless)
 import Data.ByteString.Lazy qualified as BL (
   ByteString,
  )
-import Data.ByteString.Lazy qualified as LBS
 import Data.Text (Text)
 import Data.Text qualified as T (append, pack, unpack)
 import GHC.IO.Exception (IOErrorType, IOException (IOError))
 import JbeamEdit.Core.Node (Node)
 import JbeamEdit.Formatting (formatNode, newRuleSet)
+import System.File.OsPath qualified as OS
 import System.IO (hPutStrLn, stderr)
+import System.OsPath
 
 putErrorStringLn :: String -> IO ()
 putErrorStringLn = hPutStrLn stderr
@@ -37,9 +38,9 @@ ioErrorMsg noerrs (Left (IOError _ ioe_type _ ioe_desc _ filename)) =
     appendColon f = T.pack f `T.append` ": "
 ioErrorMsg _ (Right valid) = Right valid
 
-tryReadFile :: [IOErrorType] -> FilePath -> IO (Either Text BL.ByteString)
+tryReadFile :: [IOErrorType] -> OsPath -> IO (Either Text BL.ByteString)
 tryReadFile noerrs fp = do
   possiblyContent <-
-    try (LBS.readFile fp)
+    try (OS.readFile fp)
       :: IO (Either IOException BL.ByteString)
   pure $ ioErrorMsg noerrs possiblyContent

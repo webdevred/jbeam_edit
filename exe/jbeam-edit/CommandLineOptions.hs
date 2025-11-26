@@ -8,10 +8,12 @@ import Data.Map qualified as M
 import Data.Text (Text)
 import Data.Version (showVersion)
 import JbeamEdit.Formatting.Config (ConfigType (..))
+import JbeamEdit.IOUtils
 import Paths_jbeam_edit (version)
 import System.Console.GetOpt
 import System.Environment
-import System.Exit (exitSuccess)
+import System.Exit (exitFailure, exitSuccess)
+import System.OsPath
 
 #ifdef ENABLE_TRANSFORMATION
 import Data.Text qualified as T
@@ -20,7 +22,7 @@ import Data.Text qualified as T
 data Options = Options
   { optInPlace :: Bool
   , optCopyJbflConfig :: Maybe ConfigType
-  , optInputFile :: Maybe FilePath
+  , optInputFile :: Maybe OsPath
   , optUpdateNames :: Map Text Text
   , optTransformation :: Bool
   }
@@ -41,7 +43,11 @@ parseOptions args = do
   let (actions, nonOptions, _) = getOpt RequireOrder options args
   opts <- foldr (=<<) (pure startOptions) actions
   case (optInputFile opts, nonOptions) of
-    (Nothing, filename : _) -> pure $ opts {optInputFile = Just filename}
+    (Nothing, filename : _) ->
+      let maybeJbeamFile = encodeUtf filename
+       in case maybeJbeamFile of
+            Nothing -> putErrorLine "invalid jbeam filepath" >> exitFailure
+            Just jbeamFile -> pure $ opts {optInputFile = Just jbeamFile}
     (_, _) -> pure opts
 
 maybeConfigType :: Maybe String -> Maybe ConfigType
