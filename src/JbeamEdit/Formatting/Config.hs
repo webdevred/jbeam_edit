@@ -48,8 +48,8 @@ getConfigPath Nothing userConfigDir = do
 #if WINDOWS_EXAMPLE_PATHS
 getJbflSourcePath :: ConfigType -> IO OsPath
 getJbflSourcePath configType = do
-    executableDir <- takeDirectory <$> getExecutablePath
-    pure (executableDir </> getRelativeJbflSourcePath configType)
+    executableDir <- FP.takeDirectory <$> getExecutablePath
+    pure (unsafeEncodeUtf $ executableDir FP.</> getRelativeJbflSourcePath configType)
 #else
 getJbflSourcePath :: ConfigType -> IO OsPath
 getJbflSourcePath configType = encodeUtf =<< getDataFileName (getRelativeJbflSourcePath configType)
