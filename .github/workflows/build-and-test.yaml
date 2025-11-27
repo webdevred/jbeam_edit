@@ -79,7 +79,7 @@ jobs:
         run: |
           GHC=$(ghc --numeric-version)
           mkdir -p coverage
-          cp -r $(find .stack-work/install -path "$GHC/hpc") coverage/
+          cp -r $(find .stack-work/install -path "*/$GHC/hpc") coverage/
       - name: Upload artifact
         if: |
           startsWith(matrix.os, 'ubuntu-') &&
