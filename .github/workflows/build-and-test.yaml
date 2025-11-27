@@ -40,27 +40,13 @@ jobs:
         with:
           path: ${{ matrix.stack-paths }}
           key: >-
-            stack-global-${{ matrix.os }}-${{
+            stack-${{ matrix.os }}-${{
               steps.extract.outputs.resolver
             }}-${{
-              hashFiles('stack.yaml', '**/stack.yaml.lock')
+              hashFiles('stack.yaml', 'stack.yaml.lock')
             }}
           restore-keys: |
-            stack-global-${{ matrix.os }}-${{ steps.extract.outputs.resolver }}-
-            stack-global-${{ matrix.os }}-
-      - name: Cache .stack-work build artifacts
-        uses: actions/cache@v4.3.0
-        with:
-          path: .stack-work
-          key: >-
-            stack-local-${{ matrix.os }}-${{
-              steps.extract.outputs.resolver
-            }}-${{
-              hashFiles('**/stack.yaml', '**/stack.yaml.lock', '**/package.yaml')
-            }}
-          restore-keys: |
-            stack-local-${{ matrix.os }}-${{ steps.extract.outputs.resolver }}-
-            stack-local-${{ matrix.os }}-
+            stack-${{ matrix.os }}-${{ steps.extract.outputs.resolver }}-
       - name: Set up GHC with Stack
         run: stack setup
       - name: Build project
@@ -77,7 +63,8 @@ jobs:
       - name: Make sure test coverage is more than 80%
         shell: bash
         run: |
-          TIX_FILE=$(find .stack-work -name 'jbeam-edit-test.tix')
+          GHC=$(ghc --numeric-version)
+          TIX_FILE=$(find .stack-work -path "$GHC/*/jbeam-edit-test.tix")
           COVERAGE=$(stack hpc report "$TIX_FILE" 2>&1 | grep "expressions used" | awk '{print $1}'  | sed 's/%//')
           echo "Coverage: $COVERAGE"
           if [[ $COVERAGE -lt 70 ]]; then
@@ -90,8 +77,9 @@ jobs:
           github.event_name == 'push' &&
           github.ref == 'refs/heads/master'
         run: |
+          GHC=$(ghc --numeric-version)
           mkdir -p coverage
-          cp -r $(find .stack-work/install -name hpc) coverage/
+          cp -r $(find .stack-work/install -path "$GHC/hpc") coverage/
       - name: Upload artifact
         if: |
           startsWith(matrix.os, 'ubuntu-') &&

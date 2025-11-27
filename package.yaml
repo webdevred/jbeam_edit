@@ -25,7 +25,7 @@ description: >-
   and can automatically rename nodes and update references. Custom formatting rules
   are supported via JBFL (JBeam Formatting Language). See the README for usage instructions
   and examples: https://github.com/webdevred/jbeam-edit#readme
-tested-with: [GHC == 9.4.7, GHC == 9.6.6]
+tested-with: [GHC == 9.6.6]
 
 dependencies:
   - base >= 4.17 && < 5
@@ -38,7 +38,10 @@ dependencies:
   - filepath
   - mtl
 
-default-extensions: [OverloadedStrings, ImportQualifiedPost, DerivingStrategies]
+default-extensions:
+  - OverloadedStrings
+  - ImportQualifiedPost
+  - DerivingStrategies
 
 ghc-options:
   - -Wall
@@ -64,10 +67,6 @@ flags:
     description: Enable LSP server (experimental)
     manual: true
     default: false
-  lsp-test-server:
-    description: Enable LSP test server (dev-only)
-    manual: false
-    default: false
   windows-example-paths:
     description: Use executable-relative example paths (for Windows release builds)
     default: false
@@ -75,7 +74,7 @@ flags:
 
 _jbeam-extra-lib: &jbeam-extra-lib
   verbatim:
-    mixins: >-
+    mixins: >
       base hiding (Prelude)
       , relude (Relude as Prelude)
       , relude
@@ -116,15 +115,16 @@ library:
 
 _jbeam-lsp-common: &jbeam-lsp-common
   main: Main.hs
-  ghc-options: [-threaded, -rtsopts, -with-rtsopts=-N]
   dependencies: [jbeam-edit]
+_jbeam-options: &jbeam-options
+  main: Main.hs
+  ghc-options: [-threaded, -rtsopts, -with-rtsopts=-N]
 
 executables:
   jbeam-edit:
-    main: Main.hs
+    <<: *jbeam-options
     source-dirs: exe/jbeam-edit
     default-extensions: [CPP]
-    ghc-options: [-threaded, -rtsopts, -with-rtsopts=-N]
     dependencies: [jbeam-edit]
     when:
       - condition: flag(transformation)
@@ -140,22 +140,24 @@ executables:
         dependencies: [jbeam-language-server]
       else:
         buildable: false
-    <<: *jbeam-lsp-common
+    <<:
+      - *jbeam-options
+      - *jbeam-lsp-common
   jbeam-edit-dump-ast:
+    <<: *jbeam-options
     when:
       condition: (flag(dump-ast) && flag(transformation))
       then:
         dependencies: [pretty-simple>=3.3, jbeam-edit-transformation]
       else:
         buildable: false
-    main: Main.hs
     source-dirs: tools/dump_ast
     ghc-options: [-threaded, -rtsopts, -with-rtsopts=-N]
     dependencies: [jbeam-edit]
 
 benchmarks:
   jbeam-edit-bench:
-    main: Main.hs
+    <<: *jbeam-options
     source-dirs: tools/bench
     dependencies: [base, jbeam-edit]
     when:
@@ -166,8 +168,8 @@ benchmarks:
           buildable: false
 
 _jbeam-test-common: &jbeam-test-common
+  <<: *jbeam-options
   main: Spec.hs
-  ghc-options: [-threaded, -rtsopts, -with-rtsopts=-N]
   build-tools: [hspec-discover]
   dependencies: [jbeam-edit, hspec]
 
@@ -190,10 +192,12 @@ tests:
           buildable: false
   jbeam-edit-transformation-test:
     <<: *jbeam-test-common
-    main: Main.hs
+    main: Spec.hs
     build-tools: []
     source-dirs: test-extra/transformation
     when:
+      - condition: true
+        ghc-options: -main-is Spec
       - condition: flag(transformation)
         then:
           dependencies: [jbeam-edit-transformation]

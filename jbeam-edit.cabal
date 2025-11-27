@@ -11,7 +11,7 @@ license-file:       LICENSE
 copyright:          2025 webdevred
 maintainer:         example@example.com
 author:             webdevred
-tested-with:        ghc ==9.4.7 ghc ==9.6.6
+tested-with:        ghc ==9.6.6
 homepage:           https://github.com/webdevred/jbeam-edit#readme
 bug-reports:        https://github.com/webdevred/jbeam-edit/issues
 synopsis:
@@ -53,10 +53,6 @@ flag lsp-server
     description: Enable LSP server (experimental)
     default:     False
     manual:      True
-
-flag lsp-test-server
-    description: Enable LSP test server (dev-only)
-    default:     False
 
 flag transformation
     description: Enable transformation (experimental)
@@ -361,7 +357,7 @@ test-suite jbeam-edit-test
 
 test-suite jbeam-edit-transformation-test
     type:               exitcode-stdio-1.0
-    main-is:            Main.hs
+    main-is:            Spec.hs
     hs-source-dirs:     test-extra/transformation
     other-modules:      Paths_jbeam_edit
     autogen-modules:    Paths_jbeam_edit
@@ -387,6 +383,9 @@ test-suite jbeam-edit-transformation-test
         scientific,
         text >=2.0,
         vector
+
+    if True
+        ghc-options: -main-is Spec
 
     if flag(transformation)
         build-depends: jbeam-edit-transformation
@@ -452,6 +451,7 @@ benchmark jbeam-edit-bench
         -Wall -Wcompat -Widentities -Wincomplete-record-updates
         -Wincomplete-uni-patterns -Wmissing-export-lists
         -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
+        -threaded -rtsopts -with-rtsopts=-N
 
     build-depends:
         base,
