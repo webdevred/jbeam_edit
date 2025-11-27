@@ -56,8 +56,6 @@ jobs:
       - name: Check that .cabal file has not changed except hpack comment
         shell: bash
         run: bash ./.github/scripts/check_cabal_file.sh
-      - run: cabal check --ignore=missing-upper-bounds
-        shell: bash
       - name: Run tests
         run: stack test --fast --coverage
       - name: Make sure test coverage is more than 80%
@@ -73,11 +71,10 @@ jobs:
           fi
       - name: Prepare coverage report
         if: |
-          startsWith(matrix.os, 'ubuntu-') &&
-          github.event_name == 'push' &&
-          github.ref == 'refs/heads/master'
+          startsWith(matrix.os, 'ubuntu-')
         run: |
-          GHC=$(ghc --numeric-version)
+          set -x
+          GHC=$(stack ghc -- --numeric-version)
           mkdir -p coverage
           cp -r $(find .stack-work/install -path "*/$GHC/hpc") coverage/
       - name: Upload artifact

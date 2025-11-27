@@ -4,7 +4,7 @@ module Main (
 
 import CommandLineOptions
 import Control.Monad (when)
-import Data.ByteString.Lazy qualified as LBS (fromStrict, writeFile)
+import Data.ByteString.Lazy qualified as LBS (fromStrict)
 import Data.Text (Text)
 import Data.Text.Encoding (encodeUtf8)
 import JbeamEdit.Core.Node (Node)
@@ -12,20 +12,20 @@ import JbeamEdit.Formatting (RuleSet, formatNode)
 import JbeamEdit.Formatting.Config
 import JbeamEdit.IOUtils
 import JbeamEdit.Parsing.Jbeam (parseNodes)
-import System.Directory (copyFile, doesFileExist)
+import System.Directory.OsPath
 import System.Environment (getArgs)
+import System.File.OsPath qualified as OS (writeFile)
+import System.OsPath
 
 #ifdef ENABLE_WINDOWS_NEWLINES
 import Data.Text qualified as T
 #endif
 
-import System.FilePath (dropExtension)
-
 #ifdef ENABLE_TRANSFORMATION
+import System.FilePath qualified as FP ((</>))
 import JbeamEdit.Transformation (transform)
-import System.FilePath ((</>))
 import JbeamEdit.Transformation.Config
-import System.Directory (getCurrentDirectory)
+import System.Directory qualified as FP (getCurrentDirectory)
 #endif
 
 main :: IO ()
@@ -36,9 +36,9 @@ main = do
     Options {optCopyJbflConfig = Just configType} -> copyToConfigDir configType
     _ -> editFile opts
 
-createBackupFile :: FilePath -> Options -> IO ()
+createBackupFile :: OsPath -> Options -> IO ()
 createBackupFile filename opts = do
-  let backupFilename = dropExtension filename <> ".bak.jbeam"
+  let backupFilename = dropExtension filename <.> unsafeEncodeUtf ".bak.jbeam"
   doesExist <- doesFileExist filename
   when
     (not (optInPlace opts) && doesExist)
@@ -56,12 +56,12 @@ editFile opts = do
         Left err -> putErrorLine err
     Nothing -> putErrorLine "missing arg filename"
 
-processNodes :: Options -> FilePath -> Node -> RuleSet -> IO ()
+processNodes :: Options -> OsPath -> Node -> RuleSet -> IO ()
 processNodes opts outFile nodes formattingConfig = do
   transformedNode <- applyTransform opts nodes
   case transformedNode of
     Right transformedNode' ->
-      LBS.writeFile outFile
+      OS.writeFile outFile
         . LBS.fromStrict
         . encodeUtf8
         . replaceNewlines
@@ -81,8 +81,8 @@ applyTransform :: Options -> Node -> IO (Either Text Node)
 #ifdef ENABLE_TRANSFORMATION
 applyTransform (Options {optTransformation = False}) topNode = pure (Right topNode)
 applyTransform opts topNode = do
-  cwd <- getCurrentDirectory
-  tfConfig <- loadTransformationConfig $ cwd </> ".jbeam-edit.yaml"
+  cwd <- FP.getCurrentDirectory
+  tfConfig <- loadTransformationConfig $ cwd FP.</> transformationConfigFile
   case transform (optUpdateNames opts) tfConfig topNode of
     Right (badVertexNodes, badBeamNodes, topNode') -> do
       reportInvalidNodes "Invalid vertex nodes encountered:" badVertexNodes

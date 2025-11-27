@@ -6,9 +6,10 @@ module CommandLineOptions (
 import System.Console.GetOpt
 import System.Environment (getProgName)
 import System.Exit (exitSuccess)
+import System.OsPath
 
 newtype Options = Options
-  { optRulesFile :: Maybe FilePath
+  { optRulesFile :: Maybe OsPath
   }
   deriving stock (Show)
 
@@ -33,7 +34,7 @@ parseOptions args = do
   case optRulesFile opts of
     Nothing ->
       case nonOptions of
-        [file] -> pure opts {optRulesFile = Just $ trimQuotes file}
+        [file] -> pure opts {optRulesFile = encodeUtf (trimQuotes file)}
         [] -> pure opts
         _ -> do
           putStrLn "Too many arguments."
@@ -45,7 +46,7 @@ options =
   [ Option
       "c"
       ["rules-path"]
-      (ReqArg (\f opt -> pure opt {optRulesFile = Just f}) "FILE")
+      (ReqArg (\f opt -> pure opt {optRulesFile = encodeUtf f}) "FILE")
       "Provide jbfl rules path."
   , Option
       "h"

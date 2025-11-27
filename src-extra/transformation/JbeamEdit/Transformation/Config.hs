@@ -2,6 +2,7 @@
 
 module JbeamEdit.Transformation.Config (
   loadTransformationConfig,
+  transformationConfigFile,
   applyOperator,
   newTransformationConfig,
   TransformationConfig (..),
@@ -132,6 +133,9 @@ instance FromJSON TransformationConfig where
 formatParseError :: ParseException -> IO ()
 formatParseError (AesonException err) = putErrorStringLn err
 formatParseError excp = putErrorStringLn (prettyPrintParseException excp)
+
+transformationConfigFile :: FilePath
+transformationConfigFile = ".jbeam-edit.yaml"
 
 loadTransformationConfig :: FilePath -> IO TransformationConfig
 loadTransformationConfig filename = do
