@@ -53,7 +53,7 @@ objectSpec =
     )
   ]
 
-dynamicJbflTests :: IO [(Text, Text)]
+dynamicJbflTests :: IO [(FilePath, Text, Text)]
 dynamicJbflTests = do
   let examplesDir = "examples"
       jbeamAstDir = examplesDir </> "ast/jbeam"
@@ -72,15 +72,16 @@ dynamicJbflTests = do
         outFile = formattedDir </> (baseName ++ "-jbfl.jbeam")
 
     expected <- T.pack <$> readFile outFile
-    pure (formatted, expected)
+    pure (outFile, formatted, expected)
 
 spec :: Spec
 spec = do
   mapM_ formatNodeSpec specs
 
-  it "formats all JBEAM ASTs with all JBFL rules and matches dumped files" $ do
-    dynamicTests <- dynamicJbflTests
-    forM_ dynamicTests $ uncurry shouldBe
+  dynamicTests <- runIO dynamicJbflTests
+  forM_ dynamicTests $ \(outFile, formatted, expected) ->
+    it ("formats JBEAM AST to " ++ outFile) $
+      shouldBe formatted expected
   where
     formatNodeSpec (jbeam, node) =
       applySpecOnInput
