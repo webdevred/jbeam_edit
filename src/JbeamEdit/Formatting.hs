@@ -1,5 +1,3 @@
-{-# LANGUAGE CPP #-}
-
 module JbeamEdit.Formatting (
   formatNode,
   formatWithCursor,
@@ -8,9 +6,6 @@ module JbeamEdit.Formatting (
   RuleSet (..),
 ) where
 
-#if !MIN_VERSION_base(4,18,0)
-import Control.Applicative (liftA2)
-#endif
 import Control.Monad (guard)
 import Data.Bool (bool)
 import Data.Char (isSpace)
