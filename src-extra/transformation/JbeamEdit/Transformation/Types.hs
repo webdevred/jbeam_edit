@@ -11,16 +11,16 @@ module JbeamEdit.Transformation.Types (
 ) where
 
 import JbeamEdit.Core.Node
-import Data.Map.Ordered
 import Data.Scientific (Scientific)
 import Data.Yaml.Aeson (
   FromJSON (..),
   withText,
  )
+import JbeamEdit.Transformation.OMap1
 
 data VertexTreeKey = SupportKey | PrefixKey Text deriving (Eq, Ord, Show)
 
-type VertexForest = Map VertexTreeType (OMap VertexTreeKey VertexTree)
+type VertexForest = Map VertexTreeType (OMap1 VertexTreeKey VertexTree)
 
 data VertexTreeType
   = LeftTree

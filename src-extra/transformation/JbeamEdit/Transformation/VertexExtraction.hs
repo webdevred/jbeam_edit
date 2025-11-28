@@ -12,7 +12,6 @@ import JbeamEdit.Core.NodePath qualified as NP
 import Data.List.NonEmpty qualified as NE
 import Data.Map qualified as M
 import Data.Map.Ordered (OMap)
-import Data.Map.Ordered qualified as OMap
 import Data.Set qualified as S
 import Data.Text qualified as T
 import Data.Vector qualified as V
@@ -20,6 +19,7 @@ import JbeamEdit.Core.Node
 import JbeamEdit.Core.NodePath qualified as NP
 import JbeamEdit.Transformation.Config
 import JbeamEdit.Transformation.Types
+import JbeamEdit.Transformation.OMap1
 
 newVertex :: Node -> Maybe Vertex
 newVertex (Array ns) = f . V.toList $ ns
@@ -103,14 +103,14 @@ insertTreeInForest ttype vt f =
     else
       M.insert
         ttype
-        (OMap.singleton (getVertexTreePrefix (tAnnotatedVertices vt), vt))
+        (fromList [(getVertexTreePrefix (tAnnotatedVertices vt), vt)])
         f
 
 getVertexTreePrefix :: NonEmpty AnnotatedVertex -> VertexTreeKey
 getVertexTreePrefix vt = maybe SupportKey PrefixKey (getVertexPrefix (vName (aVertex (head vt))))
 
 insertTreeInMap
-  :: VertexTree -> OMap VertexTreeKey VertexTree -> OMap VertexTreeKey VertexTree
+  :: VertexTree -> OMap1 VertexTreeKey VertexTree -> OMap1 VertexTreeKey VertexTree
 insertTreeInMap (VertexTree newComments newVertexGroups) vts =
   ( getVertexTreePrefix newVertexGroups
   , VertexTree
@@ -118,7 +118,7 @@ insertTreeInMap (VertexTree newComments newVertexGroups) vts =
       , tAnnotatedVertices = newVertexGroups
       }
   )
-    OMap.<| vts
+    `omap1Snoc` vts
 
 isSupportVertex :: Vertex -> Bool
 isSupportVertex v =
@@ -232,10 +232,9 @@ objectKeysToObjects =
     . M.assocs
 
 extractFirstVertex
-  :: OMap VertexTreeKey VertexTree -> (AnnotatedVertex, [AnnotatedVertex])
+  :: OMap1 VertexTreeKey VertexTree -> (AnnotatedVertex, [AnnotatedVertex])
 extractFirstVertex vertexTrees =
-  let Just (firstType, firstTree) = OMap.elemAt vertexTrees 0
-      otherTrees = OMap.delete firstType vertexTrees
+  let (_, firstTree, otherTrees) = omap1Uncons vertexTrees
       (VertexTree _ (firstAV :| otherFirstAVs)) = firstTree
       rest = otherFirstAVs ++ concatMap (\(VertexTree _ vs) -> NE.toList vs) otherTrees
    in (firstAV, rest)
@@ -244,7 +243,7 @@ allAnnotatedVertices :: VertexForest -> [AnnotatedVertex]
 allAnnotatedVertices forest =
   [ av
   | omap <- M.elems forest
-  , (_, tree) <- OMap.assocs omap
+  , tree <- toList omap
   , av <- NE.toList (tAnnotatedVertices tree)
   ]
 
