@@ -20,7 +20,7 @@ instance Ord k => IsList (OMap1 k v) where
   fromList ((firstK, firstV) : rest) = OMap1 (firstK, firstV) (OMap.fromList rest)
 
 instance Ord k => Foldable (OMap1 k) where
-  foldMap f (OMap1 (firstK, firstV) rest) = foldMap f ((firstK, firstV) OMap.<| rest)
+  foldMap f (OMap1 (_, firstV) rest) = f firstV <> foldMap f rest
 
 omap1Uncons :: Ord k => OMap1 k v -> (k, v, OMap1 k v)
 omap1Uncons (OMap1 (firstK, firstV) rest) =
