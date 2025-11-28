@@ -26,7 +26,7 @@ omap1Uncons (OMap1 (firstK, firstV) rest) =
    in (firstK, firstV, OMap1 newFirst newRest)
 
 omap1Snoc :: Ord k => (k, v) -> OMap1 k v -> OMap1 k v
-omap1Snoc newFirst (OMap1 oldFirst rest) = OMap1 newFirst (oldFirst OMap.<| rest)
+omap1Snoc newLast (OMap1 oldFirst rest) = OMap1 oldFirst (rest OMap.>| newLast)
 
 omap1Cons :: Ord k => (k, v) -> OMap1 k v -> OMap1 k v
-omap1Cons newFirst (OMap1 oldFirst rest) = OMap1 oldFirst (rest OMap.>| newFirst)
+omap1Cons newFirst (OMap1 oldFirst rest) = OMap1 newFirst (oldFirst OMap.<| rest)
