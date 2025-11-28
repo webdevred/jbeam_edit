@@ -10,12 +10,12 @@ module JbeamEdit.Transformation.Types (
   UpdateNamesMap,
 ) where
 
-import JbeamEdit.Core.Node
 import Data.Scientific (Scientific)
 import Data.Yaml.Aeson (
   FromJSON (..),
   withText,
  )
+import JbeamEdit.Core.Node
 import JbeamEdit.Transformation.OMap1
 
 data VertexTreeKey = SupportKey | PrefixKey Text deriving (Eq, Ord, Show)
