@@ -4,6 +4,7 @@ module JbeamEdit.Transformation.Types (
   VertexTreeType (..),
   Vertex (..),
   AnnotatedVertex (..),
+  VertexTreeKey (..),
   MetaMap,
   VertexConnMap,
   UpdateNamesMap,
@@ -15,8 +16,11 @@ import Data.Yaml.Aeson (
   withText,
  )
 import JbeamEdit.Core.Node
+import JbeamEdit.Transformation.OMap1
 
-type VertexForest = Map VertexTreeType VertexTree
+data VertexTreeKey = SupportKey | PrefixKey Text deriving (Eq, Ord, Show)
+
+type VertexForest = Map VertexTreeType (OMap1 VertexTreeKey VertexTree)
 
 data VertexTreeType
   = LeftTree
@@ -36,7 +40,7 @@ instance FromJSON VertexTreeType where
 
 data VertexTree = VertexTree
   { tComments :: [InternalComment]
-  , tAnnotatedVertices :: NonEmpty (NonEmpty AnnotatedVertex)
+  , tAnnotatedVertices :: NonEmpty AnnotatedVertex
   }
   deriving (Show)
 
