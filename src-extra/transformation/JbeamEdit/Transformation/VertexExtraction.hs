@@ -217,9 +217,9 @@ nodesListToTree brks nodes =
     Left err -> Left err
     Right
       (vertexNames, badNodes, firstTreeType, _firstVertexTree, vertexForest, rest) ->
-      case nonEmpty rest of
-        Nothing -> Right (badNodes, firstTreeType, vertexForest)
-        Just nonEmptyRest -> go vertexNames badNodes vertexForest nonEmptyRest firstTreeType
+        case nonEmpty rest of
+          Nothing -> Right (badNodes, firstTreeType, vertexForest)
+          Just nonEmptyRest -> go vertexNames badNodes vertexForest nonEmptyRest firstTreeType
   where
     go vertexNames badNodes acc rest firstTreeType =
       case newVertexTree brks vertexNames badNodes acc rest of
