@@ -25,6 +25,7 @@ import Data.Yaml (
  )
 import Data.Yaml.Aeson (
   FromJSON (..),
+  YamlException (..),
   withArray,
   withObject,
   withText,
@@ -132,7 +133,10 @@ instance FromJSON TransformationConfig where
 
 formatParseError :: ParseException -> IO ()
 formatParseError (AesonException err) = putErrorStringLn err
-formatParseError excp = putErrorStringLn (prettyPrintParseException excp)
+formatParseError excp = case excp of
+  (InvalidYaml (Just (YamlException errMsg)))
+    | isPrefixOf "Yaml file not found:" errMsg -> pure ()
+  _ -> putErrorStringLn (prettyPrintParseException excp)
 
 transformationConfigFile :: FilePath
 transformationConfigFile = ".jbeam-edit.yaml"
