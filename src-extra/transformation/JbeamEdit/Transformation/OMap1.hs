@@ -1,4 +1,3 @@
-{-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# OPTIONS_GHC -Wno-incomplete-patterns -Wno-incomplete-uni-patterns #-}
 
