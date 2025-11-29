@@ -71,12 +71,25 @@ prefixForVertexKey origTree vs =
       topComments = concatMap tComments (OMap1.lookup prefixKey =<< origTree)
    in (prefixKey, VertexTree topComments vs)
 
+sortByKeyOrderNE
+  :: Maybe (OMap1 VertexTreeKey VertexTree)
+  -> NonEmpty (VertexTreeKey, VertexTree)
+  -> NonEmpty (VertexTreeKey, VertexTree)
+sortByKeyOrderNE original xs =
+  let order = concatMap (map fst . OMap1.assocs) original
+      rank :: Map VertexTreeKey Int
+      rank = M.fromList (zip order [0 ..])
+      fallback = length order
+      compareFun (a, _) = fromMaybe fallback (M.lookup a rank)
+   in NE.sortBy (on compare compareFun) xs
+
 groupByPrefix
   :: Maybe (OMap1 VertexTreeKey VertexTree)
   -> NonEmpty AnnotatedVertex
   -> OMap1 VertexTreeKey VertexTree
 groupByPrefix origTree =
   OMap1.fromNEList
+    . sortByKeyOrderNE origTree
     . NE.map (prefixForVertexKey origTree)
     . NE.groupWith1 (dropIndex . vName . aVertex)
 
@@ -141,6 +154,7 @@ moveSupportVertices newNames tfCfg connMap vsPerType =
         ]
 
       brks = xGroupBreakpoints tfCfg
+      thr = zSortingThreshold tfCfg
 
       assignSupportNames = assignNames newNames brks SupportTree
 
@@ -159,6 +173,7 @@ moveSupportVertices newNames tfCfg connMap vsPerType =
                           . mapAccumL
                             assignSupportNames
                             M.empty
+                          . NE.sortBy (compareAV thr SupportTree)
                           $ NE.map (uncurry updateSupportVertexName) vs
                       )
                   )
@@ -296,14 +311,21 @@ compareAV thr treeType vertex1 vertex2 =
         bool
           EQ
           (on compare (dropIndex . vName . aVertex) vertex1 vertex2)
-          (treeType /= SupportTree)
+          (treeType == SupportTree)
       y1 = vY . aVertex $ vertex1
       y2 = vY . aVertex $ vertex2
       compareZ = on compare (vZ . aVertex) vertex1 vertex2
       compareY =
         let zDiff = abs $ y1 - y2
          in bool EQ (compare y1 y2) (zDiff > thr)
-   in supportNameCompare <> on compare aMeta vertex1 vertex2 <> compareY <> compareZ
+      compareX = on compare (vX . aVertex) vertex1 vertex2
+   in mconcat
+        [ supportNameCompare
+        , on compare aMeta vertex1 vertex2
+        , compareY
+        , compareZ
+        , compareX
+        ]
 
 renameVertexId :: VertexTreeType -> Int -> Text -> Text
 renameVertexId treeType idx vertexPrefix =

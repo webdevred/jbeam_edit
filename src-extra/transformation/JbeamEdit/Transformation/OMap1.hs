@@ -6,6 +6,7 @@ module JbeamEdit.Transformation.OMap1 (
   OMap1,
   fromNEList,
   lookup,
+  assocs,
   consOMap,
   singleton,
   head,
@@ -36,6 +37,9 @@ lookup k (OMap1 (firstK, firstV) rest)
   | otherwise = Nothing
   where
     maybeValue = OMap.lookup k rest
+
+assocs :: OMap1 k v -> [(k, v)]
+assocs (OMap1 (firstK, firstV) rest) = (firstK, firstV) : OMap.assocs rest
 
 fromNEList :: Ord k => NonEmpty (k, v) -> OMap1 k v
 fromNEList ne
