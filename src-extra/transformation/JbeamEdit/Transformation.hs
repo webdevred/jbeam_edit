@@ -40,12 +40,12 @@ sideComment t = InternalComment (sideCommentText t) False NextNode
 
 addSideComment
   :: Ord k
-  => VertexTreeType -> [a] -> OMap1 k VertexTree -> OMap1 k VertexTree
-addSideComment t [] trees =
+  => VertexTreeType -> Bool -> OMap1 k VertexTree -> OMap1 k VertexTree
+addSideComment t False trees =
   let (key, VertexTree topComments vertices, otherTrees) = OMap1.uncons trees
       newComment = sideComment t
    in OMap1.consOMap (key, VertexTree (newComment : topComments) vertices) otherTrees
-addSideComment _ _ trees = trees
+addSideComment _ True trees = trees
 
 addPrefixComments
   :: VertexTreeType
@@ -80,6 +80,9 @@ groupByPrefix origTree =
     . NE.map (prefixForVertexKey origTree)
     . NE.groupWith1 (dropIndex . vName . aVertex)
 
+commentsExists :: Maybe (OMap1 VertexTreeKey VertexTree) -> Bool
+commentsExists = not . all (null . tComments . OMap1.head)
+
 addVertexTreeToForest
   :: UpdateNamesMap
   -> TransformationConfig
@@ -93,7 +96,7 @@ addVertexTreeToForest newNames tf grouped forest forestAcc t =
     Just groupsForT ->
       let origTree = M.lookup t forest
           tree =
-            addSideComment t (concatMap (tComments . OMap1.head) origTree)
+            addSideComment t (commentsExists origTree)
               . addPrefixComments t
               . fmap (sortVertices t newNames tf)
               $ groupByPrefix origTree groupsForT
