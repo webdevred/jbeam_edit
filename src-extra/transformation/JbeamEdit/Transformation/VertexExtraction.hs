@@ -162,7 +162,7 @@ nodesToAnnotatedVertices initialMeta nodes = go initialMeta [] nodes ([], [])
                in go newMeta pendingComments ns acc
           | isCommentNode n ->
               case (toInternalComment n, acc) of
-                (Just ic@(InternalComment _ _ PreviousNode), (badNodes, an : ans)) ->
+                (Just ic@(InternalComment _ _ PreviousNode), (_, an : ans)) ->
                   go pendingMeta pendingComments ns (badNodes, addCommentToAn ic an : ans)
                 (Just ic, _) ->
                   go pendingMeta (ic : pendingComments) ns acc
