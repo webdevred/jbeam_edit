@@ -14,7 +14,8 @@ import JbeamEdit.Core.NodeCursor (newCursor)
 import JbeamEdit.Core.NodeCursor qualified as NC
 import JbeamEdit.Core.NodePath qualified as NP
 import JbeamEdit.Transformation.Config
-import JbeamEdit.Transformation.OMap1
+import JbeamEdit.Transformation.OMap1 (OMap1)
+import JbeamEdit.Transformation.OMap1 qualified as OMap1
 import JbeamEdit.Transformation.SupportVertex
 import JbeamEdit.Transformation.Types
 import JbeamEdit.Transformation.VertexExtraction
@@ -41,9 +42,9 @@ addSideComment
   :: Ord k
   => VertexTreeType -> [a] -> OMap1 k VertexTree -> OMap1 k VertexTree
 addSideComment t [] trees =
-  let (key, VertexTree topComments vertices, otherTrees) = omap1Uncons trees
+  let (key, VertexTree topComments vertices, otherTrees) = OMap1.uncons trees
       newComment = sideComment t
-   in omap1Cons' (key, VertexTree (newComment : topComments) vertices) otherTrees
+   in OMap1.consOMap (key, VertexTree (newComment : topComments) vertices) otherTrees
 addSideComment _ _ trees = trees
 
 addPrefixComments
@@ -67,7 +68,7 @@ prefixForVertexKey origTree vs =
   let firstAv = head vs
       firstVertex = aVertex firstAv
       prefixKey = PrefixKey . dropIndex $ vName firstVertex
-      topComments = concatMap tComments (omap1Lookup prefixKey =<< origTree)
+      topComments = concatMap tComments (OMap1.lookup prefixKey =<< origTree)
    in (prefixKey, VertexTree topComments vs)
 
 groupByPrefix
@@ -75,7 +76,7 @@ groupByPrefix
   -> NonEmpty AnnotatedVertex
   -> OMap1 VertexTreeKey VertexTree
 groupByPrefix origTree =
-  omap1FromNEList
+  OMap1.fromNEList
     . NE.map (prefixForVertexKey origTree)
     . NE.groupWith1 (dropIndex . vName . aVertex)
 
@@ -92,7 +93,7 @@ addVertexTreeToForest newNames tf grouped forest forestAcc t =
     Just groupsForT ->
       let origTree = M.lookup t forest
           tree =
-            addSideComment t (concatMap (tComments . omap1Head) origTree)
+            addSideComment t (concatMap (tComments . OMap1.head) origTree)
               . addPrefixComments t
               . fmap (sortVertices t newNames tf)
               $ groupByPrefix origTree groupsForT
@@ -147,7 +148,7 @@ moveSupportVertices newNames tfCfg connMap vsPerType =
           Just vs ->
             one
               ( SupportTree
-              , omap1Singleton
+              , OMap1.singleton
                   ( SupportKey
                   , VertexTree
                       [sideComment SupportTree]

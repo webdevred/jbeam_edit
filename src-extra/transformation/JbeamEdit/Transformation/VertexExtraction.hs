@@ -16,7 +16,8 @@ import Data.Vector qualified as V
 import JbeamEdit.Core.Node
 import JbeamEdit.Core.NodePath qualified as NP
 import JbeamEdit.Transformation.Config
-import JbeamEdit.Transformation.OMap1
+import JbeamEdit.Transformation.OMap1 (OMap1)
+import JbeamEdit.Transformation.OMap1 qualified as OMap1
 import JbeamEdit.Transformation.Types
 
 newVertex :: Node -> Maybe Vertex
@@ -101,7 +102,7 @@ insertTreeInForest ttype vt f =
     else
       M.insert
         ttype
-        (omap1Singleton (getVertexTreePrefix (tAnnotatedVertices vt), vt))
+        (OMap1.singleton (getVertexTreePrefix (tAnnotatedVertices vt), vt))
         f
 
 getVertexTreePrefix :: NonEmpty AnnotatedVertex -> VertexTreeKey
@@ -116,7 +117,7 @@ insertTreeInMap (VertexTree newComments newVertexGroups) vts =
       , tAnnotatedVertices = newVertexGroups
       }
   )
-    `omap1Snoc` vts
+    `OMap1.snoc` vts
 
 isSupportVertex :: Vertex -> Bool
 isSupportVertex v =
@@ -242,7 +243,7 @@ concatAnnotatedVertices = concatMap (toList . tAnnotatedVertices) . toList
 extractFirstVertex
   :: OMap1 VertexTreeKey VertexTree -> (AnnotatedVertex, [AnnotatedVertex])
 extractFirstVertex vertexTrees =
-  let (_, firstTree, otherTrees) = omap1Uncons vertexTrees
+  let (_, firstTree, otherTrees) = OMap1.uncons vertexTrees
       (VertexTree _ (firstAV :| otherFirstAVs)) = firstTree
       rest =
         otherFirstAVs ++ concatAnnotatedVertices otherTrees
