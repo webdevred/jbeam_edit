@@ -71,7 +71,7 @@ isCollision vertexNode vertexNames =
     Nothing -> Right vertexNames
 
 priorAssocComment :: [Node] -> (Maybe Node, [Node])
-priorAssocComment ((Comment (ic@(InternalComment _ _ PreviousNode))) : rest) = (Just (Comment ic), rest)
+priorAssocComment ((Comment ic@(InternalComment _ _ PreviousNode)) : rest) = (Just (Comment ic), rest)
 priorAssocComment nodes = (Nothing, nodes)
 
 maybeCons :: [a] -> Maybe a -> [a]
