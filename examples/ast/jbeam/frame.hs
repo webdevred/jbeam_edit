@@ -159,6 +159,13 @@ Object
                             ( -1.314 )
                         , Number 0.382
                         ]
+                    , Comment
+                        ( InternalComment
+                            { cText = "support for front"
+                            , cMultiline = False
+                            , cAssociationDirection = PreviousNode
+                            }
+                        )
                     , Array
                         [ String "rl15"
                         , Number 0.79
