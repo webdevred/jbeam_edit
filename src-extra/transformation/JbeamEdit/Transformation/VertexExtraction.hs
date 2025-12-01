@@ -86,9 +86,9 @@ breakVertices vertexPrefix allVertexNames ns = go [] ns allVertexNames
       | isJust maybeVertex =
           let (metaBefore, currentTree) = span isNonVertex acc
            in if null currentTree
-                then Right (vertexNames, [node], reverse metaBefore ++ rest)
+                then Right (vertexNames, [node], metaBefore ++ rest)
                 else
-                  Right (vertexNames, reverse currentTree, reverse metaBefore ++ (node : rest))
+                  Right (vertexNames, reverse currentTree, metaBefore ++ (node : rest))
       | otherwise = go (node : acc) rest vertexNames
       where
         maybeVertex = newVertex node
@@ -106,7 +106,7 @@ insertTreeInForest ttype vt f =
         f
 
 getVertexTreePrefix :: NonEmpty AnnotatedVertex -> VertexTreeKey
-getVertexTreePrefix vt = maybe SupportKey PrefixKey (getVertexPrefix (vName (aVertex (head vt))))
+getVertexTreePrefix vt = maybe SupportKey PrefixKey (getVertexPrefix . vName . aVertex . head $ vt)
 
 insertTreeInMap
   :: VertexTree -> OMap1 VertexTreeKey VertexTree -> OMap1 VertexTreeKey VertexTree
@@ -181,7 +181,7 @@ newVertexTree
 newVertexTree brks vertexNames badAcc vertexForest nodes =
   let (topNodes, nodes') = NE.span isNonVertex nodes
       topComments = mapMaybe toInternalComment topNodes
-      topMeta = M.unions . map metaMapFromObject . filter isObjectNode $ topNodes
+      topMeta = M.unions . map metaMapFromObject $ topNodes
       vertexPrefix = getVertexPrefix' nodes'
    in case breakVertices vertexPrefix vertexNames nodes' of
         Left err -> Left err
