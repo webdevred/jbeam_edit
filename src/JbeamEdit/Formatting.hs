@@ -6,10 +6,8 @@ module JbeamEdit.Formatting (
   RuleSet (..),
 ) where
 
-import Control.Monad (guard)
 import Data.Bool (bool)
 import Data.Char (isSpace)
-import Data.List (uncons)
 import Data.Scientific (FPFormat (Fixed), formatScientific)
 import Data.Text (Text)
 import Data.Text qualified as T
