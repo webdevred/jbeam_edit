@@ -70,12 +70,8 @@ isCollision vertexNode vertexNames =
         else Right (S.insert vertexName vertexNames)
     Nothing -> Right vertexNames
 
-priorAssocComment :: [Node] -> (Maybe Node, [Node])
-priorAssocComment ((Comment ic@(InternalComment _ _ PreviousNode)) : rest) = (Just (Comment ic), rest)
-priorAssocComment nodes = (Nothing, nodes)
-
-maybeCons :: [a] -> Maybe a -> [a]
-maybeCons xs = maybe xs (: xs)
+maybeConsComment :: [Node] -> Maybe InternalComment -> [Node]
+maybeConsComment xs = maybe xs ((: xs) . Comment)
 
 breakVertices
   :: Maybe Text
@@ -91,16 +87,19 @@ breakVertices vertexPrefix allVertexNames ns = go [] ns allVertexNames
           || isNothing vertexPrefix && any isSupportVertex maybeVertex =
           isCollision node vertexNames >>= go (node : acc) rest
       | isJust maybeVertex =
-          let (assocPriorCmt, acc') = priorAssocComment acc
+          let (assocPriorCmt, acc') = extractPreviousAssocCmt acc
               (metaBefore, currentTree) = span isNonVertex acc'
            in if null currentTree
                 then
                   Right
-                    (vertexNames, reverse (maybeCons [node] assocPriorCmt), metaBefore ++ rest)
+                    ( vertexNames
+                    , reverse (maybeConsComment [node] assocPriorCmt)
+                    , metaBefore ++ rest
+                    )
                 else
                   Right
                     ( vertexNames
-                    , reverse (maybeCons currentTree assocPriorCmt)
+                    , reverse (maybeConsComment currentTree assocPriorCmt)
                     , metaBefore ++ (node : rest)
                     )
       | otherwise = go (node : acc) rest vertexNames

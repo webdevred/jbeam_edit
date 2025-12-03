@@ -6,8 +6,9 @@ module JbeamEdit.Core.Node (
   isStringNode,
   maybeObjectKey,
   isSinglelineComment,
-  isComplexNode,
   commentIsAttachedToPreviousNode,
+  isComplexNode,
+  extractPreviousAssocCmt,
   Node (..),
   InternalComment (..),
   AssociationDirection (..),
@@ -66,8 +67,14 @@ data Node
   deriving (Eq, Ord, Read, Show)
 
 commentIsAttachedToPreviousNode :: InternalComment -> Bool
-commentIsAttachedToPreviousNode (InternalComment _ _ PreviousNode) = True
-commentIsAttachedToPreviousNode (InternalComment _ _ NextNode) = False
+commentIsAttachedToPreviousNode = (==) PreviousNode . cAssociationDirection
+
+extractPreviousAssocCmt
+  :: [Node]
+  -> (Maybe InternalComment, [Node])
+extractPreviousAssocCmt (Comment cmt : ns)
+  | commentIsAttachedToPreviousNode cmt = (Just cmt, ns)
+extractPreviousAssocCmt ns = (Nothing, ns)
 
 maybeObjectKey :: Node -> Maybe Text
 maybeObjectKey (ObjectKey (String key, _)) = Just key

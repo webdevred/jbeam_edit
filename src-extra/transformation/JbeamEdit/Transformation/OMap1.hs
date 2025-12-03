@@ -1,4 +1,3 @@
-{-# LANGUAGE TypeFamilies #-}
 {-# OPTIONS_GHC -Wno-incomplete-patterns -Wno-incomplete-uni-patterns #-}
 
 module JbeamEdit.Transformation.OMap1 (
@@ -9,9 +8,8 @@ module JbeamEdit.Transformation.OMap1 (
   consOMap,
   singleton,
   head,
-  cons,
-  uncons,
   snoc,
+  uncons,
 ) where
 
 import Data.List.NonEmpty qualified as NE (uncons)
@@ -61,15 +59,10 @@ uncons (OMap1 (firstK, firstV) rest) =
     Just newFirst@(newFirstK, _) -> (firstK, firstV, newFirst OMap.<| OMap.delete newFirstK rest)
     Nothing -> (firstK, firstV, OMap.empty)
 
+consOMap :: (k, v) -> OMap k v -> OMap1 k v
+consOMap = OMap1
+
 snoc :: Ord k => (k, v) -> OMap1 k v -> OMap1 k v
 snoc newLast (OMap1 oldFirst rest)
   | fst oldFirst == fst newLast = OMap1 newLast rest
   | otherwise = OMap1 oldFirst (rest OMap.>| newLast)
-
-consOMap :: (k, v) -> OMap k v -> OMap1 k v
-consOMap = OMap1
-
-cons :: Ord k => (k, v) -> OMap1 k v -> OMap1 k v
-cons newFirst (OMap1 oldFirst rest)
-  | fst oldFirst == fst newFirst = OMap1 newFirst rest
-  | otherwise = OMap1 newFirst (oldFirst OMap.<| rest)

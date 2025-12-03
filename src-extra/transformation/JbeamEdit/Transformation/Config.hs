@@ -135,7 +135,7 @@ formatParseError :: ParseException -> IO ()
 formatParseError (AesonException err) = putErrorStringLn err
 formatParseError excp = case excp of
   (InvalidYaml (Just (YamlException errMsg)))
-    | isPrefixOf "Yaml file not found:" errMsg -> pure ()
+    | "Yaml file not found:" `isPrefixOf` errMsg -> pass
   _ -> putErrorStringLn (prettyPrintParseException excp)
 
 transformationConfigFile :: FilePath

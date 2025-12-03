@@ -6,10 +6,8 @@ module JbeamEdit.Formatting (
   RuleSet (..),
 ) where
 
-import Control.Monad (guard)
 import Data.Bool (bool)
 import Data.Char (isSpace)
-import Data.List (uncons)
 import Data.Scientific (FPFormat (Fixed), formatScientific)
 import Data.Text (Text)
 import Data.Text qualified as T
@@ -18,7 +16,7 @@ import Data.Vector qualified as V (null, toList)
 import JbeamEdit.Core.Node (
   InternalComment (..),
   Node (..),
-  commentIsAttachedToPreviousNode,
+  extractPreviousAssocCmt,
   isCommentNode,
   isComplexNode,
   isObjectKeyNode,
@@ -63,20 +61,15 @@ addDelimiters rs index c complexChildren acc ns@(node : rest)
           formatted = (newlineBeforeComment <> formattedComment <> "\n") : acc
        in addDelimiters rs index c complexChildren formatted rest
   | otherwise =
-      case assocPriorComment of
-        Just (comment, rest') ->
+      case extractPreviousAssocCmt rest of
+        (Just comment, rest') ->
           let formatted =
                 (applyCrumbAndFormat <> " " <> formatComment comment : acc)
            in addDelimiters rs index c complexChildren formatted rest'
-        Nothing ->
+        (Nothing, _) ->
           let new_acc = T.concat [applyCrumbAndFormat, space, newline] : acc
            in addDelimiters rs newIndex c complexChildren new_acc rest
   where
-    assocPriorComment = do
-      (Comment cmt, rest') <- uncons rest
-      guard (commentIsAttachedToPreviousNode cmt)
-      pure (cmt, rest')
-
     newlineBeforeComment = bool "\n" "" $ any isObjectKeyNode rest || ["\n"] == acc
     applyCrumbAndFormat =
       let padded = NC.applyCrumb c (formatWithCursor rs) index node
