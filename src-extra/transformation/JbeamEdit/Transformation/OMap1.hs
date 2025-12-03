@@ -8,7 +8,7 @@ module JbeamEdit.Transformation.OMap1 (
   consOMap,
   singleton,
   head,
-  cons,
+  snoc,
   uncons,
 ) where
 
@@ -62,7 +62,7 @@ uncons (OMap1 (firstK, firstV) rest) =
 consOMap :: (k, v) -> OMap k v -> OMap1 k v
 consOMap = OMap1
 
-cons :: Ord k => (k, v) -> OMap1 k v -> OMap1 k v
-cons newFirst (OMap1 oldFirst rest)
-  | fst oldFirst == fst newFirst = OMap1 newFirst rest
-  | otherwise = OMap1 newFirst (oldFirst OMap.<| rest)
+snoc :: Ord k => (k, v) -> OMap1 k v -> OMap1 k v
+snoc newLast (OMap1 oldFirst rest)
+  | fst oldFirst == fst newLast = OMap1 newLast rest
+  | otherwise = OMap1 oldFirst (rest OMap.>| newLast)
