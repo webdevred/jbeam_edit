@@ -6,6 +6,7 @@ module JbeamEdit.Core.Node (
   isStringNode,
   maybeObjectKey,
   isSinglelineComment,
+  commentIsAttachedToPreviousNode,
   isComplexNode,
   extractPreviousAssocCmt,
   Node (..),
@@ -64,6 +65,10 @@ data Node
   | Comment InternalComment
   | Null
   deriving (Eq, Ord, Read, Show)
+
+commentIsAttachedToPreviousNode :: InternalComment -> Bool
+commentIsAttachedToPreviousNode (InternalComment _ _ PreviousNode) = True
+commentIsAttachedToPreviousNode _ = False
 
 extractPreviousAssocCmt
   :: [Node]
