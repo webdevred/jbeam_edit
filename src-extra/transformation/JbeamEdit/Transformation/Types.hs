@@ -46,9 +46,7 @@ data VertexTree = VertexTree
 
 data Vertex = Vertex
   { vName :: Text
-  , vX :: Scientific
-  , vY :: Scientific
-  , vZ :: Scientific
+  , vX, vY, vZ :: Scientific
   , vMeta :: Maybe Object
   }
   deriving (Eq, Show)
