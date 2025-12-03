@@ -11,7 +11,6 @@ module JbeamEdit.Transformation.OMap1 (
   head,
   cons,
   uncons,
-  snoc,
 ) where
 
 import Data.List.NonEmpty qualified as NE (uncons)
@@ -60,11 +59,6 @@ uncons (OMap1 (firstK, firstV) rest) =
   case OMap.elemAt rest 0 of
     Just newFirst@(newFirstK, _) -> (firstK, firstV, newFirst OMap.<| OMap.delete newFirstK rest)
     Nothing -> (firstK, firstV, OMap.empty)
-
-snoc :: Ord k => (k, v) -> OMap1 k v -> OMap1 k v
-snoc newLast (OMap1 oldFirst rest)
-  | fst oldFirst == fst newLast = OMap1 newLast rest
-  | otherwise = OMap1 oldFirst (rest OMap.>| newLast)
 
 consOMap :: (k, v) -> OMap k v -> OMap1 k v
 consOMap = OMap1
