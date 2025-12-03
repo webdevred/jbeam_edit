@@ -108,6 +108,9 @@ library
         text >=2.0,
         vector
 
+    if os(windows)
+        ghc-options: -optc-Os -optl-static
+
     if flag(transformation)
         cpp-options: -DENABLE_TRANSFORMATION
 
@@ -153,6 +156,9 @@ library jbeam-edit-transformation
         relude (Relude as Prelude),
         relude
 
+    if os(windows)
+        ghc-options: -optc-Os -optl-static
+
     if flag(transformation)
         build-depends:
             relude,
@@ -197,6 +203,9 @@ library jbeam-language-server
         relude (Relude as Prelude),
         relude
 
+    if os(windows)
+        ghc-options: -optc-Os -optl-static
+
     if flag(lsp-server)
         build-depends:
             lsp >=2.7,
@@ -236,6 +245,9 @@ executable jbeam-edit
         text >=2.0,
         vector
 
+    if os(windows)
+        ghc-options: -optc-Os -optl-static
+
     if flag(transformation)
         cpp-options:   -DENABLE_TRANSFORMATION
         build-depends: jbeam-edit-transformation
@@ -269,6 +281,9 @@ executable jbeam-edit-dump-ast
         scientific,
         text >=2.0,
         vector
+
+    if os(windows)
+        ghc-options: -optc-Os -optl-static
 
     if (flag(dump-ast) && flag(transformation))
         build-depends:
@@ -307,6 +322,9 @@ executable jbeam-lsp-server
         scientific,
         text >=2.0,
         vector
+
+    if os(windows)
+        ghc-options: -optc-Os -optl-static
 
     if flag(lsp-server)
         build-depends: jbeam-language-server
@@ -354,6 +372,9 @@ test-suite jbeam-edit-test
         text >=2.0,
         vector
 
+    if os(windows)
+        ghc-options: -optc-Os -optl-static
+
     if True
         build-depends:
             hspec-megaparsec,
@@ -387,6 +408,9 @@ test-suite jbeam-edit-transformation-test
         scientific,
         text >=2.0,
         vector
+
+    if os(windows)
+        ghc-options: -optc-Os -optl-static
 
     if True
         ghc-options: -main-is Spec
@@ -431,6 +455,9 @@ test-suite jbeam-language-server-test
         text >=2.0,
         vector
 
+    if os(windows)
+        ghc-options: -optc-Os -optl-static
+
     if flag(lsp-server)
         build-tool-depends: jbeam-edit:jbeam-lsp-server
         build-depends:
@@ -468,6 +495,9 @@ benchmark jbeam-edit-bench
         scientific,
         text >=2.0,
         vector
+
+    if os(windows)
+        ghc-options: -optc-Os -optl-static
 
     if flag(transformation)
         build-depends:

@@ -54,6 +54,12 @@ ghc-options:
   - -Wpartial-fields
   - -Wredundant-constraints
 
+when:
+  condition: os(windows)
+  ghc-options:
+    -optc-Os
+    -optl-static
+
 flags:
   dump-ast:
     description: Enable building the dump-ast executable (dev-only)

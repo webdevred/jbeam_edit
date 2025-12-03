@@ -6,8 +6,6 @@ index-state: hackage.haskell.org 2025-10-12T21:52:54Z
 package *
   ghc-options:
     -split-sections
-    -optc-Os
-    -optl-static
     -fignore-asserts
 
 package jbeam-edit
