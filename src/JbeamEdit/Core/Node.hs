@@ -67,8 +67,7 @@ data Node
   deriving (Eq, Ord, Read, Show)
 
 commentIsAttachedToPreviousNode :: InternalComment -> Bool
-commentIsAttachedToPreviousNode (InternalComment _ _ PreviousNode) = True
-commentIsAttachedToPreviousNode _ = False
+commentIsAttachedToPreviousNode = (==) PreviousNode . cAssociationDirection
 
 extractPreviousAssocCmt
   :: [Node]
