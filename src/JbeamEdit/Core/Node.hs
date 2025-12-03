@@ -72,7 +72,8 @@ commentIsAttachedToPreviousNode = (==) PreviousNode . cAssociationDirection
 extractPreviousAssocCmt
   :: [Node]
   -> (Maybe InternalComment, [Node])
-extractPreviousAssocCmt (Comment cmt@(InternalComment _ _ PreviousNode) : ns) = (Just cmt, ns)
+extractPreviousAssocCmt (Comment cmt : ns)
+  | commentIsAttachedToPreviousNode cmt = (Just cmt, ns)
 extractPreviousAssocCmt ns = (Nothing, ns)
 
 maybeObjectKey :: Node -> Maybe Text
