@@ -57,6 +57,12 @@ newtype NodePattern
   = NodePattern (Seq NodePatternSelector)
   deriving stock (Eq, Read, Show)
 
+instance Monoid RuleSet where
+  mempty = RuleSet M.empty
+
+instance Semigroup RuleSet where
+  (RuleSet rs1) <> (RuleSet rs2) = RuleSet (rs1 <> rs2)
+
 instance Ord NodePattern where
   compare (NodePattern a) (NodePattern b) =
     case on compare (Down . Seq.length) a b of

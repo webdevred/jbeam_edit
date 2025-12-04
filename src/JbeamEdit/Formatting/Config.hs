@@ -83,7 +83,13 @@ readFormattingConfig maybeJbflPath = do
     Nothing ->
       createRuleFileIfDoesNotExist (configDir </> userRuleFile)
   configPath <- getConfigPath maybeJbflPath configDir
-  contents <- tryReadFile [NoSuchThing] configPath
-  case contents >>= parseDSL of
-    Right rs -> pure rs
-    Left err -> putErrorLine err $> newRuleSet
+  userCfg <- tryReadFile [NoSuchThing] configPath
+  defaultRulesetPath <- getJbflSourcePath MinimalConfig
+  defaultCfg <- tryReadFile [] defaultRulesetPath
+  case (userCfg >>= parseDSL, defaultCfg >>= parseDSL) of
+    (Right rs, Right defaultRs) -> pure (rs <> defaultRs)
+    (Left err, Right defaultRs) -> putErrorLine err $> defaultRs
+    (_, Left err) ->
+      let err' =
+            "Failed to parse default ruleset. Please consider making bugreport. \n" <> err
+       in putErrorLine err' >> mempty
