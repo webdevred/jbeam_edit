@@ -3,7 +3,12 @@
 
 module JbeamEdit.LSP.Handlers.Formatting (handlers) where
 
+import Control.Monad.IO.Class
+import Data.Bool (bool)
+import Data.ByteString.Lazy qualified as LBS
+import Data.Text (Text)
 import Data.Text qualified as T
+import Data.Text.Encoding (encodeUtf8)
 import JbeamEdit.Core.Node (Node)
 import JbeamEdit.Formatting qualified as Fmt
 import JbeamEdit.Formatting.Rules (RuleSet)
@@ -58,12 +63,12 @@ handleParams rs params responder = do
   mText <- liftIO $ Docs.get uri
   case mText of
     Nothing ->
-      putErrorLine' ("DEBUG: no document in store for " <> show uri)
+      putErrorLine' ("DEBUG: no document in store for " <> T.show uri)
         >> sendNoUpdate
     Just txt ->
-      case JbeamP.parseNodes . fromStrict . encodeUtf8 $ txt of
+      case JbeamP.parseNodes . LBS.fromStrict . encodeUtf8 $ txt of
         Left err ->
-          putErrorLine' ("Parse error: " <> show err) >> sendNoUpdate
+          putErrorLine' ("Parse error: " <> T.show err) >> sendNoUpdate
         Right node ->
           case runFormatNode rs txt node of
             Nothing -> responder (Right (J.InR J.Null))
@@ -77,7 +82,7 @@ runFormatNode ruleSet txt node =
 
 wholeRange :: Text -> J.Range
 wholeRange txt =
-  let ls = lines txt
+  let ls = T.lines txt
       numLines = max 1 (length ls)
       lastLineLen =
         case reverse ls of

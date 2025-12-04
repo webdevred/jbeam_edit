@@ -1,12 +1,12 @@
 module JbeamEdit.LSP.Services.DocumentStore (open, update, get, delete, resetStore) where
 
-import Control.Concurrent.MVar hiding (newMVar, readMVar)
+import Control.Concurrent.MVar
 import Data.Map.Strict qualified as M
+import Data.Text (Text)
 import Data.Text qualified as T
 import JbeamEdit.IOUtils
 import Language.LSP.Protocol.Types (Uri)
 import System.IO.Unsafe (unsafePerformIO)
-import Prelude hiding (get)
 
 type DocumentStore = MVar (M.Map Uri T.Text)
 

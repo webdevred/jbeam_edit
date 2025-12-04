@@ -2,6 +2,7 @@
 
 module JbeamEdit.Formatting.Config (localRuleFile, readFormattingConfig, copyToConfigDir, ConfigType (..)) where
 
+import Data.Text qualified as T
 import GHC.IO.Exception (IOErrorType (NoSuchThing))
 import JbeamEdit.Formatting.Rules
 import JbeamEdit.IOUtils
@@ -60,7 +61,8 @@ copyConfigFile dest configType = do
   createDirectoryIfMissing True (takeDirectory dest)
   source <- getJbflSourcePath configType
   destPath <- decodeUtf dest
-  putStrLn ("installing " ++ show configType ++ " config file to " ++ destPath)
+  putErrorLine
+    ("installing " <> T.show configType <> " config file to " <> T.pack destPath)
   copyFile source dest
 
 copyToConfigDir :: ConfigType -> IO ()

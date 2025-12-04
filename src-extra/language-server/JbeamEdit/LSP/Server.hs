@@ -4,6 +4,8 @@
 
 module JbeamEdit.LSP.Server (runServer) where
 
+import Control.Monad.IO.Class
+import Data.Kind (Type)
 import JbeamEdit.Formatting.Rules (RuleSet)
 import JbeamEdit.IOUtils
 import JbeamEdit.LSP.Handlers.Formatting qualified as Formatting
@@ -45,7 +47,7 @@ runServer rs =
     S.ServerDefinition
       { configSection = "jbeam-lsp"
       , parseConfig = \_ _ -> Right ()
-      , onConfigChange = const >> pure $ pass
+      , onConfigChange = const >> pure $ pure ()
       , defaultConfig = ()
       , doInitialize = \env _req -> pure (Right env)
       , staticHandlers = const $ staticHandlers rs
@@ -94,7 +96,7 @@ handleDidChange (Msg.TNotificationMessage _ _ (J.DidChangeTextDocumentParams doc
           case change of
             J.InL (J.TextDocumentContentChangePartial {J._text = txt}) -> liftIO $ Docs.update uri txt
             J.InR (J.TextDocumentContentChangeWholeDocument txt) -> liftIO $ Docs.update uri txt
-        _ -> pass
+        _ -> pure ()
 
 handleDidClose
   :: forall

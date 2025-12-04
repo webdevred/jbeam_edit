@@ -40,7 +40,7 @@ errorAreaAndLineNumber pos inputNotParsed =
       errorArea =
         T.strip $
           on (<>) (decodeUtf8Lenient . LBS.toStrict) fstPartOfLine sndPartOfLine
-   in (errorArea, T.pack $ show lineNumber)
+   in (errorArea, T.show lineNumber)
 
 wrap :: Semigroup a => a -> a -> a -> a
 wrap l r m = l <> m <> r
