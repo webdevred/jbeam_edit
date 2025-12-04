@@ -13,7 +13,6 @@ import Data.List.NonEmpty qualified as NE
 import Data.Map (Map)
 import Data.Map qualified as M
 import Data.Map.Ordered (OMap)
-import Data.Map.Ordered qualified as OMap
 import Data.Maybe (isJust, isNothing, mapMaybe)
 import Data.Set (Set)
 import Data.Set qualified as S

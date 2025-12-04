@@ -105,7 +105,7 @@ library
         megaparsec,
         mtl,
         scientific,
-        text >=2.0,
+        text >=2.1.2,
         vector
 
     if os(windows)
@@ -146,22 +146,17 @@ library jbeam-edit-transformation
         filepath >1.5.0.0,
         jbeam-edit,
         mtl,
-        ordered-containers,
         scientific,
-        text >=2.0,
+        text >=2.1.2,
         vector
-
-    mixins:
-        base hiding (Prelude),
-        relude (Relude as Prelude),
-        relude
 
     if os(windows)
         ghc-options: -optc-Os -optl-static
 
     if flag(transformation)
         build-depends:
-            relude,
+            extra,
+            ordered-containers,
             yaml
 
     else
@@ -195,21 +190,14 @@ library jbeam-language-server
         jbeam-edit,
         mtl,
         scientific,
-        text >=2.0,
+        text >=2.1.2,
         vector
-
-    mixins:
-        base hiding (Prelude),
-        relude (Relude as Prelude),
-        relude
 
     if os(windows)
         ghc-options: -optc-Os -optl-static
 
     if flag(lsp-server)
-        build-depends:
-            lsp >=2.7,
-            relude
+        build-depends: lsp >=2.7
 
     else
         buildable: False
@@ -242,7 +230,7 @@ executable jbeam-edit
         jbeam-edit,
         mtl,
         scientific,
-        text >=2.0,
+        text >=2.1.2,
         vector
 
     if os(windows)
@@ -279,7 +267,7 @@ executable jbeam-edit-dump-ast
         jbeam-edit,
         mtl,
         scientific,
-        text >=2.0,
+        text >=2.1.2,
         vector
 
     if os(windows)
@@ -320,7 +308,7 @@ executable jbeam-lsp-server
         jbeam-edit,
         mtl,
         scientific,
-        text >=2.0,
+        text >=2.1.2,
         vector
 
     if os(windows)
@@ -369,7 +357,7 @@ test-suite jbeam-edit-test
         jbeam-edit,
         mtl,
         scientific,
-        text >=2.0,
+        text >=2.1.2,
         vector
 
     if os(windows)
@@ -406,7 +394,7 @@ test-suite jbeam-edit-transformation-test
         jbeam-edit,
         mtl,
         scientific,
-        text >=2.0,
+        text >=2.1.2,
         vector
 
     if os(windows)
@@ -452,7 +440,7 @@ test-suite jbeam-language-server-test
         jbeam-edit,
         mtl,
         scientific,
-        text >=2.0,
+        text >=2.1.2,
         vector
 
     if os(windows)
@@ -493,7 +481,7 @@ benchmark jbeam-edit-bench
         jbeam-edit,
         mtl,
         scientific,
-        text >=2.0,
+        text >=2.1.2,
         vector
 
     if os(windows)
