@@ -142,7 +142,7 @@ ruleSetParser = RuleSet . M.fromListWith M.union . separateRulesets <$> MP.some 
 
 parseDSL :: LBS.ByteString -> Either Text RuleSet
 parseDSL input
-  | LBS.null input = pure newRuleSet
+  | LBS.null input = pure mempty
   | otherwise =
       first formatErrors . MP.parse (ruleSetParser <* MP.eof) "<input>" $
         input
