@@ -4,7 +4,7 @@ import Control.Monad (foldM)
 import Data.Bool (bool)
 import Data.Foldable.Extra (notNull)
 import Data.Function (on)
-import Data.List hiding ((!?))
+import Data.List qualified as L (foldl', partition)
 import Data.List.NonEmpty (NonEmpty)
 import Data.List.NonEmpty qualified as NE
 import Data.Map (Map)
@@ -281,7 +281,7 @@ annotatedVertexToNodesWithPrev prevMeta (AnnotatedVertex comments vertex meta) =
         | (k, v) <- M.assocs localsMeta
         ]
 
-      (postComments, preComments) = partition commentIsAttachedToPreviousNode comments
+      (postComments, preComments) = L.partition commentIsAttachedToPreviousNode comments
 
       vertexArray :: Node
       vertexArray =
@@ -304,7 +304,7 @@ vertexForestToNodeVector initialMeta vf =
         case M.lookup treeType vf of
           Nothing -> (prevMeta, [])
           Just oMap ->
-            foldl'
+            L.foldl'
               ( \(pm, accNodes) tree ->
                   let (pm', nodes) = vertexTreeToNodesWithPrev pm treeType tree
                    in (pm', accNodes ++ NE.toList nodes)
