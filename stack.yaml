@@ -8,5 +8,4 @@ flags:
     dump-ast: false
     windows-example-paths: false
 
-ghc-options:
-  - -Wwarn=unused-imports
+ghc-options: [-Wwarn=unused-imports]
