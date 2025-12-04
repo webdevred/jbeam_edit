@@ -10,7 +10,11 @@ module JbeamEdit.Transformation.Types (
   UpdateNamesMap,
 ) where
 
+import Data.List.NonEmpty (NonEmpty)
+import Data.Map (Map)
 import Data.Scientific (Scientific)
+import Data.Text (Text)
+import Data.Text qualified as T
 import Data.Yaml.Aeson (
   FromJSON (..),
   withText,
@@ -36,7 +40,7 @@ instance FromJSON VertexTreeType where
       "MiddleTree" -> pure MiddleTree
       "RightTree" -> pure RightTree
       "SupportTree" -> fail "SupportTree not allowed in breakpoints"
-      _ -> fail $ "Unknown VertexTreeType: " ++ toString t
+      _ -> fail $ "Unknown VertexTreeType: " ++ T.unpack t
 
 data VertexTree = VertexTree
   { tComments :: [InternalComment]

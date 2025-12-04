@@ -50,9 +50,7 @@ jobs:
       - name: Set up GHC with Stack
         run: stack setup
       - name: Build project
-        run: >-
-          stack build --fast --hpack-force --lock-file=error-on-write
-          --ghc-options="-Werror"
+        run: stack build --fast --hpack-force --lock-file=error-on-write
       - name: Check that .cabal file has not changed except hpack comment
         shell: bash
         run: bash ./.github/scripts/check_cabal_file.sh

@@ -4,6 +4,27 @@
   - {name: CPP, within: [JbeamEdit.Formatting.Config]}
 - modules:
   - {name: '**', qualifiedStyle: post}
+- warn: {lhs: nub (sort x), rhs: Data.List.Extra.nubSort x}
+- warn: {lhs: nub, rhs: Data.List.Extra.nubOrd}
+- warn: {lhs: nubBy, rhs: Data.List.Extra.nubOrdBy}
+- warn: {lhs: Data.List.Extra.nubOn, rhs: Data.List.Extra.nubOrdOn}
+
+- functions:
+  - name:
+      - Prelude.last
+      - Prelude.init
+    within: [CommandLineOptions]
+  - name:
+      - Prelude.head
+      - Data.List.head
+      - Prelude.tail
+      - Data.List.tail
+      - Data.List.last
+      - Data.List.init
+      - Data.Maybe.fromJust
+    within: []
+  - name: [Prelude.head]
+    within: [JbeamEdit.Transformation.OMap1]
 - warn: {name: Use explicit module export list}
 - group: {name: dollar, enabled: true}
 - group: {name: teaching, enabled: true}

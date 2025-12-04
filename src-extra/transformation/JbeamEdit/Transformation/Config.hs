@@ -14,7 +14,11 @@ module JbeamEdit.Transformation.Config (
   defaultMaxSupportCoordinates,
 ) where
 
+import Control.Monad (forM, when)
+import Data.Functor (($>))
+import Data.List (isPrefixOf)
 import Data.Scientific (Scientific)
+import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Yaml (
   Object,
@@ -33,8 +37,11 @@ import Data.Yaml.Aeson (
   (.:),
   (.:?),
  )
+import GHC.Generics
+import GHC.IsList
 import JbeamEdit.IOUtils
 import JbeamEdit.Transformation.Types (VertexTreeType (..))
+import Text.Read
 
 defaultSortingThreshold :: Scientific
 defaultSortingThreshold = 0.05
@@ -92,7 +99,7 @@ instance FromJSON XGroupBreakpoint where
      in case parseOperator opTxt of
           Nothing -> fail "Invalid operator"
           Just opFunc ->
-            case readMaybe (toString $ T.strip rest) of
+            case readMaybe (T.unpack $ T.strip rest) of
               Nothing -> fail "Invalid number"
               Just brk -> pure $ XGroupBreakpoint opFunc brk
 
@@ -103,15 +110,13 @@ newtype XGroupBreakpoints
 
 instance FromJSON XGroupBreakpoints where
   parseJSON = withArray "XGroupBreakpoints" $ \arr -> do
-    lst <- forM (toList arr) $ \obj ->
-      withObject
-        "XGroupBreakpointEntry"
-        ( \o -> do
-            bp <- o .: "breakpoint"
-            vt <- o .: "vertex-type"
-            pure (bp, vt)
-        )
-        obj
+    lst <- forM (toList arr) $
+           withObject
+           "XGroupBreakpointEntry"
+           (\ o
+                -> do bp <- o .: "breakpoint"
+                      vt <- o .: "vertex-type"
+                      pure (bp, vt))
     pure $ XGroupBreakpoints lst
 
 parseSupportThreshold :: Object -> Parser Double
@@ -135,7 +140,7 @@ formatParseError :: ParseException -> IO ()
 formatParseError (AesonException err) = putErrorStringLn err
 formatParseError excp = case excp of
   (InvalidYaml (Just (YamlException errMsg)))
-    | "Yaml file not found:" `isPrefixOf` errMsg -> pass
+    | "Yaml file not found:" `isPrefixOf` errMsg -> pure ()
   _ -> putErrorStringLn (prettyPrintParseException excp)
 
 transformationConfigFile :: FilePath

@@ -17,17 +17,9 @@ jobs:
         uses: haskell-actions/hlint-setup@v2
         with:
           version: latest
-      - name: Run hlint with my hlints
+      - name: Run hlint
         uses: haskell-actions/hlint-run@v2.4.10
         with:
-          fail-on: warning
-      - name: Download Relude hlints
-        run: |
-          curl https://raw.githubusercontent.com/kowainik/relude/refs/heads/main/.hlint.yaml -o .hlint.yaml
-      - name: Run hlint with relude hlints
-        uses: haskell-actions/hlint-run@v2.4.10
-        with:
-          path: src-extra
           fail-on: warning
       - name: Run fourmolu
         uses: haskell-actions/run-fourmolu@v11

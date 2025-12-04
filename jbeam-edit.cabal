@@ -101,11 +101,11 @@ library
         containers,
         directory,
         file-io,
-        filepath >1.5.0.0,
+        filepath >=1.5.1.0,
         megaparsec,
         mtl,
         scientific,
-        text >=2.0,
+        text >=2.1.2,
         vector
 
     if os(windows)
@@ -143,25 +143,20 @@ library jbeam-edit-transformation
         bytestring,
         containers,
         directory,
-        filepath >1.5.0.0,
+        filepath >=1.5.1.0,
         jbeam-edit,
         mtl,
-        ordered-containers,
         scientific,
-        text >=2.0,
+        text >=2.1.2,
         vector
-
-    mixins:
-        base hiding (Prelude),
-        relude (Relude as Prelude),
-        relude
 
     if os(windows)
         ghc-options: -optc-Os -optl-static
 
     if flag(transformation)
         build-depends:
-            relude,
+            extra,
+            ordered-containers,
             yaml
 
     else
@@ -191,25 +186,18 @@ library jbeam-language-server
         bytestring,
         containers,
         directory,
-        filepath >1.5.0.0,
+        filepath >=1.5.1.0,
         jbeam-edit,
         mtl,
         scientific,
-        text >=2.0,
+        text >=2.1.2,
         vector
-
-    mixins:
-        base hiding (Prelude),
-        relude (Relude as Prelude),
-        relude
 
     if os(windows)
         ghc-options: -optc-Os -optl-static
 
     if flag(lsp-server)
-        build-depends:
-            lsp >=2.7,
-            relude
+        build-depends: lsp >=2.7
 
     else
         buildable: False
@@ -238,11 +226,11 @@ executable jbeam-edit
         containers,
         directory,
         file-io,
-        filepath >1.5.0.0,
+        filepath >=1.5.1.0,
         jbeam-edit,
         mtl,
         scientific,
-        text >=2.0,
+        text >=2.1.2,
         vector
 
     if os(windows)
@@ -275,11 +263,11 @@ executable jbeam-edit-dump-ast
         bytestring,
         containers,
         directory,
-        filepath >1.5.0.0,
+        filepath >=1.5.1.0,
         jbeam-edit,
         mtl,
         scientific,
-        text >=2.0,
+        text >=2.1.2,
         vector
 
     if os(windows)
@@ -316,11 +304,11 @@ executable jbeam-lsp-server
         bytestring,
         containers,
         directory,
-        filepath >1.5.0.0,
+        filepath >=1.5.1.0,
         jbeam-edit,
         mtl,
         scientific,
-        text >=2.0,
+        text >=2.1.2,
         vector
 
     if os(windows)
@@ -364,12 +352,12 @@ test-suite jbeam-edit-test
         bytestring,
         containers,
         directory,
-        filepath >1.5.0.0,
+        filepath >=1.5.1.0,
         hspec,
         jbeam-edit,
         mtl,
         scientific,
-        text >=2.0,
+        text >=2.1.2,
         vector
 
     if os(windows)
@@ -401,12 +389,12 @@ test-suite jbeam-edit-transformation-test
         bytestring,
         containers,
         directory,
-        filepath >1.5.0.0,
+        filepath >=1.5.1.0,
         hspec,
         jbeam-edit,
         mtl,
         scientific,
-        text >=2.0,
+        text >=2.1.2,
         vector
 
     if os(windows)
@@ -447,12 +435,12 @@ test-suite jbeam-language-server-test
         bytestring,
         containers,
         directory,
-        filepath >1.5.0.0,
+        filepath >=1.5.1.0,
         hspec,
         jbeam-edit,
         mtl,
         scientific,
-        text >=2.0,
+        text >=2.1.2,
         vector
 
     if os(windows)
@@ -489,11 +477,11 @@ benchmark jbeam-edit-bench
         bytestring,
         containers,
         directory,
-        filepath >1.5.0.0,
+        filepath >=1.5.1.0,
         jbeam-edit,
         mtl,
         scientific,
-        text >=2.0,
+        text >=2.1.2,
         vector
 
     if os(windows)
