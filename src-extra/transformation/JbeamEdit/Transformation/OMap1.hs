@@ -1,3 +1,4 @@
+{-# LANGUAGE TypeFamilies #-}
 {-# OPTIONS_GHC -Wno-incomplete-patterns -Wno-incomplete-uni-patterns #-}
 
 module JbeamEdit.Transformation.OMap1 (
@@ -73,10 +74,10 @@ uncons (OMap1 (firstK, firstV) rest) =
     Just newFirst@(newFirstK, _) -> (firstK, firstV, newFirst OMap.<| OMap.delete newFirstK rest)
     Nothing -> (firstK, firstV, OMap.empty)
 
-consOMap :: (k, v) -> OMap k v -> OMap1 k v
-consOMap = OMap1
+snoc :: Ord k => k -> v -> OMap1 k v -> OMap1 k v
+snoc newLastK newLastV (OMap1 oldFirst rest)
+  | fst oldFirst == newLastK = OMap1 (newLastK, newLastV) rest
+  | otherwise = OMap1 oldFirst (rest OMap.>| (newLastK, newLastV))
 
-snoc :: Ord k => (k, v) -> OMap1 k v -> OMap1 k v
-snoc newLast (OMap1 oldFirst rest)
-  | fst oldFirst == fst newLast = OMap1 newLast rest
-  | otherwise = OMap1 oldFirst (rest OMap.>| newLast)
+consOMap :: k -> v -> OMap k v -> OMap1 k v
+consOMap k v = OMap1 (k,v)

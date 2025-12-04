@@ -55,7 +55,8 @@ addSideComment
 addSideComment t False trees =
   let (key, VertexTree topComments vertices, otherTrees) = OMap1.uncons trees
       newComment = sideComment t
-   in OMap1.consOMap (key, VertexTree (newComment : topComments) vertices) otherTrees
+      vertexTree = VertexTree (newComment : topComments) vertices
+   in OMap1.consOMap key vertexTree otherTrees
 addSideComment _ True trees = trees
 
 addPrefixComments
