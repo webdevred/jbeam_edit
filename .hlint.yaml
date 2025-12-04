@@ -11,13 +11,15 @@
 
 - functions:
   - name:
+      - Prelude.last
+      - Prelude.init
+    within: [CommandLineOptions]
+  - name:
       - Prelude.head
       - Data.List.head
       - Prelude.tail
       - Data.List.tail
-      - Prelude.last
       - Data.List.last
-      - Prelude.init
       - Data.List.init
       - Data.Maybe.fromJust
     within: []
