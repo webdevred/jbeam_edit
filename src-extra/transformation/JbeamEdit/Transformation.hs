@@ -4,7 +4,7 @@ import Control.Monad (foldM)
 import Data.Bool (bool)
 import Data.Foldable.Extra (notNull)
 import Data.Function (on)
-import Data.List qualified as L (foldl', partition)
+import Data.List (foldl', partition)
 import Data.List.NonEmpty (NonEmpty)
 import Data.List.NonEmpty qualified as NE
 import Data.Map (Map)
@@ -16,7 +16,7 @@ import Data.Semigroup (Semigroup (sconcat))
 import Data.Sequence (Seq (..))
 import Data.Text (Text)
 import Data.Text qualified as T
-import Data.Traversable qualified as TR (mapAccumL)
+import Data.Traversable (mapAccumL)
 import Data.Vector (Vector, (!), (!?), (//))
 import Data.Vector qualified as V
 import GHC.IsList
@@ -182,7 +182,7 @@ moveSupportVertices newNames tfCfg connMap vsPerType =
                   , VertexTree
                       [sideComment SupportTree]
                       ( snd
-                          . TR.mapAccumL
+                          . mapAccumL
                             assignSupportNames
                             M.empty
                           . NE.sortBy (compareAV thr SupportTree)
@@ -256,7 +256,7 @@ vertexTreeToNodesWithPrev prevMeta _ (VertexTree topComments groups) =
         let (nodes, newMeta) = annotatedVertexToNodesWithPrev pm av
          in (newMeta, NE.fromList nodes)
 
-      (finalMeta, groupNodesLists) = TR.mapAccumL stepVertex prevMeta groups
+      (finalMeta, groupNodesLists) = mapAccumL stepVertex prevMeta groups
 
       allNodes = topNodes `NE.prependList` sconcat groupNodesLists
    in (finalMeta, allNodes)
@@ -282,7 +282,7 @@ annotatedVertexToNodesWithPrev prevMeta (AnnotatedVertex comments vertex meta) =
         | (k, v) <- M.assocs localsMeta
         ]
 
-      (postComments, preComments) = L.partition commentIsAttachedToPreviousNode comments
+      (postComments, preComments) = partition commentIsAttachedToPreviousNode comments
 
       vertexArray :: Node
       vertexArray =
@@ -305,7 +305,7 @@ vertexForestToNodeVector initialMeta vf =
         case M.lookup treeType vf of
           Nothing -> (prevMeta, [])
           Just oMap ->
-            L.foldl'
+            foldl'
               ( \(pm, accNodes) tree ->
                   let (pm', nodes) = vertexTreeToNodesWithPrev pm treeType tree
                    in (pm', accNodes ++ NE.toList nodes)
@@ -313,7 +313,7 @@ vertexForestToNodeVector initialMeta vf =
               (prevMeta, [])
               oMap
 
-      (_, listsOfNodes) = TR.mapAccumL stepType initialMeta treesOrder
+      (_, listsOfNodes) = mapAccumL stepType initialMeta treesOrder
    in V.fromList (concat listsOfNodes)
 
 treesOrder :: [VertexTreeType]
@@ -397,7 +397,7 @@ sortVertices treeType newNames tfCfg (VertexTree comments vertices) =
       brks = xGroupBreakpoints tfCfg
       sortedGroups = NE.sortBy (compareAV thr treeType) vertices
 
-      renamedGroups = snd $ TR.mapAccumL (assignNames newNames brks treeType) M.empty sortedGroups
+      renamedGroups = snd $ mapAccumL (assignNames newNames brks treeType) M.empty sortedGroups
    in VertexTree comments renamedGroups
 
 updateVerticesInNode
