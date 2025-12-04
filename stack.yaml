@@ -9,4 +9,4 @@ flags:
     windows-example-paths: false
 
 ghc-options:
-  $everything: "-Werror -Wwarn=unused-imports"
+  $local-pkg: "-Werror -Wwarn=unused-imports"
