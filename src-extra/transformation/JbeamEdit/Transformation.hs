@@ -4,7 +4,7 @@ import Control.Monad (foldM)
 import Data.Bool (bool)
 import Data.Foldable.Extra (notNull)
 import Data.Function (on)
-import Data.List
+import Data.List hiding ((!?))
 import Data.List.NonEmpty (NonEmpty)
 import Data.List.NonEmpty qualified as NE
 import Data.Map (Map)
