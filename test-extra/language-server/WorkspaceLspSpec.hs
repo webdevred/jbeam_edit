@@ -22,11 +22,13 @@ spec = do
   workspaceSpec cwd
 
 runJbeamSession :: FilePath -> Session a -> IO a
-runJbeamSession cwd =
-  runSession
-    ("jbeam-lsp-server -c " <> exampleJbflFilepath cwd)
-    fullLatestClientCaps
-    "examples"
+runJbeamSession cwd = runSessionWithConfig cfg cmd fullLatestClientCaps "examples"
+  where
+    cmd = "jbeam-lsp-server -c " <> exampleJbflFilepath cwd
+    cfg =
+      defaultConfig
+        { logStdErr = True
+        }
 
 formatVerify :: Session ()
 formatVerify = do
