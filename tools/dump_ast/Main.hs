@@ -46,7 +46,7 @@ main = do
         dumpFormattedJbeam'
           jbflInputDir
           lspDir
-          (lspDir </> "custom.jbfl")
+          (lspDir </> "custom-minimal.jbfl")
           (jbeamAstDir </> "fender.jbeam")
         mapM_
           (dumpFormattedJbeam formattedDir)
