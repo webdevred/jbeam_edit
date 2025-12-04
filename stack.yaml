@@ -9,6 +9,4 @@ flags:
     windows-example-paths: false
 
 ghc-options:
-  $everything:
-    - -Werror
-    - -Wwarn=unused-imports
+  $everything: "-Werror -Wwarn=unused-imports"
