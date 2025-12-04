@@ -62,7 +62,12 @@ copyConfigFile :: OsPath -> ConfigType -> IO ()
 copyConfigFile dest configType = do
   createDirectoryIfMissing True (takeDirectory dest)
   source <- getJbflSourcePath configType
-  putErrorLine ("installing " <> T.pack (show configType) <> " config file to " <> T.pack (show dest))
+  putErrorLine
+    ( "installing "
+        <> T.pack (show configType)
+        <> " config file to "
+        <> T.pack (show dest)
+    )
   copyFile source dest
 
 copyToConfigDir :: ConfigType -> IO ()
@@ -78,7 +83,9 @@ createRuleFileIfDoesNotExist configPath =
 readFormattingConfig :: Maybe OsPath -> IO RuleSet
 readFormattingConfig maybeJbflPath = do
   configDir <- getConfigDir
-  traverse_ (\jbfl -> putErrorLine $ "Loading jbfl: " <>  T.pack (show jbfl)) maybeJbflPath
+  traverse_
+    (\jbfl -> putErrorLine $ "Loading jbfl: " <> T.pack (show jbfl))
+    maybeJbflPath
   createRuleFileIfDoesNotExist (configDir </> userRuleFile)
   configPath <- getConfigPath maybeJbflPath configDir
   userCfg <- tryReadFile [NoSuchThing] $ traceShowId configPath
