@@ -16,7 +16,7 @@ import Data.Semigroup (Semigroup (sconcat))
 import Data.Sequence (Seq (..))
 import Data.Text (Text)
 import Data.Text qualified as T
-import Data.Traversable
+import Data.Traversable qualified as TR (mapAccumL)
 import Data.Vector (Vector, (!), (!?), (//))
 import Data.Vector qualified as V
 import GHC.IsList
@@ -181,7 +181,7 @@ moveSupportVertices newNames tfCfg connMap vsPerType =
                   , VertexTree
                       [sideComment SupportTree]
                       ( snd
-                          . mapAccumL
+                          . TR.mapAccumL
                             assignSupportNames
                             M.empty
                           . NE.sortBy (compareAV thr SupportTree)
@@ -255,7 +255,7 @@ vertexTreeToNodesWithPrev prevMeta _ (VertexTree topComments groups) =
         let (nodes, newMeta) = annotatedVertexToNodesWithPrev pm av
          in (newMeta, NE.fromList nodes)
 
-      (finalMeta, groupNodesLists) = mapAccumL stepVertex prevMeta groups
+      (finalMeta, groupNodesLists) = TR.mapAccumL stepVertex prevMeta groups
 
       allNodes = topNodes `NE.prependList` sconcat groupNodesLists
    in (finalMeta, allNodes)
@@ -312,7 +312,7 @@ vertexForestToNodeVector initialMeta vf =
               (prevMeta, [])
               oMap
 
-      (_, listsOfNodes) = mapAccumL stepType initialMeta treesOrder
+      (_, listsOfNodes) = TR.mapAccumL stepType initialMeta treesOrder
    in V.fromList (concat listsOfNodes)
 
 treesOrder :: [VertexTreeType]
@@ -396,7 +396,7 @@ sortVertices treeType newNames tfCfg (VertexTree comments vertices) =
       brks = xGroupBreakpoints tfCfg
       sortedGroups = NE.sortBy (compareAV thr treeType) vertices
 
-      renamedGroups = snd $ mapAccumL (assignNames newNames brks treeType) M.empty sortedGroups
+      renamedGroups = snd $ TR.mapAccumL (assignNames newNames brks treeType) M.empty sortedGroups
    in VertexTree comments renamedGroups
 
 updateVerticesInNode
