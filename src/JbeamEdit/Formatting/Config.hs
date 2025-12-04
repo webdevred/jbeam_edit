@@ -4,7 +4,6 @@ module JbeamEdit.Formatting.Config (localRuleFile, readFormattingConfig, copyToC
 
 import Data.Foldable (traverse_)
 import Data.Text qualified as T
-import Debug.Trace
 import GHC.IO.Exception (IOErrorType (NoSuchThing))
 import JbeamEdit.Formatting.Rules
 import JbeamEdit.IOUtils
@@ -88,9 +87,9 @@ readFormattingConfig maybeJbflPath = do
     maybeJbflPath
   createRuleFileIfDoesNotExist (configDir </> userRuleFile)
   configPath <- getConfigPath maybeJbflPath configDir
-  userCfg <- tryReadFile [NoSuchThing] $ traceShowId configPath
+  userCfg <- tryReadFile [NoSuchThing] configPath
   defaultRulesetPath <- getJbflSourcePath MinimalConfig
-  defaultCfg <- tryReadFile [] $ traceShowId defaultRulesetPath
+  defaultCfg <- tryReadFile [] defaultRulesetPath
   case (userCfg >>= parseDSL, defaultCfg >>= parseDSL) of
     (Right rs, Right defaultRs) -> pure (rs <> defaultRs)
     (Left err, Right defaultRs) -> putErrorLine err $> defaultRs
