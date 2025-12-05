@@ -34,21 +34,20 @@ import JbeamEdit.Formatting.Rules (
   noComplexNewLine,
  )
 
-splitTrailingMinusOne :: Int -> Text -> (Text, Text)
-splitTrailingMinusOne maybeKeepOne txt =
+splitTrailing :: Text -> (Text, Text)
+splitTrailing txt =
   let trailing = T.length (T.takeWhileEnd (== ' ') txt)
-      baseKeep =
-        if trailing == 0
-          then 0
-          else trailing - 1
-      keep = max baseKeep maybeKeepOne
    in ( T.dropEnd trailing txt
-      , T.replicate keep " "
+      , T.replicate trailing " "
       )
 
 normalizeCommentNode :: Bool -> Node -> Node
 normalizeCommentNode False (Comment (InternalComment txt False dir)) = Comment (InternalComment txt True dir)
 normalizeCommentNode _ node = node
+
+singleCharIf :: Char -> Bool -> Text
+singleCharIf a True = T.singleton a
+singleCharIf _ _ = ""
 
 addDelimiters
   :: RuleSet -> Int -> NC.NodeCursor -> Bool -> [Text] -> [Node] -> [Text]
@@ -67,22 +66,23 @@ addDelimiters rs index c complexChildren acc ns@(node : rest)
                 (applyCrumbAndFormat <> " " <> formatComment comment : acc)
            in addDelimiters rs index c complexChildren formatted rest'
         (Nothing, _) ->
-          let new_acc = T.concat [applyCrumbAndFormat, space, newline] : acc
+          let new_acc =
+                T.concat
+                  [applyCrumbAndFormat, singleCharIf ' ' space, singleCharIf '\n' newline]
+                  : acc
            in addDelimiters rs newIndex c complexChildren new_acc rest
   where
     newlineBeforeComment = bool "\n" "" $ any isObjectKeyNode rest || ["\n"] == acc
     applyCrumbAndFormat =
       let padded = NC.applyCrumb c (formatWithCursor rs) index node
           (formatted, spaces) =
-            splitTrailingMinusOne
-              (bool 0 1 $ comma /= "," && space == " ")
-              padded
-       in formatted <> comma <> spaces
+            splitTrailing padded
+       in formatted <> singleCharIf ',' comma <> spaces
 
     newIndex = index + 1
-    comma = bool "," "" $ null rest
-    space = bool " " "" $ null rest || complexChildren
-    newline = bool "" "\n" complexChildren
+    comma = not (null rest)
+    space = not (null rest) && not complexChildren
+    newline = complexChildren
 
 applyIndentation :: Int -> Text -> Text
 applyIndentation n s
