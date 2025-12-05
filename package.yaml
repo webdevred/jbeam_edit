@@ -31,7 +31,7 @@ dependencies:
   - base >= 4.18 && < 5
   - bytestring
   - vector
-  - text >= 2.1.2
+  - text
   - containers
   - scientific
   - directory
@@ -87,7 +87,7 @@ internal-libraries:
       else:
         buildable: false
     source-dirs: src-extra/transformation
-    dependencies: [jbeam-edit]
+    dependencies: [jbeam-edit, text >= 2.1.2]
   jbeam-language-server:
     default-extensions: [DataKinds, PolyKinds]
     when:
@@ -97,7 +97,7 @@ internal-libraries:
       else:
         buildable: false
     source-dirs: src-extra/language-server
-    dependencies: [jbeam-edit]
+    dependencies: [jbeam-edit, text >= 2.1.2]
 
 library:
   ghc-options: [-Wunused-packages]

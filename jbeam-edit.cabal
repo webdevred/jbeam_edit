@@ -105,7 +105,7 @@ library
         megaparsec,
         mtl,
         scientific,
-        text >=2.1.2,
+        text,
         vector
 
     if os(windows)
@@ -230,7 +230,7 @@ executable jbeam-edit
         jbeam-edit,
         mtl,
         scientific,
-        text >=2.1.2,
+        text,
         vector
 
     if os(windows)
@@ -267,7 +267,7 @@ executable jbeam-edit-dump-ast
         jbeam-edit,
         mtl,
         scientific,
-        text >=2.1.2,
+        text,
         vector
 
     if os(windows)
@@ -308,7 +308,7 @@ executable jbeam-lsp-server
         jbeam-edit,
         mtl,
         scientific,
-        text >=2.1.2,
+        text,
         vector
 
     if os(windows)
@@ -357,7 +357,7 @@ test-suite jbeam-edit-test
         jbeam-edit,
         mtl,
         scientific,
-        text >=2.1.2,
+        text,
         vector
 
     if os(windows)
@@ -394,7 +394,7 @@ test-suite jbeam-edit-transformation-test
         jbeam-edit,
         mtl,
         scientific,
-        text >=2.1.2,
+        text,
         vector
 
     if os(windows)
@@ -440,7 +440,7 @@ test-suite jbeam-language-server-test
         jbeam-edit,
         mtl,
         scientific,
-        text >=2.1.2,
+        text,
         vector
 
     if os(windows)
@@ -481,7 +481,7 @@ benchmark jbeam-edit-bench
         jbeam-edit,
         mtl,
         scientific,
-        text >=2.1.2,
+        text,
         vector
 
     if os(windows)
