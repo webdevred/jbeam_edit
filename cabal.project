@@ -1,5 +1,6 @@
 packages: .
 optimization: False
+test-options: --diff-context=0 --color
 
 package *
   tests: False

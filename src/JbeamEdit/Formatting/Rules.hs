@@ -19,7 +19,6 @@ module JbeamEdit.Formatting.Rules (
   noComplexNewLine,
   forceComplexNewLine,
   lookupIndentProperty,
-  newRuleSet,
   findPropertiesForCursor,
 ) where
 
@@ -56,6 +55,12 @@ instance Ord NodePatternSelector where
 newtype NodePattern
   = NodePattern (Seq NodePatternSelector)
   deriving stock (Eq, Read, Show)
+
+instance Monoid RuleSet where
+  mempty = RuleSet M.empty
+
+instance Semigroup RuleSet where
+  (RuleSet rs1) <> (RuleSet rs2) = RuleSet (M.unionWith M.union rs1 rs2)
 
 instance Ord NodePattern where
   compare (NodePattern a) (NodePattern b) =
@@ -160,9 +165,6 @@ type Rule = Map SomeKey SomeProperty
 newtype RuleSet
   = RuleSet (Map NodePattern Rule)
   deriving stock (Eq, Read, Show)
-
-newRuleSet :: RuleSet
-newRuleSet = RuleSet M.empty
 
 lookupProp :: (Eq a, Read a, Show a) => PropertyKey a -> Rule -> Maybe a
 lookupProp targetKey m =

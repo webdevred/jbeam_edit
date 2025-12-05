@@ -2,7 +2,6 @@ module JbeamEdit.Formatting (
   formatNode,
   formatWithCursor,
   formatScalarNode,
-  newRuleSet,
   RuleSet (..),
 ) where
 
@@ -30,7 +29,6 @@ import JbeamEdit.Formatting.Rules (
   findPropertiesForCursor,
   forceComplexNewLine,
   lookupIndentProperty,
-  newRuleSet,
   noComplexNewLine,
  )
 

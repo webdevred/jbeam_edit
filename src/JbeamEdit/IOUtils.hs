@@ -9,7 +9,7 @@ import Data.Text (Text)
 import Data.Text qualified as T (append, pack, unpack)
 import GHC.IO.Exception (IOErrorType, IOException (IOError))
 import JbeamEdit.Core.Node (Node)
-import JbeamEdit.Formatting (formatNode, newRuleSet)
+import JbeamEdit.Formatting (formatNode)
 import System.File.OsPath qualified as OS
 import System.IO (hPutStrLn, stderr)
 import System.OsPath
@@ -24,7 +24,7 @@ reportInvalidNodes :: Text -> [Node] -> IO ()
 reportInvalidNodes msg nodes =
   unless (null nodes) $ do
     putErrorLine msg
-    mapM_ (putErrorLine . formatNode newRuleSet) nodes
+    mapM_ (putErrorLine . formatNode mempty) nodes
 
 ioErrorMsg
   :: [IOErrorType]
