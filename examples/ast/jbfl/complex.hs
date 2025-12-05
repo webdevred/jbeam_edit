@@ -68,7 +68,7 @@ RuleSet
             , fromList
                 [
                     ( SomeKey PadAmount
-                    , SomeProperty PadAmount 8
+                    , SomeProperty PadAmount 10
                     )
                 ]
             )
@@ -372,6 +372,10 @@ RuleSet
                 [
                     ( SomeKey ForceComplexNewLine
                     , SomeProperty ForceComplexNewLine True
+                    )
+                ,
+                    ( SomeKey NoComplexNewLine
+                    , SomeProperty NoComplexNewLine True
                     )
                 ]
             )

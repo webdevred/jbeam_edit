@@ -1,28 +1,45 @@
-.*.nodes[*][*] {
-    // Pad all node values to 8 chars and force 3 decimals (e.g., 1.000)
-    PadDecimals: 3;
+// Disable padding for header row (column names)
+.*.nodes[0][*] {
+    PadAmount: 0; // no padding here
+    // This row has string headers, so no numeric formatting needed
 }
 
-// Keep things inline where applicable (no extra newlines for nested content)
+/* Default formatting for all numeric node values */
+.*.nodes[*][*] {
+    PadDecimals: 3;  // Show 3 decimal places for uniformity
+    PadAmount: 7;    // Align numeric columns
+}
+
+// Padding for vertex names (first element in nodes Array)
+.*.nodes[*][0] {
+    PadAmount: 10;
+    // Wider for typical vertex IDs
+}
+
+// inline formatting for nodes, flexbodies, variables, and glowMap
 .*.nodes[*], .*.flexbodies[*],
 .*.beams[*], .*.triangles[*],
 .*.variables[*], .*.glowMap.*,
-.*.rails.*, .*.props[*] {
+.*.rails.*, .*.props[*],
+.*.slots[*] {
     NoComplexNewLine : true;
 }
 
+// slots require complex line breaks
 .*.slots[*], .*.sounds {
     ForceComplexNewLine: true;
 }
 
+// extra padding for glowMap indicators
 .*.glowMap.signal_L, .*.glowMap.signal_R,
 .*.glowMap.checkengine, .*.glowMap.hazard,
-.*.glowMap.battery,  .*.glowMap.highbeam,
+.*.glowMap.battery, .*.glowMap.highbeam,
 .*.glowMap.parkingbrake, .*.glowMap.lowfuel,
 .*.glowMap.lowpressure, .*.glowMap.abs {
     PadAmount : 20;
 }
 
-.*.glowMap.*.off .*.glowMap.*.on {
+// padding for on/off states
+.*.glowMap.*.off, .*.glowMap.*.on {
     PadAmount : 10;
 }

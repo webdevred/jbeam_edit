@@ -42,12 +42,52 @@ RuleSet
                     [ AnyObjectKey
                     , Selector
                         ( ObjectKey "nodes" )
+                    , Selector
+                        ( ArrayIndex 0 )
+                    , AnyArrayIndex
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey PadAmount
+                    , SomeProperty PadAmount 0
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
+                        ( ObjectKey "nodes" )
+                    , AnyArrayIndex
+                    , Selector
+                        ( ArrayIndex 0 )
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey PadAmount
+                    , SomeProperty PadAmount 10
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
+                        ( ObjectKey "nodes" )
                     , AnyArrayIndex
                     , AnyArrayIndex
                     ]
                 )
             , fromList
                 [
+                    ( SomeKey PadAmount
+                    , SomeProperty PadAmount 7
+                    )
+                ,
                     ( SomeKey PadDecimals
                     , SomeProperty PadDecimals 3
                     )
@@ -332,6 +372,10 @@ RuleSet
                 [
                     ( SomeKey ForceComplexNewLine
                     , SomeProperty ForceComplexNewLine True
+                    )
+                ,
+                    ( SomeKey NoComplexNewLine
+                    , SomeProperty NoComplexNewLine True
                     )
                 ]
             )

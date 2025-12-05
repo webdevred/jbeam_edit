@@ -12,7 +12,7 @@
 
 // Padding for vertex names (first element in nodes Array)
 .*.nodes[*][0] {
-    PadAmount: 8;
+    PadAmount: 10;
     // Wider for typical vertex IDs
 }
 
@@ -20,7 +20,8 @@
 .*.nodes[*], .*.flexbodies[*],
 .*.beams[*], .*.triangles[*],
 .*.variables[*], .*.glowMap.*,
-.*.rails.*, .*.props[*] {
+.*.rails.*, .*.props[*],
+.*.slots[*] {
     NoComplexNewLine : true;
 }
 
