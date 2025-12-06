@@ -103,15 +103,16 @@ newtype XGroupBreakpoints
 
 instance FromJSON XGroupBreakpoints where
   parseJSON = withArray "XGroupBreakpoints" $ \arr -> do
-    lst <- forM (toList arr) $ \obj ->
-      withObject
-        "XGroupBreakpointEntry"
-        ( \o -> do
-            bp <- o .: "breakpoint"
-            vt <- o .: "vertex-type"
-            pure (bp, vt)
-        )
-        obj
+    lst <-
+      forM (toList arr) $
+        withObject
+          "XGroupBreakpointEntry"
+          ( \o ->
+              do
+                bp <- o .: "breakpoint"
+                vt <- o .: "vertex-type"
+                pure (bp, vt)
+          )
     pure $ XGroupBreakpoints lst
 
 parseSupportThreshold :: Object -> Parser Double
