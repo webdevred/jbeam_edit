@@ -124,7 +124,7 @@ jobs:
         id: cabal-version
       - name: Set up GHC ${{ matrix.ghc }} and Cabal
         id: setup-ghc
-        uses: haskell-actions/setup@v2.8.2
+        uses: haskell-actions/setup@v2.9.0
         with:
           ghc-version: ${{ matrix.ghc }}
           cabal-version: latest
