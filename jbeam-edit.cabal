@@ -197,7 +197,9 @@ library jbeam-language-server
         ghc-options: -optc-Os -optl-static
 
     if flag(lsp-server)
-        build-depends: lsp >=2.7
+        build-depends:
+            co-log-core,
+            lsp >=2.7
 
     else
         buildable: False
