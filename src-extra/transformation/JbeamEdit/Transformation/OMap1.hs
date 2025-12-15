@@ -80,4 +80,4 @@ snoc newLastK newLastV (OMap1 oldFirst rest)
   | otherwise = OMap1 oldFirst (rest OMap.>| (newLastK, newLastV))
 
 consOMap :: k -> v -> OMap k v -> OMap1 k v
-consOMap k v = OMap1 (k,v)
+consOMap k v = OMap1 (k, v)
