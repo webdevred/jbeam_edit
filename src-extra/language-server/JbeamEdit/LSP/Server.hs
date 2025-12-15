@@ -4,7 +4,7 @@
 
 module JbeamEdit.LSP.Server (runServer) where
 
-import Colog.Core (LogAction (..))
+import Colog.Core (LogAction (..), Severity (..), WithSeverity (..))
 import Control.Monad.IO.Class
 import Data.Kind (Type)
 import JbeamEdit.Formatting.Rules (RuleSet)
@@ -28,13 +28,18 @@ import Language.LSP.Protocol.Types qualified as J (
 import Language.LSP.Server qualified as S
 import System.IO (hPutStrLn, stderr)
 
-staticHandlers :: RuleSet -> LogAction IO String -> S.Handlers (S.LspM config)
+logInfo :: MonadIO m => LogAction IO (WithSeverity String) -> String -> m ()
+logInfo la msg =
+  liftIO $ unLogAction la (WithSeverity msg Info)
+
+staticHandlers
+  :: RuleSet -> LogAction IO (WithSeverity String) -> S.Handlers (S.LspM config)
 staticHandlers rs logAction =
   mconcat
     [ S.notificationHandler Msg.SMethod_Initialized $ \_ ->
-        liftIO $ unLogAction logAction "Client initialized"
+        logInfo logAction "Client initialized"
     , S.notificationHandler Msg.SMethod_WorkspaceDidChangeConfiguration $ \_ ->
-        liftIO $ unLogAction logAction "Configuration changed"
+        logInfo logAction "Configuration changed"
     , S.notificationHandler Msg.SMethod_TextDocumentDidOpen $
         handleDidOpen logAction
     , S.notificationHandler Msg.SMethod_TextDocumentDidClose $
@@ -44,8 +49,10 @@ staticHandlers rs logAction =
     ]
     <> Formatting.handlers rs logAction
 
-stderrLogger :: LogAction IO String
-stderrLogger = LogAction (hPutStrLn stderr)
+stderrLogger :: LogAction IO (WithSeverity String)
+stderrLogger =
+  LogAction $ \(WithSeverity msg sev) ->
+    hPutStrLn stderr (show sev <> ": " <> msg)
 
 -- | Starta LSP-servern
 runServer :: RuleSet -> IO Int
@@ -83,7 +90,7 @@ handleDidOpen
    . ( MonadIO m2
      , Msg.MessageParams m1 ~ J.DidOpenTextDocumentParams
      )
-  => LogAction IO String
+  => LogAction IO (WithSeverity String)
   -> Msg.TNotificationMessage m1
   -> m2 ()
 handleDidOpen
@@ -92,7 +99,7 @@ handleDidOpen
     let J.TextDocumentItem {J._uri = uri, J._text = txt} = textDoc
      in liftIO $ do
           Docs.open uri txt
-          unLogAction logAction ("Document opened: " <> show uri)
+          logInfo logAction ("Document opened: " <> show uri)
 
 -- | didChange: update document in DocumentStore
 handleDidChange
@@ -103,7 +110,7 @@ handleDidChange
    . ( MonadIO m2
      , Msg.MessageParams m1 ~ J.DidChangeTextDocumentParams
      )
-  => LogAction IO String
+  => LogAction IO (WithSeverity String)
   -> Msg.TNotificationMessage m1
   -> m2 ()
 handleDidChange
@@ -119,7 +126,7 @@ handleDidChange
                 J.InR (J.TextDocumentContentChangeWholeDocument txt) ->
                   Docs.update uri txt
 
-              unLogAction logAction ("Document changed: " <> show uri)
+              logInfo logAction ("Document changed: " <> show uri)
             _ -> pure ()
 
 handleDidClose
@@ -130,7 +137,7 @@ handleDidClose
    . ( MonadIO m2
      , Msg.MessageParams m1 ~ J.DidCloseTextDocumentParams
      )
-  => LogAction IO String
+  => LogAction IO (WithSeverity String)
   -> Msg.TNotificationMessage m1
   -> m2 ()
 handleDidClose
@@ -139,4 +146,4 @@ handleDidClose
     let J.TextDocumentIdentifier {_uri = uri} = docId
      in liftIO $ do
           Docs.delete uri
-          unLogAction logAction ("Document closed: " <> show uri)
+          logInfo  logAction ("Document closed: " <> show uri)

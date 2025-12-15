@@ -3,7 +3,11 @@
 
 module JbeamEdit.LSP.Handlers.Formatting (handlers) where
 
-import Colog.Core (LogAction (..))
+import Colog.Core (
+  LogAction (..),
+  Severity (..),
+  WithSeverity (..),
+ )
 import Control.Monad.IO.Class
 import Data.Bool (bool)
 import Data.ByteString.Lazy qualified as LBS
@@ -27,12 +31,16 @@ import Language.LSP.Protocol.Types qualified as J (
  )
 import Language.LSP.Server qualified as S
 
-handlers :: RuleSet -> LogAction IO String -> S.Handlers (S.LspM config)
+handlers
+  :: RuleSet
+  -> LogAction IO (WithSeverity String)
+  -> S.Handlers (S.LspM config)
 handlers rs logAction =
   S.requestHandler Msg.SMethod_TextDocumentFormatting formattingHandler
   where
-    logMsg :: MonadIO m => String -> m ()
-    logMsg = liftIO . unLogAction logAction
+    logMsg :: MonadIO m => Severity -> String -> m ()
+    logMsg sev msg =
+      liftIO $ unLogAction logAction (WithSeverity msg sev)
 
     formattingHandler
       :: Msg.TRequestMessage Msg.Method_TextDocumentFormatting
@@ -43,12 +51,13 @@ handlers rs logAction =
          )
       -> S.LspM config ()
     formattingHandler req responder = do
-      logMsg "DEBUG: formattingHandler invoked"
+      logMsg Debug "formattingHandler invoked"
       let Msg.TRequestMessage _ _ _ (params :: J.DocumentFormattingParams) = req
       handleParams rs logMsg params responder
+
 handleParams
   :: RuleSet
-  -> (String -> S.LspM config ())
+  -> (Severity -> String -> S.LspM config ())
   -> J.DocumentFormattingParams
   -> ( Either
          (Msg.TResponseError Msg.Method_TextDocumentFormatting)
@@ -64,27 +73,33 @@ handleParams rs logMsg params responder = do
   mText <- liftIO $ Docs.get uri
   case mText of
     Nothing -> do
-      logMsg ("DEBUG: no document in store for " <> show uri)
+      logMsg Debug ("no document in store for " <> show uri)
       sendNoUpdate
     Just txt ->
       case JbeamP.parseNodes . LBS.fromStrict . encodeUtf8 $ txt of
         Left err -> do
-          logMsg ("Parse error: " <> show err)
+          logMsg Error ("Parse error: " <> show err)
           sendNoUpdate
         Right node ->
           case runFormatNode rs txt node of
             Nothing ->
-              responder (Right (J.InR J.Null))
+              sendNoUpdate
             Just edit ->
               responder (Right (J.InL [edit]))
 
 runFormatNode :: RuleSet -> T.Text -> Node -> Maybe J.TextEdit
 runFormatNode ruleSet txt node =
   let newText = Fmt.formatNode ruleSet node
-      edit = J.TextEdit {J._range = wholeRange txt, J._newText = newText}
-   in bool Nothing (Just edit) (newText /= txt)
+      edit =
+        J.TextEdit
+          { J._range = wholeRange txt
+          , J._newText = newText
+          }
+   in if newText /= txt
+        then Just edit
+        else Nothing
 
-wholeRange :: Text -> J.Range
+wholeRange :: T.Text -> J.Range
 wholeRange txt =
   let ls = T.lines txt
       numLines = max 1 (length ls)
@@ -94,4 +109,7 @@ wholeRange txt =
           (lastLine : _) -> T.length lastLine
    in J.Range
         (J.Position 0 0)
-        (J.Position (fromIntegral numLines) (fromIntegral lastLineLen))
+        ( J.Position
+            (fromIntegral numLines)
+            (fromIntegral lastLineLen)
+        )
