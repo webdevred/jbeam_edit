@@ -5,7 +5,6 @@ module JbeamEdit.LSP.Handlers.Formatting (handlers) where
 
 import Colog.Core (
   LogAction (..),
-  Severity (..),
   WithSeverity (..),
  )
 import Control.Monad.IO.Class
@@ -17,6 +16,7 @@ import Data.Text.Encoding (encodeUtf8)
 import JbeamEdit.Core.Node (Node)
 import JbeamEdit.Formatting qualified as Fmt
 import JbeamEdit.Formatting.Rules (RuleSet)
+import JbeamEdit.LSP.Logging
 import JbeamEdit.LSP.Services.DocumentStore qualified as Docs
 import JbeamEdit.Parsing.Jbeam qualified as JbeamP
 import Language.LSP.Protocol.Message qualified as Msg
@@ -27,6 +27,7 @@ import Language.LSP.Protocol.Types qualified as J (
   Range (..),
   TextDocumentIdentifier (..),
   TextEdit (..),
+  Uri (..),
   type (|?) (..),
  )
 import Language.LSP.Server qualified as S
@@ -38,10 +39,6 @@ handlers
 handlers rs logAction =
   S.requestHandler Msg.SMethod_TextDocumentFormatting formattingHandler
   where
-    logMsg :: MonadIO m => Severity -> String -> m ()
-    logMsg sev msg =
-      liftIO $ unLogAction logAction (WithSeverity msg sev)
-
     formattingHandler
       :: Msg.TRequestMessage Msg.Method_TextDocumentFormatting
       -> ( Either
@@ -51,13 +48,13 @@ handlers rs logAction =
          )
       -> S.LspM config ()
     formattingHandler req responder = do
-      logMsg Debug "formattingHandler invoked"
+      logDebug logAction "formattingHandler invoked"
       let Msg.TRequestMessage _ _ _ (params :: J.DocumentFormattingParams) = req
-      handleParams rs logMsg params responder
+      handleParams rs logAction params responder
 
 handleParams
   :: RuleSet
-  -> (Severity -> String -> S.LspM config ())
+  -> LogAction IO (WithSeverity String)
   -> J.DocumentFormattingParams
   -> ( Either
          (Msg.TResponseError Msg.Method_TextDocumentFormatting)
@@ -65,7 +62,7 @@ handleParams
        -> S.LspM config ()
      )
   -> S.LspM config ()
-handleParams rs logMsg params responder = do
+handleParams rs logAction params responder = do
   let J.DocumentFormattingParams {J._textDocument = textDocId} = params
       J.TextDocumentIdentifier {J._uri = uri} = textDocId
       sendNoUpdate = responder (Right (J.InR J.Null))
@@ -73,12 +70,12 @@ handleParams rs logMsg params responder = do
   mText <- liftIO $ Docs.get uri
   case mText of
     Nothing -> do
-      logMsg Debug ("no document in store for " <> show uri)
+      logDebug logAction ("no document in store for " <> J.getUri uri)
       sendNoUpdate
     Just txt ->
       case JbeamP.parseNodes . LBS.fromStrict . encodeUtf8 $ txt of
         Left err -> do
-          logMsg Error ("Parse error: " <> show err)
+          logError logAction ("Parse error: " <> err)
           sendNoUpdate
         Right node ->
           case runFormatNode rs txt node of

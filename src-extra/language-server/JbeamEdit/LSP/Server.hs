@@ -4,11 +4,12 @@
 
 module JbeamEdit.LSP.Server (runServer) where
 
-import Colog.Core (LogAction (..), Severity (..), WithSeverity (..))
+import Colog.Core (LogAction (..), WithSeverity (..))
 import Control.Monad.IO.Class
 import Data.Kind (Type)
 import JbeamEdit.Formatting.Rules (RuleSet)
 import JbeamEdit.LSP.Handlers.Formatting qualified as Formatting
+import JbeamEdit.LSP.Logging
 import JbeamEdit.LSP.Services.DocumentStore qualified as Docs
 import Language.LSP.Protocol.Message qualified as Msg
 import Language.LSP.Protocol.Types qualified as J (
@@ -27,10 +28,6 @@ import Language.LSP.Protocol.Types qualified as J (
  )
 import Language.LSP.Server qualified as S
 import System.IO (hPutStrLn, stderr)
-
-logInfo :: MonadIO m => LogAction IO (WithSeverity String) -> String -> m ()
-logInfo la msg =
-  liftIO $ unLogAction la (WithSeverity msg Info)
 
 staticHandlers
   :: RuleSet -> LogAction IO (WithSeverity String) -> S.Handlers (S.LspM config)
@@ -52,7 +49,7 @@ staticHandlers rs logAction =
 stderrLogger :: LogAction IO (WithSeverity String)
 stderrLogger =
   LogAction $ \(WithSeverity msg sev) ->
-    hPutStrLn stderr (show sev <> ": " <> msg)
+    hPutStrLn stderr ("[" <> show sev <> "] " <> msg)
 
 -- | Starta LSP-servern
 runServer :: RuleSet -> IO Int
@@ -146,4 +143,4 @@ handleDidClose
     let J.TextDocumentIdentifier {_uri = uri} = docId
      in liftIO $ do
           Docs.delete uri
-          logInfo  logAction ("Document closed: " <> show uri)
+          logInfo logAction ("Document closed: " <> show uri)
