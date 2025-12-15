@@ -138,16 +138,13 @@ For sample `.jbeam` files and JBFL rule files, see the [Examples Directory READM
 - Expanded tests and example files
 - Improved documentation
 
+Considered features: https://github.com/webdevred/jbeam_edit/discussions/134
+
 ## Why Haskell + Megaparsec?
 
 - Strong static typing for safer, reliable parsing and transformations.
 - Elegant, composable parser combinators.
 - Immutable data handling ensures predictable editing.
-
-## Future Considerations
-
-- Potential C/C++ port for easier Windows distribution.
-- Trade-off: loss of Haskell’s expressiveness and safety vs. broader accessibility.
 
 ## Prerequisites
 

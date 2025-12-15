@@ -2,7 +2,6 @@ module JbeamEdit.Formatting (
   formatNode,
   formatWithCursor,
   formatScalarNode,
-  newRuleSet,
   RuleSet (..),
 ) where
 
@@ -30,15 +29,15 @@ import JbeamEdit.Formatting.Rules (
   findPropertiesForCursor,
   forceComplexNewLine,
   lookupIndentProperty,
-  newRuleSet,
   noComplexNewLine,
  )
 
-splitTrailing :: Text -> (Text, Text)
-splitTrailing txt =
+splitTrailing :: Bool -> Text -> (Text, Text)
+splitTrailing comma txt =
   let trailing = T.length (T.takeWhileEnd (== ' ') txt)
+      trailing' = trailing - bool 0 1 comma
    in ( T.dropEnd trailing txt
-      , T.replicate trailing " "
+      , T.replicate trailing' " "
       )
 
 normalizeCommentNode :: Bool -> Node -> Node
@@ -75,8 +74,7 @@ addDelimiters rs index c complexChildren acc ns@(node : rest)
     newlineBeforeComment = bool "\n" "" $ any isObjectKeyNode rest || ["\n"] == acc
     applyCrumbAndFormat =
       let padded = NC.applyCrumb c (formatWithCursor rs) index node
-          (formatted, spaces) =
-            splitTrailing padded
+          (formatted, spaces) = splitTrailing comma padded
        in formatted <> singleCharIf ',' comma <> spaces
 
     newIndex = index + 1

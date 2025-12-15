@@ -2,6 +2,7 @@
 
 module JbeamEdit.Formatting.Config (localRuleFile, readFormattingConfig, copyToConfigDir, ConfigType (..)) where
 
+import Data.Foldable (traverse_)
 import Data.Text qualified as T
 import GHC.IO.Exception (IOErrorType (NoSuchThing))
 import JbeamEdit.Formatting.Rules
@@ -60,9 +61,12 @@ copyConfigFile :: OsPath -> ConfigType -> IO ()
 copyConfigFile dest configType = do
   createDirectoryIfMissing True (takeDirectory dest)
   source <- getJbflSourcePath configType
-  destPath <- decodeUtf dest
   putErrorLine
-    ("installing " <> T.show configType <> " config file to " <> T.pack destPath)
+    ( "installing "
+        <> T.pack (show configType)
+        <> " config file to "
+        <> T.pack (show dest)
+    )
   copyFile source dest
 
 copyToConfigDir :: ConfigType -> IO ()
@@ -78,14 +82,18 @@ createRuleFileIfDoesNotExist configPath =
 readFormattingConfig :: Maybe OsPath -> IO RuleSet
 readFormattingConfig maybeJbflPath = do
   configDir <- getConfigDir
-  case maybeJbflPath of
-    Just jbfl ->
-      decodeUtf jbfl
-        >>= (\a -> putErrorStringLn $ "Loading jbfl: " ++ a)
-    Nothing ->
-      createRuleFileIfDoesNotExist (configDir </> userRuleFile)
+  traverse_
+    (\jbfl -> putErrorLine $ "Loading jbfl: " <> T.pack (show jbfl))
+    maybeJbflPath
+  createRuleFileIfDoesNotExist (configDir </> userRuleFile)
   configPath <- getConfigPath maybeJbflPath configDir
-  contents <- tryReadFile [NoSuchThing] configPath
-  case contents >>= parseDSL of
-    Right rs -> pure rs
-    Left err -> putErrorLine err $> newRuleSet
+  userCfg <- tryReadFile [NoSuchThing] configPath
+  defaultRulesetPath <- getJbflSourcePath MinimalConfig
+  defaultCfg <- tryReadFile [] defaultRulesetPath
+  case (userCfg >>= parseDSL, defaultCfg >>= parseDSL) of
+    (Right rs, Right defaultRs) -> pure (rs <> defaultRs)
+    (Left err, Right defaultRs) -> putErrorLine err $> defaultRs
+    (_, Left err) ->
+      let err' =
+            "Failed to parse default ruleset. Please consider making bugreport. \n" <> err
+       in putErrorLine err' >> mempty

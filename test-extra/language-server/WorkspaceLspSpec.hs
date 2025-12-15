@@ -4,35 +4,21 @@ import Control.Monad.IO.Class (liftIO)
 import Data.Text qualified as T (pack)
 import Language.LSP.Protocol.Types as LSP
 import Language.LSP.Test
-import System.Directory (getCurrentDirectory)
 import System.FilePath ((</>))
 import System.IO qualified as IO (readFile)
 import Test.Hspec
 
-exampleJbflFilepath :: FilePath -> FilePath
-exampleJbflFilepath cwd =
-  cwd
-    </> "examples"
-    </> "jbfl"
-    </> "minimal.jbfl"
-
-spec :: Spec
-spec = do
-  cwd <- runIO getCurrentDirectory
-  workspaceSpec cwd
-
 runJbeamSession :: FilePath -> Session a -> IO a
-runJbeamSession cwd =
-  runSession
-    ("jbeam-lsp-server -c " <> exampleJbflFilepath cwd)
-    fullLatestClientCaps
-    "examples"
+runJbeamSession jbflFile = runSessionWithConfig cfg cmd fullLatestClientCaps "examples"
+  where
+    cmd = "jbeam-lsp-server -c " <> jbflFile
+    cfg =
+      defaultConfig
+        { logStdErr = True
+        }
 
-formatVerify :: Session ()
-formatVerify = do
-  let jbeamFile = "jbeam" </> "fender.jbeam"
-      expectedFile = "examples" </> "formatted_jbeam" </> "fender-minimal-jbfl.jbeam"
-
+formatVerify :: FilePath -> FilePath -> Session ()
+formatVerify jbeamFile expectedFile = do
   doc <- openDoc jbeamFile "jbeam"
 
   formatDoc doc (LSP.FormattingOptions 0 False Nothing Nothing Nothing)
@@ -42,9 +28,29 @@ formatVerify = do
 
   liftIO $ formatted `shouldBe` expected
 
-workspaceSpec :: FilePath -> Spec
-workspaceSpec cwd =
-  let label =
-        describe "JBeam LSP Formatter"
-          . it "formats a single JBeam file with a single JBFL rule correctly"
-   in label . runJbeamSession cwd $ formatVerify
+jbflTests :: [(FilePath, FilePath, FilePath)]
+jbflTests =
+  [
+    ( "jbeam" </> "fender.jbeam"
+    , "examples" </> "formatted_jbeam" </> "fender-minimal-jbfl.jbeam"
+    , "examples" </> "jbfl" </> "minimal.jbfl"
+    )
+  ,
+    ( "jbeam" </> "fender.jbeam"
+    , "test-extra/language-server/data/fender-custom-minimal-jbfl.jbeam"
+    , "test-extra/language-server/data/custom-minimal.jbfl"
+    )
+  ]
+
+workspaceSpec :: Spec
+workspaceSpec =
+  describe "JBeam LSP Formatter" $
+    mapM_
+      ( \(jbeam, expected, jbfl) ->
+          it ("formats " <> jbeam <> " correctly") $
+            runJbeamSession jbfl (formatVerify jbeam expected)
+      )
+      jbflTests
+
+spec :: Spec
+spec = workspaceSpec
