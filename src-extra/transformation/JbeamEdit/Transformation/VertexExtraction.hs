@@ -6,13 +6,20 @@ module JbeamEdit.Transformation.VertexExtraction (
   dropIndex,
 ) where
 
+import Control.Monad (guard)
 import Data.Char (isDigit)
+import Data.List.NonEmpty (NonEmpty (..))
 import Data.List.NonEmpty qualified as NE
+import Data.Map (Map)
 import Data.Map qualified as M
 import Data.Map.Ordered (OMap)
+import Data.Maybe (isJust, isNothing, mapMaybe)
+import Data.Set (Set)
 import Data.Set qualified as S
+import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Vector qualified as V
+import GHC.IsList
 import JbeamEdit.Core.Node
 import JbeamEdit.Core.NodePath qualified as NP
 import JbeamEdit.Transformation.Config
@@ -119,18 +126,18 @@ insertTreeInForest ttype vt f =
         f
 
 getVertexTreePrefix :: NonEmpty AnnotatedVertex -> VertexTreeKey
-getVertexTreePrefix vt = maybe SupportKey PrefixKey (getVertexPrefix . vName . aVertex . head $ vt)
+getVertexTreePrefix vt = maybe SupportKey PrefixKey (getVertexPrefix . vName . aVertex . NE.head $ vt)
 
 insertTreeInMap
   :: VertexTree -> OMap1 VertexTreeKey VertexTree -> OMap1 VertexTreeKey VertexTree
-insertTreeInMap (VertexTree newComments newVertexGroups) vts =
-  ( getVertexTreePrefix newVertexGroups
-  , VertexTree
-      { tComments = newComments
-      , tAnnotatedVertices = newVertexGroups
-      }
-  )
-    `OMap1.snoc` vts
+insertTreeInMap (VertexTree newComments newVertexGroups) =
+  let vType = getVertexTreePrefix newVertexGroups
+      vertexTree =
+        VertexTree
+          { tComments = newComments
+          , tAnnotatedVertices = newVertexGroups
+          }
+   in OMap1.snoc vType vertexTree
 
 isSupportVertex :: Vertex -> Bool
 isSupportVertex v =
@@ -202,7 +209,7 @@ newVertexTree brks vertexNames badAcc vertexForest nodes =
           case nodesToAnnotatedVertices topMeta vertexNodes of
             Left err -> Left err
             Right (badNodes, avNE) ->
-              let firstAV = head avNE
+              let firstAV = NE.head avNE
                   vertexTree = VertexTree topComments avNE
                in case determineGroup brks (aVertex firstAV) of
                     Just treeType ->
@@ -231,7 +238,7 @@ nodesListToTree brks nodes =
     Left err -> Left err
     Right
       (vertexNames, badNodes, firstTreeType, _firstVertexTree, vertexForest, rest) ->
-        case nonEmpty rest of
+        case NE.nonEmpty rest of
           Nothing -> Right (badNodes, firstTreeType, vertexForest)
           Just nonEmptyRest -> go vertexNames badNodes vertexForest nonEmptyRest firstTreeType
   where
@@ -239,7 +246,7 @@ nodesListToTree brks nodes =
       case newVertexTree brks vertexNames badNodes acc rest of
         Left err -> Left err
         Right (vertexNames', badNodes', _treeType, _vt, acc', rest') ->
-          case nonEmpty rest' of
+          case NE.nonEmpty rest' of
             Nothing -> Right (badNodes, firstTreeType, acc')
             Just ne -> go vertexNames' (badNodes ++ badNodes') acc' ne firstTreeType
 
@@ -251,8 +258,7 @@ objectKeysToObjects =
 concatAnnotatedVertices
   :: OMap VertexTreeKey VertexTree
   -> [AnnotatedVertex]
-concatAnnotatedVertices = concatMap (toList . tAnnotatedVertices) . toList
-
+concatAnnotatedVertices = concatMap (toList . tAnnotatedVertices . snd) . toList
 extractFirstVertex
   :: OMap1 VertexTreeKey VertexTree -> (AnnotatedVertex, [AnnotatedVertex])
 extractFirstVertex vertexTrees =
@@ -266,7 +272,7 @@ allAnnotatedVertices :: VertexForest -> [AnnotatedVertex]
 allAnnotatedVertices forest =
   [ av
   | omap <- M.elems forest
-  , tree <- toList omap
+  , (_, tree) <- toList omap
   , av <- NE.toList (tAnnotatedVertices tree)
   ]
 
@@ -305,7 +311,7 @@ getVertexForest
   -> Either Text ([Node], NonEmpty Node, VertexForest)
 getVertexForest brks np topNode =
   case NP.queryNodes np topNode of
-    Nothing -> Left $ "could not find vertices at path " <> show np
+    Nothing -> Left $ "could not find vertices at path " <> T.show np
     Just node -> processNode node
   where
     processNode (Array ns)
@@ -314,7 +320,7 @@ getVertexForest brks np topNode =
           case V.toList ns of
             (header : nodesWithoutHeader)
               | isValidVertexHeader header ->
-                  case nonEmpty nodesWithoutHeader of
+                  case NE.nonEmpty nodesWithoutHeader of
                     Nothing -> Left "no nodes after header"
                     Just ne ->
                       case nodesListToTree brks ne of
@@ -323,7 +329,7 @@ getVertexForest brks np topNode =
                           getVertexForestGlobals badNodes header (firstTreeType, vertexForest)
               | otherwise -> Left "invalid vertex header"
             _ -> Left "missing vertex header"
-    processNode bad = Left $ "expected Array at vertex path, got: " <> show bad
+    processNode bad = Left $ "expected Array at vertex path, got: " <> T.show bad
 
 isValidVertexHeader :: Node -> Bool
 isValidVertexHeader (Array header) =

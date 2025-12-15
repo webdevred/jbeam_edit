@@ -7,3 +7,6 @@ flags:
     transformation: false
     dump-ast: false
     windows-example-paths: false
+
+ghc-options:
+  jbeam-edit: "-Werror -Wwarn=unused-imports"

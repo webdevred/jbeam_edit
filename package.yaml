@@ -31,11 +31,11 @@ dependencies:
   - base >= 4.18 && < 5
   - bytestring
   - vector
-  - text >= 2.0
+  - text >= 2.1.2
   - containers
   - scientific
   - directory
-  - filepath > 1.5.0.0
+  - filepath >= 1.5.1.0
   - mtl
 
 default-extensions:
@@ -78,35 +78,26 @@ flags:
     default: false
     manual: true
 
-_jbeam-extra-lib: &jbeam-extra-lib
-  verbatim:
-    mixins: >
-      base hiding (Prelude)
-      , relude (Relude as Prelude)
-      , relude
-
 internal-libraries:
   jbeam-edit-transformation:
     when:
       condition: flag(transformation)
       then:
-        dependencies: [yaml, relude]
+        dependencies: [yaml, extra, ordered-containers]
       else:
         buildable: false
     source-dirs: src-extra/transformation
-    dependencies: [jbeam-edit, ordered-containers]
-    <<: *jbeam-extra-lib
+    dependencies: [jbeam-edit]
   jbeam-language-server:
     default-extensions: [DataKinds, PolyKinds]
     when:
       condition: flag(lsp-server)
       then:
-        dependencies: [lsp >= 2.7, relude]
+        dependencies: [lsp >= 2.7]
       else:
         buildable: false
     source-dirs: src-extra/language-server
     dependencies: [jbeam-edit]
-    <<: *jbeam-extra-lib
 
 library:
   ghc-options: [-Wunused-packages]

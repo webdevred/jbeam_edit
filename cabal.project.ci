@@ -5,4 +5,6 @@ write-ghc-environment-files: never
 package jbeam-edit
   tests: True
   flags: +dump-ast +transformation +lsp-server -windows-example-paths
-  ghc-options: -Werror
+  ghc-options:
+    -Werror
+    -Wwarn=unused-imports
