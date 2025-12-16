@@ -23,6 +23,7 @@ import Language.LSP.Protocol.Types qualified as J (
   TextDocumentItem (..),
   TextDocumentSyncKind (..),
   TextDocumentSyncOptions (..),
+  Uri (..),
   VersionedTextDocumentIdentifier (..),
   type (|?) (..),
  )
@@ -96,7 +97,7 @@ handleDidOpen
     let J.TextDocumentItem {J._uri = uri, J._text = txt} = textDoc
      in liftIO $ do
           Docs.open uri txt
-          logInfo logAction ("Document opened: " <> show uri)
+          logInfo logAction ("Document opened: " <> J.getUri uri)
 
 -- | didChange: update document in DocumentStore
 handleDidChange
@@ -123,7 +124,7 @@ handleDidChange
                 J.InR (J.TextDocumentContentChangeWholeDocument txt) ->
                   Docs.update uri txt
 
-              logInfo logAction ("Document changed: " <> show uri)
+              logInfo logAction ("Document changed: " <> J.getUri uri)
             _ -> pure ()
 
 handleDidClose
@@ -143,4 +144,4 @@ handleDidClose
     let J.TextDocumentIdentifier {_uri = uri} = docId
      in liftIO $ do
           Docs.delete uri
-          logInfo logAction ("Document closed: " <> show uri)
+          logInfo logAction ("Document closed: " <> J.getUri uri)
