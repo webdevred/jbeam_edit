@@ -4,11 +4,12 @@
 
 module JbeamEdit.LSP.Server (runServer) where
 
+import Colog.Core (LogAction (..), WithSeverity (..))
 import Control.Monad.IO.Class
 import Data.Kind (Type)
 import JbeamEdit.Formatting.Rules (RuleSet)
-import JbeamEdit.IOUtils
 import JbeamEdit.LSP.Handlers.Formatting qualified as Formatting
+import JbeamEdit.LSP.Logging
 import JbeamEdit.LSP.Services.DocumentStore qualified as Docs
 import Language.LSP.Protocol.Message qualified as Msg
 import Language.LSP.Protocol.Types qualified as J (
@@ -22,23 +23,34 @@ import Language.LSP.Protocol.Types qualified as J (
   TextDocumentItem (..),
   TextDocumentSyncKind (..),
   TextDocumentSyncOptions (..),
+  Uri (..),
   VersionedTextDocumentIdentifier (..),
   type (|?) (..),
  )
 import Language.LSP.Server qualified as S
+import System.IO (hPutStrLn, stderr)
 
-staticHandlers :: RuleSet -> S.Handlers (S.LspM config)
-staticHandlers rs =
+staticHandlers
+  :: RuleSet -> LogAction IO (WithSeverity String) -> S.Handlers (S.LspM config)
+staticHandlers rs logAction =
   mconcat
-    [ S.notificationHandler Msg.SMethod_Initialized $ \_notif ->
-        liftIO $ putErrorLine "Client initialized"
-    , S.notificationHandler Msg.SMethod_WorkspaceDidChangeConfiguration $ \_notif ->
-        liftIO $ putErrorLine "Configuration changed"
-    , S.notificationHandler Msg.SMethod_TextDocumentDidOpen handleDidOpen
-    , S.notificationHandler Msg.SMethod_TextDocumentDidClose handleDidClose
-    , S.notificationHandler Msg.SMethod_TextDocumentDidChange handleDidChange
+    [ S.notificationHandler Msg.SMethod_Initialized $ \_ ->
+        logInfo logAction "Client initialized"
+    , S.notificationHandler Msg.SMethod_WorkspaceDidChangeConfiguration $ \_ ->
+        logInfo logAction "Configuration changed"
+    , S.notificationHandler Msg.SMethod_TextDocumentDidOpen $
+        handleDidOpen logAction
+    , S.notificationHandler Msg.SMethod_TextDocumentDidClose $
+        handleDidClose logAction
+    , S.notificationHandler Msg.SMethod_TextDocumentDidChange $
+        handleDidChange logAction
     ]
-    <> Formatting.handlers rs
+    <> Formatting.handlers rs logAction
+
+stderrLogger :: LogAction IO (WithSeverity String)
+stderrLogger =
+  LogAction $ \(WithSeverity msg sev) ->
+    hPutStrLn stderr ("[" <> show sev <> "] " <> msg)
 
 -- | Starta LSP-servern
 runServer :: RuleSet -> IO Int
@@ -49,8 +61,8 @@ runServer rs =
       , parseConfig = \_ _ -> Right ()
       , onConfigChange = const >> pure $ pure ()
       , defaultConfig = ()
-      , doInitialize = \env _req -> pure (Right env)
-      , staticHandlers = const $ staticHandlers rs
+      , doInitialize = \env _ -> pure (Right env)
+      , staticHandlers = const $ staticHandlers rs stderrLogger
       , interpretHandler = \env -> S.Iso (S.runLspT env) liftIO
       , options =
           S.defaultOptions
@@ -73,11 +85,19 @@ handleDidOpen
     {f :: Msg.MessageDirection}
     {m1 :: Msg.Method f Msg.Notification}
     {m2 :: Type -> Type}
-   . (MonadIO m2, Msg.MessageParams m1 ~ J.DidOpenTextDocumentParams)
-  => Msg.TNotificationMessage m1 -> m2 ()
-handleDidOpen (Msg.TNotificationMessage _ _ (J.DidOpenTextDocumentParams textDoc)) =
-  let J.TextDocumentItem {J._uri = uri, J._text = txt} = textDoc
-   in liftIO $ Docs.open uri txt
+   . ( MonadIO m2
+     , Msg.MessageParams m1 ~ J.DidOpenTextDocumentParams
+     )
+  => LogAction IO (WithSeverity String)
+  -> Msg.TNotificationMessage m1
+  -> m2 ()
+handleDidOpen
+  logAction
+  (Msg.TNotificationMessage _ _ (J.DidOpenTextDocumentParams textDoc)) =
+    let J.TextDocumentItem {J._uri = uri, J._text = txt} = textDoc
+     in liftIO $ do
+          Docs.open uri txt
+          logInfo logAction ("Document opened: " <> J.getUri uri)
 
 -- | didChange: update document in DocumentStore
 handleDidChange
@@ -88,15 +108,24 @@ handleDidChange
    . ( MonadIO m2
      , Msg.MessageParams m1 ~ J.DidChangeTextDocumentParams
      )
-  => Msg.TNotificationMessage m1 -> m2 ()
-handleDidChange (Msg.TNotificationMessage _ _ (J.DidChangeTextDocumentParams docId changes)) =
-  let J.VersionedTextDocumentIdentifier {_uri = uri} = docId
-   in case changes of
-        (J.TextDocumentContentChangeEvent change : _) ->
-          case change of
-            J.InL (J.TextDocumentContentChangePartial {J._text = txt}) -> liftIO $ Docs.update uri txt
-            J.InR (J.TextDocumentContentChangeWholeDocument txt) -> liftIO $ Docs.update uri txt
-        _ -> pure ()
+  => LogAction IO (WithSeverity String)
+  -> Msg.TNotificationMessage m1
+  -> m2 ()
+handleDidChange
+  logAction
+  (Msg.TNotificationMessage _ _ (J.DidChangeTextDocumentParams docId changes)) =
+    let J.VersionedTextDocumentIdentifier {_uri = uri} = docId
+     in liftIO $
+          case changes of
+            (J.TextDocumentContentChangeEvent change : _) -> do
+              case change of
+                J.InL (J.TextDocumentContentChangePartial {J._text = txt}) ->
+                  Docs.update uri txt
+                J.InR (J.TextDocumentContentChangeWholeDocument txt) ->
+                  Docs.update uri txt
+
+              logInfo logAction ("Document changed: " <> J.getUri uri)
+            _ -> pure ()
 
 handleDidClose
   :: forall
@@ -106,6 +135,13 @@ handleDidClose
    . ( MonadIO m2
      , Msg.MessageParams m1 ~ J.DidCloseTextDocumentParams
      )
-  => Msg.TNotificationMessage m1 -> m2 ()
-handleDidClose (Msg.TNotificationMessage _ _ (J.DidCloseTextDocumentParams docId)) =
-  let J.TextDocumentIdentifier {_uri = uri} = docId in liftIO (Docs.delete uri)
+  => LogAction IO (WithSeverity String)
+  -> Msg.TNotificationMessage m1
+  -> m2 ()
+handleDidClose
+  logAction
+  (Msg.TNotificationMessage _ _ (J.DidCloseTextDocumentParams docId)) =
+    let J.TextDocumentIdentifier {_uri = uri} = docId
+     in liftIO $ do
+          Docs.delete uri
+          logInfo logAction ("Document closed: " <> J.getUri uri)

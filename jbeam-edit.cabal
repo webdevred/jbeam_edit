@@ -165,6 +165,7 @@ library jbeam-edit-transformation
 library jbeam-language-server
     exposed-modules:
         JbeamEdit.LSP.Handlers.Formatting
+        JbeamEdit.LSP.Logging
         JbeamEdit.LSP.Server
         JbeamEdit.LSP.Services.DocumentStore
 
@@ -197,7 +198,9 @@ library jbeam-language-server
         ghc-options: -optc-Os -optl-static
 
     if flag(lsp-server)
-        build-depends: lsp >=2.7
+        build-depends:
+            co-log-core,
+            lsp >=2.7
 
     else
         buildable: False
