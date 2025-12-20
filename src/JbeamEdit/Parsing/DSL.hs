@@ -9,6 +9,9 @@ module JbeamEdit.Parsing.DSL (
   ruleSetParser,
 ) where
 
+import Data.Maybe  
+import Data.Text qualified as T  
+import Text.Read (readMaybe)
 import Data.Bifunctor (first)
 import Data.ByteString qualified as BS
 import Data.ByteString.Lazy qualified as LBS
@@ -90,7 +93,19 @@ propertyParser (SomeKey key) = do
   let prop = SomeProperty key
    in pure (SomeKey key, prop val)
 
+-- m a -> m (Maybe a)
+      
+parseComplexNewLine :: JbflParser ComplexNewLine
+parseComplexNewLine = byteChar '"' *> complexNewLine <* byteChar '"'
+  where maybeComplexNewLine = parseWord8s (readMaybe . T.unpack) (MP.some $ MP.satisfy (charNotEqWord8 '"'))
+        expLabels = ["a valid ComplexNewLine value"]
+        complexNewLine = do
+          maybeComplexNewLine' <- maybeComplexNewLine
+          maybe (failingParser expLabels) pure maybeComplexNewLine'
+
+      
 parseValueForKey :: PropertyKey a -> JbflParser a
+-- parseValueForKey ComplexNewLine = parseComplexNewLine <?> "complex newline option"
 parseValueForKey NoComplexNewLine = parseBool <?> "bool"
 parseValueForKey ForceComplexNewLine = parseBool <?> "bool"
 parseValueForKey PadAmount = L.decimal <?> "integer"

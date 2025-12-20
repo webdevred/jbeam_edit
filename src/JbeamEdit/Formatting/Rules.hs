@@ -6,6 +6,7 @@
 
 module JbeamEdit.Formatting.Rules (
   NodePatternSelector (..),
+  ComplexNewLine(..),
   NodePattern (..),
   SomeKey (..),
   SomeProperty (..),
@@ -68,7 +69,10 @@ instance Ord NodePattern where
       EQ -> compare a b
       c -> c
 
+data ComplexNewLine = Force | None | Initial deriving (Show,Read)
+           
 data PropertyKey a where
+  ComplexNewLine :: PropertyKey ComplexNewLine
   NoComplexNewLine :: PropertyKey Bool
   ForceComplexNewLine :: PropertyKey Bool
   PadAmount :: PropertyKey Int
