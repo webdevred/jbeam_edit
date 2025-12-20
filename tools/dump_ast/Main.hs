@@ -106,7 +106,7 @@ dumpJbflAST dir outDir filename = do
   contents <- LBS.readFile (dir </> filename)
   case parseDSL contents of
     Right rs -> dump rs >> pure (outDir </> filename)
-    Left _ -> error $ "error " ++ filename
+    Left err -> error $ "error " ++ filename ++ " " ++ T.unpack err
   where
     dump contents =
       let outFile = outDir </> takeBaseName filename ++ ".hs"
@@ -117,7 +117,7 @@ dumpJbeamAST dir outDir filename = do
   contents <- LBS.readFile (dir </> filename)
   case parseNodes contents of
     Right ns -> dump ns >> pure (outDir </> filename)
-    Left _ -> error $ "error " <> filename
+    Left err -> error $ "error " <> filename ++ " " ++ T.unpack err
   where
     dump contents =
       let outFile = outDir </> takeBaseName filename ++ ".hs"

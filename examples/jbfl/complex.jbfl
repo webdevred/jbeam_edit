@@ -21,12 +21,12 @@
 .*.beams[*], .*.triangles[*],
 .*.variables[*], .*.glowMap.*,
 .*.rails.*, .*.props[*] {
-    NoComplexNewLine : true;
+    ComplexNewLine : "None";
 }
 
 // slots require complex line breaks
 .*.slots[*], .*.sounds {
-    ForceComplexNewLine: true;
+    ComplexNewLine: "Force";
 }
 
 // extra padding for glowMap indicators

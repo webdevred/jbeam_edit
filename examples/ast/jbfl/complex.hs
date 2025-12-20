@@ -104,8 +104,8 @@ RuleSet
                 )
             , fromList
                 [
-                    ( SomeKey NoComplexNewLine
-                    , SomeProperty NoComplexNewLine True
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine None
                     )
                 ]
             )
@@ -120,8 +120,8 @@ RuleSet
                 )
             , fromList
                 [
-                    ( SomeKey NoComplexNewLine
-                    , SomeProperty NoComplexNewLine True
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine None
                     )
                 ]
             )
@@ -306,8 +306,8 @@ RuleSet
                 )
             , fromList
                 [
-                    ( SomeKey NoComplexNewLine
-                    , SomeProperty NoComplexNewLine True
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine None
                     )
                 ]
             )
@@ -322,8 +322,8 @@ RuleSet
                 )
             , fromList
                 [
-                    ( SomeKey NoComplexNewLine
-                    , SomeProperty NoComplexNewLine True
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine None
                     )
                 ]
             )
@@ -338,8 +338,8 @@ RuleSet
                 )
             , fromList
                 [
-                    ( SomeKey NoComplexNewLine
-                    , SomeProperty NoComplexNewLine True
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine None
                     )
                 ]
             )
@@ -354,8 +354,8 @@ RuleSet
                 )
             , fromList
                 [
-                    ( SomeKey NoComplexNewLine
-                    , SomeProperty NoComplexNewLine True
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine None
                     )
                 ]
             )
@@ -370,8 +370,8 @@ RuleSet
                 )
             , fromList
                 [
-                    ( SomeKey ForceComplexNewLine
-                    , SomeProperty ForceComplexNewLine True
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine Force
                     )
                 ]
             )
@@ -386,8 +386,8 @@ RuleSet
                 )
             , fromList
                 [
-                    ( SomeKey NoComplexNewLine
-                    , SomeProperty NoComplexNewLine True
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine None
                     )
                 ]
             )
@@ -402,8 +402,8 @@ RuleSet
                 )
             , fromList
                 [
-                    ( SomeKey NoComplexNewLine
-                    , SomeProperty NoComplexNewLine True
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine None
                     )
                 ]
             )
@@ -417,8 +417,8 @@ RuleSet
                 )
             , fromList
                 [
-                    ( SomeKey ForceComplexNewLine
-                    , SomeProperty ForceComplexNewLine True
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine Force
                     )
                 ]
             )

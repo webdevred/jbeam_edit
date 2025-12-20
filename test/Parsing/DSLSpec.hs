@@ -37,8 +37,8 @@ intProperties =
 boolProperties :: [(String, (SomeKey, SomeProperty))]
 boolProperties =
   [
-    ( "NoComplexNewLine : true;"
-    , (SomeKey NoComplexNewLine, SomeProperty NoComplexNewLine True)
+    ( "ComplexNewLine : \"None\";"
+    , (SomeKey ComplexNewLine, SomeProperty ComplexNewLine None)
     )
   ]
 
@@ -87,8 +87,8 @@ invalidIntProperties =
 invalidBoolProperties :: [(String, ParseError ByteString Void)]
 invalidBoolProperties =
   [
-    ( "NoComplexNewLine : 3;"
-    , err 19 (utoks "3;" <> expLabels ["bool", "white space"])
+    ( "ComplexNewLine : 3;"
+    , err 17 (utoks "3" <> expLabels ["complex newline option", "white space"])
     )
   ]
 

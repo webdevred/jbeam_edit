@@ -8,11 +8,11 @@
 .*.beams[*], .*.triangles[*],
 .*.variables[*], .*.glowMap.*,
 .*.rails.*, .*.props[*] {
-    NoComplexNewLine : true;
+    ComplexNewLine : "None";
 }
 
 .*.slots[*], .*.sounds {
-    ForceComplexNewLine: true;
+    ComplexNewLine: "Force";
 }
 
 .*.glowMap.signal_L, .*.glowMap.signal_R,

@@ -6,7 +6,7 @@
 
 module JbeamEdit.Formatting.Rules (
   NodePatternSelector (..),
-  ComplexNewLine(..),
+  ComplexNewLine (..),
   NodePattern (..),
   SomeKey (..),
   SomeProperty (..),
@@ -69,12 +69,10 @@ instance Ord NodePattern where
       EQ -> compare a b
       c -> c
 
-data ComplexNewLine = Force | None | Initial deriving (Show,Read)
-           
+data ComplexNewLine = Force | None | Initial deriving (Eq, Read, Show)
+
 data PropertyKey a where
   ComplexNewLine :: PropertyKey ComplexNewLine
-  NoComplexNewLine :: PropertyKey Bool
-  ForceComplexNewLine :: PropertyKey Bool
   PadAmount :: PropertyKey Int
   PadDecimals :: PropertyKey Int
   Indent :: PropertyKey Int
@@ -104,8 +102,7 @@ instance Eq SomeKey where
 
 eqKey :: PropertyKey a -> PropertyKey b -> Maybe (a :~: b)
 eqKey PadAmount PadAmount = Just Refl
-eqKey NoComplexNewLine NoComplexNewLine = Just Refl
-eqKey ForceComplexNewLine ForceComplexNewLine = Just Refl
+eqKey ComplexNewLine ComplexNewLine = Just Refl
 eqKey PadDecimals PadDecimals = Just Refl
 eqKey Indent Indent = Just Refl
 eqKey _ _ = Nothing
@@ -143,8 +140,7 @@ instance Eq SomeProperty where
       Nothing -> False
 
 propertyName :: PropertyKey a -> Text
-propertyName NoComplexNewLine = "NoComplexNewLine"
-propertyName ForceComplexNewLine = "ForceComplexNewLine"
+propertyName ComplexNewLine = "ComplexNewLine"
 propertyName PadAmount = "PadAmount"
 propertyName PadDecimals = "PadDecimals"
 propertyName Indent = "Indent"
@@ -155,14 +151,14 @@ keyName (SomeKey key) = propertyName key
 lookupKey :: Text -> [SomeKey] -> Maybe SomeKey
 lookupKey txt = find (\(SomeKey k) -> propertyName k == txt)
 
-boolProperties :: [SomeKey]
-boolProperties = map SomeKey [ForceComplexNewLine, NoComplexNewLine]
+stringProperties :: [SomeKey]
+stringProperties = map SomeKey [ComplexNewLine]
 
 intProperties :: [SomeKey]
 intProperties = map SomeKey [PadAmount, PadDecimals, Indent]
 
 allProperties :: [SomeKey]
-allProperties = boolProperties ++ intProperties
+allProperties = stringProperties ++ intProperties
 
 type Rule = Map SomeKey SomeProperty
 
@@ -202,14 +198,14 @@ applyPadLogic f rs n =
 forceComplexNewLine :: RuleSet -> NC.NodeCursor -> Bool
 forceComplexNewLine rs cursor =
   let ps = findPropertiesForCursor cursor rs
-      maybeProp = lookupProp ForceComplexNewLine ps
-   in (Just True == maybeProp)
+      maybeProp = lookupProp ComplexNewLine ps
+   in (Just Force == maybeProp)
 
 noComplexNewLine :: RuleSet -> NC.NodeCursor -> Bool
 noComplexNewLine rs cursor =
   let ps = findPropertiesForCursor cursor rs
-      maybeProp = lookupProp NoComplexNewLine ps
-   in (Just True == maybeProp)
+      maybeProp = lookupProp ComplexNewLine ps
+   in (Just None == maybeProp)
 
 lookupIndentProperty :: RuleSet -> NC.NodeCursor -> Int
 lookupIndentProperty rs cursor =
