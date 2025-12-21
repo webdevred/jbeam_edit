@@ -64,9 +64,7 @@ getVertexPrefix firstVertexName = do
   pure vertexPrefix
 
 getVertexPrefix' :: [Node] -> Maybe Text
-getVertexPrefix' nodes = do
-  firstVertexName <- getFirstVertexName nodes
-  getVertexPrefix firstVertexName
+getVertexPrefix' = (=<<) getVertexPrefix . getFirstVertexName
 
 isCollision :: Node -> Set Text -> Either Text (Set Text)
 isCollision vertexNode vertexNames =
@@ -252,8 +250,8 @@ nodesListToTree brks nodes =
 
 objectKeysToObjects :: Map Text Node -> [Node]
 objectKeysToObjects =
-  map (\(key, value) -> Object . V.singleton $ ObjectKey (String key, value))
-    . M.assocs
+  M.foldMapWithKey
+    (\k x -> pure . Object . V.singleton $ ObjectKey (String k, x))
 
 concatAnnotatedVertices
   :: OMap VertexTreeKey VertexTree

@@ -150,6 +150,6 @@ transformationConfigFile :: FilePath
 transformationConfigFile = ".jbeam-edit.yaml"
 
 loadTransformationConfig :: FilePath -> IO TransformationConfig
-loadTransformationConfig filename = do
-  res <- decodeFileEither filename
-  either ((newTransformationConfig <$) . formatParseError) pure res
+loadTransformationConfig filename =
+  decodeFileEither filename
+    >>= either ((newTransformationConfig <$) . formatParseError) pure

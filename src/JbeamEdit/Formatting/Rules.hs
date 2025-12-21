@@ -22,6 +22,7 @@ module JbeamEdit.Formatting.Rules (
   findPropertiesForCursor,
 ) where
 
+import Data.Bool (bool)
 import Data.Function (on)
 import Data.List (find)
 import Data.Map (Map)
@@ -191,9 +192,7 @@ applyPadLogic f rs n =
       decimalPaddedText
         | isNumberNode n = applyDecimalPadding padDecimals (f n)
         | otherwise = f n
-   in if not (isComplexNode n)
-        then T.justifyLeft padAmount ' ' decimalPaddedText
-        else f n
+   in bool (T.justifyLeft padAmount ' ' decimalPaddedText) (f n) (isComplexNode n)
 
 forceComplexNewLine :: RuleSet -> NC.NodeCursor -> Bool
 forceComplexNewLine rs cursor =

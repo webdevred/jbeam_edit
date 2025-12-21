@@ -60,19 +60,13 @@ numberParser :: JbeamParser Node
 numberParser = do
   char <- MP.lookAhead B.asciiChar
   Number
-    <$> if char == toWord8 '-'
-      then
-        negate <$> (byteChar '-' *> L.scientific)
-      else
-        L.scientific
+    <$> bool
+      L.scientific
+      (negate <$> (byteChar '-' *> L.scientific))
+      (char == toWord8 '-')
 
 associationDirection :: ParseState -> AssociationDirection
-associationDirection st =
-  if not (lastNodeEndedWithNewline st)
-    then
-      PreviousNode
-    else
-      NextNode
+associationDirection st = bool PreviousNode NextNode (lastNodeEndedWithNewline st)
 
 commentStripSpace :: Text -> Text
 commentStripSpace initialText =

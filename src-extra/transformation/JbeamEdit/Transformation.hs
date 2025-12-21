@@ -132,9 +132,7 @@ groupAnnotatedVertices
   :: XGroupBreakpoints
   -> AnnotatedVertex
   -> Maybe (VertexTreeType, [AnnotatedVertex])
-groupAnnotatedVertices brks g = do
-  treeType <- determineGroup' brks (aVertex g)
-  pure (treeType, [g])
+groupAnnotatedVertices brks g = (,[g]) <$> determineGroup' brks (aVertex g)
 
 updateSupportVertexName
   :: VertexTreeType

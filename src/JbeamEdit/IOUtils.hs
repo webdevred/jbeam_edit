@@ -22,9 +22,9 @@ putErrorLine = putErrorStringLn . T.unpack
 
 reportInvalidNodes :: Text -> [Node] -> IO ()
 reportInvalidNodes msg nodes =
-  unless (null nodes) $ do
+  unless (null nodes) $
     putErrorLine msg
-    mapM_ (putErrorLine . formatNode mempty) nodes
+      >> mapM_ (putErrorLine . formatNode mempty) nodes
 
 ioErrorMsg
   :: [IOErrorType]
@@ -39,8 +39,4 @@ ioErrorMsg noerrs (Left (IOError _ ioe_type _ ioe_desc _ filename)) =
 ioErrorMsg _ (Right valid) = Right valid
 
 tryReadFile :: [IOErrorType] -> OsPath -> IO (Either Text BL.ByteString)
-tryReadFile noerrs fp = do
-  possiblyContent <-
-    try (OS.readFile fp)
-      :: IO (Either IOException BL.ByteString)
-  pure $ ioErrorMsg noerrs possiblyContent
+tryReadFile noerrs fp = ioErrorMsg noerrs <$> try (OS.readFile fp)
