@@ -61,6 +61,7 @@ newtype NodePattern
 #ifdef READ_INSTANCES
 deriving instance Read NodePattern
 deriving instance Read NodePatternSelector
+deriving instance Read RuleSet
 #endif
            
 instance Monoid RuleSet where
@@ -171,7 +172,7 @@ type Rule = Map SomeKey SomeProperty
 
 newtype RuleSet
   = RuleSet (Map NodePattern Rule)
-  deriving stock (Eq, Read, Show)
+  deriving stock (Eq, Show)
 
 lookupProp :: (Eq a, Read a, Show a) => PropertyKey a -> Rule -> Maybe a
 lookupProp targetKey m =
