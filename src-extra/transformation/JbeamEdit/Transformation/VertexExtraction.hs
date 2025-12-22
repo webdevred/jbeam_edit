@@ -7,6 +7,8 @@ module JbeamEdit.Transformation.VertexExtraction (
 ) where
 
 import Control.Monad (guard)
+import Control.Monad.Except (runExcept)
+import Control.Monad.Trans.Except (except)
 import Data.Char (isDigit)
 import Data.List.NonEmpty (NonEmpty (..))
 import Data.List.NonEmpty qualified as NE
@@ -201,30 +203,29 @@ newVertexTree brks vertexNames badAcc vertexForest nodes =
       topComments = mapMaybe toInternalComment topNodes
       topMeta = M.unions . map metaMapFromObject $ topNodes
       vertexPrefix = getVertexPrefix' nodes'
-   in case breakVertices vertexPrefix vertexNames nodes' of
-        Left err -> Left err
-        Right (vertexNames', vertexNodes, rest') ->
-          case nodesToAnnotatedVertices topMeta vertexNodes of
-            Left err -> Left err
-            Right (badNodes, avNE) ->
-              let firstAV = NE.head avNE
-                  vertexTree = VertexTree topComments avNE
-               in case determineGroup brks (aVertex firstAV) of
-                    Just treeType ->
-                      let updatedForest = insertTreeInForest treeType vertexTree vertexForest
-                       in Right
-                            (vertexNames', badAcc <> badNodes, treeType, vertexTree, updatedForest, rest')
-                    Nothing -> Left "invalid breakpoint"
+   in runExcept
+        ( do
+            (vertexNames', vertexNodes, rest') <-
+              except (breakVertices vertexPrefix vertexNames nodes')
+            (badNodes, avNE) <- except (nodesToAnnotatedVertices topMeta vertexNodes)
+            let firstAV = NE.head avNE
+                vertexTree = VertexTree topComments avNE
+            treeType <- except . determineGroup brks . aVertex $ firstAV
+            let updatedForest = insertTreeInForest treeType vertexTree vertexForest
+            pure
+              (vertexNames', badAcc <> badNodes, treeType, vertexTree, updatedForest, rest')
+        )
 
-determineGroup :: XGroupBreakpoints -> Vertex -> Maybe VertexTreeType
+
+determineGroup :: XGroupBreakpoints -> Vertex -> Either Text VertexTreeType
 determineGroup (XGroupBreakpoints brks) v =
   case [vtype | (XGroupBreakpoint f brk, vtype) <- brks, applyOperator f (vX v) brk] of
-    (vtype : _) -> Just vtype
-    [] -> Nothing
+    (vtype : _) -> Right vtype
+    [] -> Left "invalid breakpoint"
 
-determineGroup' :: XGroupBreakpoints -> Vertex -> Maybe VertexTreeType
+determineGroup' :: XGroupBreakpoints -> Vertex -> Either Text VertexTreeType
 determineGroup' brks v
-  | isSupportVertex v = Just SupportTree
+  | isSupportVertex v = Right SupportTree
   | otherwise = determineGroup brks v
 
 nodesListToTree
