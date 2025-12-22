@@ -12,10 +12,11 @@ import JbeamEdit.Parsing.DSL (parseDSL)
 import JbeamEdit.Parsing.Jbeam (parseNodes)
 import JbeamEdit.Transformation
 import JbeamEdit.Transformation.Config
-import System.Directory (getCurrentDirectory, getDirectoryContents)
+import System.Directory (getDirectoryContents)
 import System.Exit (exitFailure)
 import System.FilePath (dropExtension, takeBaseName, (</>))
 import System.IO qualified as IO (readFile)
+import System.OsPath qualified as OS (unsafeEncodeUtf, (</>))
 import Text.Pretty.Simple (
   StringOutputStyle (..),
   defaultOutputOptionsNoColor,
@@ -25,9 +26,9 @@ import Text.Pretty.Simple (
 
 main :: IO ()
 main = do
-  cwd <- getCurrentDirectory
   exampleCfg <-
-    loadTransformationConfig $ cwd </> "examples" </> "jbeam-edit.yaml"
+    loadTransformationConfig $
+      OS.unsafeEncodeUtf "examples" OS.</> OS.unsafeEncodeUtf "jbeam-edit.yaml"
   let examplesDir = "examples"
       jbflInputDir = examplesDir </> "jbfl"
       jbeamInputDir = examplesDir </> "jbeam"

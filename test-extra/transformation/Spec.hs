@@ -9,6 +9,7 @@ import JbeamEdit.Formatting
 import JbeamEdit.Transformation
 import JbeamEdit.Transformation.Config
 import System.Directory (getDirectoryContents)
+import System.OsPath
 import Test.Hspec
 
 listFilesInDir
@@ -39,7 +40,7 @@ topNodeSpec rs cfName tfConfig inFilename outFilename = do
 
 main :: IO ()
 main = hspec $ do
-  let exampleConfigPath = "examples/jbeam-edit.yaml"
+  let exampleConfigPath = unsafeEncodeUtf "examples/jbeam-edit.yaml"
   rs <- runIO $ readFile "examples/ast/jbfl/minimal.hs"
   tfConfig <- runIO $ loadTransformationConfig exampleConfigPath
   inputFiles <-

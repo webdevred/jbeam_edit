@@ -22,10 +22,8 @@ import Data.Text qualified as T
 #endif
 
 #ifdef ENABLE_TRANSFORMATION
-import System.FilePath qualified as FP ((</>))
 import JbeamEdit.Transformation (transform)
 import JbeamEdit.Transformation.Config
-import System.Directory qualified as FP (getCurrentDirectory)
 #endif
 
 main :: IO ()
@@ -81,8 +79,8 @@ applyTransform :: Options -> Node -> IO (Either Text Node)
 #ifdef ENABLE_TRANSFORMATION
 applyTransform (Options {optTransformation = False}) topNode = pure (Right topNode)
 applyTransform opts topNode = do
-  cwd <- FP.getCurrentDirectory
-  tfConfig <- loadTransformationConfig $ cwd FP.</> transformationConfigFile
+  cwd <- getCurrentDirectory
+  tfConfig <- loadTransformationConfig $ cwd </> transformationConfigFile
   case transform (optUpdateNames opts) tfConfig topNode of
     Right (badVertexNodes, badBeamNodes, topNode') -> do
       reportInvalidNodes "Invalid vertex nodes encountered:" badVertexNodes
