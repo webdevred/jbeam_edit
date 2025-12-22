@@ -15,7 +15,6 @@ module JbeamEdit.Transformation.Config (
 ) where
 
 import Control.Monad (forM, when)
-import Control.Monad.Except (ExceptT (..), runExceptT)
 import Data.Bifunctor (first)
 import Data.ByteString.Lazy qualified as LBS
 import Data.Functor (($>))
@@ -158,9 +157,7 @@ decodeConfig content =
 
 loadTransformationConfig :: OsPath -> IO TransformationConfig
 loadTransformationConfig filename = do
-  configEither <-
-    runExceptT
-      (ExceptT (tryReadFile [NoSuchThing] filename) >>= ExceptT . pure . decodeConfig)
-  case configEither of
+  content <- tryReadFile [NoSuchThing] filename
+  case content >>= decodeConfig of
     Right config -> pure config
     Left err -> putErrorLine err $> newTransformationConfig
