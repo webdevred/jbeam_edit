@@ -83,7 +83,7 @@ internal-libraries:
     when:
       condition: flag(transformation)
       then:
-        dependencies: [yaml, extra, ordered-containers]
+        dependencies: [yaml, extra, transformers, ordered-containers]
       else:
         buildable: false
     source-dirs: src-extra/transformation

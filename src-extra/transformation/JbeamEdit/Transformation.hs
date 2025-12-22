@@ -131,7 +131,7 @@ addVertexTreeToForest newNames tf grouped forest forestAcc t =
 groupAnnotatedVertices
   :: XGroupBreakpoints
   -> AnnotatedVertex
-  -> Maybe (VertexTreeType, [AnnotatedVertex])
+  -> Either Text (VertexTreeType, [AnnotatedVertex])
 groupAnnotatedVertices brks g = (,[g]) <$> determineGroup' brks (aVertex g)
 
 updateSupportVertexName
@@ -212,7 +212,7 @@ moveVerticesInVertexForest topNode newNames tfCfg vertexTrees =
           vertexTrees
       brks = xGroupBreakpoints tfCfg
    in case mapM (groupAnnotatedVertices brks) allVertices of
-        Just movableVertices' -> do
+        Right movableVertices' -> do
           let groupedVertices = M.fromListWith (++) movableVertices'
           (badBeamNodes, conns) <-
             vertexConns (maxSupportCoordinates tfCfg) topNode groupedVertices
@@ -228,7 +228,7 @@ moveVerticesInVertexForest topNode newNames tfCfg vertexTrees =
               supportForest
               treesOrder
           Right (badBeamNodes, newForest)
-        Nothing -> Left "invalid breakpoint"
+        Left err -> Left err
 
 getVertexNamesInForest
   :: VertexForest -> M.Map (Scientific, Scientific, Scientific) Text
@@ -356,7 +356,7 @@ assignNames newNames brks treeType prefixMap av =
   let v = aVertex av
       updatedPrefix cleanPrefix' = M.findWithDefault cleanPrefix' cleanPrefix' newNames
       prefix = dropIndex (vName v)
-      typeSpecific = maybe "" prefixForType (determineGroup brks v)
+      typeSpecific = either (const "") prefixForType (determineGroup brks v)
       (prefix', lastChar) = fromMaybe (error "unreachable") (T.unsnoc prefix)
       isLmr = lastChar `elem` ['l', 'm', 'r']
       supportPrefixChar = T.singleton 's' <> bool typeSpecific (T.singleton lastChar) isLmr

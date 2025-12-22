@@ -157,6 +157,7 @@ library jbeam-edit-transformation
         build-depends:
             extra,
             ordered-containers,
+            transformers,
             yaml
 
     else
