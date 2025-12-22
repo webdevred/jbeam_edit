@@ -77,6 +77,10 @@ flags:
     description: Use executable-relative example paths (for Windows release builds)
     default: false
     manual: true
+  read-instances:
+    description: Read instances (dev)
+    default: false
+    manual: true
 
 internal-libraries:
   jbeam-edit-transformation:
@@ -105,6 +109,8 @@ library:
   generated-other-modules: Paths_jbeam_edit
   dependencies: [megaparsec, file-io]
   when:
+    - condition: flag(read-instances)
+      cpp-options: -DREAD_INSTANCES
     - condition: flag(transformation)
       cpp-options: -DENABLE_TRANSFORMATION
     - condition: os(windows) && flag(windows-example-paths)

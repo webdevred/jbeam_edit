@@ -1,6 +1,6 @@
 cabal-version:      2.2
 
--- This file has been generated from package.yaml by hpack version 0.38.0.
+-- This file has been generated from package.yaml by hpack version 0.38.3.
 --
 -- see: https://github.com/sol/hpack
 
@@ -51,6 +51,11 @@ flag dump-ast
 
 flag lsp-server
     description: Enable LSP server (experimental)
+    default:     False
+    manual:      True
+
+flag read-instances
+    description: Read instances (dev)
     default:     False
     manual:      True
 
@@ -110,6 +115,9 @@ library
 
     if os(windows)
         ghc-options: -optc-Os -optl-static
+
+    if flag(read-instances)
+        cpp-options: -DREAD_INSTANCES
 
     if flag(transformation)
         cpp-options: -DENABLE_TRANSFORMATION

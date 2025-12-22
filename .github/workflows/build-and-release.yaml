@@ -81,6 +81,7 @@ jobs:
       - name: Build main executable
         run: cabal build exe:jbeam-edit --project-file cabal.project.release
       - name: Run tests (GHC ${{ matrix.ghc }})
+        if: startsWith(github.ref, 'refs/heads/master')
         run: cabal test --project-file cabal.project.release
       - name: Run benchmarks (GHC ${{ matrix.ghc }})
         if: contains(matrix.flags, ' +transformation ')

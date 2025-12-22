@@ -17,4 +17,4 @@ package jbeam-edit
 
   documentation: False
   tests: True
-  flags: +dump-ast +transformation +lsp-server -windows-example-paths
+  flags: +read-instances +dump-ast +transformation +lsp-server -windows-example-paths

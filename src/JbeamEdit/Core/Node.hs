@@ -1,3 +1,5 @@
+{-# LANGUAGE CPP #-}
+
 module JbeamEdit.Core.Node (
   isCommentNode,
   isObjectNode,
@@ -27,14 +29,14 @@ type ObjectKey = (Node, Node)
 type Array = Vector Node
 
 data AssociationDirection = PreviousNode | NextNode
-  deriving (Eq, Ord, Read, Show)
+  deriving (Eq, Ord, Show)
 
 data InternalComment = InternalComment
   { cText :: Text
   , cMultiline :: Bool
   , cAssociationDirection :: AssociationDirection
   }
-  deriving (Eq, Ord, Read, Show)
+  deriving (Eq, Ord, Show)
 
 {- | Node type
  Note that the concept of a `Node` here is different from "node" in jbeam, when I mention JBeam nodes in this document I will explicitly call them JBeam nodes or call them Vertices.
@@ -64,7 +66,13 @@ data Node
   | Bool Bool
   | Comment InternalComment
   | Null
-  deriving (Eq, Ord, Read, Show)
+  deriving (Eq, Ord, Show)
+
+#ifdef READ_INSTANCES
+deriving instance Read AssociationDirection
+deriving instance Read Node
+deriving instance Read InternalComment         
+#endif
 
 commentIsAttachedToPreviousNode :: InternalComment -> Bool
 commentIsAttachedToPreviousNode = (==) PreviousNode . cAssociationDirection

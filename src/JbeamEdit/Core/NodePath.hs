@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE TypeFamilies #-}
 
 module JbeamEdit.Core.NodePath (
@@ -22,20 +23,25 @@ data NodeSelector
   = ArrayIndex Int
   | ObjectKey Text
   | ObjectIndex Int
-  deriving (Eq, Ord, Read, Show)
+  deriving (Eq, Ord, Show)
 
 {- | node path
 A NodePath is a Sequence of selectors to that point out a certain point in a Node tree, either to point at as something when fetching it from Node or to point to something compare that I at a certain point when doing updates.
 -}
 newtype NodePath
   = NodePath (Seq NodeSelector)
-  deriving newtype (Read, Show)
+  deriving stock (Show)
 
 instance IsList NodePath where
   type Item NodePath = NodeSelector
   fromList = NodePath . fromList
   toList (NodePath xs) = toList xs
 
+#ifdef READ_INSTANCES
+deriving instance Read NodeSelector
+deriving instance Read NodePath
+#endif          
+  
 extractValInKey :: N.Node -> Maybe N.Node
 extractValInKey (N.ObjectKey (_, val)) = Just val
 extractValInKey _ = Nothing
