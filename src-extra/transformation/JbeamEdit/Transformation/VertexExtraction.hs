@@ -216,7 +216,6 @@ newVertexTree brks vertexNames badAcc vertexForest nodes =
               (vertexNames', badAcc <> badNodes, treeType, vertexTree, updatedForest, rest')
         )
 
-
 determineGroup :: XGroupBreakpoints -> Vertex -> Either Text VertexTreeType
 determineGroup (XGroupBreakpoints brks) v =
   case [vtype | (XGroupBreakpoint f brk, vtype) <- brks, applyOperator f (vX v) brk] of
