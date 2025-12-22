@@ -15,8 +15,10 @@ module JbeamEdit.Transformation.Config (
 ) where
 
 import Control.Monad (forM, when)
+import Control.Monad.Except (ExceptT (..), runExceptT)
+import Data.Bifunctor (first)
+import Data.ByteString.Lazy qualified as LBS
 import Data.Functor (($>))
-import Data.List (isPrefixOf)
 import Data.Scientific (Scientific)
 import Data.Text (Text)
 import Data.Text qualified as T
@@ -24,12 +26,11 @@ import Data.Yaml (
   Object,
   ParseException (..),
   Parser,
-  decodeFileEither,
+  decodeEither',
   prettyPrintParseException,
  )
 import Data.Yaml.Aeson (
   FromJSON (..),
-  YamlException (..),
   withArray,
   withObject,
   withText,
@@ -38,9 +39,11 @@ import Data.Yaml.Aeson (
   (.:?),
  )
 import GHC.Generics
+import GHC.IO.Exception (IOErrorType (NoSuchThing))
 import GHC.IsList
 import JbeamEdit.IOUtils
 import JbeamEdit.Transformation.Types (VertexTreeType (..))
+import System.OsPath
 import Text.Read
 
 defaultSortingThreshold :: Scientific
@@ -139,17 +142,25 @@ instance FromJSON TransformationConfig where
       <*> parseSupportThreshold o
       <*> o .:? "max-support-coordinates" .!= defaultMaxSupportCoordinates
 
-formatParseError :: ParseException -> IO ()
-formatParseError (AesonException err) = putErrorStringLn err
-formatParseError excp = case excp of
-  (InvalidYaml (Just (YamlException errMsg)))
-    | "Yaml file not found:" `isPrefixOf` errMsg -> pure ()
-  _ -> putErrorStringLn (prettyPrintParseException excp)
+formatParseError :: ParseException -> String
+formatParseError (AesonException err) = err
+formatParseError excp = prettyPrintParseException excp
 
-transformationConfigFile :: FilePath
-transformationConfigFile = ".jbeam-edit.yaml"
+transformationConfigFile :: OsPath
+transformationConfigFile = unsafeEncodeUtf ".jbeam-edit.yaml"
 
-loadTransformationConfig :: FilePath -> IO TransformationConfig
-loadTransformationConfig filename =
-  decodeFileEither filename
-    >>= either ((newTransformationConfig <$) . formatParseError) pure
+decodeConfig :: LBS.ByteString -> Either Text TransformationConfig
+decodeConfig "" = Right newTransformationConfig
+decodeConfig content =
+  first
+    (T.pack . formatParseError)
+    (decodeEither' $ LBS.toStrict content)
+
+loadTransformationConfig :: OsPath -> IO TransformationConfig
+loadTransformationConfig filename = do
+  configEither <-
+    runExceptT
+      (ExceptT (tryReadFile [NoSuchThing] filename) >>= ExceptT . pure . decodeConfig)
+  case configEither of
+    Right config -> pure config
+    Left err -> putErrorLine err $> newTransformationConfig
