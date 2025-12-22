@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE RankNTypes #-}
@@ -43,7 +44,7 @@ data NodePatternSelector
   = AnyObjectKey
   | AnyArrayIndex
   | Selector NodeSelector
-  deriving stock (Eq, Read, Show)
+  deriving stock (Eq, Show)
 
 instance Ord NodePatternSelector where
   compare a b = compare (rank a) (rank b)
@@ -55,8 +56,13 @@ instance Ord NodePatternSelector where
 
 newtype NodePattern
   = NodePattern (Seq NodePatternSelector)
-  deriving stock (Eq, Read, Show)
+  deriving stock (Eq, Show)
 
+#ifdef READ_INSTANCES
+deriving instance Read NodePattern
+deriving instance Read NodePatternSelector
+#endif
+           
 instance Monoid RuleSet where
   mempty = RuleSet M.empty
 

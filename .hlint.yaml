@@ -1,7 +1,7 @@
 - extensions:
   - default: true
   - {name: LambdaCase, within: []}
-  - {name: CPP, within: [JbeamEdit.Formatting.Config,JbeamEdit.Core.Node,JbeamEdit.Core.NodePath]}
+  - {name: CPP, within: [JbeamEdit.Formatting.Config,JbeamEdit.Formatting.Rules,JbeamEdit.Core.Node,JbeamEdit.Core.NodePath]}
 - modules:
   - {name: '**', qualifiedStyle: post}
 - warn: {lhs: nub (sort x), rhs: Data.List.Extra.nubSort x}
