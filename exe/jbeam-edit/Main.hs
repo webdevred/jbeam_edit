@@ -7,10 +7,9 @@ import Control.Monad (when)
 import Data.ByteString.Lazy qualified as LBS (fromStrict)
 import Data.Map (Map)
 import Data.Text (Text)
-import Data.Text.Encoding (encodeUtf8)
 import JbeamEdit.Core.Node (Node)
 import JbeamEdit.Core.NodeCursor
-import JbeamEdit.Formatting (RuleSet, formatNode)
+import JbeamEdit.Formatting (RuleSet, formatNodeAndWrite)
 import JbeamEdit.Formatting.Config
 import JbeamEdit.IOUtils
 import JbeamEdit.Parsing.Jbeam (parseNodes)
@@ -61,22 +60,8 @@ processNodes :: Options -> OsPath -> Node -> RuleSet -> IO ()
 processNodes opts outFile nodes formattingConfig = do
   transformedNode <- applyTransform formattingConfig opts nodes
   case transformedNode of
-    Right transformedNode' ->
-      OS.writeFile outFile
-        . LBS.fromStrict
-        . encodeUtf8
-        . replaceNewlines
-        . formatNode formattingConfig
-        $ transformedNode'
+    Right transformedNode' -> formatNodeAndWrite formattingConfig outFile transformedNode'
     Left err -> putErrorLine err
-
-#ifdef ENABLE_WINDOWS_NEWLINES
-replaceNewlines :: Text -> Text
-replaceNewlines = T.replace "\n" "\r\n"
-#else
-replaceNewlines :: Text -> Text
-replaceNewlines = id
-#endif
 
 applyTransform :: RuleSet -> Options -> Node -> IO (Either Text Node)
 #ifdef ENABLE_TRANSFORMATION
@@ -101,11 +86,7 @@ updateOtherFiles formattingConfig updatedNames filepath  = do
   contents <- tryReadFile [] filepath
   case contents >>= parseNodes of
     Right transformedNode' ->
-      OS.writeFile filepath
-        . LBS.fromStrict
-        . encodeUtf8
-        . replaceNewlines
-        . formatNode formattingConfig
+        formatNodeAndWrite formattingConfig filepath 
         . findAndUpdateTextInNode updatedNames newCursor
         $ transformedNode'
     Left err -> putErrorLine err                           

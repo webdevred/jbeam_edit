@@ -1,15 +1,20 @@
+{-# LANGUAGE CPP #-}
+
 module JbeamEdit.Formatting (
   formatNode,
   formatWithCursor,
   formatScalarNode,
+  formatNodeAndWrite,
   RuleSet (..),
 ) where
 
 import Data.Bool (bool)
+import Data.ByteString.Lazy qualified as LBS (fromStrict)
 import Data.Char (isSpace)
 import Data.Scientific (FPFormat (Fixed), formatScientific)
 import Data.Text (Text)
 import Data.Text qualified as T
+import Data.Text.Encoding (encodeUtf8)
 import Data.Vector (Vector)
 import Data.Vector qualified as V (null, toList)
 import JbeamEdit.Core.Node (
@@ -31,6 +36,8 @@ import JbeamEdit.Formatting.Rules (
   lookupIndentProperty,
   noComplexNewLine,
  )
+import System.File.OsPath qualified as OS (writeFile)
+import System.OsPath (OsPath)
 
 splitTrailing :: Bool -> Text -> (Text, Text)
 splitTrailing comma txt =
@@ -139,3 +146,23 @@ formatWithCursor rs cursor n =
 
 formatNode :: RuleSet -> Node -> Text
 formatNode rs node = formatWithCursor rs newCursor node <> T.singleton '\n'
+
+#ifdef ENABLE_WINDOWS_NEWLINES
+replaceNewlines :: Text -> Text
+replaceNewlines = T.replace "\n" "\r\n"
+#else
+replaceNewlines :: Text -> Text
+replaceNewlines = id
+#endif
+
+formatNodeAndWrite
+  :: RuleSet
+  -> OsPath
+  -> Node
+  -> IO ()
+formatNodeAndWrite rs outFile =
+  OS.writeFile outFile
+    . LBS.fromStrict
+    . encodeUtf8
+    . replaceNewlines
+    . formatNode rs
