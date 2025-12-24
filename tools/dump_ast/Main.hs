@@ -153,7 +153,7 @@ dumpTransformedJbeam cfName tfConfig rsDirPath jbeamInputAstDir outDir jbeamFile
       Left err -> do
         putStrLn $ "error occurred during transformation" ++ T.unpack err
         exitFailure
-      Right (_, _, jbeam') -> pure jbeam'
+      Right (_, _, _, jbeam') -> pure jbeam'
   dump outFilename (T.unpack $ formatNode rs transformedJbeam)
   where
     dump filename contents =

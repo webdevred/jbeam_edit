@@ -1,4 +1,4 @@
-module JbeamEdit.Transformation (transform) where
+module JbeamEdit.Transformation (findAndUpdateTextInNode, transform) where
 
 import Control.Monad (foldM)
 import Data.Bool (bool)
@@ -448,7 +448,7 @@ transform
   :: UpdateNamesMap
   -> TransformationConfig
   -> Node
-  -> Either Text ([Node], [Node], Node)
+  -> Either Text ([Node], [Node], UpdateNamesMap, Node)
 transform newNames tfCfg topNode =
   getVertexForest (xGroupBreakpoints tfCfg) verticesQuery topNode
     >>= getNamesAndUpdateTree
@@ -463,4 +463,4 @@ transform newNames tfCfg topNode =
           newTopNode =
             findAndUpdateTextInNode updateMap newCursor $
               updateVerticesInNode verticesQuery updatedVertexForest globals topNode
-       in Right (badVertexNodes, badBeamNodes, newTopNode)
+       in Right (badVertexNodes, badBeamNodes, updateMap, newTopNode)
