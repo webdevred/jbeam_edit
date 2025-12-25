@@ -117,6 +117,9 @@ library
     if (os(windows) && flag(windows-example-paths))
         cpp-options: -DWINDOWS_EXAMPLE_PATHS
 
+    if os(windows)
+        cpp-options: -DENABLE_WINDOWS_NEWLINES
+
 library jbeam-edit-transformation
     exposed-modules:
         JbeamEdit.Transformation
@@ -243,9 +246,6 @@ executable jbeam-edit
     if flag(transformation)
         cpp-options:   -DENABLE_TRANSFORMATION
         build-depends: jbeam-edit-transformation
-
-    if os(windows)
-        cpp-options: -DENABLE_WINDOWS_NEWLINES
 
 executable jbeam-edit-dump-ast
     main-is:            Main.hs
