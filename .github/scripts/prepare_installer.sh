@@ -55,27 +55,49 @@ else
   echo "Copied exe to /$DEST_DIR_RELEASE/jbeam-lsp-server.exe"
 fi
 
-TMP_DIR=$(mktemp -d)
-git show HEAD:"./examples/jbeam/fender.jbeam" >"$TMP_DIR/fender.${LABEL}.jbeam"
-git show HEAD:"./examples/jbeam/suspension.jbeam" >"$TMP_DIR/suspension.${LABEL}.jbeam"
-
-echo "fender.jbeam: $TMP_DIR/fender.${LABEL}.jbeam"
-echo "suspension.jbeam: $TMP_DIR/suspension.${LABEL}.jbeam"
-
 cp ./examples/jbeam-edit.yaml ./.jbeam-edit.yaml
+
+JBEAM_DIR="./examples/jbeam"
 
 custom_diff() {
   diff --color=always --suppress-common-lines "$1" "$2"
 }
 
-if [[ -n $LABEL ]] && [[ "$LABEL" == "experimental" ]]; then
-  ./dist/release/jbeam-edit -i -t "$TMP_DIR/fender.${LABEL}.jbeam"
-  ./dist/release/jbeam-edit -i -t "$TMP_DIR/suspension.${LABEL}.jbeam"
-  custom_diff "$TMP_DIR/fender.experimental.jbeam" ./examples/transformed_jbeam/fender-cfg-example.jbeam
-  custom_diff "$TMP_DIR/suspension.experimental.jbeam" ./examples/transformed_jbeam/suspension-cfg-example.jbeam
-else
-  ./dist/release/jbeam-edit -i "$TMP_DIR/fender.${LABEL}.jbeam"
-  ./dist/release/jbeam-edit -i "$TMP_DIR/suspension.${LABEL}.jbeam"
-  custom_diff "$TMP_DIR/fender.stable.jbeam" ./examples/formatted_jbeam/fender-minimal-jbfl.jbeam
-  custom_diff "$TMP_DIR/suspension.stable.jbeam" ./examples/formatted_jbeam/suspension-minimal-jbfl.jbeam
-fi
+mapfile -t JBEAM_FILES < <(find "$JBEAM_DIR" -maxdepth 1 -name "*.jbeam" -printf "%f\n")
+
+for f in "${JBEAM_FILES[@]}"; do
+  TMP_DIR=$(mktemp -d)
+  trap 'rm -rf "$TMP_DIR"' EXIT
+
+  if [[ "${LABEL:-}" == "experimental" ]]; then
+    if [[ "$f" == "frame.jbeam" ]]; then
+      git show HEAD:"$JBEAM_DIR/frame.jbeam" >"$TMP_DIR/frame.jbeam"
+      git show HEAD:"$JBEAM_DIR/fender.jbeam" >"$TMP_DIR/fender.jbeam"
+
+      ./dist/release/jbeam-edit -i -t "$TMP_DIR/frame.jbeam"
+
+      expected_fender="./examples/transformed_jbeam/fender-after-frame-cfg-example.jbeam"
+      echo "Checking fender.jbeam after frame transformation"
+      custom_diff "$TMP_DIR/fender.jbeam" "$expected_fender"
+    else
+      git show HEAD:"$JBEAM_DIR/$f" >"$TMP_DIR/$f"
+      ./dist/release/jbeam-edit -i -t "$TMP_DIR/$f"
+    fi
+
+    expected="./examples/transformed_jbeam/$(basename "$f" .jbeam)-cfg-example.jbeam"
+    echo "Checking $f against $expected"
+    custom_diff "$TMP_DIR/$f" "$expected"
+
+  else
+    git show HEAD:"$JBEAM_DIR/$f" >"$TMP_DIR/$f"
+    ./dist/release/jbeam-edit -i "$TMP_DIR/$f"
+
+    expected="./examples/formatted_jbeam/$(basename "$f" .jbeam)-minimal-jbfl.jbeam"
+    echo "Checking $f against $expected"
+    custom_diff "$TMP_DIR/$f" "$expected"
+  fi
+
+  rm -rf "$TMP_DIR"
+done
+
+echo "All jbeam files passed checks!"
