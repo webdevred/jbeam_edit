@@ -156,6 +156,7 @@ library jbeam-edit-transformation
     if flag(transformation)
         build-depends:
             extra,
+            file-io,
             ordered-containers,
             transformers,
             yaml
@@ -229,7 +230,6 @@ executable jbeam-edit
         bytestring,
         containers,
         directory,
-        file-io,
         filepath >=1.5.1.0,
         jbeam-edit,
         mtl,

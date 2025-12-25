@@ -1,4 +1,4 @@
-module JbeamEdit.Transformation (findAndUpdateTextInNode, transform) where
+module JbeamEdit.Transformation (findAndUpdateTextInNode, transform, updateOtherFiles, filterJbeamFiles) where
 
 import Control.Monad (foldM)
 import Data.Bool (bool)
@@ -24,12 +24,16 @@ import JbeamEdit.Core.Node
 import JbeamEdit.Core.NodeCursor (newCursor)
 import JbeamEdit.Core.NodeCursor qualified as NC
 import JbeamEdit.Core.NodePath qualified as NP
+import JbeamEdit.Formatting
+import JbeamEdit.IOUtils
+import JbeamEdit.Parsing.Jbeam
 import JbeamEdit.Transformation.Config
 import JbeamEdit.Transformation.OMap1 (OMap1)
 import JbeamEdit.Transformation.OMap1 qualified as OMap1
 import JbeamEdit.Transformation.SupportVertex
 import JbeamEdit.Transformation.Types
 import JbeamEdit.Transformation.VertexExtraction
+import System.OsPath
 
 verticesQuery :: NP.NodePath
 verticesQuery = fromList [NP.ObjectIndex 0, NP.ObjectKey "nodes"]
@@ -443,6 +447,24 @@ findAndUpdateTextInNode m cursor node =
   where
     applyBreadcrumbAndUpdateText =
       NC.applyCrumb cursor (findAndUpdateTextInNode m)
+
+filterJbeamFiles :: OsPath -> [OsPath] -> [OsPath]
+filterJbeamFiles filename = filter go
+  where
+    go path =
+      isNotEmacsBackupFile path
+        && pathEndsWithExtension ".jbeam" path
+        && path /= filename
+
+updateOtherFiles :: RuleSet -> UpdateNamesMap -> OsPath -> IO ()
+updateOtherFiles formattingConfig updatedNames filepath = do
+  contents <- tryReadFile [] filepath
+  case contents >>= parseNodes of
+    Right transformedNode' ->
+      formatNodeAndWrite formattingConfig filepath
+        . findAndUpdateTextInNode updatedNames newCursor
+        $ transformedNode'
+    Left err -> putErrorLine err
 
 transform
   :: UpdateNamesMap

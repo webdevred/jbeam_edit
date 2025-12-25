@@ -4,18 +4,14 @@ module Main (
 
 import CommandLineOptions
 import Control.Monad (when)
-import Data.ByteString.Lazy qualified as LBS (fromStrict)
-import Data.Map (Map)
 import Data.Text (Text)
 import JbeamEdit.Core.Node (Node)
-import JbeamEdit.Core.NodeCursor
 import JbeamEdit.Formatting (RuleSet, formatNodeAndWrite)
 import JbeamEdit.Formatting.Config
 import JbeamEdit.IOUtils
 import JbeamEdit.Parsing.Jbeam (parseNodes)
 import System.Directory.OsPath
 import System.Environment (getArgs)
-import System.File.OsPath qualified as OS (writeFile)
 import System.OsPath
 
 #ifdef ENABLE_WINDOWS_NEWLINES
@@ -24,7 +20,6 @@ import Data.Text qualified as T
 
 #ifdef ENABLE_TRANSFORMATION
 import JbeamEdit.Transformation
-import JbeamEdit.Transformation.Types    
 import JbeamEdit.Transformation.Config
 #endif
 
@@ -73,23 +68,12 @@ applyTransform rs opts@(Options {optTransformation = True, optInputFile = Just i
   jbeamFiles <- listDirectory dir
   case transform (optUpdateNames opts) tfConfig topNode of
     Right (badVertexNodes, badBeamNodes, updatedNames, topNode') -> do
-      print updatedNames
-      mapM_ (updateOtherFiles rs updatedNames) (map (dir </>) . filter ((/=) filename) $ jbeamFiles)
+      mapM_ (updateOtherFiles rs updatedNames) $ map (dir </>) (filterJbeamFiles filename jbeamFiles)
       reportInvalidNodes "Invalid vertex nodes encountered:" badVertexNodes
       reportInvalidNodes "Invalid beam nodes encountered:" badBeamNodes
       pure (Right topNode')
     Left err -> pure (Left err)
 applyTransform _ _ topNode = pure (Right topNode)
-
-updateOtherFiles :: RuleSet -> UpdateNamesMap -> OsPath ->  IO ()
-updateOtherFiles formattingConfig updatedNames filepath  = do
-  contents <- tryReadFile [] filepath
-  case contents >>= parseNodes of
-    Right transformedNode' ->
-        formatNodeAndWrite formattingConfig filepath 
-        . findAndUpdateTextInNode updatedNames newCursor
-        $ transformedNode'
-    Left err -> putErrorLine err                           
 #else
 applyTransform _ _  = pure . Right 
 #endif
