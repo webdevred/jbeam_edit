@@ -7,6 +7,7 @@ module JbeamEdit.IOUtils (
   reportInvalidNodes,
 ) where
 
+import Data.List (isPrefixOf)
 import Control.Exception (IOException, try)
 import Control.Monad (unless)
 import Data.ByteString.Lazy qualified as BL (
@@ -49,7 +50,9 @@ tryReadFile :: [IOErrorType] -> OsPath -> IO (Either Text BL.ByteString)
 tryReadFile noerrs fp = ioErrorMsg noerrs <$> try (OS.readFile fp)
 
 isNotEmacsBackupFile :: OsPath -> Bool
-isNotEmacsBackupFile = (/=) (unsafeEncodeUtf ".#")
+isNotEmacsBackupFile = not . all (isPrefixOf ".#") . decodeBaseFileName
+    where decodeBaseFileName :: OsPath -> Maybe FilePath
+          decodeBaseFileName = decodeUtf . takeFileName
 
 pathEndsWithExtension :: String -> OsPath -> Bool
 pathEndsWithExtension expectedExt filepath =
