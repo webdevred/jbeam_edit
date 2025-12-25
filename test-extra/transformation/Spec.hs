@@ -34,7 +34,7 @@ topNodeSpec rs cfName tfConfig inFilename outFilename = do
           ++ outFilename
       transformAndFormat =
         do
-          (_, _, node) <- transform M.empty tfConfig (read input)
+          (_, _, _, node) <- transform M.empty tfConfig (read input)
           Right (formatNode rs node)
   describe desc . it "works" $ transformAndFormat `shouldBe` Right (T.pack output)
 
