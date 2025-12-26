@@ -1,6 +1,6 @@
 module JbeamEdit.Transformation.SupportVertex (vertexConns) where
 
-import Data.Function ((&))
+import Data.Function (on, (&))
 import Data.List (sortOn)
 import Data.Map (Map)
 import Data.Map qualified as M
@@ -17,11 +17,12 @@ import JbeamEdit.Transformation.Types
 beamQuery :: NP.NodePath
 beamQuery = fromList [NP.ObjectIndex 0, NP.ObjectKey "beams"]
 
-possiblyBeam :: Node -> Result Node (Text, Text)
-possiblyBeam node
-  | isCommentNode node || isObjectNode node = Empty
+possiblyBeam :: [Text] -> Node -> Result Node (Text, Text)
+possiblyBeam knownNodeNames node
+  | hasUnknownNames || isCommentNode node || isObjectNode node = Empty
   | otherwise = maybe (Bad node) Good maybeBeam
   where
+    hasUnknownNames = any (uncurry ((||) `on` (`notElem` knownNodeNames))) maybeBeam
     maybeBeam =
       case node of
         (Array beamVec) ->
@@ -39,8 +40,9 @@ vertexConns maxX topNode vsPerType = case NP.queryNodes beamQuery topNode of
   Just (Array beams) -> Right $ go beams
   _ -> Left $ "could not find " <> T.show beamQuery
   where
+    knownNodeNames = concatMap (map (vName . aVertex)) vsPerType
     go beams =
-      let (badNodes, beamPairs) = mapResult possiblyBeam beams
+      let (badNodes, beamPairs) = mapResult (possiblyBeam knownNodeNames) beams
 
           counts :: Map Text Int
           counts =
