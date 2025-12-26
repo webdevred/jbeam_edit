@@ -1,6 +1,6 @@
 module JbeamEdit.Transformation (findAndUpdateTextInNode, transform, updateOtherFiles, filterJbeamFiles) where
 
-import Control.Monad (foldM)
+import Control.Monad (foldM, when)
 import Data.Bool (bool)
 import Data.Foldable.Extra (notNull)
 import Data.Function (on)
@@ -460,10 +460,11 @@ updateOtherFiles :: RuleSet -> UpdateNamesMap -> OsPath -> IO ()
 updateOtherFiles formattingConfig updatedNames filepath = do
   contents <- tryReadFile [] filepath
   case contents >>= parseNodes of
-    Right transformedNode' ->
-      formatNodeAndWrite formattingConfig filepath
-        . findAndUpdateTextInNode updatedNames newCursor
-        $ transformedNode'
+    Right node ->
+      let node' = findAndUpdateTextInNode updatedNames newCursor node
+       in when
+            (node /= node')
+            (formatNodeAndWrite formattingConfig filepath node')
     Left err -> putErrorLine err
 
 transform
