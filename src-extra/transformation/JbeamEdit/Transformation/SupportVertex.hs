@@ -1,9 +1,11 @@
 module JbeamEdit.Transformation.SupportVertex (vertexConns) where
 
+import Data.Either (partitionEithers)
 import Data.Function (on, (&))
 import Data.List (sortOn)
 import Data.Map (Map)
 import Data.Map qualified as M
+import Data.Maybe (catMaybes)
 import Data.Ord (Down (Down))
 import Data.Text (Text)
 import Data.Text qualified as T
@@ -11,16 +13,15 @@ import Data.Vector qualified as V
 import GHC.IsList
 import JbeamEdit.Core.Node
 import JbeamEdit.Core.NodePath qualified as NP
-import JbeamEdit.Core.Result
 import JbeamEdit.Transformation.Types
 
 beamQuery :: NP.NodePath
 beamQuery = fromList [NP.ObjectIndex 0, NP.ObjectKey "beams"]
 
-possiblyBeam :: [Text] -> Node -> Result Node (Text, Text)
+possiblyBeam :: [Text] -> Node -> Either Node (Maybe (Text, Text))
 possiblyBeam knownNodeNames node
-  | hasUnknownNames || isCommentNode node || isObjectNode node = Empty
-  | otherwise = maybe (Bad node) Good maybeBeam
+  | hasUnknownNames || isCommentNode node || isObjectNode node = Right Nothing
+  | otherwise = maybe (Left node) (Right . Just) maybeBeam
   where
     hasUnknownNames = any (uncurry ((||) `on` (`notElem` knownNodeNames))) maybeBeam
     maybeBeam =
@@ -42,7 +43,7 @@ vertexConns maxX topNode vsPerType = case NP.queryNodes beamQuery topNode of
   where
     knownNodeNames = concatMap (map (vName . aVertex)) vsPerType
     go beams =
-      let (badNodes, beamPairs) = mapResult (possiblyBeam knownNodeNames) beams
+      let (badNodes, beamPairs) = partitionEithers $ V.foldr ((:) . possiblyBeam knownNodeNames) [] beams
 
           counts :: Map Text Int
           counts =
@@ -53,7 +54,7 @@ vertexConns maxX topNode vsPerType = case NP.queryNodes beamQuery topNode of
                     & M.insertWith (+) b 1
               )
               M.empty
-              beamPairs
+              (catMaybes beamPairs)
 
           topVerticesPerType :: Map VertexTreeType [(AnnotatedVertex, Int)]
           topVerticesPerType =

@@ -71,7 +71,6 @@ library
         JbeamEdit.Core.Node
         JbeamEdit.Core.NodeCursor
         JbeamEdit.Core.NodePath
-        JbeamEdit.Core.Result
         JbeamEdit.Formatting
         JbeamEdit.Formatting.Config
         JbeamEdit.Formatting.Rules
