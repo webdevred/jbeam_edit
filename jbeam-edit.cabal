@@ -117,6 +117,9 @@ library
     if (os(windows) && flag(windows-example-paths))
         cpp-options: -DWINDOWS_EXAMPLE_PATHS
 
+    if os(windows)
+        cpp-options: -DENABLE_WINDOWS_NEWLINES
+
 library jbeam-edit-transformation
     exposed-modules:
         JbeamEdit.Transformation
@@ -156,6 +159,7 @@ library jbeam-edit-transformation
     if flag(transformation)
         build-depends:
             extra,
+            file-io,
             ordered-containers,
             transformers,
             yaml
@@ -229,7 +233,6 @@ executable jbeam-edit
         bytestring,
         containers,
         directory,
-        file-io,
         filepath >=1.5.1.0,
         jbeam-edit,
         mtl,
@@ -243,9 +246,6 @@ executable jbeam-edit
     if flag(transformation)
         cpp-options:   -DENABLE_TRANSFORMATION
         build-depends: jbeam-edit-transformation
-
-    if os(windows)
-        cpp-options: -DENABLE_WINDOWS_NEWLINES
 
 executable jbeam-edit-dump-ast
     main-is:            Main.hs

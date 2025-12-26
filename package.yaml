@@ -83,7 +83,12 @@ internal-libraries:
     when:
       condition: flag(transformation)
       then:
-        dependencies: [yaml, extra, transformers, ordered-containers]
+        dependencies:
+          - yaml
+          - file-io
+          - extra
+          - transformers
+          - ordered-containers
       else:
         buildable: false
     source-dirs: src-extra/transformation
@@ -109,6 +114,8 @@ library:
       cpp-options: -DENABLE_TRANSFORMATION
     - condition: os(windows) && flag(windows-example-paths)
       cpp-options: -DWINDOWS_EXAMPLE_PATHS
+    - condition: os(windows)
+      cpp-options: -DENABLE_WINDOWS_NEWLINES
 
 _jbeam-lsp-common: &jbeam-lsp-common
   main: Main.hs
@@ -122,13 +129,11 @@ executables:
     <<: *jbeam-options
     source-dirs: exe/jbeam-edit
     default-extensions: [CPP]
-    dependencies: [jbeam-edit, file-io]
+    dependencies: [jbeam-edit]
     when:
       - condition: flag(transformation)
         dependencies: [jbeam-edit-transformation]
         cpp-options: -DENABLE_TRANSFORMATION
-      - condition: os(windows)
-        cpp-options: -DENABLE_WINDOWS_NEWLINES
   jbeam-lsp-server:
     source-dirs: exe/jbeam-lsp-server
     when:

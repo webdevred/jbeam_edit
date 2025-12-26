@@ -53,7 +53,7 @@ main = do
               let (Right jAst) = parseNodes jText
                   (Right rAst) = parseDSL rText
               case transform M.empty cfg jAst of
-                Right (_, _, outAst) -> pure $ formatNode rAst outAst
+                Right (_, _, _, outAst) -> pure $ formatNode rAst outAst
                 Left err -> error (T.unpack err)
           )
 

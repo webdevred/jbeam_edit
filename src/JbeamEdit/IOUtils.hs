@@ -1,10 +1,18 @@
-module JbeamEdit.IOUtils (tryReadFile, putErrorLine, putErrorStringLn, reportInvalidNodes) where
+module JbeamEdit.IOUtils (
+  isNotEmacsBackupFile,
+  pathEndsWithExtension,
+  tryReadFile,
+  putErrorLine,
+  putErrorStringLn,
+  reportInvalidNodes,
+) where
 
 import Control.Exception (IOException, try)
 import Control.Monad (unless)
 import Data.ByteString.Lazy qualified as BL (
   ByteString,
  )
+import Data.List (isPrefixOf)
 import Data.Text (Text)
 import Data.Text qualified as T (append, pack, unpack)
 import GHC.IO.Exception (IOErrorType, IOException (IOError))
@@ -40,3 +48,14 @@ ioErrorMsg _ (Right valid) = Right valid
 
 tryReadFile :: [IOErrorType] -> OsPath -> IO (Either Text BL.ByteString)
 tryReadFile noerrs fp = ioErrorMsg noerrs <$> try (OS.readFile fp)
+
+isNotEmacsBackupFile :: OsPath -> Bool
+isNotEmacsBackupFile = not . all (isPrefixOf ".#") . decodeBaseFileName
+  where
+    decodeBaseFileName :: OsPath -> Maybe FilePath
+    decodeBaseFileName = decodeUtf . takeFileName
+
+pathEndsWithExtension :: String -> OsPath -> Bool
+pathEndsWithExtension expectedExt filepath =
+  let (_, ext) = splitExtensions filepath
+   in unsafeEncodeUtf expectedExt == ext

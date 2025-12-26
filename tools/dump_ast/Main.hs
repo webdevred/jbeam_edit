@@ -12,7 +12,8 @@ import JbeamEdit.Parsing.DSL (parseDSL)
 import JbeamEdit.Parsing.Jbeam (parseNodes)
 import JbeamEdit.Transformation
 import JbeamEdit.Transformation.Config
-import System.Directory (getDirectoryContents)
+import JbeamEdit.Transformation.Types
+import System.Directory (copyFile, getDirectoryContents)
 import System.Exit (exitFailure)
 import System.FilePath (dropExtension, takeBaseName, (</>))
 import System.IO qualified as IO (readFile)
@@ -59,6 +60,7 @@ main = do
           ( dumpTransformedJbeam
               "cfg-default"
               newTransformationConfig
+              jbeamInputDir
               jbflAstDir
               jbeamAstDir
               transformedDir
@@ -68,6 +70,7 @@ main = do
           ( dumpTransformedJbeam
               "cfg-example"
               exampleCfg
+              jbeamInputDir
               jbflAstDir
               jbeamAstDir
               transformedDir
@@ -135,6 +138,24 @@ dumpFormattedJbeam outDir (jbeamFile, ruleFile) = do
       let outFile = outDir </> filename
        in saveDump outFile contents
 
+fenderAfterFrame
+  :: String
+  -> RuleSet
+  -> UpdateNamesMap
+  -> FilePath
+  -> FilePath
+  -> String
+  -> IO ()
+fenderAfterFrame "frame" rs updateNames input out cfName = do
+  let outFile = out </> "fender-after-frame-" ++ cfName ++ ".jbeam"
+  copyFile input outFile
+  putStrLn ("creating " ++ outFile)
+  updateOtherFiles
+    rs
+    updateNames
+    (OS.unsafeEncodeUtf outFile)
+fenderAfterFrame _ _ _ _ _ _ = pure ()
+
 dumpTransformedJbeam
   :: String
   -> TransformationConfig
@@ -142,8 +163,9 @@ dumpTransformedJbeam
   -> FilePath
   -> FilePath
   -> FilePath
+  -> FilePath
   -> IO ()
-dumpTransformedJbeam cfName tfConfig rsDirPath jbeamInputAstDir outDir jbeamFile = do
+dumpTransformedJbeam cfName tfConfig jbeamDir rsDirPath jbeamInputAstDir outDir jbeamFile = do
   jbeam <-
     read <$> IO.readFile (jbeamInputAstDir </> (takeBaseName jbeamFile <> ".hs"))
   rs <- read <$> IO.readFile (rsDirPath </> "minimal.hs")
@@ -153,7 +175,15 @@ dumpTransformedJbeam cfName tfConfig rsDirPath jbeamInputAstDir outDir jbeamFile
       Left err -> do
         putStrLn $ "error occurred during transformation" ++ T.unpack err
         exitFailure
-      Right (_, _, jbeam') -> pure jbeam'
+      Right (_, _, updatedNames, jbeam') ->
+        fenderAfterFrame
+          (takeBaseName jbeamFile)
+          rs
+          updatedNames
+          (jbeamDir </> "fender.jbeam")
+          outDir
+          cfName
+          >> pure jbeam'
   dump outFilename (T.unpack $ formatNode rs transformedJbeam)
   where
     dump filename contents =
