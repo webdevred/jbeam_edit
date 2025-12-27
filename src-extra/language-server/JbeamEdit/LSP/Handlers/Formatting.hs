@@ -1,22 +1,21 @@
+{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE ExplicitNamespaces #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE NoGeneralizedNewtypeDeriving #-}
 
-module JbeamEdit.LSP.Handlers.Formatting (handlers) where
+module JbeamEdit.LSP.Handlers.Formatting (handlers, Config (..)) where
 
-import Colog.Core (
-  LogAction (..),
-  WithSeverity (..),
- )
+import Colog.Core
 import Control.Monad.IO.Class
-import Data.Bool (bool)
+import Data.Aeson qualified as A
 import Data.ByteString.Lazy qualified as LBS
 import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Text.Encoding (encodeUtf8)
+import GHC.Generics (Generic)
 import JbeamEdit.Core.Node (Node)
 import JbeamEdit.Formatting qualified as Fmt
 import JbeamEdit.Formatting.Rules (RuleSet)
-import JbeamEdit.LSP.Logging
 import JbeamEdit.LSP.Services.DocumentStore qualified as Docs
 import JbeamEdit.Parsing.Jbeam qualified as JbeamP
 import Language.LSP.Protocol.Message qualified as Msg
@@ -32,51 +31,40 @@ import Language.LSP.Protocol.Types qualified as J (
  )
 import Language.LSP.Server qualified as S
 
+newtype Config = Config ()
+  deriving (A.FromJSON, A.ToJSON, Generic, Show)
+
 handlers
-  :: RuleSet
-  -> LogAction IO (WithSeverity String)
-  -> S.Handlers (S.LspM config)
-handlers rs logAction =
+  :: MonadIO f
+  => LogAction f (WithSeverity Text) -> RuleSet -> S.Handlers f
+handlers logger rs =
   S.requestHandler Msg.SMethod_TextDocumentFormatting formattingHandler
   where
-    formattingHandler
-      :: Msg.TRequestMessage Msg.Method_TextDocumentFormatting
-      -> ( Either
-             (Msg.TResponseError Msg.Method_TextDocumentFormatting)
-             (Msg.MessageResult Msg.Method_TextDocumentFormatting)
-           -> S.LspM config ()
-         )
-      -> S.LspM config ()
     formattingHandler req responder = do
-      logDebug logAction "formattingHandler invoked"
+      logger <& WithSeverity "formattingHandler invoked" Debug
       let Msg.TRequestMessage _ _ _ (params :: J.DocumentFormattingParams) = req
-      handleParams rs logAction params responder
+      handleParams rs logger params responder
 
 handleParams
-  :: RuleSet
-  -> LogAction IO (WithSeverity String)
+  :: MonadIO m
+  => RuleSet
+  -> LogAction m (WithSeverity Text)
   -> J.DocumentFormattingParams
-  -> ( Either
-         (Msg.TResponseError Msg.Method_TextDocumentFormatting)
-         (Msg.MessageResult Msg.Method_TextDocumentFormatting)
-       -> S.LspM config ()
-     )
-  -> S.LspM config ()
-handleParams rs logAction params responder = do
+  -> (Either a ([J.TextEdit] J.|? J.Null) -> m b)
+  -> m b
+handleParams rs logger params responder = do
   let J.DocumentFormattingParams {J._textDocument = textDocId} = params
       J.TextDocumentIdentifier {J._uri = uri} = textDocId
       sendNoUpdate = responder (Right (J.InR J.Null))
 
   mText <- liftIO $ Docs.get uri
   case mText of
-    Nothing -> do
-      logDebug logAction ("no document in store for " <> J.getUri uri)
-      sendNoUpdate
+    Nothing ->
+      logger <& WithSeverity ("no document in store for " <> J.getUri uri) Info
+        >> sendNoUpdate
     Just txt ->
       case JbeamP.parseNodes . LBS.fromStrict . encodeUtf8 $ txt of
-        Left err -> do
-          logError logAction ("Parse error: " <> err)
-          sendNoUpdate
+        Left err -> logger <& WithSeverity ("Parse error: " <> err) Info >> sendNoUpdate
         Right node ->
           case runFormatNode rs txt node of
             Nothing ->

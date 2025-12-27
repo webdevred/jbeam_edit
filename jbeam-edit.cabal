@@ -169,7 +169,6 @@ library jbeam-edit-transformation
 library jbeam-language-server
     exposed-modules:
         JbeamEdit.LSP.Handlers.Formatting
-        JbeamEdit.LSP.Logging
         JbeamEdit.LSP.Server
         JbeamEdit.LSP.Services.DocumentStore
 
@@ -203,6 +202,7 @@ library jbeam-language-server
 
     if flag(lsp-server)
         build-depends:
+            aeson,
             co-log-core,
             lsp >=2.7
 

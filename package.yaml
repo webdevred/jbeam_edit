@@ -98,7 +98,7 @@ internal-libraries:
     when:
       condition: flag(lsp-server)
       then:
-        dependencies: [lsp >= 2.7, co-log-core]
+        dependencies: [lsp >= 2.7, co-log-core,aeson]
       else:
         buildable: false
     source-dirs: src-extra/language-server
