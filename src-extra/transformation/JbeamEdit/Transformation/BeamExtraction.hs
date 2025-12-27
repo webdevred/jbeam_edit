@@ -1,5 +1,6 @@
-module JbeamEdit.Transformation.SupportVertex (vertexConns) where
+module JbeamEdit.Transformation.BeamExtraction (vertexConns) where
 
+import Data.Bool (bool)
 import Data.Either (partitionEithers)
 import Data.Function (on, (&))
 import Data.List (genericTake, sortOn)
@@ -19,12 +20,23 @@ import Numeric.Natural (Natural)
 beamQuery :: NP.NodePath
 beamQuery = fromList [NP.ObjectIndex 0, NP.ObjectKey "beams"]
 
-possiblyBeam :: [Text] -> Node -> Either Node (Maybe (Text, Text))
-possiblyBeam knownNodeNames node
-  | hasUnknownNames || isCommentNode node || isObjectNode node = Right Nothing
+rejectUnknownName
+  :: Foldable t
+  => t Text
+  -> Either Node (Maybe (Text, Text))
+  -> Either Node (Maybe (Text, Text))
+rejectUnknownName knownNodeNames (Right maybeBeam) =
+  bool
+    (Right maybeBeam)
+    (Right Nothing)
+    (any (uncurry ((||) `on` (`notElem` knownNodeNames))) maybeBeam)
+rejectUnknownName _ beamError = beamError
+
+possiblyBeam :: Node -> Either Node (Maybe (Text, Text))
+possiblyBeam node
+  | isCommentNode node || isObjectNode node = Right Nothing
   | otherwise = maybe (Left node) (Right . Just) maybeBeam
   where
-    hasUnknownNames = any (uncurry ((||) `on` (`notElem` knownNodeNames))) maybeBeam
     maybeBeam =
       case node of
         (Array beamVec) ->
@@ -44,7 +56,9 @@ vertexConns maxSupport topNode vsPerType = case NP.queryNodes beamQuery topNode 
   where
     knownNodeNames = concatMap (map (vName . aVertex)) vsPerType
     go beams =
-      let (badNodes, beamPairs) = partitionEithers $ V.foldr ((:) . possiblyBeam knownNodeNames) [] beams
+      let (badNodes, beamPairs) =
+            partitionEithers $
+              V.foldr ((:) . rejectUnknownName knownNodeNames . possiblyBeam) [] beams
 
           counts :: Map Text Int
           counts =

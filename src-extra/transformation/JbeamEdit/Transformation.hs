@@ -30,7 +30,7 @@ import JbeamEdit.Parsing.Jbeam
 import JbeamEdit.Transformation.Config
 import JbeamEdit.Transformation.OMap1 (OMap1)
 import JbeamEdit.Transformation.OMap1 qualified as OMap1
-import JbeamEdit.Transformation.SupportVertex
+import JbeamEdit.Transformation.BeamExtraction
 import JbeamEdit.Transformation.Types
 import JbeamEdit.Transformation.VertexExtraction
 import System.OsPath
