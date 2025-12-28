@@ -3,13 +3,13 @@ module JbeamEdit.Transformation.BeamExtraction (vertexConns) where
 import Data.Bool (bool)
 import Data.Either (partitionEithers)
 import Data.Function (on, (&))
+import Data.Functor ((<&>))
 import Data.List (genericTake, sortOn)
 import Data.Map (Map)
 import Data.Map qualified as M
 import Data.Maybe (catMaybes)
 import Data.Ord (Down (Down))
 import Data.Text (Text)
-import Data.Text qualified as T
 import Data.Vector qualified as V
 import GHC.IsList
 import JbeamEdit.Core.Node
@@ -23,14 +23,13 @@ beamQuery = fromList [NP.ObjectIndex 0, NP.ObjectKey "beams"]
 rejectUnknownName
   :: Foldable t
   => t Text
-  -> Either Node (Maybe (Text, Text))
-  -> Either Node (Maybe (Text, Text))
-rejectUnknownName knownNodeNames (Right maybeBeam) =
+  -> Maybe (Text, Text)
+  -> Maybe (Text, Text)
+rejectUnknownName knownNodeNames maybeBeam =
   bool
-    (Right maybeBeam)
-    (Right Nothing)
+    maybeBeam
+    Nothing
     (any (uncurry ((||) `on` (`notElem` knownNodeNames))) maybeBeam)
-rejectUnknownName _ beamError = beamError
 
 possiblyBeam :: Node -> Either Node (Maybe (Text, Text))
 possiblyBeam node
@@ -50,15 +49,16 @@ vertexConns
   -> Node
   -> Map VertexTreeType [AnnotatedVertex]
   -> Either Text ([Node], VertexConnMap)
-vertexConns maxSupport topNode vsPerType = case NP.queryNodes beamQuery topNode of
-  Just (Array beams) -> Right $ go beams
-  _ -> Left $ "could not find " <> T.show beamQuery
+vertexConns maxSupport topNode vsPerType =
+  NP.queryNodes beamQuery topNode
+    >>= NP.expectArray beamQuery
+    <&> go
   where
     knownNodeNames = concatMap (map (vName . aVertex)) vsPerType
     go beams =
-      let (badNodes, beamPairs) =
-            partitionEithers $
-              V.foldr ((:) . rejectUnknownName knownNodeNames . possiblyBeam) [] beams
+      let possiblyInnerBeam = (:) . fmap (rejectUnknownName knownNodeNames) . possiblyBeam
+          (badNodes, beamPairs) =
+            partitionEithers (V.foldr possiblyInnerBeam [] beams)
 
           counts :: Map Text Int
           counts =

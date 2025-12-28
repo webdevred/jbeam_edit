@@ -308,11 +308,11 @@ getVertexForest
   -> Node
   -> Either Text ([Node], NonEmpty Node, VertexForest)
 getVertexForest brks np topNode =
-  case NP.queryNodes np topNode of
-    Nothing -> Left $ "could not find vertices at path " <> T.show np
-    Just node -> processNode node
+  NP.queryNodes np topNode
+    >>= NP.expectArray np
+    >>= processNode
   where
-    processNode (Array ns)
+    processNode ns
       | null ns = Left "empty array at vertex path"
       | otherwise =
           case V.toList ns of
@@ -327,7 +327,6 @@ getVertexForest brks np topNode =
                           getVertexForestGlobals badNodes header (firstTreeType, vertexForest)
               | otherwise -> Left "invalid vertex header"
             _ -> Left "missing vertex header"
-    processNode bad = Left $ "expected Array at vertex path, got: " <> T.show bad
 
 isValidVertexHeader :: Node -> Bool
 isValidVertexHeader (Array header) =

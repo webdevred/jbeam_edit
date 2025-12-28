@@ -5,10 +5,12 @@ module JbeamEdit.Core.NodePath (
   NodeSelector (..),
   queryNodes,
   select,
+  expectArray,
 ) where
 
 import Data.Sequence (Seq (..))
 import Data.Text (Text)
+import Data.Text qualified as T (show)
 import Data.Vector (Vector)
 import Data.Vector qualified as V
 import GHC.IsList (IsList (..))
@@ -36,6 +38,10 @@ instance IsList NodePath where
   fromList = NodePath . fromList
   toList (NodePath xs) = toList xs
 
+expectArray :: NodePath -> N.Node -> Either Text (Vector N.Node)
+expectArray _ (N.Array ns) = Right ns
+expectArray np _ = Left ("Expected to find array at " <> T.show np)
+
 extractValInKey :: N.Node -> Maybe N.Node
 extractValInKey (N.ObjectKey (_, val)) = Just val
 extractValInKey _ = Nothing
@@ -57,6 +63,8 @@ select (ObjectKey k) (N.Object ns) = extractValInKey =<< V.find (elem k . N.mayb
 select (ObjectIndex i) (N.Object a) = extractValInKey =<< getNthNonComment i a
 select _ _ = Nothing
 
-queryNodes :: NodePath -> N.Node -> Maybe N.Node
-queryNodes (NodePath (s :<| p)) n = queryNodes (NodePath p) =<< select s n
-queryNodes (NodePath Empty) n = Just n
+queryNodes :: NodePath -> N.Node -> Either Text N.Node
+queryNodes np = maybe (Left $ "could not find " <> T.show np) Right . go np
+  where
+    go (NodePath (s :<| p)) n = go (NodePath p) =<< select s n
+    go (NodePath Empty) n = Just n
