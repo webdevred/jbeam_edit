@@ -10,6 +10,7 @@ import Data.Map qualified as M
 import Data.Maybe (catMaybes)
 import Data.Ord (Down (Down))
 import Data.Text (Text)
+import Data.Vector (Vector)
 import Data.Vector qualified as V
 import GHC.IsList
 import JbeamEdit.Core.Node
@@ -23,26 +24,23 @@ beamQuery = fromList [NP.ObjectIndex 0, NP.ObjectKey "beams"]
 rejectUnknownName
   :: Foldable t
   => t Text
-  -> Maybe (Text, Text)
-  -> Maybe (Text, Text)
+  -> Maybe (Vector Text)
+  -> Maybe (Vector Text)
 rejectUnknownName knownNodeNames maybeBeam =
   bool
     maybeBeam
     Nothing
-    (any (uncurry ((||) `on` (`notElem` knownNodeNames))) maybeBeam)
+    (any (any (`notElem` knownNodeNames)) maybeBeam)
 
-possiblyBeam :: Node -> Either Node (Maybe (Text, Text))
+possiblyBeam :: Node -> Either Node (Maybe (Vector Text))
 possiblyBeam node
   | isCommentNode node || isObjectNode node = Right Nothing
-  | otherwise = maybe (Left node) (Right . Just) maybeBeam
+  | otherwise = maybe (Left node) (Right . Just) (maybeBeam node)
   where
-    maybeBeam =
-      case node of
-        (Array beamVec) ->
-          case V.toList beamVec of
-            (String vertex1 : String vertex2 : _) -> Just (vertex1, vertex2)
-            _ -> Nothing
-        _ -> Nothing
+    maybeString (String vertexName) = Just vertexName
+    maybeString _ = Nothing
+    maybeBeam (Array beamVec) = mapM maybeString beamVec
+    maybeBeam _ = Nothing
 
 vertexConns
   :: Natural
@@ -63,11 +61,7 @@ vertexConns maxSupport topNode vsPerType =
           counts :: Map Text Int
           counts =
             foldr
-              ( \(a, b) acc ->
-                  acc
-                    & M.insertWith (+) a 1
-                    & M.insertWith (+) b 1
-              )
+              (flip (V.foldr (\nodeName -> M.insertWith (+) nodeName 1)))
               M.empty
               (catMaybes beamPairs)
 
