@@ -2,7 +2,7 @@ module JbeamEdit.Transformation.SupportVertex (vertexConns) where
 
 import Data.Either (partitionEithers)
 import Data.Function (on, (&))
-import Data.List (sortOn)
+import Data.List (genericTake, sortOn)
 import Data.Map (Map)
 import Data.Map qualified as M
 import Data.Maybe (catMaybes)
@@ -14,6 +14,7 @@ import GHC.IsList
 import JbeamEdit.Core.Node
 import JbeamEdit.Core.NodePath qualified as NP
 import JbeamEdit.Transformation.Types
+import Numeric.Natural (Natural)
 
 beamQuery :: NP.NodePath
 beamQuery = fromList [NP.ObjectIndex 0, NP.ObjectKey "beams"]
@@ -33,11 +34,11 @@ possiblyBeam knownNodeNames node
         _ -> Nothing
 
 vertexConns
-  :: Int
+  :: Natural
   -> Node
   -> Map VertexTreeType [AnnotatedVertex]
   -> Either Text ([Node], VertexConnMap)
-vertexConns maxX topNode vsPerType = case NP.queryNodes beamQuery topNode of
+vertexConns maxSupport topNode vsPerType = case NP.queryNodes beamQuery topNode of
   Just (Array beams) -> Right $ go beams
   _ -> Left $ "could not find " <> T.show beamQuery
   where
@@ -60,10 +61,10 @@ vertexConns maxX topNode vsPerType = case NP.queryNodes beamQuery topNode of
           topVerticesPerType =
             M.map
               ( \vs ->
-                  take maxX $
-                    sortOn
+                  genericTake maxSupport
+                    . sortOn
                       (Down . snd)
-                      ([(v, M.findWithDefault 0 (vName $ aVertex v) counts) | v <- vs])
+                    $ ([(v, M.findWithDefault 0 (vName $ aVertex v) counts) | v <- vs])
               )
               vsPerType
 

@@ -42,6 +42,7 @@ import GHC.IO.Exception (IOErrorType (NoSuchThing))
 import GHC.IsList
 import JbeamEdit.IOUtils
 import JbeamEdit.Transformation.Types (VertexTreeType (..))
+import Numeric.Natural (Natural)
 import System.OsPath
 import Text.Read
 
@@ -51,7 +52,7 @@ defaultSortingThreshold = 0.05
 defaultSupportThreshold :: Double
 defaultSupportThreshold = 96
 
-defaultMaxSupportCoordinates :: Int
+defaultMaxSupportCoordinates :: Natural
 defaultMaxSupportCoordinates = 3
 
 defaultBreakpoints :: XGroupBreakpoints
@@ -66,7 +67,7 @@ data TransformationConfig = TransformationConfig
   { zSortingThreshold :: Scientific
   , xGroupBreakpoints :: XGroupBreakpoints
   , supportThreshold :: Double
-  , maxSupportCoordinates :: Int
+  , maxSupportCoordinates :: Natural
   }
   deriving (Generic)
 
