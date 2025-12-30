@@ -84,5 +84,5 @@ validateBeams :: Maybe OsPath -> IO ()
 #ifdef ENABLE_TRANSFORMATION 
 validateBeams = BV.validateBeams
 #else
-validateBeams = pure
+validateBeams _ = pure ()
 #endif                
