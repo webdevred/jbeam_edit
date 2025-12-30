@@ -52,9 +52,7 @@ vertexConns
   -> Map VertexTreeType [AnnotatedVertex]
   -> Either Text ([Node], VertexConnMap)
 vertexConns maxSupport topNode vsPerType =
-  NP.queryNodes beamQuery topNode
-    >>= NP.expectArray beamQuery
-    <&> go
+  go <$> extractBeams topNode
   where
     knownNodeNames = concatMap (map anVertexName) vsPerType
     go beams =
