@@ -2,6 +2,7 @@ module JbeamEdit.Transformation.VertexExtraction (
   getVertexForest,
   determineGroup,
   determineGroup',
+  verticesQuery,
   metaMapFromObject,
   dropIndex,
 ) where
@@ -28,6 +29,9 @@ import JbeamEdit.Transformation.Config
 import JbeamEdit.Transformation.OMap1 (OMap1)
 import JbeamEdit.Transformation.OMap1 qualified as OMap1
 import JbeamEdit.Transformation.Types
+
+verticesQuery :: NP.NodePath
+verticesQuery = fromList [NP.ObjectIndex 0, NP.ObjectKey "nodes"]
 
 newVertex :: Node -> Maybe Vertex
 newVertex (Array ns) = f . V.toList $ ns
@@ -126,7 +130,7 @@ insertTreeInForest ttype vt f =
         f
 
 getVertexTreePrefix :: NonEmpty AnnotatedVertex -> VertexTreeKey
-getVertexTreePrefix vt = maybe SupportKey PrefixKey (getVertexPrefix . vName . aVertex . NE.head $ vt)
+getVertexTreePrefix vt = maybe SupportKey PrefixKey (getVertexPrefix . anVertexName . NE.head $ vt)
 
 insertTreeInMap
   :: VertexTree -> OMap1 VertexTreeKey VertexTree -> OMap1 VertexTreeKey VertexTree
@@ -308,11 +312,11 @@ getVertexForest
   -> Node
   -> Either Text ([Node], NonEmpty Node, VertexForest)
 getVertexForest brks np topNode =
-  case NP.queryNodes np topNode of
-    Nothing -> Left $ "could not find vertices at path " <> T.show np
-    Just node -> processNode node
+  NP.queryNodes np topNode
+    >>= NP.expectArray np
+    >>= processNode
   where
-    processNode (Array ns)
+    processNode ns
       | null ns = Left "empty array at vertex path"
       | otherwise =
           case V.toList ns of
@@ -327,7 +331,6 @@ getVertexForest brks np topNode =
                           getVertexForestGlobals badNodes header (firstTreeType, vertexForest)
               | otherwise -> Left "invalid vertex header"
             _ -> Left "missing vertex header"
-    processNode bad = Left $ "expected Array at vertex path, got: " <> T.show bad
 
 isValidVertexHeader :: Node -> Bool
 isValidVertexHeader (Array header) =

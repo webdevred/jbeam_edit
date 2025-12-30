@@ -1,4 +1,5 @@
 module JbeamEdit.Transformation.Types (
+  anVertexName,
   VertexForest,
   VertexTree (..),
   VertexTreeType (..),
@@ -61,6 +62,9 @@ data AnnotatedVertex = AnnotatedVertex
   , aMeta :: MetaMap
   }
   deriving (Eq, Show)
+
+anVertexName :: AnnotatedVertex -> Text
+anVertexName = vName . aVertex
 
 type MetaMap = Map Text Node
 

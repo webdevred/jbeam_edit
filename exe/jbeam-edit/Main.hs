@@ -21,6 +21,7 @@ import Data.Text qualified as T
 #ifdef ENABLE_TRANSFORMATION
 import JbeamEdit.Transformation
 import JbeamEdit.Transformation.Config
+import JbeamEdit.Transformation.BeamValidation  qualified as BV
 #endif
 
 main :: IO ()
@@ -28,6 +29,7 @@ main = do
   args <- getArgs
   opts <- parseOptions args
   case opts of
+    Options {optValidateBeams = True} -> validateBeams (optInputFile opts)
     Options {optCopyJbflConfig = Just configType} -> copyToConfigDir configType
     _ -> editFile opts
 
@@ -68,7 +70,7 @@ applyTransform rs opts@(Options {optTransformation = True, optInputFile = Just i
   jbeamFiles <- listDirectory dir
   case transform (optUpdateNames opts) tfConfig topNode of
     Right (badVertexNodes, badBeamNodes, updatedNames, topNode') -> do
-      mapM_ (updateOtherFiles rs updatedNames) $ map (dir </>) (filterJbeamFiles filename jbeamFiles)
+      mapM_ (updateOtherFiles rs updatedNames) $ map (dir </>) (filterJbeamFiles [filename] jbeamFiles)
       reportInvalidNodes "Invalid vertex nodes encountered:" badVertexNodes
       reportInvalidNodes "Invalid beam nodes encountered:" badBeamNodes
       pure (Right topNode')
@@ -77,3 +79,10 @@ applyTransform _ _ topNode = pure (Right topNode)
 #else
 applyTransform _ _  = pure . Right 
 #endif
+
+validateBeams :: Maybe OsPath -> IO ()
+#ifdef ENABLE_TRANSFORMATION 
+validateBeams = BV.validateBeams
+#else
+validateBeams _ = pure ()
+#endif                

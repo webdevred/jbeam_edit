@@ -27,16 +27,13 @@ import JbeamEdit.Core.NodePath qualified as NP
 import JbeamEdit.Formatting
 import JbeamEdit.IOUtils
 import JbeamEdit.Parsing.Jbeam
+import JbeamEdit.Transformation.BeamExtraction
 import JbeamEdit.Transformation.Config
 import JbeamEdit.Transformation.OMap1 (OMap1)
 import JbeamEdit.Transformation.OMap1 qualified as OMap1
-import JbeamEdit.Transformation.SupportVertex
 import JbeamEdit.Transformation.Types
 import JbeamEdit.Transformation.VertexExtraction
 import System.OsPath
-
-verticesQuery :: NP.NodePath
-verticesQuery = fromList [NP.ObjectIndex 0, NP.ObjectKey "nodes"]
 
 prefixForType :: VertexTreeType -> Text
 prefixForType LeftTree = "l"
@@ -448,13 +445,13 @@ findAndUpdateTextInNode m cursor node =
     applyBreadcrumbAndUpdateText =
       NC.applyCrumb cursor (findAndUpdateTextInNode m)
 
-filterJbeamFiles :: OsPath -> [OsPath] -> [OsPath]
-filterJbeamFiles filename = filter go
+filterJbeamFiles :: [OsPath] -> [OsPath] -> [OsPath]
+filterJbeamFiles excludedFilenames = filter go
   where
     go path =
       isNotEmacsBackupFile path
         && pathEndsWithExtension ".jbeam" path
-        && path /= filename
+        && notElem path excludedFilenames
 
 updateOtherFiles :: RuleSet -> UpdateNamesMap -> OsPath -> IO ()
 updateOtherFiles formattingConfig updatedNames filepath = do

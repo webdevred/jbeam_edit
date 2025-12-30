@@ -1,6 +1,6 @@
 module Core.NodePathSpec (spec) where
 
-import Data.Maybe (isJust)
+import Data.Either (isRight)
 import GHC.IsList (fromList)
 import JbeamEdit.Core.NodePath qualified as NP
 import SpecHelper
@@ -43,5 +43,5 @@ spec = describe "select" $ do
           badPath = fromList [NP.ArrayIndex 0, NP.ArrayIndex 3]
           nodes = NP.queryNodes path ast
           badNodes = NP.queryNodes badPath ast
-      badNodes `shouldNotSatisfy` isJust
-      nodes `shouldSatisfy` isJust
+      badNodes `shouldNotSatisfy` isRight
+      nodes `shouldSatisfy` isRight
