@@ -48,11 +48,15 @@ validateBeams inputFile = do
         Left _ -> fail $ "Invalid beam node in file " ++ show fp
         Right Nothing -> pure ()
         Right (Just vertexNames) ->
-          unless (all (`S.member` allVertexNames) vertexNames) . fail $
-            "Beam in file "
-              ++ show fp
-              ++ " references unknown vertices: "
-              ++ show (V.toList vertexNames)
+          let vertexNames' = V.toList vertexNames
+              invalid = S.difference (S.fromList vertexNames') allVertexNames
+           in unless (S.null invalid) . fail $
+                "Beam in file "
+                  ++ show fp
+                  ++ " references unknown vertices: "
+                  ++ show (S.toList invalid)
+                  ++ " in "
+                  ++ show vertexNames'
   where
     parseFileIO :: OsPath -> IO (OsPath, Node, Set Text)
     parseFileIO fp = do
