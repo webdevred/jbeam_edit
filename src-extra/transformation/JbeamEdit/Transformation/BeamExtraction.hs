@@ -1,4 +1,4 @@
-module JbeamEdit.Transformation.BeamExtraction (vertexConns) where
+module JbeamEdit.Transformation.BeamExtraction (vertexConns, possiblyBeam, extractBeams) where
 
 import Data.Bool (bool)
 import Data.Either (partitionEithers)
@@ -42,6 +42,11 @@ possiblyBeam node
     maybeBeam (Array beamVec) = mapM maybeString beamVec
     maybeBeam _ = Nothing
 
+extractBeams :: Node -> Either Text (Vector Node)
+extractBeams topNode =
+  NP.queryNodes beamQuery topNode
+    >>= NP.expectArray beamQuery
+
 vertexConns
   :: Natural
   -> Node
@@ -52,7 +57,7 @@ vertexConns maxSupport topNode vsPerType =
     >>= NP.expectArray beamQuery
     <&> go
   where
-    knownNodeNames = concatMap (map (vName . aVertex)) vsPerType
+    knownNodeNames = concatMap (map anVertexName) vsPerType
     go beams =
       let possiblyInnerBeam = (:) . fmap (rejectUnknownName knownNodeNames) . possiblyBeam
           (badNodes, beamPairs) =
@@ -72,14 +77,14 @@ vertexConns maxSupport topNode vsPerType =
                   genericTake maxSupport
                     . sortOn
                       (Down . snd)
-                    $ ([(v, M.findWithDefault 0 (vName $ aVertex v) counts) | v <- vs])
+                    $ ([(v, M.findWithDefault 0 (anVertexName v) counts) | v <- vs])
               )
               vsPerType
 
           vertexConnMap :: VertexConnMap
           vertexConnMap =
             M.fromList
-              [ (vName $ aVertex v, (t, c))
+              [ (anVertexName v, (t, c))
               | (t, vs) <- M.toList topVerticesPerType
               , (v, c) <- vs
               ]

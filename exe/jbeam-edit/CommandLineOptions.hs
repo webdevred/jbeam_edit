@@ -25,6 +25,7 @@ data Options = Options
   , optInputFile :: Maybe OsPath
   , optUpdateNames :: Map Text Text
   , optTransformation :: Bool
+  , optValidateBeams :: Bool
   }
   deriving (Show)
 
@@ -36,6 +37,7 @@ startOptions =
     , optCopyJbflConfig = Nothing
     , optUpdateNames = M.empty
     , optTransformation = False
+    , optValidateBeams = False
     }
 
 parseOptions :: [String] -> IO Options
@@ -74,6 +76,11 @@ updateNamesOption =
         (\opt -> pure opt {optTransformation = True})
     )
     "Enable transformation"
+  , Option
+    "b"
+    ["validate-beams"]
+    (NoArg (\opt -> pure opt {optValidateBeams = True}))
+    "Validate beams"
   ]
 
 splitNames :: Text -> Maybe (Text, Text)

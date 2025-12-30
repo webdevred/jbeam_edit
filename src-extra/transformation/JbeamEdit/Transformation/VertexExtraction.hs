@@ -2,6 +2,7 @@ module JbeamEdit.Transformation.VertexExtraction (
   getVertexForest,
   determineGroup,
   determineGroup',
+  verticesQuery,
   metaMapFromObject,
   dropIndex,
 ) where
@@ -28,6 +29,9 @@ import JbeamEdit.Transformation.Config
 import JbeamEdit.Transformation.OMap1 (OMap1)
 import JbeamEdit.Transformation.OMap1 qualified as OMap1
 import JbeamEdit.Transformation.Types
+
+verticesQuery :: NP.NodePath
+verticesQuery = fromList [NP.ObjectIndex 0, NP.ObjectKey "nodes"]
 
 newVertex :: Node -> Maybe Vertex
 newVertex (Array ns) = f . V.toList $ ns
@@ -126,7 +130,7 @@ insertTreeInForest ttype vt f =
         f
 
 getVertexTreePrefix :: NonEmpty AnnotatedVertex -> VertexTreeKey
-getVertexTreePrefix vt = maybe SupportKey PrefixKey (getVertexPrefix . vName . aVertex . NE.head $ vt)
+getVertexTreePrefix vt = maybe SupportKey PrefixKey (getVertexPrefix . anVertexName . NE.head $ vt)
 
 insertTreeInMap
   :: VertexTree -> OMap1 VertexTreeKey VertexTree -> OMap1 VertexTreeKey VertexTree

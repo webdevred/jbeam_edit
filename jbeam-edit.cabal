@@ -123,6 +123,7 @@ library jbeam-edit-transformation
     exposed-modules:
         JbeamEdit.Transformation
         JbeamEdit.Transformation.BeamExtraction
+        JbeamEdit.Transformation.BeamValidation
         JbeamEdit.Transformation.Config
         JbeamEdit.Transformation.OMap1
         JbeamEdit.Transformation.Types
