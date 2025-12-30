@@ -2,7 +2,6 @@ module JbeamEdit.Transformation.BeamExtraction (vertexConns, possiblyBeam, extra
 
 import Data.Bool (bool)
 import Data.Either (partitionEithers)
-import Data.Functor ((<&>))
 import Data.List (genericTake, sortOn)
 import Data.Map (Map)
 import Data.Map qualified as M
