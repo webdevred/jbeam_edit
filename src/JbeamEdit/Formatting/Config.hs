@@ -15,7 +15,7 @@ import System.Environment (getExecutablePath)
 import Paths_jbeam_edit
 #endif
 
-import Control.Monad (when)
+import Control.Monad (unless)
 import Data.Functor (($>))
 import System.Directory.OsPath
 import System.FilePath qualified as FP
@@ -28,7 +28,7 @@ getRelativeJbflSourcePath MinimalConfig = "examples" FP.</> "jbfl" FP.</> "minim
 getRelativeJbflSourcePath ComplexConfig = "examples" FP.</> "jbfl" FP.</> "complex.jbfl"
 
 getConfigDir :: IO OsPath
-getConfigDir = getXdgDirectory XdgConfig =<< encodeUtf "jbeam_edit"
+getConfigDir = getAppUserDataDirectory (unsafeEncodeUtf "jbeam_edit")
 
 localRuleFile :: OsString
 localRuleFile = unsafeEncodeUtf ".jbeam_edit.jbfl"
@@ -54,7 +54,7 @@ getJbflSourcePath configType = do
     pure (unsafeEncodeUtf $ executableDir FP.</> getRelativeJbflSourcePath configType)
 #else
 getJbflSourcePath :: ConfigType -> IO OsPath
-getJbflSourcePath configType = encodeUtf =<< getDataFileName (getRelativeJbflSourcePath configType)
+getJbflSourcePath = fmap unsafeEncodeUtf . getDataFileName . getRelativeJbflSourcePath
 #endif
 
 copyConfigFile :: OsPath -> ConfigType -> IO ()
@@ -63,9 +63,9 @@ copyConfigFile dest configType = do
   source <- getJbflSourcePath configType
   putErrorLine
     ( "installing "
-        <> T.pack (show configType)
+        <> T.show configType
         <> " config file to "
-        <> T.pack (show dest)
+        <> T.show dest
     )
   copyFile source dest
 
@@ -77,14 +77,12 @@ copyToConfigDir configType = do
 createRuleFileIfDoesNotExist :: OsPath -> IO ()
 createRuleFileIfDoesNotExist configPath =
   doesFileExist configPath
-    >>= (`when` copyConfigFile configPath MinimalConfig) . not
+    >>= (`unless` copyConfigFile configPath MinimalConfig)
 
 readFormattingConfig :: Maybe OsPath -> IO RuleSet
 readFormattingConfig maybeJbflPath = do
   configDir <- getConfigDir
-  traverse_
-    (\jbfl -> putErrorLine $ "Loading jbfl: " <> T.pack (show jbfl))
-    maybeJbflPath
+  traverse_ (putErrorLine . (<>) "Loading jbfl: " . T.show) maybeJbflPath
   createRuleFileIfDoesNotExist (configDir </> userRuleFile)
   configPath <- getConfigPath maybeJbflPath configDir
   userCfg <- tryReadFile [NoSuchThing] configPath
