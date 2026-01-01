@@ -34,7 +34,7 @@ jobs:
       - name: Enable tests and benchmarks
         shell: bash
         run: |-
-          cabal configure --project-file cabal.project.ci -O1 --ghc-options="-Wwarn"
+          cabal configure --project-file cabal.project.ci -O1 --ghc-options="-Wwarn" --allow-newer all
           printf 'package jbeam-edit\n  benchmarks: True\n  ghc-options: -Wwarn'>>cabal.project.ci.local
           echo "contents of cabal.project.ci.local"
           cat cabal.project.ci.local
