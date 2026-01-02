@@ -4,6 +4,7 @@ module JbeamEdit.IOUtils (
   tryReadFile,
   putErrorLine,
   putErrorStringLn,
+  humanJoin,
   reportInvalidNodes,
 ) where
 
@@ -15,6 +16,8 @@ import Data.ByteString.Lazy qualified as BL (
 import Data.List (isPrefixOf)
 import Data.Text (Text)
 import Data.Text qualified as T (append, pack, unpack)
+import Data.Text.Lazy qualified as TL
+import Data.Text.Lazy.Builder qualified as B
 import GHC.IO.Exception (IOErrorType, IOException (IOError))
 import JbeamEdit.Core.Node (Node)
 import JbeamEdit.Formatting (formatNode)
@@ -59,3 +62,19 @@ pathEndsWithExtension :: String -> OsPath -> Bool
 pathEndsWithExtension expectedExt filepath =
   let (_, ext) = splitExtensions filepath
    in unsafeEncodeUtf expectedExt == ext
+
+humanJoin :: Text -> [Text] -> Text
+humanJoin lastCombiner =
+  TL.toStrict . B.toLazyText . go mempty
+  where
+    go acc [] = acc
+    go acc [x] = acc <> B.fromText x
+    go acc [x, y] =
+      acc
+        <> B.fromText x
+        <> " "
+        <> B.fromText lastCombiner
+        <> " "
+        <> B.fromText y
+    go acc (x : xs) =
+      go (acc <> B.fromText x <> B.fromText ", ") xs

@@ -11,18 +11,12 @@ import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Text.Encoding (decodeUtf8Lenient)
 import Data.Word (Word8)
+import JbeamEdit.IOUtils (humanJoin)
 import JbeamEdit.Parsing.Common.Helpers (charNotEqWord8, toChar, toWord8)
 import Text.Megaparsec qualified as MP
 
 joinAndFormatToks :: Set (MP.ErrorItem Word8) -> Text
-joinAndFormatToks = T.concat . reverse . f [] . S.elems
-  where
-    f acc toks =
-      case toks of
-        [tok] -> pure (formatTok tok)
-        [tok, tok2] -> formatTok tok2 : " or " : formatTok tok : acc
-        (tok : toks') -> f (", " : formatTok tok : acc) toks'
-        [] -> acc
+joinAndFormatToks = humanJoin "or" . map formatTok . S.elems
 
 formatTok :: MP.ErrorItem Word8 -> Text
 formatTok toks =

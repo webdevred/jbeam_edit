@@ -10,7 +10,7 @@ import Data.Text qualified as T
 import Data.Tuple.Extra (thd3)
 import Data.Vector qualified as V
 import JbeamEdit.Core.Node (Node)
-import JbeamEdit.IOUtils (tryReadFile)
+import JbeamEdit.IOUtils (humanJoin, tryReadFile)
 import JbeamEdit.Parsing.Jbeam (parseNodes)
 import JbeamEdit.Transformation
 import JbeamEdit.Transformation.BeamExtraction
@@ -68,7 +68,7 @@ validateBeam fp allVertexNames beamNode =
             "Beam in file "
               ++ show fp
               ++ " references unknown vertices: "
-              ++ show (S.toList invalid)
+              ++ T.unpack (humanJoin "and" (S.toList invalid))
               ++ " in "
               ++ show vertexNames'
 

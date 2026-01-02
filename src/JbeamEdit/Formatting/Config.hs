@@ -28,7 +28,7 @@ getRelativeJbflSourcePath MinimalConfig = "examples" FP.</> "jbfl" FP.</> "minim
 getRelativeJbflSourcePath ComplexConfig = "examples" FP.</> "jbfl" FP.</> "complex.jbfl"
 
 getConfigDir :: IO OsPath
-getConfigDir = getAppUserDataDirectory (unsafeEncodeUtf "jbeam_edit")
+getConfigDir = getXdgDirectory XdgConfig (unsafeEncodeUtf "jbeam_edit")
 
 localRuleFile :: OsString
 localRuleFile = unsafeEncodeUtf ".jbeam_edit.jbfl"
