@@ -95,7 +95,7 @@ library
         -Wunused-packages
 
     build-depends:
-        base >=4.18 && <5,
+        base >=4.18 && <4.22,
         bytestring,
         containers,
         directory,
@@ -142,7 +142,7 @@ library jbeam-edit-transformation
         -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
 
     build-depends:
-        base >=4.18 && <5,
+        base >=4.18 && <4.22,
         bytestring,
         containers,
         directory,
@@ -187,7 +187,7 @@ library jbeam-language-server
         -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
 
     build-depends:
-        base >=4.18 && <5,
+        base >=4.18 && <4.22,
         bytestring,
         containers,
         directory,
@@ -229,7 +229,7 @@ executable jbeam-edit
         -threaded -rtsopts -with-rtsopts=-N
 
     build-depends:
-        base >=4.18 && <5,
+        base >=4.18 && <4.22,
         bytestring,
         containers,
         directory,
@@ -263,7 +263,7 @@ executable jbeam-edit-dump-ast
         -threaded -rtsopts -with-rtsopts=-N
 
     build-depends:
-        base >=4.18 && <5,
+        base >=4.18 && <4.22,
         bytestring,
         containers,
         directory,
@@ -304,7 +304,7 @@ executable jbeam-lsp-server
         -threaded -rtsopts -with-rtsopts=-N
 
     build-depends:
-        base >=4.18 && <5,
+        base >=4.18 && <4.22,
         bytestring,
         containers,
         directory,
@@ -352,7 +352,7 @@ test-suite jbeam-edit-test
         -threaded -rtsopts -with-rtsopts=-N
 
     build-depends:
-        base >=4.18 && <5,
+        base >=4.18 && <4.22,
         bytestring,
         containers,
         directory,
@@ -389,7 +389,7 @@ test-suite jbeam-edit-transformation-test
         -threaded -rtsopts -with-rtsopts=-N
 
     build-depends:
-        base >=4.18 && <5,
+        base >=4.18 && <4.22,
         bytestring,
         containers,
         directory,
@@ -435,7 +435,7 @@ test-suite jbeam-language-server-test
         -threaded -rtsopts -with-rtsopts=-N
 
     build-depends:
-        base >=4.18 && <5,
+        base >=4.18 && <4.22,
         bytestring,
         containers,
         directory,

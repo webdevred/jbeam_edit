@@ -28,7 +28,7 @@ description: >-
 tested-with: [GHC == 9.6.6]
 
 dependencies:
-  - base >= 4.18 && < 5
+  - base >= 4.18 && < 4.22
   - bytestring
   - vector
   - text >= 2.1.2
