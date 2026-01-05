@@ -1,19 +1,16 @@
 ; -- Basic Inno Setup Script for jbeam-edit --
 
+#include "constants.inc"
+
 [Setup]
-AppName=jbeam-edit
-AppVersion=0.0.5.0
-DefaultDirName={commonpf}\jbeam-edit
-OutputBaseFilename=jbeam-edit-setup
+AppName={#AppName}
+AppVersion={#AppVersion}
+DefaultDirName={commonpf}\{#AppName}
+OutputBaseFilename={#AppName}-setup
 Compression=lzma
 SolidCompression=yes
 PrivilegesRequired=admin
-UninstallDisplayName=jbeam-edit
-
-[Files]
-Source: "..\dist\release\jbeam-edit.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\dist\release\jbeam-lsp-server.exe"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist
-Source: "..\dist\release\examples\jbfl\*"; DestDir: "{app}\examples\jbfl"; Flags: recursesubdirs createallsubdirs ignoreversion
+UninstallDisplayName={#AppName}
 
 [UninstallDelete]
 Name: "{app}\*"; Type: files
