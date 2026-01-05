@@ -5,7 +5,6 @@ set -euo pipefail
 CABAL_FILE="${CABAL_FILE:?Environment variable CABAL_FILE is required}"
 DIST_DIR="dist/release"
 OUT_FILE="installer/constants.inc"
-ISS_DIR="installer"
 
 GET_FIELD_AWK="./.github/script_helpers/get_cabal_field.awk"
 
@@ -20,7 +19,8 @@ get_multi_field() {
 }
 
 escape() {
-  echo "$1" | sed 's/"/\\"/g'
+  local input="$1"
+  printf '%s' "$input" | sed 's/["\\]/\\&/g'
 }
 
 APP_NAME=$(get_field "name")
@@ -45,7 +45,6 @@ REL_DIST_DIR="..\\dist\\release"
   echo "[Files]"
 
   shopt -s nullglob
-  first_exe=true
   for exe_path in "$DIST_DIR"/*.exe; do
     exe_name=$(basename "$exe_path")
     if [[ "$exe_name" == "jbeam-edit.exe" ]]; then
