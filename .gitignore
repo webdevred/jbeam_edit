@@ -4,6 +4,7 @@ cabal.project.local~
 cabal.project.*.local
 cabal.project.*.freeze
 dist-newstyle/
+installer/constants.inc
 dist/
 TAGS
 .hpc/
