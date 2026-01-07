@@ -126,6 +126,42 @@ moreNodesThanOne v
   where
     len = V.length v
 
+{- | isComplexNode
+
+  Determines whether a given JBEAM node is "complex".
+
+  A node is considered complex if it contains, at any level, an array or object
+  with more than one child node, ignoring chains of arrays or objects that contain
+  exactly one child.
+
+  Scalar values (numbers, strings, booleans, null, comments) are never complex.
+  `ObjectKey` nodes delegate complexity to their value.
+
+  Examples in AST form:
+
+    -- [1] → not complex
+    Array (fromList [Number 1])
+
+    -- [[1]] → not complex
+    Array (fromList [Array (fromList [Number 1])])
+
+    -- [1,2] → complex
+    Array (fromList [Number 1, Number 2])
+
+    -- { a: 1 } → not complex
+    Object (fromList [ObjectKey (String "a", Number 1)])
+
+    -- { a: 1, b: 2 } → complex
+    Object (fromList [ ObjectKey (String "a", Number 1)
+                     , ObjectKey (String "b", Number 2)
+                     ])
+
+    -- { a: [1] } → not complex
+    Object (fromList [ObjectKey (String "a", Array (fromList [Number 1]))])
+
+    -- { a: [1,2] } → complex
+    Object (fromList [ObjectKey (String "a", Array (fromList [Number 1, Number 2]))])
+-}
 isComplexNode :: Node -> Bool
 isComplexNode (Object v) = moreNodesThanOne v
 isComplexNode (Array v) = moreNodesThanOne v
