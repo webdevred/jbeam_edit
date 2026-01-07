@@ -1,6 +1,9 @@
 {
   "cot_fender" : {
-    "information" : {"authors" : "gittarrgy01", "name" : "Fenders"},
+    "information" : {
+      "authors" : "gittarrgy01",
+      "name" : "Fenders"
+    },
     "sounds" : {
       "impactMetal" : "event:>Destruction>Props>fender_metal",
       "impactGeneric" : "event:>Destruction>Props>fender_generic",

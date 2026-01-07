@@ -1,6 +1,9 @@
 {
   "chassis_rails" : {
-    "information" : {"authors" : "gittarrgy01", "name" : ""},
+    "information" : {
+      "authors" : "gittarrgy01",
+      "name" : ""
+    },
     "slotType" : "main",
     /* The purpose of this file is prove that moving metadata along with vertices when
     moving vertices works as intended.
