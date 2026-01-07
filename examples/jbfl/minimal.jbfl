@@ -9,7 +9,9 @@
 .*.variables[*], .*.glowMap.*,
 .*.rails.*, .*.props[*],
 .*.slots[*], .*.slots2[*],
-.*.controller[*], .*.components.electrics.smoothers[*] {
+.*.controller[*], .*.components.electrics.smoothers[*],
+.*.mainEngine.torque[*], .*.mainEngine.burnEfficiency[*],
+.*.powertrain[*] {
     NoComplexNewLine : true;
 }
 
