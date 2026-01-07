@@ -29,7 +29,12 @@ spec = do
   describe "isComplexNode" . works $
     ( do
         isComplexNode (Number 123) `shouldBe` False
-        isComplexNode (Object (V.singleton (ObjectKey (String "test", Number 1))))
+        isComplexNode
+          ( Object
+              ( V.fromList
+                  [ObjectKey (String "test", Number 1), ObjectKey (String "test", Number 1)]
+              )
+          )
           `shouldBe` True
         isComplexNode (Array (V.fromList [String "test", Number 1])) `shouldBe` True
     )

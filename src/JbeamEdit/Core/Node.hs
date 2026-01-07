@@ -1,4 +1,5 @@
 module JbeamEdit.Core.Node (
+  expectArray,
   isCommentNode,
   isObjectNode,
   isObjectKeyNode,
@@ -16,9 +17,11 @@ module JbeamEdit.Core.Node (
   Array,
 ) where
 
+import Control.Applicative ((<|>))
 import Data.Scientific (Scientific)
 import Data.Text (Text)
 import Data.Vector (Vector)
+import Data.Vector qualified as V
 
 type Object = Vector Node
 
@@ -104,8 +107,27 @@ isSinglelineComment :: Node -> Bool
 isSinglelineComment (Comment (InternalComment _ False _)) = True
 isSinglelineComment _ = False
 
+expectArray :: Node -> Maybe (Vector Node)
+expectArray (Array ns) = Just ns
+expectArray _ = Nothing
+
+expectObject :: Node -> Maybe (Vector Node)
+expectObject (Object ns) = Just ns
+expectObject _ = Nothing
+
+toVector :: Node -> Maybe (Vector Node)
+toVector n = expectArray n <|> expectObject n
+
+moreNodesThanOne :: Vector Node -> Bool
+moreNodesThanOne v
+  | len == 1 = any moreNodesThanOne . toVector $ V.head v
+  | len > 1 = True
+  | otherwise = False
+  where
+    len = V.length v
+
 isComplexNode :: Node -> Bool
-isComplexNode (Object _) = True
-isComplexNode (Array _) = True
+isComplexNode (Object v) = moreNodesThanOne v
+isComplexNode (Array v) = moreNodesThanOne v
 isComplexNode (ObjectKey (_key, val)) = isComplexNode val
 isComplexNode _ = False
