@@ -18,7 +18,7 @@ module JbeamEdit.Formatting.Rules (
   comparePatternAndCursor,
   noComplexNewLine,
   forceComplexNewLine,
-  lookupIndentProperty,
+  lookupPropertyForCursor,
   findPropertiesForCursor,
 ) where
 
@@ -27,7 +27,6 @@ import Data.Function (on)
 import Data.List (find)
 import Data.Map (Map)
 import Data.Map qualified as M
-import Data.Maybe (fromMaybe)
 import Data.Ord (Down (..))
 import Data.Sequence (Seq (..))
 import Data.Sequence qualified as Seq (length, null)
@@ -206,11 +205,9 @@ noComplexNewLine rs cursor =
       maybeProp = lookupProp NoComplexNewLine ps
    in (Just True == maybeProp)
 
-lookupIndentProperty :: RuleSet -> NC.NodeCursor -> Int
-lookupIndentProperty rs cursor =
-  let ps = findPropertiesForCursor cursor rs
-      indentProperty = lookupProp Indent ps
-   in fromMaybe 2 indentProperty
+lookupPropertyForCursor
+  :: (Eq a, Read a, Show a) => PropertyKey a -> RuleSet -> NC.NodeCursor -> Maybe a
+lookupPropertyForCursor key rs cursor = lookupProp key (findPropertiesForCursor cursor rs)
 
 comparePC :: NodePatternSelector -> NC.NodeBreadcrumb -> Bool
 comparePC AnyObjectKey (NC.ObjectIndexAndKey _ _) = True
