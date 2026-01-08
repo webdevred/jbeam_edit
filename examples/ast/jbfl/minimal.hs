@@ -5,6 +5,26 @@ RuleSet
                 ( fromList
                     [ AnyObjectKey
                     , Selector
+                        ( ObjectKey "components" )
+                    , Selector
+                        ( ObjectKey "electrics" )
+                    , Selector
+                        ( ObjectKey "smoothers" )
+                    , AnyArrayIndex
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey NoComplexNewLine
+                    , SomeProperty NoComplexNewLine True
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
                         ( ObjectKey "glowMap" )
                     , AnyObjectKey
                     , Selector
@@ -41,6 +61,42 @@ RuleSet
                 ( fromList
                     [ AnyObjectKey
                     , Selector
+                        ( ObjectKey "mainEngine" )
+                    , Selector
+                        ( ObjectKey "burnEfficiency" )
+                    , AnyArrayIndex
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey NoComplexNewLine
+                    , SomeProperty NoComplexNewLine True
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
+                        ( ObjectKey "mainEngine" )
+                    , Selector
+                        ( ObjectKey "torque" )
+                    , AnyArrayIndex
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey NoComplexNewLine
+                    , SomeProperty NoComplexNewLine True
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
                         ( ObjectKey "nodes" )
                     , AnyArrayIndex
                     , AnyArrayIndex
@@ -59,6 +115,22 @@ RuleSet
                     [ AnyObjectKey
                     , Selector
                         ( ObjectKey "beams" )
+                    , AnyArrayIndex
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey NoComplexNewLine
+                    , SomeProperty NoComplexNewLine True
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
+                        ( ObjectKey "controller" )
                     , AnyArrayIndex
                     ]
                 )
@@ -133,6 +205,23 @@ RuleSet
                 [
                     ( SomeKey PadAmount
                     , SomeProperty PadAmount 20
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
+                        ( ObjectKey "glowMap" )
+                    , Selector
+                        ( ObjectKey "dumptruck_gaugelight_warning" )
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey ForceComplexNewLine
+                    , SomeProperty ForceComplexNewLine True
                     )
                 ]
             )
@@ -292,6 +381,22 @@ RuleSet
                 ( fromList
                     [ AnyObjectKey
                     , Selector
+                        ( ObjectKey "powertrain" )
+                    , AnyArrayIndex
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey NoComplexNewLine
+                    , SomeProperty NoComplexNewLine True
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
                         ( ObjectKey "props" )
                     , AnyArrayIndex
                     ]
@@ -330,8 +435,24 @@ RuleSet
                 )
             , fromList
                 [
-                    ( SomeKey ForceComplexNewLine
-                    , SomeProperty ForceComplexNewLine True
+                    ( SomeKey NoComplexNewLine
+                    , SomeProperty NoComplexNewLine True
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
+                        ( ObjectKey "slots2" )
+                    , AnyArrayIndex
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey NoComplexNewLine
+                    , SomeProperty NoComplexNewLine True
                     )
                 ]
             )
@@ -364,6 +485,21 @@ RuleSet
                 [
                     ( SomeKey NoComplexNewLine
                     , SomeProperty NoComplexNewLine True
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
+                        ( ObjectKey "information" )
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey ForceComplexNewLine
+                    , SomeProperty ForceComplexNewLine True
                     )
                 ]
             )

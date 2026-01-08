@@ -16,6 +16,7 @@ import Data.Vector qualified as V
 import GHC.IsList (IsList (..))
 import JbeamEdit.Core.Node qualified as N (
   Node (..),
+  expectArray,
   isCommentNode,
   maybeObjectKey,
  )
@@ -39,8 +40,8 @@ instance IsList NodePath where
   toList (NodePath xs) = toList xs
 
 expectArray :: NodePath -> N.Node -> Either Text (Vector N.Node)
-expectArray _ (N.Array ns) = Right ns
-expectArray np _ = Left ("Expected to find array at " <> T.show np)
+expectArray np =
+  maybe (Left $ "Expected to find array at " <> T.show np) Right . N.expectArray
 
 extractValInKey :: N.Node -> Maybe N.Node
 extractValInKey (N.ObjectKey (_, val)) = Just val

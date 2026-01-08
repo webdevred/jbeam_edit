@@ -7,11 +7,16 @@
 .*.nodes[*], .*.flexbodies[*],
 .*.beams[*], .*.triangles[*],
 .*.variables[*], .*.glowMap.*,
-.*.rails.*, .*.props[*] {
+.*.rails.*, .*.props[*],
+.*.slots[*], .*.slots2[*],
+.*.controller[*], .*.components.electrics.smoothers[*],
+.*.mainEngine.torque[*], .*.mainEngine.burnEfficiency[*],
+.*.powertrain[*] {
     NoComplexNewLine : true;
 }
 
-.*.slots[*], .*.sounds {
+.*.sounds, .*.soundConfig, .*.soundConfigExhaust,
+.*.information, .*.glowMap.dumptruck_gaugelight_warning {
     ForceComplexNewLine: true;
 }
 
