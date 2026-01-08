@@ -11,6 +11,7 @@ module JbeamEdit.Formatting (
 import Data.Bool (bool)
 import Data.ByteString.Lazy qualified as LBS (fromStrict)
 import Data.Char (isSpace)
+import Data.Maybe (fromMaybe)
 import Data.Scientific (FPFormat (Fixed), formatScientific)
 import Data.Text (Text)
 import Data.Text qualified as T
@@ -29,11 +30,12 @@ import JbeamEdit.Core.Node (
 import JbeamEdit.Core.NodeCursor (newCursor)
 import JbeamEdit.Core.NodeCursor qualified as NC
 import JbeamEdit.Formatting.Rules (
+  PropertyKey (..),
   RuleSet (..),
   applyPadLogic,
   findPropertiesForCursor,
   forceComplexNewLine,
-  lookupIndentProperty,
+  lookupPropertyForCursor,
   noComplexNewLine,
  )
 import System.File.OsPath qualified as OS (writeFile)
@@ -99,7 +101,7 @@ doFormatNode rs cursor nodes =
   let formatted =
         reverse . addDelimiters rs 0 cursor complexChildren [] . V.toList $
           nodes
-      indentationAmount = lookupIndentProperty rs cursor
+      indentationAmount = fromMaybe 2 (lookupPropertyForCursor Indent rs cursor)
    in if complexChildren
         then
           T.unlines . map (applyIndentation indentationAmount) . concatMap T.lines $
