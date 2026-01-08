@@ -15,7 +15,8 @@
     NoComplexNewLine : true;
 }
 
-.*.sounds, .*.information, .*.glowMap.dumptruck_gaugelight_warning {
+.*.sounds, .*.soundConfig, .*.soundConfigExhaust,
+.*.information, .*.glowMap.dumptruck_gaugelight_warning {
     ForceComplexNewLine: true;
 }
 
