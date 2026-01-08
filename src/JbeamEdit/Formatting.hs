@@ -17,7 +17,7 @@ import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Text.Encoding (encodeUtf8)
 import Data.Vector (Vector)
-import Data.Vector qualified as V (null, toList)
+import Data.Vector qualified as V
 import JbeamEdit.Core.Node (
   InternalComment (..),
   Node (..),
@@ -26,10 +26,12 @@ import JbeamEdit.Core.Node (
   isComplexNode,
   isObjectKeyNode,
   isSinglelineComment,
+  possiblyChildren,
  )
 import JbeamEdit.Core.NodeCursor (newCursor)
 import JbeamEdit.Core.NodeCursor qualified as NC
 import JbeamEdit.Formatting.Rules (
+  MatchMode (..),
   PropertyKey (..),
   RuleSet (..),
   applyPadLogic,
@@ -96,12 +98,31 @@ applyIndentation n s
   | T.all isSpace s = s
   | otherwise = T.replicate n " " <> s
 
+maxColumnLengths
+  :: RuleSet -> NC.NodeCursor -> Vector (Vector Node) -> Vector Int
+maxColumnLengths rs cursor rows
+  | V.null rows = V.empty
+  | otherwise =
+      V.map (V.maximum . V.map T.length) (transposeWithPadding rs cursor rows)
+
+transposeWithPadding
+  :: RuleSet -> NC.NodeCursor -> Vector (Vector Node) -> Vector (Vector T.Text)
+transposeWithPadding rs cursor vvs =
+  let numCols = V.maximum (V.map V.length vvs)
+   in V.generate numCols $ \j ->
+        V.map
+          (\row -> bool "" (formatWithCursor rs cursor (row V.! j)) (j < V.length row))
+          vvs
+
 doFormatNode :: RuleSet -> NC.NodeCursor -> Vector Node -> Text
 doFormatNode rs cursor nodes =
-  let formatted =
+  let autoPadEnabled = lookupPropertyForCursor ExactMatch AutoPad rs cursor
+      autoPadAmounts =
+        maxColumnLengths rs cursor (V.map (fromMaybe V.empty . possiblyChildren) nodes)
+      formatted =
         reverse . addDelimiters rs 0 cursor complexChildren [] . V.toList $
           nodes
-      indentationAmount = fromMaybe 2 (lookupPropertyForCursor Indent rs cursor)
+      indentationAmount = fromMaybe 2 (lookupPropertyForCursor PrefixMatch Indent rs cursor)
    in if complexChildren
         then
           T.unlines . map (applyIndentation indentationAmount) . concatMap T.lines $
@@ -143,7 +164,7 @@ formatWithCursor rs cursor (Object o)
 formatWithCursor rs cursor (ObjectKey (k, v)) = T.concat [formatWithCursor rs cursor k, " : ", formatWithCursor rs cursor v]
 formatWithCursor _ _ (Comment comment) = formatComment comment
 formatWithCursor rs cursor n =
-  let ps = findPropertiesForCursor cursor rs
+  let ps = findPropertiesForCursor PrefixMatch cursor rs
    in applyPadLogic formatScalarNode ps n
 
 formatNode :: RuleSet -> Node -> Text
