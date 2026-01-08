@@ -10,6 +10,7 @@ module JbeamEdit.Core.Node (
   commentIsAttachedToPreviousNode,
   isComplexNode,
   extractPreviousAssocCmt,
+  possiblyChildren,
   Node (..),
   InternalComment (..),
   AssociationDirection (..),
@@ -115,12 +116,12 @@ expectObject :: Node -> Maybe (Vector Node)
 expectObject (Object ns) = Just ns
 expectObject _ = Nothing
 
-toVector :: Node -> Maybe (Vector Node)
-toVector n = expectArray n <|> expectObject n
+possiblyChildren :: Node -> Maybe (Vector Node)
+possiblyChildren n = expectArray n <|> expectObject n
 
 moreNodesThanOne :: Vector Node -> Bool
 moreNodesThanOne v
-  | len == 1 = any moreNodesThanOne . toVector $ V.head v
+  | len == 1 = any moreNodesThanOne . possiblyChildren $ V.head v
   | len > 1 = True
   | otherwise = False
   where

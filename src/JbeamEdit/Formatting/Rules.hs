@@ -5,6 +5,7 @@
 {-# LANGUAGE TypeOperators #-}
 
 module JbeamEdit.Formatting.Rules (
+  MatchMode (..),
   NodePatternSelector (..),
   NodePattern (..),
   SomeKey (..),
@@ -70,6 +71,7 @@ instance Ord NodePattern where
       c -> c
 
 data PropertyKey a where
+  AutoPad :: PropertyKey Bool
   NoComplexNewLine :: PropertyKey Bool
   ForceComplexNewLine :: PropertyKey Bool
   PadAmount :: PropertyKey Int
@@ -100,6 +102,7 @@ instance Eq SomeKey where
   p1 == p2 = on (==) keyName p1 p2
 
 eqKey :: PropertyKey a -> PropertyKey b -> Maybe (a :~: b)
+eqKey AutoPad AutoPad = Just Refl
 eqKey PadAmount PadAmount = Just Refl
 eqKey NoComplexNewLine NoComplexNewLine = Just Refl
 eqKey ForceComplexNewLine ForceComplexNewLine = Just Refl
@@ -140,6 +143,7 @@ instance Eq SomeProperty where
       Nothing -> False
 
 propertyName :: PropertyKey a -> Text
+propertyName AutoPad = "AutoPad"
 propertyName NoComplexNewLine = "NoComplexNewLine"
 propertyName ForceComplexNewLine = "ForceComplexNewLine"
 propertyName PadAmount = "PadAmount"
@@ -196,19 +200,22 @@ applyPadLogic f rs n =
 
 forceComplexNewLine :: RuleSet -> NC.NodeCursor -> Bool
 forceComplexNewLine rs cursor =
-  let ps = findPropertiesForCursor cursor rs
+  let ps = findPropertiesForCursor PrefixMatch cursor rs
       maybeProp = lookupProp ForceComplexNewLine ps
    in (Just True == maybeProp)
 
 noComplexNewLine :: RuleSet -> NC.NodeCursor -> Bool
 noComplexNewLine rs cursor =
-  let ps = findPropertiesForCursor cursor rs
+  let ps = findPropertiesForCursor PrefixMatch cursor rs
       maybeProp = lookupProp NoComplexNewLine ps
    in (Just True == maybeProp)
 
+data MatchMode = PrefixMatch | ExactMatch deriving (Eq, Show)
+
 lookupPropertyForCursor
-  :: (Eq a, Read a, Show a) => PropertyKey a -> RuleSet -> NC.NodeCursor -> Maybe a
-lookupPropertyForCursor key rs cursor = lookupProp key (findPropertiesForCursor cursor rs)
+  :: (Eq a, Read a, Show a)
+  => MatchMode -> PropertyKey a -> RuleSet -> NC.NodeCursor -> Maybe a
+lookupPropertyForCursor matchMode key rs cursor = lookupProp key (findPropertiesForCursor matchMode cursor rs)
 
 comparePC :: NodePatternSelector -> NC.NodeBreadcrumb -> Bool
 comparePC AnyObjectKey (NC.ObjectIndexAndKey _ _) = True
@@ -216,22 +223,27 @@ comparePC AnyArrayIndex (NC.ArrayIndex _) = True
 comparePC (Selector s) bc = NC.compareSB s bc
 comparePC _ _ = False
 
-comparePatternAndCursor :: NodePattern -> NC.NodeCursor -> Bool
-comparePatternAndCursor (NodePattern p) (NC.NodeCursor c) = sameBy comparePC p c
+comparePatternAndCursor :: MatchMode -> NodePattern -> NC.NodeCursor -> Bool
+comparePatternAndCursor matchMode (NodePattern p) (NC.NodeCursor c) = sameBy matchMode comparePC p c
 
 type SelCrumbCompFun = NodePatternSelector -> NC.NodeBreadcrumb -> Bool
 
 sameBy
-  :: SelCrumbCompFun -> Seq NodePatternSelector -> Seq NC.NodeBreadcrumb -> Bool
-sameBy f = go
+  :: MatchMode
+  -> SelCrumbCompFun
+  -> Seq NodePatternSelector
+  -> Seq NC.NodeBreadcrumb
+  -> Bool
+sameBy matchMode f = go
   where
     go (p :<| ps) (b :<| bs) =
       let res = f p b
        in res && go ps bs
+    go Empty bs = Seq.null bs || PrefixMatch /= matchMode
     go ps _ = Seq.null ps
 
-findPropertiesForCursor :: NC.NodeCursor -> RuleSet -> Rule
-findPropertiesForCursor cursor (RuleSet rs) =
+findPropertiesForCursor :: MatchMode -> NC.NodeCursor -> RuleSet -> Rule
+findPropertiesForCursor matchMode cursor (RuleSet rs) =
   fold (M.filterWithKey patPointsToCursor rs)
   where
-    patPointsToCursor pat _ = pat `comparePatternAndCursor` cursor
+    patPointsToCursor pat _ = comparePatternAndCursor matchMode pat cursor
