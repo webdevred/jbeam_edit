@@ -3,7 +3,7 @@
     PadDecimals: 3;
 }
 
-.*.nodes, .*.beams {
+.*.nodes, .*.beams, .*.triangles {
    AutoPad : true;
 }
 

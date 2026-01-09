@@ -3,7 +3,7 @@
     PadDecimals: 3;  // Show 3 decimal places for uniformity
 }
 
-.*.nodes, .*.beams {
+.*.nodes, .*.beams, .*.triangles {
    AutoPad : true;
 }
 

@@ -588,5 +588,20 @@ RuleSet
                     )
                 ]
             )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
+                        ( ObjectKey "triangles" )
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey AutoPad
+                    , SomeProperty AutoPad True
+                    )
+                ]
+            )
         ]
     )
