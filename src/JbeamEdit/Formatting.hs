@@ -21,12 +21,12 @@ import Data.Vector qualified as V
 import JbeamEdit.Core.Node (
   InternalComment (..),
   Node (..),
+  expectArray,
   extractPreviousAssocCmt,
   isCommentNode,
   isComplexNode,
   isObjectKeyNode,
   isSinglelineComment,
-  possiblyChildren,
  )
 import JbeamEdit.Core.NodeCursor (newCursor)
 import JbeamEdit.Core.NodeCursor qualified as NC
@@ -58,37 +58,65 @@ normalizeCommentNode _ node = node
 singleCharIf :: Char -> Bool -> Text
 singleCharIf a True = T.singleton a
 singleCharIf _ _ = ""
-
 addDelimiters
-  :: RuleSet -> Int -> NC.NodeCursor -> Bool -> [Text] -> [Node] -> [Text]
-addDelimiters _ _ _ _ acc [] = acc
-addDelimiters rs index c complexChildren acc ns@(node : rest)
+  :: RuleSet
+  -> Int
+  -> NC.NodeCursor
+  -> Bool
+  -> (Bool, Vector Int) -- (usePad, columnWidths)
+  -> [Text]
+  -> [Node]
+  -> [Text]
+addDelimiters _ _ _ _ _ acc [] = acc
+addDelimiters rs index c complexChildren (usePad, colWidths) acc ns@(node : rest)
   | complexChildren && null acc =
-      addDelimiters rs index c complexChildren ["\n"] ns
+      addDelimiters rs index c complexChildren (usePad, colWidths) ["\n"] ns
   | isCommentNode node =
-      let formattedComment = formatWithCursor rs c (normalizeCommentNode complexChildren node)
+      let formattedComment =
+            formatWithCursor
+              rs
+              (usePad, colWidths)
+              c
+              (normalizeCommentNode complexChildren node)
           formatted = (newlineBeforeComment <> formattedComment <> "\n") : acc
-       in addDelimiters rs index c complexChildren formatted rest
+       in addDelimiters rs index c complexChildren (usePad, colWidths) formatted rest
   | otherwise =
       case extractPreviousAssocCmt rest of
         (Just comment, rest') ->
-          let formatted =
-                (applyCrumbAndFormat <> " " <> formatComment comment : acc)
-           in addDelimiters rs index c complexChildren formatted rest'
+          let baseTxt = applyCrumbAndFormat node
+              paddedTxt =
+                if usePad
+                  then padText index baseTxt
+                  else baseTxt
+              formatted = (paddedTxt <> " " <> formatComment comment) : acc
+           in addDelimiters
+                rs
+                (index + 1)
+                c
+                complexChildren
+                (usePad, colWidths)
+                formatted
+                rest'
         (Nothing, _) ->
-          let new_acc =
-                T.concat
-                  [applyCrumbAndFormat, singleCharIf ' ' space, singleCharIf '\n' newline]
-                  : acc
-           in addDelimiters rs newIndex c complexChildren new_acc rest
+          let baseTxt = applyCrumbAndFormat node
+              paddedTxt =
+                if usePad
+                  then padText index baseTxt
+                  else baseTxt
+              new_acc = (paddedTxt <> singleCharIf ' ' space <> singleCharIf '\n' newline) : acc
+           in addDelimiters rs (index + 1) c complexChildren (usePad, colWidths) new_acc rest
   where
     newlineBeforeComment = bool "\n" "" $ any isObjectKeyNode rest || ["\n"] == acc
-    applyCrumbAndFormat =
-      let padded = NC.applyCrumb c (formatWithCursor rs) index node
+
+    applyCrumbAndFormat n =
+      let padded = NC.applyCrumb c (formatWithCursor rs (usePad, colWidths)) index n
           (formatted, spaces) = splitTrailing comma padded
        in formatted <> singleCharIf ',' comma <> spaces
 
-    newIndex = index + 1
+    padText i txt =
+      let width = sum (colWidths V.!? i)
+       in T.justifyLeft (bool width (width + 1) comma) ' ' txt
+
     comma = not (null rest)
     space = not (null rest) && not complexChildren
     newline = complexChildren
@@ -111,22 +139,43 @@ transposeWithPadding rs cursor vvs =
   let numCols = V.maximum (V.map V.length vvs)
    in V.generate numCols $ \j ->
         V.map
-          (\row -> bool "" (formatWithCursor rs cursor (row V.! j)) (j < V.length row))
+          ( \row ->
+              bool
+                ""
+                (formatWithCursor rs (False, V.empty) cursor (row V.! j))
+                (j < V.length row)
+          )
           vvs
 
-doFormatNode :: RuleSet -> NC.NodeCursor -> Vector Node -> Text
-doFormatNode rs cursor nodes =
-  let autoPadEnabled = lookupPropertyForCursor ExactMatch AutoPad rs cursor
-      autoPadAmounts =
-        maxColumnLengths rs cursor (V.map (fromMaybe V.empty . possiblyChildren) nodes)
+doFormatNode
+  :: RuleSet
+  -> NC.NodeCursor
+  -> (Bool, Vector Int)
+  -> Vector Node
+  -> Text
+doFormatNode rs cursor padAmounts nodes =
+  let autoPadEnabled =
+        lookupPropertyForCursor ExactMatch AutoPad rs cursor == Just True
+
+      childrenVectors = V.map (fromMaybe V.empty . expectArray) nodes
+      padAmounts' = maxColumnLengths rs cursor childrenVectors
+      maybePadAmounts =
+        bool padAmounts (False, padAmounts') autoPadEnabled
+
       formatted =
-        reverse . addDelimiters rs 0 cursor complexChildren [] . V.toList $
-          nodes
-      indentationAmount = fromMaybe 2 (lookupPropertyForCursor PrefixMatch Indent rs cursor)
+        reverse
+          . addDelimiters rs 0 cursor complexChildren maybePadAmounts []
+          . V.toList
+          $ nodes
+
+      indentationAmount =
+        fromMaybe 2 (lookupPropertyForCursor PrefixMatch Indent rs cursor)
    in if complexChildren
         then
-          T.unlines . map (applyIndentation indentationAmount) . concatMap T.lines $
-            formatted
+          T.unlines
+            . map (applyIndentation indentationAmount)
+            . concatMap T.lines
+            $ formatted
         else T.concat formatted
   where
     complexChildren =
@@ -154,21 +203,37 @@ formatScalarNode (Bool _) = "false"
 formatScalarNode Null = "null"
 formatScalarNode _ = error "Unhandled scalar node"
 
-formatWithCursor :: RuleSet -> NC.NodeCursor -> Node -> Text
-formatWithCursor rs cursor (Array a)
+formatWithCursor
+  :: RuleSet -> (Bool, Vector Int) -> NC.NodeCursor -> Node -> Text
+formatWithCursor rs (_, maybePadAmounts) cursor (Array a)
   | V.null a = "[]"
-  | otherwise = T.concat ["[", doFormatNode rs cursor a, "]"]
-formatWithCursor rs cursor (Object o)
+  | otherwise =
+      T.concat
+        [ "["
+        , doFormatNode rs cursor (not (V.null maybePadAmounts), maybePadAmounts) a
+        , "]"
+        ]
+formatWithCursor rs (_, maybePadAmounts) cursor (Object o)
   | V.null o = "{}"
-  | otherwise = T.concat ["{", doFormatNode rs cursor o, "}"]
-formatWithCursor rs cursor (ObjectKey (k, v)) = T.concat [formatWithCursor rs cursor k, " : ", formatWithCursor rs cursor v]
-formatWithCursor _ _ (Comment comment) = formatComment comment
-formatWithCursor rs cursor n =
+  | otherwise =
+      T.concat
+        [ "{"
+        , doFormatNode rs cursor (not (V.null maybePadAmounts), maybePadAmounts) o
+        , "}"
+        ]
+formatWithCursor rs (_, maybePadAmounts) cursor (ObjectKey (k, v)) =
+  T.concat
+    [ formatWithCursor rs (not (V.null maybePadAmounts), maybePadAmounts) cursor k
+    , " : "
+    , formatWithCursor rs (not (V.null maybePadAmounts), maybePadAmounts) cursor v
+    ]
+formatWithCursor _ _ _ (Comment comment) = formatComment comment
+formatWithCursor rs _ cursor n =
   let ps = findPropertiesForCursor PrefixMatch cursor rs
    in applyPadLogic formatScalarNode ps n
 
 formatNode :: RuleSet -> Node -> Text
-formatNode rs node = formatWithCursor rs newCursor node <> T.singleton '\n'
+formatNode rs node = formatWithCursor rs (False, V.empty) newCursor node <> T.singleton '\n'
 
 #ifdef ENABLE_WINDOWS_NEWLINES
 replaceNewlines :: Text -> Text
