@@ -32,7 +32,9 @@ import Language.LSP.Protocol.Types qualified as J (
 import Language.LSP.Server qualified as S
 
 newtype Config = Config ()
-  deriving (A.FromJSON, A.ToJSON, Generic, Show)
+  deriving stock (Generic, Show)
+  deriving anyclass
+    (A.FromJSON, A.ToJSON)
 
 handlers
   :: MonadIO f
