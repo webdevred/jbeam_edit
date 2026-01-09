@@ -3,6 +3,10 @@
     PadDecimals: 3;
 }
 
+.*.nodes, .*.beams {
+   AutoPad : true;
+}
+
 // Keep things inline where applicable (no extra newlines for nested content)
 .*.nodes[*], .*.flexbodies[*],
 .*.beams[*], .*.triangles[*],
