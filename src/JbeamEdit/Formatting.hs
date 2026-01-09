@@ -27,6 +27,7 @@ import JbeamEdit.Core.Node (
   isComplexNode,
   isObjectKeyNode,
   isSinglelineComment,
+  isStringNode,
  )
 import JbeamEdit.Core.NodeCursor (newCursor)
 import JbeamEdit.Core.NodeCursor qualified as NC
@@ -127,12 +128,21 @@ applyIndentation n s
   | T.all isSpace s = s
   | otherwise = T.replicate n " " <> s
 
+skipHeaderRow :: Vector (Vector  Node) -> Vector (Vector Node)
+skipHeaderRow nodes =
+  case V.uncons nodes of
+    Just (headerRow, rest) ->
+      bool nodes rest (all isStringNode headerRow)
+    Nothing -> nodes
+
 maxColumnLengths
   :: RuleSet -> NC.NodeCursor -> Vector (Vector Node) -> Vector Int
 maxColumnLengths rs cursor rows
   | V.null rows = V.empty
   | otherwise =
-      V.map (V.maximum . V.map T.length) (transposeWithPadding rs cursor rows)
+      V.map
+        (V.maximum . V.map T.length)
+        (transposeWithPadding rs cursor $ skipHeaderRow rows)
 
 transposeWithPadding
   :: RuleSet -> NC.NodeCursor -> Vector (Vector Node) -> Vector (Vector T.Text)
