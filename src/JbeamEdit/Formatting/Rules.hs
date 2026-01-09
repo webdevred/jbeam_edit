@@ -157,7 +157,7 @@ lookupKey :: Text -> [SomeKey] -> Maybe SomeKey
 lookupKey txt = find (\(SomeKey k) -> propertyName k == txt)
 
 boolProperties :: [SomeKey]
-boolProperties = map SomeKey [ForceComplexNewLine, NoComplexNewLine]
+boolProperties = map SomeKey [ForceComplexNewLine, NoComplexNewLine, AutoPad]
 
 intProperties :: [SomeKey]
 intProperties = map SomeKey [PadAmount, PadDecimals, Indent]
@@ -239,8 +239,8 @@ sameBy matchMode f = go
     go (p :<| ps) (b :<| bs) =
       let res = f p b
        in res && go ps bs
-    go Empty bs = Seq.null bs || PrefixMatch /= matchMode
-    go ps _ = Seq.null ps
+    go Empty Empty = True
+    go ps bs = Seq.null ps && (Seq.null bs || PrefixMatch == matchMode)
 
 findPropertiesForCursor :: MatchMode -> NC.NodeCursor -> RuleSet -> Rule
 findPropertiesForCursor matchMode cursor (RuleSet rs) =
