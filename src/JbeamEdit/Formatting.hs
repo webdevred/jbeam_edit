@@ -86,11 +86,7 @@ addDelimiters rs index c complexChildren (usePad, colWidths) acc ns@(node : rest
       case extractPreviousAssocCmt rest of
         (Just comment, rest') ->
           let baseTxt = applyCrumbAndFormat node
-              paddedTxt =
-                if usePad
-                  then padText index baseTxt
-                  else baseTxt
-              formatted = (paddedTxt <> " " <> formatComment comment) : acc
+              formatted = (padTxt baseTxt <> " " <> formatComment comment) : acc
            in addDelimiters
                 rs
                 (index + 1)
@@ -101,11 +97,7 @@ addDelimiters rs index c complexChildren (usePad, colWidths) acc ns@(node : rest
                 rest'
         (Nothing, _) ->
           let baseTxt = applyCrumbAndFormat node
-              paddedTxt =
-                if usePad
-                  then padText index baseTxt
-                  else baseTxt
-              new_acc = (paddedTxt <> singleCharIf ' ' space <> singleCharIf '\n' newline) : acc
+              new_acc = (padTxt baseTxt <> singleCharIf ' ' space <> singleCharIf '\n' newline) : acc
            in addDelimiters rs (index + 1) c complexChildren (usePad, colWidths) new_acc rest
   where
     newlineBeforeComment = bool "\n" "" $ any isObjectKeyNode rest || ["\n"] == acc
@@ -115,9 +107,12 @@ addDelimiters rs index c complexChildren (usePad, colWidths) acc ns@(node : rest
           (formatted, spaces) = splitTrailing comma padded
        in formatted <> singleCharIf ',' comma <> spaces
 
-    padText i txt =
-      let width = sum (colWidths V.!? i)
-       in T.justifyLeft (bool width (width + 1) comma) ' ' txt
+    padTxt baseTxt =
+      if usePad && not (isCommentNode node)
+        then
+          let width = sum (colWidths V.!? index)
+           in T.justifyLeft (bool width (width + 1) comma) ' ' baseTxt
+        else baseTxt
 
     comma = not (null rest)
     space = not (null rest) && not complexChildren
@@ -128,7 +123,7 @@ applyIndentation n s
   | T.all isSpace s = s
   | otherwise = T.replicate n " " <> s
 
-skipHeaderRow :: Vector (Vector  Node) -> Vector (Vector Node)
+skipHeaderRow :: Vector (Vector Node) -> Vector (Vector Node)
 skipHeaderRow nodes =
   case V.uncons nodes of
     Just (headerRow, rest) ->
