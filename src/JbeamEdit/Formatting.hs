@@ -58,6 +58,7 @@ normalizeCommentNode _ node = node
 singleCharIf :: Char -> Bool -> Text
 singleCharIf a True = T.singleton a
 singleCharIf _ _ = ""
+
 addDelimiters
   :: RuleSet
   -> Int
