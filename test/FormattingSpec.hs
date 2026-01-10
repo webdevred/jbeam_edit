@@ -87,7 +87,7 @@ spec = do
       applySpecOnInput
         descFun
         shouldBe
-        (formatWithCursor mempty newCursor node)
+        (formatWithCursor mempty (False, mempty) newCursor node)
         (T.pack jbeam)
     descFun jbeam node = "should format " ++ show node ++ " as " ++ jbeam
     specs =

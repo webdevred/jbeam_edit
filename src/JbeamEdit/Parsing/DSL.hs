@@ -91,6 +91,7 @@ propertyParser (SomeKey key) = do
    in pure (SomeKey key, prop val)
 
 parseValueForKey :: PropertyKey a -> JbflParser a
+parseValueForKey AutoPad = parseBool <?> "bool"
 parseValueForKey NoComplexNewLine = parseBool <?> "bool"
 parseValueForKey ForceComplexNewLine = parseBool <?> "bool"
 parseValueForKey PadAmount = L.decimal <?> "integer"
