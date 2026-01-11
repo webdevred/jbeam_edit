@@ -239,7 +239,6 @@ sameBy matchMode f = go
     go (p :<| ps) (b :<| bs) =
       let res = f p b
        in res && go ps bs
-    go Empty Empty = True
     go ps bs = Seq.null ps && (Seq.null bs || PrefixMatch == matchMode)
 
 findPropertiesForCursor :: MatchMode -> NC.NodeCursor -> RuleSet -> Rule
