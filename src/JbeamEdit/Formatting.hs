@@ -108,10 +108,10 @@ addDelimiters rs index c complexChildren (usePad, colWidths) acc ns@(node : rest
        in formatted <> singleCharIf ',' comma <> spaces
 
     padTxt baseTxt =
-      if usePad && not (isCommentNode node)
+      if usePad && not (isCommentNode node) && comma
         then
           let width = sum (colWidths V.!? index)
-           in T.justifyLeft (bool width (width + 1) comma) ' ' baseTxt
+           in T.justifyLeft (width + 1) ' ' baseTxt
         else baseTxt
 
     comma = not (null rest)
