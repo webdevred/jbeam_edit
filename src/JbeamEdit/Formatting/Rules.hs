@@ -16,7 +16,6 @@ module JbeamEdit.Formatting.Rules (
   allProperties,
   keyName,
   applyPadLogic,
-  comparePatternAndCursor,
   noComplexNewLine,
   forceComplexNewLine,
   lookupPropertyForCursor,
@@ -223,8 +222,8 @@ comparePC AnyArrayIndex (NC.ArrayIndex _) = True
 comparePC (Selector s) bc = NC.compareSB s bc
 comparePC _ _ = False
 
-comparePatternAndCursor :: MatchMode -> NodePattern -> NC.NodeCursor -> Bool
-comparePatternAndCursor matchMode (NodePattern p) (NC.NodeCursor c) = sameBy matchMode comparePC p c
+compareCursorAndPattern :: MatchMode -> NC.NodeCursor -> NodePattern -> Bool
+compareCursorAndPattern matchMode (NC.NodeCursor c) (NodePattern p) = sameBy matchMode comparePC p c
 
 type SelCrumbCompFun = NodePatternSelector -> NC.NodeBreadcrumb -> Bool
 
@@ -243,6 +242,4 @@ sameBy matchMode f = go
 
 findPropertiesForCursor :: MatchMode -> NC.NodeCursor -> RuleSet -> Rule
 findPropertiesForCursor matchMode cursor (RuleSet rs) =
-  fold (M.filterWithKey patPointsToCursor rs)
-  where
-    patPointsToCursor pat _ = comparePatternAndCursor matchMode pat cursor
+  fold (M.filterWithKey (const . compareCursorAndPattern matchMode cursor) rs)
