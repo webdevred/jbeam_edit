@@ -23,6 +23,7 @@ module JbeamEdit.Formatting.Rules (
 ) where
 
 import Data.Bool (bool)
+import Data.Foldable (fold)
 import Data.Function (on)
 import Data.List (find)
 import Data.Map (Map)
@@ -234,8 +235,6 @@ sameBy f = go
 
 findPropertiesForCursor :: NC.NodeCursor -> RuleSet -> Rule
 findPropertiesForCursor cursor (RuleSet rs) =
-  case filter patPointsToCursor (M.assocs rs) of
-    [] -> M.empty
-    ms -> M.unions (map snd ms)
+  fold (M.filterWithKey patPointsToCursor rs)
   where
-    patPointsToCursor (pat, _) = pat `comparePatternAndCursor` cursor
+    patPointsToCursor pat _ = pat `comparePatternAndCursor` cursor
