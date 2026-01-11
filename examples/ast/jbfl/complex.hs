@@ -548,6 +548,36 @@ RuleSet
                 ( fromList
                     [ AnyObjectKey
                     , Selector
+                        ( ObjectKey "soundConfig" )
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey ForceComplexNewLine
+                    , SomeProperty ForceComplexNewLine True
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
+                        ( ObjectKey "soundConfigExhaust" )
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey ForceComplexNewLine
+                    , SomeProperty ForceComplexNewLine True
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
                         ( ObjectKey "sounds" )
                     ]
                 )
