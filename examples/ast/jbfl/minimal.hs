@@ -493,6 +493,21 @@ RuleSet
                 ( fromList
                     [ AnyObjectKey
                     , Selector
+                        ( ObjectKey "beams" )
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey AutoPad
+                    , SomeProperty AutoPad True
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
                         ( ObjectKey "information" )
                     ]
                 )
@@ -500,6 +515,21 @@ RuleSet
                 [
                     ( SomeKey ForceComplexNewLine
                     , SomeProperty ForceComplexNewLine True
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
+                        ( ObjectKey "nodes" )
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey AutoPad
+                    , SomeProperty AutoPad True
                     )
                 ]
             )
@@ -545,6 +575,21 @@ RuleSet
                 [
                     ( SomeKey ForceComplexNewLine
                     , SomeProperty ForceComplexNewLine True
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
+                        ( ObjectKey "triangles" )
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey AutoPad
+                    , SomeProperty AutoPad True
                     )
                 ]
             )
