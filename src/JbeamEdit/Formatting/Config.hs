@@ -2,6 +2,7 @@
 
 module JbeamEdit.Formatting.Config (localRuleFile, readFormattingConfig, copyToConfigDir, ConfigType (..)) where
 
+import Control.Monad.Extra (unlessM)
 import Data.Foldable (traverse_)
 import Data.Text qualified as T
 import GHC.IO.Exception (IOErrorType (NoSuchThing))
@@ -15,7 +16,6 @@ import System.Environment (getExecutablePath)
 import Paths_jbeam_edit
 #endif
 
-import Control.Monad (unless)
 import Data.Functor (($>))
 import System.Directory.OsPath
 import System.FilePath qualified as FP
@@ -75,9 +75,7 @@ copyToConfigDir configType = do
   copyConfigFile (configDir </> userRuleFile) configType
 
 createRuleFileIfDoesNotExist :: OsPath -> IO ()
-createRuleFileIfDoesNotExist configPath =
-  doesFileExist configPath
-    >>= (`unless` copyConfigFile configPath MinimalConfig)
+createRuleFileIfDoesNotExist configPath = doesFileExist configPath `unlessM` copyConfigFile configPath MinimalConfig
 
 readFormattingConfig :: Maybe OsPath -> IO RuleSet
 readFormattingConfig maybeJbflPath = do
