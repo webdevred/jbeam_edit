@@ -99,6 +99,7 @@ library
         bytestring,
         containers,
         directory,
+        extra,
         file-io,
         filepath >=1.5.1.0,
         megaparsec,

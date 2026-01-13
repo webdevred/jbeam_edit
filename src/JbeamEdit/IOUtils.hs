@@ -13,6 +13,7 @@ import Control.Monad (unless)
 import Data.ByteString.Lazy qualified as BL (
   ByteString,
  )
+import Data.Foldable (toList)
 import Data.List (isPrefixOf)
 import Data.Text (Text)
 import Data.Text qualified as T (append, pack, unpack)
@@ -43,7 +44,7 @@ ioErrorMsg
   -> Either Text BL.ByteString
 ioErrorMsg noerrs (Left (IOError _ ioe_type _ ioe_desc _ filename)) =
   if ioe_type `notElem` noerrs
-    then Left $ maybe "" appendColon filename `T.append` T.pack ioe_desc
+    then Left $ foldMap appendColon filename `T.append` T.pack ioe_desc
     else Right ""
   where
     appendColon f = T.pack f `T.append` ": "
@@ -63,9 +64,9 @@ pathEndsWithExtension expectedExt filepath =
   let (_, ext) = splitExtensions filepath
    in unsafeEncodeUtf expectedExt == ext
 
-humanJoin :: Text -> [Text] -> Text
+humanJoin :: Foldable t => Text -> t Text -> Text
 humanJoin lastCombiner =
-  TL.toStrict . B.toLazyText . go mempty
+  TL.toStrict . B.toLazyText . go mempty . toList
   where
     go acc [] = acc
     go acc [x] = acc <> B.fromText x

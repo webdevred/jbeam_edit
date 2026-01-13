@@ -10,6 +10,7 @@ import Data.List.NonEmpty qualified as NE
 import Data.Map (Map)
 import Data.Map qualified as M
 import Data.Maybe (fromMaybe)
+import Data.Monoid.Extra (mwhen)
 import Data.Ord (Down (Down), comparing)
 import Data.Scientific (Scientific)
 import Data.Semigroup (Semigroup (sconcat))
@@ -349,7 +350,7 @@ intToText = TL.toStrict . TLB.toLazyText . decimal
 
 renameVertexId :: VertexTreeType -> Int -> Text -> Text
 renameVertexId treeType idx vertexPrefix =
-  let idx' = bool "" (intToText idx) (treeType /= SupportTree || idx /= 0)
+  let idx' = mwhen (treeType /= SupportTree || idx /= 0) (intToText idx)
    in vertexPrefix <> idx'
 
 assignNames
