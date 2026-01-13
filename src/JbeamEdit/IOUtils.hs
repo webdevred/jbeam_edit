@@ -13,6 +13,7 @@ import Control.Monad (unless)
 import Data.ByteString.Lazy qualified as BL (
   ByteString,
  )
+import Data.Foldable (toList)
 import Data.List (isPrefixOf)
 import Data.Text (Text)
 import Data.Text qualified as T (append, pack, unpack)
@@ -63,9 +64,9 @@ pathEndsWithExtension expectedExt filepath =
   let (_, ext) = splitExtensions filepath
    in unsafeEncodeUtf expectedExt == ext
 
-humanJoin :: Text -> [Text] -> Text
+humanJoin :: Foldable t => Text -> t Text -> Text
 humanJoin lastCombiner =
-  TL.toStrict . B.toLazyText . go mempty
+  TL.toStrict . B.toLazyText . go mempty . toList
   where
     go acc [] = acc
     go acc [x] = acc <> B.fromText x

@@ -16,7 +16,7 @@ import JbeamEdit.Parsing.Common.Helpers (charNotEqWord8, toChar, toWord8)
 import Text.Megaparsec qualified as MP
 
 joinAndFormatToks :: Set (MP.ErrorItem Word8) -> Text
-joinAndFormatToks = humanJoin "or" . map formatTok . S.elems
+joinAndFormatToks = humanJoin "or" . S.map formatTok
 
 formatTok :: MP.ErrorItem Word8 -> Text
 formatTok toks =
