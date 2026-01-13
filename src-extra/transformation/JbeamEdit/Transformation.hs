@@ -411,7 +411,7 @@ updateVerticesInNode
 updateVerticesInNode (NP.NodePath Empty) g globals (Array _) =
   let globalsList = NE.toList globals
       initialMeta =
-        M.unions (map metaMapFromObject (NE.toList globals))
+        M.unions (map metaMapFromObject globalsList)
    in Array (V.fromList globalsList <> vertexForestToNodeVector initialMeta g)
 updateVerticesInNode (NP.NodePath ((NP.ArrayIndex i) :<| qrest)) g globals (Array children) =
   let updateInNode nodeToUpdate =
@@ -419,9 +419,9 @@ updateVerticesInNode (NP.NodePath ((NP.ArrayIndex i) :<| qrest)) g globals (Arra
           // [(i, updateVerticesInNode (NP.NodePath qrest) g globals nodeToUpdate)]
    in Array $ maybe children updateInNode (children !? i)
 updateVerticesInNode (NP.NodePath ((NP.ObjectIndex i) :<| qrest)) g globals (Object children) =
-  let updateInNode _ =
+  let updateInNode child =
         children
-          // [(i, updateVerticesInNode (NP.NodePath qrest) g globals (children ! i))]
+          // [(i, updateVerticesInNode (NP.NodePath qrest) g globals child)]
    in Object $ maybe children updateInNode (children !? i)
 updateVerticesInNode (NP.NodePath (k@(NP.ObjectKey _) :<| qrest)) g globals (Object children) =
   let updateInNode i =
