@@ -15,6 +15,8 @@ import Data.Ord (Down (Down), comparing)
 import Data.Scientific (Scientific)
 import Data.Semigroup (Semigroup (sconcat))
 import Data.Sequence (Seq (..))
+import Data.Set (Set)
+import Data.Set qualified as S
 import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Text.Lazy qualified as TL (toStrict)
@@ -194,15 +196,16 @@ moveSupportVertices newNames tfCfg connMap vsPerType =
                   )
               )
 
+      supportVertexNames = foldr (S.insert . anVertexName . snd) S.empty supportVertices
+
       remainingVertices :: M.Map VertexTreeType [AnnotatedVertex]
       remainingVertices =
-        M.map (filter (`notElemByVertexName` map snd supportVertices)) vsPerType
+        M.map (filter (`notElemByVertexName` supportVertexNames)) vsPerType
    in (vertexForest, remainingVertices)
 
 notElemByVertexName
-  :: Foldable t
-  => AnnotatedVertex -> t AnnotatedVertex -> Bool
-notElemByVertexName vertex = not . any (on (==) (vName . aVertex) vertex)
+  :: AnnotatedVertex -> Set Text -> Bool
+notElemByVertexName vertex = S.notMember (anVertexName vertex)
 
 moveVerticesInVertexForest
   :: Node
