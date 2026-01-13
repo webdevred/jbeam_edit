@@ -46,7 +46,7 @@ formatTrivialErrors
   -> Maybe (MP.ErrorItem Word8)
   -> Text
 formatTrivialErrors pos inputNotParsed expToks unexpTok =
-  let formattedUnexpTok = maybe "" (wrap "got: " ", " . formatTok) unexpTok
+  let formattedUnexpTok = foldMap (wrap "got: " ", " . formatTok) unexpTok
       (errorArea, lineNumber) = errorAreaAndLineNumber pos inputNotParsed
    in formattedUnexpTok
         <> "expecting "

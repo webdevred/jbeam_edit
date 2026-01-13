@@ -43,7 +43,7 @@ ioErrorMsg
   -> Either Text BL.ByteString
 ioErrorMsg noerrs (Left (IOError _ ioe_type _ ioe_desc _ filename)) =
   if ioe_type `notElem` noerrs
-    then Left $ maybe "" appendColon filename `T.append` T.pack ioe_desc
+    then Left $ foldMap appendColon filename `T.append` T.pack ioe_desc
     else Right ""
   where
     appendColon f = T.pack f `T.append` ": "

@@ -108,7 +108,7 @@ library:
   ghc-options: [-Wunused-packages]
   source-dirs: src
   generated-other-modules: Paths_jbeam_edit
-  dependencies: [megaparsec, file-io]
+  dependencies: [extra, megaparsec, file-io]
   when:
     - condition: flag(transformation)
       cpp-options: -DENABLE_TRANSFORMATION

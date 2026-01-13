@@ -16,6 +16,7 @@ import Data.ByteString.Lazy qualified as LBS
 import Data.Char (isSpace)
 import Data.Functor (($>))
 import Data.Maybe (isNothing)
+import Data.Monoid.Extra (mwhen)
 import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Text.Encoding (decodeUtf8Lenient)
@@ -70,9 +71,9 @@ associationDirection st = bool PreviousNode NextNode (lastNodeEndedWithNewline s
 
 commentStripSpace :: Text -> Text
 commentStripSpace initialText =
-  let initialNewline = bool "" "\n" (T.isPrefixOf "\n" initialText)
+  let initialNewline = mwhen (T.isPrefixOf "\n" initialText) "\n"
       trimTrailingSpaces = T.dropWhileEnd (charBoth (/= '\n') isSpace)
-      endingNewline = bool "" "\n" (T.isSuffixOf "\n" $ trimTrailingSpaces initialText)
+      endingNewline = mwhen (T.isSuffixOf "\n" $ trimTrailingSpaces initialText) "\n"
       go = T.intercalate "\n" . filter (not . T.all isSpace) . map T.strip . T.lines
    in initialNewline <> go initialText <> endingNewline
 

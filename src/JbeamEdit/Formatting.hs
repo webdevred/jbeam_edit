@@ -11,7 +11,9 @@ module JbeamEdit.Formatting (
 import Data.Bool (bool)
 import Data.ByteString.Lazy qualified as LBS (fromStrict)
 import Data.Char (isSpace)
+import Data.Foldable.Extra (notNull)
 import Data.Maybe (fromMaybe)
+import Data.Monoid.Extra
 import Data.Scientific (FPFormat (Fixed), formatScientific)
 import Data.Text (Text)
 import Data.Text qualified as T
@@ -57,8 +59,10 @@ normalizeCommentNode False (Comment (InternalComment txt False dir)) = Comment (
 normalizeCommentNode _ node = node
 
 singleCharIf :: Char -> Bool -> Text
-singleCharIf a True = T.singleton a
-singleCharIf _ _ = ""
+singleCharIf a b = mwhen b (T.singleton a)
+
+singleCharIfNot :: Char -> Bool -> Text
+singleCharIfNot a b = singleCharIf a (not b)
 
 addDelimiters
   :: RuleSet
@@ -100,7 +104,7 @@ addDelimiters rs index c complexChildren (usePad, colWidths) acc ns@(node : rest
               new_acc = (padTxt baseTxt <> singleCharIf ' ' space <> singleCharIf '\n' newline) : acc
            in addDelimiters rs (index + 1) c complexChildren (usePad, colWidths) new_acc rest
   where
-    newlineBeforeComment = bool "\n" "" $ any isObjectKeyNode rest || ["\n"] == acc
+    newlineBeforeComment = singleCharIfNot '\n' (any isObjectKeyNode rest || ["\n"] == acc)
 
     applyCrumbAndFormat n =
       let padded = NC.applyCrumb c (formatWithCursor rs (usePad, colWidths)) index n
@@ -114,8 +118,8 @@ addDelimiters rs index c complexChildren (usePad, colWidths) acc ns@(node : rest
            in T.justifyLeft (width + 1) ' ' baseTxt
         else baseTxt
 
-    comma = not (null rest)
-    space = not (null rest) && not complexChildren
+    comma = notNull rest
+    space = notNull rest && not complexChildren
     newline = complexChildren
 
 applyIndentation :: Int -> Text -> Text
@@ -146,10 +150,9 @@ transposeWithPadding rs cursor vvs =
    in V.generate numCols $ \j ->
         V.map
           ( \row ->
-              bool
-                ""
-                (formatWithCursor rs (False, V.empty) cursor (row V.! j))
+              mwhen
                 (j < V.length row)
+                (formatWithCursor rs (False, V.empty) cursor (row V.! j))
           )
           vvs
 
@@ -198,8 +201,8 @@ formatComment (InternalComment {cMultiline = True, cText = c}) =
     <> trailingSpace
     <> "*/"
   where
-    leadingSpace = bool " " "" (T.isPrefixOf "\n" c)
-    trailingSpace = bool " " "" (T.isSuffixOf "\n" c)
+    leadingSpace = singleCharIfNot ' ' (T.isPrefixOf "\n" c)
+    trailingSpace = singleCharIfNot ' ' (T.isSuffixOf "\n" c)
 
 formatScalarNode :: Node -> Text
 formatScalarNode (String s) = T.concat ["\"", s, "\""]
@@ -216,7 +219,7 @@ formatWithCursor rs (_, maybePadAmounts) cursor (Array a)
   | otherwise =
       T.concat
         [ "["
-        , doFormatNode rs cursor (not (V.null maybePadAmounts), maybePadAmounts) a
+        , doFormatNode rs cursor (notNull maybePadAmounts, maybePadAmounts) a
         , "]"
         ]
 formatWithCursor rs (_, maybePadAmounts) cursor (Object o)
@@ -224,14 +227,14 @@ formatWithCursor rs (_, maybePadAmounts) cursor (Object o)
   | otherwise =
       T.concat
         [ "{"
-        , doFormatNode rs cursor (not (V.null maybePadAmounts), maybePadAmounts) o
+        , doFormatNode rs cursor (notNull maybePadAmounts, maybePadAmounts) o
         , "}"
         ]
 formatWithCursor rs (_, maybePadAmounts) cursor (ObjectKey (k, v)) =
   T.concat
-    [ formatWithCursor rs (not (V.null maybePadAmounts), maybePadAmounts) cursor k
+    [ formatWithCursor rs (notNull maybePadAmounts, maybePadAmounts) cursor k
     , " : "
-    , formatWithCursor rs (not (V.null maybePadAmounts), maybePadAmounts) cursor v
+    , formatWithCursor rs (notNull maybePadAmounts, maybePadAmounts) cursor v
     ]
 formatWithCursor _ _ _ (Comment comment) = formatComment comment
 formatWithCursor rs _ cursor n =
