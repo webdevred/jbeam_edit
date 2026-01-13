@@ -16,6 +16,9 @@ import Data.Semigroup (Semigroup (sconcat))
 import Data.Sequence (Seq (..))
 import Data.Text (Text)
 import Data.Text qualified as T
+import Data.Text.Lazy qualified as TL (toStrict)
+import Data.Text.Lazy.Builder qualified as TLB (toLazyText)
+import Data.Text.Lazy.Builder.Int (decimal)
 import Data.Traversable (mapAccumL)
 import Data.Vector (Vector, (!), (!?), (//))
 import Data.Vector qualified as V
@@ -341,9 +344,12 @@ compareAV thr treeType vertex1 vertex2 =
         , compareX
         ]
 
+intToText :: Int -> Text
+intToText = TL.toStrict . TLB.toLazyText . decimal
+
 renameVertexId :: VertexTreeType -> Int -> Text -> Text
 renameVertexId treeType idx vertexPrefix =
-  let idx' = bool "" (T.show idx) (treeType /= SupportTree || idx /= 0)
+  let idx' = bool "" (intToText idx) (treeType /= SupportTree || idx /= 0)
    in vertexPrefix <> idx'
 
 assignNames
