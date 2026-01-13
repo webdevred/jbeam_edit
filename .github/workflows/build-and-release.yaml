@@ -84,7 +84,7 @@ jobs:
         run: cabal test --project-file cabal.project.release
       - name: Run benchmarks (GHC ${{ matrix.ghc }})
         if: |
-          contains(matrix.flags, '+transformation') &&
+          contains(matrix.flags, ' +transformation ') &&
           (github.ref == 'refs/heads/master' ||
           contains(github.event.pull_request.labels.*.name, 'perf'))
         run: |
