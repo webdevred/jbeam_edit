@@ -11,7 +11,7 @@ import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Text.Encoding (decodeUtf8Lenient)
 import Data.Word (Word8)
-import JbeamEdit.IOUtils (humanJoin)
+import JbeamEdit.IOUtils (humanJoin, intToText)
 import JbeamEdit.Parsing.Common.Helpers (charNotEqWord8, toChar, toWord8)
 import Text.Megaparsec qualified as MP
 
@@ -34,7 +34,7 @@ errorAreaAndLineNumber pos inputNotParsed =
       errorArea =
         T.strip $
           on (<>) (decodeUtf8Lenient . LBS.toStrict) fstPartOfLine sndPartOfLine
-   in (errorArea, T.show lineNumber)
+   in (errorArea, intToText lineNumber)
 
 wrap :: Semigroup a => a -> a -> a -> a
 wrap l r m = l <> m <> r

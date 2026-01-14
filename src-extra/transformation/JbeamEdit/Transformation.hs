@@ -19,9 +19,6 @@ import Data.Set (Set)
 import Data.Set qualified as S
 import Data.Text (Text)
 import Data.Text qualified as T
-import Data.Text.Lazy qualified as TL (toStrict)
-import Data.Text.Lazy.Builder qualified as TLB (toLazyText)
-import Data.Text.Lazy.Builder.Int (decimal)
 import Data.Traversable (mapAccumL)
 import Data.Vector (Vector, (!), (!?), (//))
 import Data.Vector qualified as V
@@ -347,9 +344,6 @@ compareAV thr treeType vertex1 vertex2 =
         , compareZ
         , compareX
         ]
-
-intToText :: Int -> Text
-intToText = TL.toStrict . TLB.toLazyText . decimal
 
 renameVertexId :: VertexTreeType -> Int -> Text -> Text
 renameVertexId treeType idx vertexPrefix =

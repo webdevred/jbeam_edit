@@ -5,6 +5,7 @@ module JbeamEdit.IOUtils (
   putErrorLine,
   putErrorStringLn,
   humanJoin,
+  intToText,
   reportInvalidNodes,
 ) where
 
@@ -19,6 +20,8 @@ import Data.Text (Text)
 import Data.Text qualified as T (append, pack, unpack)
 import Data.Text.Lazy qualified as TL
 import Data.Text.Lazy.Builder qualified as B
+import Data.Text.Lazy.Builder qualified as TLB (toLazyText)
+import Data.Text.Lazy.Builder.Int (decimal)
 import GHC.IO.Exception (IOErrorType, IOException (IOError))
 import JbeamEdit.Core.Node (Node)
 import JbeamEdit.Formatting (formatNode)
@@ -79,3 +82,6 @@ humanJoin lastCombiner =
         <> B.fromText y
     go acc (x : xs) =
       go (acc <> B.fromText x <> B.fromText ", ") xs
+
+intToText :: Integral a => a -> Text
+intToText = TL.toStrict . TLB.toLazyText . decimal

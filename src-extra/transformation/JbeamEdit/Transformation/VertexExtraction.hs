@@ -10,6 +10,7 @@ module JbeamEdit.Transformation.VertexExtraction (
 import Control.Monad (guard)
 import Control.Monad.Except (runExcept)
 import Control.Monad.Trans.Except (except)
+import Data.Bifunctor (first)
 import Data.Char (isDigit)
 import Data.List.NonEmpty (NonEmpty (..))
 import Data.List.NonEmpty qualified as NE
