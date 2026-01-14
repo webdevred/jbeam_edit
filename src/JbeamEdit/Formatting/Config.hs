@@ -57,8 +57,8 @@ getJbflSourcePath :: ConfigType -> IO OsPath
 getJbflSourcePath = fmap unsafeEncodeUtf . getDataFileName . getRelativeJbflSourcePath
 #endif
 
-copyConfigFile :: OsPath -> ConfigType -> IO ()
-copyConfigFile dest configType = do
+copyConfigFile :: ConfigType -> OsPath -> IO ()
+copyConfigFile configType dest = do
   createDirectoryIfMissing True (takeDirectory dest)
   source <- getJbflSourcePath configType
   putErrorLine
@@ -70,12 +70,10 @@ copyConfigFile dest configType = do
   copyFile source dest
 
 copyToConfigDir :: ConfigType -> IO ()
-copyToConfigDir configType = do
-  configDir <- getConfigDir
-  copyConfigFile (configDir </> userRuleFile) configType
+copyToConfigDir configType = getConfigDir >>= copyConfigFile configType . (</> userRuleFile)
 
 createRuleFileIfDoesNotExist :: OsPath -> IO ()
-createRuleFileIfDoesNotExist configPath = doesFileExist configPath `unlessM` copyConfigFile configPath MinimalConfig
+createRuleFileIfDoesNotExist configPath = doesFileExist configPath `unlessM` copyConfigFile MinimalConfig configPath
 
 readFormattingConfig :: Maybe OsPath -> IO RuleSet
 readFormattingConfig maybeJbflPath = do
