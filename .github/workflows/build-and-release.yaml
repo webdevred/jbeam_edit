@@ -86,7 +86,7 @@ jobs:
         if: |
           contains(matrix.flags, ' +transformation ') &&
           (github.ref == 'refs/heads/master' ||
-          contains(github.event.pull_request.labels.*.name, 'perf'))
+          contains(github.event.pull_request.labels.*.name, 'performance'))
         run: |
           echo "Running benchmarks for jbeam-edit"
           cabal bench --project-file cabal.project.release --benchmark-options="--verbosity=1"
