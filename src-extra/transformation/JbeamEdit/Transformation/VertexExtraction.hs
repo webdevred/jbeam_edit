@@ -255,7 +255,7 @@ nodesListToTree brks nodes =
 objectKeysToObjects :: Map Text Node -> [Node]
 objectKeysToObjects =
   M.foldMapWithKey
-    (\k x -> pure . Object . V.singleton $ ObjectKey (String k, x))
+    (curry $ pure . Object . V.singleton . ObjectKey . first String)
 
 concatAnnotatedVertices
   :: OMap VertexTreeKey VertexTree
@@ -294,7 +294,7 @@ getVertexForestGlobals badNodes header (treeType, vertexTrees) =
 
       isGlobal k v =
         let otherVs = map (M.lookup k . aMeta) vertices
-         in all (\v' -> isNothing v' || v' == Just v) otherVs
+         in all (liftA2 (||) isNothing (Just v ==)) otherVs
       (globalsMap, localsMap) = M.partitionWithKey isGlobal (aMeta firstVertex)
 
       setLocals (AnnotatedVertex c v m) = AnnotatedVertex c v (M.union m localsMap)
