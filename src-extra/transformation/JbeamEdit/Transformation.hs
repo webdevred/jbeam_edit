@@ -15,11 +15,10 @@ import Data.Ord (Down (Down), comparing)
 import Data.Scientific (Scientific)
 import Data.Semigroup (Semigroup (sconcat))
 import Data.Sequence (Seq (..))
+import Data.Set (Set)
+import Data.Set qualified as S
 import Data.Text (Text)
 import Data.Text qualified as T
-import Data.Text.Lazy qualified as TL (toStrict)
-import Data.Text.Lazy.Builder qualified as TLB (toLazyText)
-import Data.Text.Lazy.Builder.Int (decimal)
 import Data.Traversable (mapAccumL)
 import Data.Vector (Vector, (!), (!?), (//))
 import Data.Vector qualified as V
@@ -194,15 +193,16 @@ moveSupportVertices newNames tfCfg connMap vsPerType =
                   )
               )
 
+      supportVertexNames = foldr (S.insert . anVertexName . snd) S.empty supportVertices
+
       remainingVertices :: M.Map VertexTreeType [AnnotatedVertex]
       remainingVertices =
-        M.map (filter (`notElemByVertexName` map snd supportVertices)) vsPerType
+        M.map (filter (`notElemByVertexName` supportVertexNames)) vsPerType
    in (vertexForest, remainingVertices)
 
 notElemByVertexName
-  :: Foldable t
-  => AnnotatedVertex -> t AnnotatedVertex -> Bool
-notElemByVertexName vertex = not . any (on (==) (vName . aVertex) vertex)
+  :: AnnotatedVertex -> Set Text -> Bool
+notElemByVertexName vertex = S.notMember (anVertexName vertex)
 
 moveVerticesInVertexForest
   :: Node
@@ -345,9 +345,6 @@ compareAV thr treeType vertex1 vertex2 =
         , compareX
         ]
 
-intToText :: Int -> Text
-intToText = TL.toStrict . TLB.toLazyText . decimal
-
 renameVertexId :: VertexTreeType -> Int -> Text -> Text
 renameVertexId treeType idx vertexPrefix =
   let idx' = mwhen (treeType /= SupportTree || idx /= 0) (intToText idx)
@@ -411,7 +408,7 @@ updateVerticesInNode
 updateVerticesInNode (NP.NodePath Empty) g globals (Array _) =
   let globalsList = NE.toList globals
       initialMeta =
-        M.unions (map metaMapFromObject (NE.toList globals))
+        M.unions (map metaMapFromObject globalsList)
    in Array (V.fromList globalsList <> vertexForestToNodeVector initialMeta g)
 updateVerticesInNode (NP.NodePath ((NP.ArrayIndex i) :<| qrest)) g globals (Array children) =
   let updateInNode nodeToUpdate =
@@ -419,9 +416,9 @@ updateVerticesInNode (NP.NodePath ((NP.ArrayIndex i) :<| qrest)) g globals (Arra
           // [(i, updateVerticesInNode (NP.NodePath qrest) g globals nodeToUpdate)]
    in Array $ maybe children updateInNode (children !? i)
 updateVerticesInNode (NP.NodePath ((NP.ObjectIndex i) :<| qrest)) g globals (Object children) =
-  let updateInNode _ =
+  let updateInNode child =
         children
-          // [(i, updateVerticesInNode (NP.NodePath qrest) g globals (children ! i))]
+          // [(i, updateVerticesInNode (NP.NodePath qrest) g globals child)]
    in Object $ maybe children updateInNode (children !? i)
 updateVerticesInNode (NP.NodePath (k@(NP.ObjectKey _) :<| qrest)) g globals (Object children) =
   let updateInNode i =

@@ -106,7 +106,7 @@ library
         mtl,
         scientific,
         text >=2.1.2,
-        vector
+        vector >=0.13
 
     if os(windows)
         ghc-options: -optc-Os -optl-static
@@ -152,7 +152,7 @@ library jbeam-edit-transformation
         mtl,
         scientific,
         text >=2.1.2,
-        vector
+        vector >=0.13
 
     if os(windows)
         ghc-options: -optc-Os -optl-static
@@ -197,7 +197,7 @@ library jbeam-language-server
         mtl,
         scientific,
         text >=2.1.2,
-        vector
+        vector >=0.13
 
     if os(windows)
         ghc-options: -optc-Os -optl-static
@@ -239,7 +239,7 @@ executable jbeam-edit
         mtl,
         scientific,
         text >=2.1.2,
-        vector
+        vector >=0.13
 
     if os(windows)
         ghc-options: -optc-Os -optl-static
@@ -273,7 +273,7 @@ executable jbeam-edit-dump-ast
         mtl,
         scientific,
         text >=2.1.2,
-        vector
+        vector >=0.13
 
     if os(windows)
         ghc-options: -optc-Os -optl-static
@@ -314,7 +314,7 @@ executable jbeam-lsp-server
         mtl,
         scientific,
         text >=2.1.2,
-        vector
+        vector >=0.13
 
     if os(windows)
         ghc-options: -optc-Os -optl-static
@@ -363,7 +363,7 @@ test-suite jbeam-edit-test
         mtl,
         scientific,
         text >=2.1.2,
-        vector
+        vector >=0.13
 
     if os(windows)
         ghc-options: -optc-Os -optl-static
@@ -400,7 +400,7 @@ test-suite jbeam-edit-transformation-test
         mtl,
         scientific,
         text >=2.1.2,
-        vector
+        vector >=0.13
 
     if os(windows)
         ghc-options: -optc-Os -optl-static
@@ -446,7 +446,7 @@ test-suite jbeam-language-server-test
         mtl,
         scientific,
         text >=2.1.2,
-        vector
+        vector >=0.13
 
     if os(windows)
         ghc-options: -optc-Os -optl-static
@@ -487,7 +487,7 @@ benchmark jbeam-edit-bench
         mtl,
         scientific,
         text >=2.1.2,
-        vector
+        vector >=0.13
 
     if os(windows)
         ghc-options: -optc-Os -optl-static

@@ -10,6 +10,7 @@ module JbeamEdit.Transformation.VertexExtraction (
 import Control.Monad (guard)
 import Control.Monad.Except (runExcept)
 import Control.Monad.Trans.Except (except)
+import Data.Bifunctor (first)
 import Data.Char (isDigit)
 import Data.List.NonEmpty (NonEmpty (..))
 import Data.List.NonEmpty qualified as NE
@@ -255,12 +256,13 @@ nodesListToTree brks nodes =
 objectKeysToObjects :: Map Text Node -> [Node]
 objectKeysToObjects =
   M.foldMapWithKey
-    (\k x -> pure . Object . V.singleton $ ObjectKey (String k, x))
+    (curry $ pure . Object . V.singleton . ObjectKey . first String)
 
 concatAnnotatedVertices
   :: OMap VertexTreeKey VertexTree
   -> [AnnotatedVertex]
 concatAnnotatedVertices = concatMap (toList . tAnnotatedVertices . snd) . toList
+
 extractFirstVertex
   :: OMap1 VertexTreeKey VertexTree -> (AnnotatedVertex, [AnnotatedVertex])
 extractFirstVertex vertexTrees =
@@ -293,7 +295,7 @@ getVertexForestGlobals badNodes header (treeType, vertexTrees) =
 
       isGlobal k v =
         let otherVs = map (M.lookup k . aMeta) vertices
-         in all (\v' -> isNothing v' || v' == Just v) otherVs
+         in all (liftA2 (||) isNothing (Just v ==)) otherVs
       (globalsMap, localsMap) = M.partitionWithKey isGlobal (aMeta firstVertex)
 
       setLocals (AnnotatedVertex c v m) = AnnotatedVertex c v (M.union m localsMap)
