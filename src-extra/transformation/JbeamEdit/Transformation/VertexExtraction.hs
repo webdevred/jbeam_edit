@@ -261,6 +261,7 @@ concatAnnotatedVertices
   :: OMap VertexTreeKey VertexTree
   -> [AnnotatedVertex]
 concatAnnotatedVertices = concatMap (toList . tAnnotatedVertices . snd) . toList
+
 extractFirstVertex
   :: OMap1 VertexTreeKey VertexTree -> (AnnotatedVertex, [AnnotatedVertex])
 extractFirstVertex vertexTrees =
