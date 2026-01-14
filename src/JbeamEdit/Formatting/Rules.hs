@@ -240,6 +240,7 @@ sameBy matchMode f = go
        in res && go ps bs
     go ps bs = Seq.null ps && (Seq.null bs || PrefixMatch == matchMode)
 
+-- TODO: when possible upgrade to containers 0.8 and migrate to M.filterKeys
 findPropertiesForCursor :: MatchMode -> NC.NodeCursor -> RuleSet -> Rule
 findPropertiesForCursor matchMode cursor (RuleSet rs) =
   fold (M.filterWithKey (const . compareCursorAndPattern matchMode cursor) rs)
