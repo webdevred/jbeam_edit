@@ -113,6 +113,9 @@ jobs:
     name: Prepare release for Windows (${{ matrix.ghc }} (${{ matrix.label}})
     strategy:
       matrix: ${{ fromJSON(needs.get-newest-supported-ghc.outputs.matrix) }}
+    if: |
+      github.ref == 'refs/heads/master' ||
+      contains(github.event.pull_request.labels.*.name, 'installer')
     env:
       RELEASE_DIR: ./dist/release
       ZIP_DIR: ./dist/zip_temp
