@@ -1,7 +1,7 @@
 import: cabal.project
 executable-static: True
 executable-stripping: True
-index-state: hackage.haskell.org 2025-10-12T21:52:54Z
+index-state: hackage.haskell.org 2026-01-11T16:27:22Z
 
 package *
   ghc-options:

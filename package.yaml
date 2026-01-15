@@ -55,10 +55,10 @@ ghc-options:
   - -Wredundant-constraints
 
 when:
-  condition: os(windows)
-  ghc-options:
-    -optc-Os
-    -optl-static
+  - condition: '! flag(lsp-server) && ! flag(transformation) && ! flag(dump-ast)'
+    dependencies: [containers >= 0.8]
+  - condition: os(windows)
+    ghc-options: -optc-Os -optl-static
 
 flags:
   dump-ast:

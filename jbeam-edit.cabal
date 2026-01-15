@@ -108,6 +108,9 @@ library
         text >=2.1.2,
         vector >=0.13
 
+    if ((!flag(lsp-server) && !flag(transformation)) && !flag(dump-ast))
+        build-depends: containers >=0.8
+
     if os(windows)
         ghc-options: -optc-Os -optl-static
 
@@ -154,6 +157,9 @@ library jbeam-edit-transformation
         text >=2.1.2,
         vector >=0.13
 
+    if ((!flag(lsp-server) && !flag(transformation)) && !flag(dump-ast))
+        build-depends: containers >=0.8
+
     if os(windows)
         ghc-options: -optc-Os -optl-static
 
@@ -199,6 +205,9 @@ library jbeam-language-server
         text >=2.1.2,
         vector >=0.13
 
+    if ((!flag(lsp-server) && !flag(transformation)) && !flag(dump-ast))
+        build-depends: containers >=0.8
+
     if os(windows)
         ghc-options: -optc-Os -optl-static
 
@@ -241,6 +250,9 @@ executable jbeam-edit
         text >=2.1.2,
         vector >=0.13
 
+    if ((!flag(lsp-server) && !flag(transformation)) && !flag(dump-ast))
+        build-depends: containers >=0.8
+
     if os(windows)
         ghc-options: -optc-Os -optl-static
 
@@ -274,6 +286,9 @@ executable jbeam-edit-dump-ast
         scientific,
         text >=2.1.2,
         vector >=0.13
+
+    if ((!flag(lsp-server) && !flag(transformation)) && !flag(dump-ast))
+        build-depends: containers >=0.8
 
     if os(windows)
         ghc-options: -optc-Os -optl-static
@@ -315,6 +330,9 @@ executable jbeam-lsp-server
         scientific,
         text >=2.1.2,
         vector >=0.13
+
+    if ((!flag(lsp-server) && !flag(transformation)) && !flag(dump-ast))
+        build-depends: containers >=0.8
 
     if os(windows)
         ghc-options: -optc-Os -optl-static
@@ -365,6 +383,9 @@ test-suite jbeam-edit-test
         text >=2.1.2,
         vector >=0.13
 
+    if ((!flag(lsp-server) && !flag(transformation)) && !flag(dump-ast))
+        build-depends: containers >=0.8
+
     if os(windows)
         ghc-options: -optc-Os -optl-static
 
@@ -401,6 +422,9 @@ test-suite jbeam-edit-transformation-test
         scientific,
         text >=2.1.2,
         vector >=0.13
+
+    if ((!flag(lsp-server) && !flag(transformation)) && !flag(dump-ast))
+        build-depends: containers >=0.8
 
     if os(windows)
         ghc-options: -optc-Os -optl-static
@@ -448,6 +472,9 @@ test-suite jbeam-language-server-test
         text >=2.1.2,
         vector >=0.13
 
+    if ((!flag(lsp-server) && !flag(transformation)) && !flag(dump-ast))
+        build-depends: containers >=0.8
+
     if os(windows)
         ghc-options: -optc-Os -optl-static
 
@@ -488,6 +515,9 @@ benchmark jbeam-edit-bench
         scientific,
         text >=2.1.2,
         vector >=0.13
+
+    if ((!flag(lsp-server) && !flag(transformation)) && !flag(dump-ast))
+        build-depends: containers >=0.8
 
     if os(windows)
         ghc-options: -optc-Os -optl-static
