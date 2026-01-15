@@ -8,6 +8,7 @@ module JbeamEdit.Core.NodePath (
   expectArray,
 ) where
 
+import Data.Either.Extra (maybeToEither)
 import Data.Sequence (Seq (..))
 import Data.Text (Text)
 import Data.Text qualified as T (show)
@@ -65,7 +66,7 @@ select (ObjectIndex i) (N.Object a) = extractValInKey =<< getNthNonComment i a
 select _ _ = Nothing
 
 queryNodes :: NodePath -> N.Node -> Either Text N.Node
-queryNodes np = maybe (Left $ "could not find " <> T.show np) Right . go np
+queryNodes np = maybeToEither ("could not find " <> T.show np) . go np
   where
     go (NodePath (s :<| p)) n = go (NodePath p) =<< select s n
     go (NodePath Empty) n = Just n
