@@ -317,7 +317,7 @@ vertexForestToNodeVector initialMeta vf =
               oMap
 
       (_, listsOfNodes) = mapAccumL stepType initialMeta treesOrder
-   in V.fromList (concat listsOfNodes)
+   in foldMap V.fromList listsOfNodes
 
 treesOrder :: [VertexTreeType]
 treesOrder = [LeftTree, MiddleTree, RightTree, SupportTree]

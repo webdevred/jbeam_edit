@@ -34,14 +34,21 @@ import JbeamEdit.Transformation.Types
 verticesQuery :: NP.NodePath
 verticesQuery = fromList [NP.ObjectIndex 0, NP.ObjectKey "nodes"]
 
+{-# INLINE newVertex #-}
 newVertex :: Node -> Maybe Vertex
-newVertex (Array ns) = f . V.toList $ ns
-  where
-    f [String name, Number x, Number y, Number z, Object m] =
-      Just (Vertex {vName = name, vX = x, vY = y, vZ = z, vMeta = Just m})
-    f [String name, Number x, Number y, Number z] =
-      Just (Vertex {vName = name, vX = x, vY = y, vZ = z, vMeta = Nothing})
-    f _ = Nothing
+newVertex (Array ns) =
+  case V.length ns of
+    4 ->
+      case (ns V.! 0, ns V.! 1, ns V.! 2, ns V.! 3) of
+        (String name, Number x, Number y, Number z) ->
+          Just (Vertex name x y z Nothing)
+        _ -> Nothing
+    5 ->
+      case (ns V.! 0, ns V.! 1, ns V.! 2, ns V.! 3, ns V.! 4) of
+        (String name, Number x, Number y, Number z, Object m) ->
+          Just (Vertex name x y z (Just m))
+        _ -> Nothing
+    _ -> Nothing
 newVertex _ = Nothing
 
 isNonVertex :: Node -> Bool

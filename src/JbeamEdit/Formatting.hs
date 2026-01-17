@@ -128,11 +128,10 @@ applyIndentation n s
   | otherwise = T.replicate n " " <> s
 
 skipHeaderRow :: Vector (Vector Node) -> Vector (Vector Node)
-skipHeaderRow nodes =
-  case V.uncons nodes of
-    Just (headerRow, rest) ->
-      bool nodes rest (all isStringNode headerRow)
-    Nothing -> nodes
+skipHeaderRow nodes
+  | V.length nodes > 1 =
+      bool nodes (V.unsafeTail nodes) (all isStringNode $ V.unsafeHead nodes)
+  | otherwise = nodes
 
 maxColumnLengths
   :: RuleSet -> NC.NodeCursor -> Vector (Vector Node) -> Vector Int
