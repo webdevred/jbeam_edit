@@ -71,7 +71,7 @@ addPrefixComments SupportTree trees = trees
 addPrefixComments _ trees = bool trees (fmap addToAnnotatedVertex trees) (length trees > 1)
   where
     addToAnnotatedVertex (VertexTree [] namedVertexGroups) =
-      let commentName = dropIndex . vName . aVertex . NE.head $ namedVertexGroups
+      let commentName = dropIndex . anVertexName . NE.head $ namedVertexGroups
           newComment = InternalComment ("prefix group " <> commentName) False NextNode
        in VertexTree [newComment] namedVertexGroups
     addToAnnotatedVertex (VertexTree comments namedVertexGroups) = VertexTree comments namedVertexGroups
@@ -107,7 +107,7 @@ groupByPrefix origTree =
   OMap1.fromNEList
     . sortByKeyOrderNE origTree
     . NE.map (prefixForVertexKey origTree)
-    . NE.groupWith1 (dropIndex . vName . aVertex)
+    . NE.groupWith1 (dropIndex . anVertexName)
 
 commentsExists :: Maybe (OMap1 VertexTreeKey VertexTree) -> Bool
 commentsExists = any (notNull . tComments . OMap1.head)
@@ -159,7 +159,7 @@ moveSupportVertices newNames tfCfg connMap vsPerType =
         [ (vType, av)
         | (vType, vs) <- M.toList vsPerType
         , av <- vs
-        , let name = vName (aVertex av)
+        , let name = anVertexName av
         , let vertexCount = length vs
               thrCount =
                 max 1 (round $ supportThreshold tfCfg / 100 * fromIntegral vertexCount)
@@ -328,7 +328,7 @@ compareAV thr treeType vertex1 vertex2 =
   let supportNameCompare =
         bool
           EQ
-          (on compare (dropIndex . vName . aVertex) vertex1 vertex2)
+          (on compare (dropIndex . anVertexName) vertex1 vertex2)
           (treeType == SupportTree)
       y1 = vY . aVertex $ vertex1
       y2 = vY . aVertex $ vertex2
