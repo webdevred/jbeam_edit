@@ -242,7 +242,7 @@ formatNode rs node = formatWithCursor rs (False, V.empty) newCursor node <> TL.s
 
 #ifdef ENABLE_WINDOWS_NEWLINES
 replaceNewlines :: TL.Text -> TL.Text
-replaceNewlines = T.replace "\n" "\r\n"
+replaceNewlines = TL.replace "\n" "\r\n"
 #else
 replaceNewlines :: TL.Text -> TL.Text
 replaceNewlines = id
