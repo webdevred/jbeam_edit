@@ -4,7 +4,7 @@ module Spec (
 
 import Data.List (isPrefixOf, isSuffixOf)
 import Data.Map qualified as M
-import Data.Text qualified as T
+import Data.Text.Lazy qualified as TL    
 import JbeamEdit.Formatting
 import JbeamEdit.Transformation
 import JbeamEdit.Transformation.Config
@@ -36,7 +36,7 @@ topNodeSpec rs cfName tfConfig inFilename outFilename = do
         do
           (_, _, _, node) <- transform M.empty tfConfig (read input)
           Right (formatNode rs node)
-  describe desc . it "works" $ transformAndFormat `shouldBe` Right (T.pack output)
+  describe desc . it "works" $ transformAndFormat `shouldBe` Right (TL.pack output)
 
 main :: IO ()
 main = hspec $ do

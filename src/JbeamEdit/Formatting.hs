@@ -12,14 +12,15 @@ import Data.Bool (bool)
 import Data.ByteString.Lazy qualified as LBS (fromStrict)
 import Data.Char (isSpace)
 import Data.Foldable.Extra (notNull)
+import Data.Int
 import Data.Maybe (fromMaybe)
 import Data.Monoid.Extra
 import Data.Text (Text)
 import Data.Text qualified as T
-import Data.Text.Encoding (encodeUtf8)
 import Data.Text.Lazy qualified as TL
 import Data.Text.Lazy.Builder qualified as TLB (toLazyText)
 import Data.Text.Lazy.Builder.Scientific
+import Data.Text.Lazy.Encoding (encodeUtf8)
 import Data.Vector (Vector)
 import Data.Vector qualified as V
 import JbeamEdit.Core.Node (
@@ -48,22 +49,22 @@ import JbeamEdit.Formatting.Rules (
 import System.File.OsPath qualified as OS (writeFile)
 import System.OsPath (OsPath)
 
-splitTrailing :: Bool -> Text -> (Text, Text)
+splitTrailing :: Bool -> TL.Text -> (TL.Text, TL.Text)
 splitTrailing comma txt =
-  let trailing = T.length (T.takeWhileEnd (== ' ') txt)
+  let trailing = TL.length (TL.takeWhileEnd (== ' ') txt)
       trailing' = trailing - bool 0 1 comma
-   in ( T.dropEnd trailing txt
-      , T.replicate trailing' " "
+   in ( TL.dropEnd trailing txt
+      , TL.replicate trailing' " "
       )
 
 normalizeCommentNode :: Bool -> Node -> Node
 normalizeCommentNode False (Comment (InternalComment txt False dir)) = Comment (InternalComment txt True dir)
 normalizeCommentNode _ node = node
 
-singleCharIf :: Char -> Bool -> Text
-singleCharIf a b = mwhen b (T.singleton a)
+singleCharIf :: Char -> Bool -> TL.Text
+singleCharIf a b = mwhen b (TL.singleton a)
 
-singleCharIfNot :: Char -> Bool -> Text
+singleCharIfNot :: Char -> Bool -> TL.Text
 singleCharIfNot a b = singleCharIf a (not b)
 
 addDelimiters
@@ -71,10 +72,10 @@ addDelimiters
   -> Int
   -> NC.NodeCursor
   -> Bool
-  -> (Bool, Vector Int) -- (usePad, columnWidths)
-  -> [Text]
+  -> (Bool, Vector Int64) -- (usePad, columnWidths)
+  -> [TL.Text]
   -> [Node]
-  -> [Text]
+  -> [TL.Text]
 addDelimiters _ _ _ _ _ acc [] = acc
 addDelimiters rs index c complexChildren (usePad, colWidths) acc ns@(node : rest)
   | complexChildren && null acc =
@@ -117,17 +118,17 @@ addDelimiters rs index c complexChildren (usePad, colWidths) acc ns@(node : rest
       if usePad && not (isCommentNode node) && comma
         then
           let width = sum (colWidths V.!? index)
-           in T.justifyLeft (width + 1) ' ' baseTxt
+           in TL.justifyLeft (width + 1) ' ' baseTxt
         else baseTxt
 
     comma = notNull rest
     space = notNull rest && not complexChildren
     newline = complexChildren
 
-applyIndentation :: Int -> Text -> Text
+applyIndentation :: Int64 -> TL.Text -> TL.Text
 applyIndentation n s
-  | T.all isSpace s = s
-  | otherwise = T.replicate n " " <> s
+  | TL.all isSpace s = s
+  | otherwise = TL.replicate n " " <> s
 
 skipHeaderRow :: Vector (Vector Node) -> Vector (Vector Node)
 skipHeaderRow nodes
@@ -136,16 +137,16 @@ skipHeaderRow nodes
   | otherwise = nodes
 
 maxColumnLengths
-  :: RuleSet -> NC.NodeCursor -> Vector (Vector Node) -> Vector Int
+  :: RuleSet -> NC.NodeCursor -> Vector (Vector Node) -> Vector Int64
 maxColumnLengths rs cursor rows
   | V.null rows = V.empty
   | otherwise =
       V.map
-        (V.maximum . V.map T.length)
+        (V.maximum . V.map TL.length)
         (transposeWithPadding rs cursor $ skipHeaderRow rows)
 
 transposeWithPadding
-  :: RuleSet -> NC.NodeCursor -> Vector (Vector Node) -> Vector (Vector T.Text)
+  :: RuleSet -> NC.NodeCursor -> Vector (Vector Node) -> Vector (Vector TL.Text)
 transposeWithPadding rs cursor vvs =
   let numCols = V.maximum (V.map V.length vvs)
    in V.generate numCols $ \j ->
@@ -160,9 +161,9 @@ transposeWithPadding rs cursor vvs =
 doFormatNode
   :: RuleSet
   -> NC.NodeCursor
-  -> (Bool, Vector Int)
+  -> (Bool, Vector Int64)
   -> Vector Node
-  -> Text
+  -> TL.Text
 doFormatNode rs cursor padAmounts nodes =
   let autoPadEnabled =
         lookupPropertyForCursor ExactMatch AutoPad rs cursor == Just True
@@ -182,74 +183,68 @@ doFormatNode rs cursor padAmounts nodes =
         fromMaybe 2 (lookupPropertyForCursor PrefixMatch Indent rs cursor)
    in if complexChildren
         then
-          T.unlines
+          TL.unlines
             . map (applyIndentation indentationAmount)
-            . concatMap T.lines
+            . concatMap TL.lines
             $ formatted
-        else T.concat formatted
+        else TL.concat formatted
   where
     complexChildren =
       forceComplexNewLine rs cursor
         || any (liftA2 (||) isSinglelineComment isComplexNode) nodes
           && not (noComplexNewLine rs cursor)
 
-formatComment :: InternalComment -> Text
-formatComment (InternalComment {cMultiline = False, cText = c}) = "// " <> c
+formatComment :: InternalComment -> TL.Text
+formatComment (InternalComment {cMultiline = False, cText = c}) = "// " <> TL.fromStrict c
 formatComment (InternalComment {cMultiline = True, cText = c}) =
   "/*"
     <> leadingSpace
-    <> c
+    <> TL.fromStrict c
     <> trailingSpace
     <> "*/"
   where
     leadingSpace = singleCharIfNot ' ' (T.isPrefixOf "\n" c)
     trailingSpace = singleCharIfNot ' ' (T.isSuffixOf "\n" c)
 
-formatScalarNode :: Node -> Text
-formatScalarNode (String s) = T.concat ["\"", s, "\""]
-formatScalarNode (Number n) = TL.toStrict . TLB.toLazyText $ formatScientificBuilder Fixed Nothing n
+formatScalarNode :: Node -> TL.Text
+formatScalarNode (String s) = "\"" <> TL.fromStrict s <> "\""
+formatScalarNode (Number n) = TLB.toLazyText $ formatScientificBuilder Fixed Nothing n
 formatScalarNode (Bool True) = "true"
 formatScalarNode (Bool _) = "false"
 formatScalarNode Null = "null"
 formatScalarNode _ = error "Unhandled scalar node"
 
 formatWithCursor
-  :: RuleSet -> (Bool, Vector Int) -> NC.NodeCursor -> Node -> Text
+  :: RuleSet -> (Bool, Vector Int64) -> NC.NodeCursor -> Node -> TL.Text
 formatWithCursor rs (_, maybePadAmounts) cursor (Array a)
   | V.null a = "[]"
   | otherwise =
-      T.concat
-        [ "["
-        , doFormatNode rs cursor (notNull maybePadAmounts, maybePadAmounts) a
-        , "]"
-        ]
+      "["
+        <> doFormatNode rs cursor (notNull maybePadAmounts, maybePadAmounts) a
+        <> "]"
 formatWithCursor rs (_, maybePadAmounts) cursor (Object o)
   | V.null o = "{}"
   | otherwise =
-      T.concat
-        [ "{"
-        , doFormatNode rs cursor (notNull maybePadAmounts, maybePadAmounts) o
-        , "}"
-        ]
+      "{"
+        <> doFormatNode rs cursor (notNull maybePadAmounts, maybePadAmounts) o
+        <> "}"
 formatWithCursor rs (_, maybePadAmounts) cursor (ObjectKey (k, v)) =
-  T.concat
-    [ formatWithCursor rs (notNull maybePadAmounts, maybePadAmounts) cursor k
-    , " : "
-    , formatWithCursor rs (notNull maybePadAmounts, maybePadAmounts) cursor v
-    ]
+  formatWithCursor rs (notNull maybePadAmounts, maybePadAmounts) cursor k
+    <> " : "
+    <> formatWithCursor rs (notNull maybePadAmounts, maybePadAmounts) cursor v
 formatWithCursor _ _ _ (Comment comment) = formatComment comment
 formatWithCursor rs _ cursor n =
   let ps = findPropertiesForCursor PrefixMatch cursor rs
    in applyPadLogic formatScalarNode ps n
 
-formatNode :: RuleSet -> Node -> Text
-formatNode rs node = formatWithCursor rs (False, V.empty) newCursor node <> T.singleton '\n'
+formatNode :: RuleSet -> Node -> TL.Text
+formatNode rs node = formatWithCursor rs (False, V.empty) newCursor node <> TL.singleton '\n'
 
 #ifdef ENABLE_WINDOWS_NEWLINES
-replaceNewlines :: Text -> Text
+replaceNewlines :: TL.Text -> TL.Text
 replaceNewlines = T.replace "\n" "\r\n"
 #else
-replaceNewlines :: Text -> Text
+replaceNewlines :: TL.Text -> TL.Text
 replaceNewlines = id
 #endif
 
@@ -260,7 +255,6 @@ formatNodeAndWrite
   -> IO ()
 formatNodeAndWrite rs outFile =
   OS.writeFile outFile
-    . LBS.fromStrict
     . encodeUtf8
     . replaceNewlines
     . formatNode rs
