@@ -14,10 +14,12 @@ import Data.Char (isSpace)
 import Data.Foldable.Extra (notNull)
 import Data.Maybe (fromMaybe)
 import Data.Monoid.Extra
-import Data.Scientific (FPFormat (Fixed), formatScientific)
 import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Text.Encoding (encodeUtf8)
+import Data.Text.Lazy qualified as TL
+import Data.Text.Lazy.Builder qualified as TLB (toLazyText)
+import Data.Text.Lazy.Builder.Scientific
 import Data.Vector (Vector)
 import Data.Vector qualified as V
 import JbeamEdit.Core.Node (
@@ -205,7 +207,7 @@ formatComment (InternalComment {cMultiline = True, cText = c}) =
 
 formatScalarNode :: Node -> Text
 formatScalarNode (String s) = T.concat ["\"", s, "\""]
-formatScalarNode (Number n) = T.pack (formatScientific Fixed Nothing n)
+formatScalarNode (Number n) = TL.toStrict . TLB.toLazyText $ formatScientificBuilder Fixed Nothing n
 formatScalarNode (Bool True) = "true"
 formatScalarNode (Bool _) = "false"
 formatScalarNode Null = "null"
