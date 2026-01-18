@@ -25,6 +25,7 @@ module JbeamEdit.Formatting.Rules (
 import Data.Bool (bool)
 import Data.Foldable (fold)
 import Data.Function (on)
+import Data.Int
 import Data.List (find)
 import Data.Map (Map)
 import Data.Map qualified as M
@@ -33,6 +34,7 @@ import Data.Sequence (Seq (..))
 import Data.Sequence qualified as Seq (length, null)
 import Data.Text (Text)
 import Data.Text qualified as T
+import Data.Text.Lazy qualified as TL
 import Data.Type.Equality ((:~:) (Refl))
 import JbeamEdit.Core.Node
 import JbeamEdit.Core.NodeCursor qualified as NC
@@ -73,9 +75,9 @@ data PropertyKey a where
   AutoPad :: PropertyKey Bool
   NoComplexNewLine :: PropertyKey Bool
   ForceComplexNewLine :: PropertyKey Bool
-  PadAmount :: PropertyKey Int
-  PadDecimals :: PropertyKey Int
-  Indent :: PropertyKey Int
+  PadAmount :: PropertyKey Int64
+  PadDecimals :: PropertyKey Int64
+  Indent :: PropertyKey Int64
 
 data SomeKey
   = forall a.
@@ -179,23 +181,23 @@ lookupProp targetKey m =
         Nothing -> Nothing
     Nothing -> Nothing
 
-applyDecimalPadding :: Int -> Text -> Text
+applyDecimalPadding :: Int64 -> TL.Text -> TL.Text
 applyDecimalPadding padDecimals node
   | padDecimals /= 0 =
-      let (int, frac) = T.breakOnEnd "." node
-          paddedFrac = T.justifyLeft padDecimals '0' frac
+      let (int, frac) = TL.breakOnEnd "." node
+          paddedFrac = TL.justifyLeft padDecimals '0' frac
        in int <> paddedFrac
-  | T.isSuffixOf ".0" node = T.dropEnd 2 node
+  | TL.isSuffixOf ".0" node = TL.dropEnd 2 node
   | otherwise = node
 
-applyPadLogic :: (Node -> Text) -> Rule -> Node -> Text
+applyPadLogic :: (Node -> TL.Text) -> Rule -> Node -> TL.Text
 applyPadLogic f rs n =
   let padAmount = sum $ lookupProp PadAmount rs
       padDecimals = sum $ lookupProp PadDecimals rs
       decimalPaddedText
         | isNumberNode n = applyDecimalPadding padDecimals (f n)
         | otherwise = f n
-   in bool (T.justifyLeft padAmount ' ' decimalPaddedText) (f n) (isComplexNode n)
+   in bool (TL.justifyLeft padAmount ' ' decimalPaddedText) (f n) (isComplexNode n)
 
 forceComplexNewLine :: RuleSet -> NC.NodeCursor -> Bool
 forceComplexNewLine rs cursor =

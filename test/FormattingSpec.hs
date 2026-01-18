@@ -5,6 +5,7 @@ module FormattingSpec (
 import Control.Monad (forM, forM_)
 import Data.Text (Text)
 import Data.Text qualified as T
+import Data.Text.Lazy qualified as TL    
 import GHC.IsList (fromList)
 import JbeamEdit.Core.NodeCursor (newCursor)
 import JbeamEdit.Formatting
@@ -72,7 +73,7 @@ dynamicJbflTests = do
         outFile = formattedDir </> (baseName ++ "-jbfl.jbeam")
 
     expected <- T.pack <$> readFile outFile
-    pure (outFile, formatted, expected)
+    pure (outFile, TL.toStrict formatted, expected)
 
 spec :: Spec
 spec = do
@@ -88,7 +89,7 @@ spec = do
         descFun
         shouldBe
         (formatWithCursor mempty (False, mempty) newCursor node)
-        (T.pack jbeam)
+        (TL.pack jbeam)
     descFun jbeam node = "should format " ++ show node ++ " as " ++ jbeam
     specs =
       concat

@@ -12,6 +12,7 @@ import Data.ByteString.Lazy qualified as LBS
 import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Text.Encoding (encodeUtf8)
+import Data.Text.Lazy qualified as TL
 import GHC.Generics (Generic)
 import JbeamEdit.Core.Node (Node)
 import JbeamEdit.Formatting qualified as Fmt
@@ -76,7 +77,7 @@ handleParams rs logger params responder = do
 
 runFormatNode :: RuleSet -> T.Text -> Node -> Maybe J.TextEdit
 runFormatNode ruleSet txt node =
-  let newText = Fmt.formatNode ruleSet node
+  let newText = TL.toStrict $ Fmt.formatNode ruleSet node
       edit =
         J.TextEdit
           { J._range = wholeRange txt

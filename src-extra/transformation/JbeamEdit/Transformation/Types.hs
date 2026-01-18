@@ -63,6 +63,7 @@ data AnnotatedVertex = AnnotatedVertex
   }
   deriving (Eq, Show)
 
+{-# INLINE anVertexName #-}
 anVertexName :: AnnotatedVertex -> Text
 anVertexName = vName . aVertex
 

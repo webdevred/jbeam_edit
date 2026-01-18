@@ -39,7 +39,7 @@ reportInvalidNodes :: Text -> [Node] -> IO ()
 reportInvalidNodes msg nodes =
   unless (null nodes) $
     putErrorLine msg
-      >> mapM_ (putErrorLine . formatNode mempty) nodes
+      >> mapM_ (putErrorLine . TL.toStrict . formatNode mempty) nodes
 
 ioErrorMsg
   :: [IOErrorType]
