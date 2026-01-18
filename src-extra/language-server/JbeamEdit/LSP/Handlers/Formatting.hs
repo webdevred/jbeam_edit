@@ -11,8 +11,8 @@ import Data.Aeson qualified as A
 import Data.ByteString.Lazy qualified as LBS
 import Data.Text (Text)
 import Data.Text qualified as T
-import Data.Text.Lazy qualified as TL
 import Data.Text.Encoding (encodeUtf8)
+import Data.Text.Lazy qualified as TL
 import GHC.Generics (Generic)
 import JbeamEdit.Core.Node (Node)
 import JbeamEdit.Formatting qualified as Fmt
