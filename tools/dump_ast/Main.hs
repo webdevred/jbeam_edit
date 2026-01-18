@@ -6,7 +6,7 @@ import Data.ByteString.Lazy qualified as LBS
 import Data.List (isPrefixOf, isSuffixOf)
 import Data.Map qualified as M
 import Data.Text qualified as T
-import Data.Text.Lazy qualified as LT
+import Data.Text.Lazy qualified as TL
 import JbeamEdit.Formatting
 import JbeamEdit.Parsing.DSL (parseDSL)
 import JbeamEdit.Parsing.Jbeam (parseNodes)
@@ -83,7 +83,7 @@ dumpFormattedJbeam' jbflDir outDir ruleFile jbeamFile = do
   (Right rs) <- parseDSL <$> LBS.readFile ruleFile
   (Right rs') <- parseDSL <$> LBS.readFile (jbflDir </> "minimal.jbfl")
   let outFilename = takeBaseName jbeamFile ++ "-" ++ takeBaseName ruleFile ++ "-jbfl.jbeam"
-   in dump outFilename (T.unpack $ formatNode (rs <> rs') jbeam)
+   in dump outFilename (TL.unpack $ formatNode (rs <> rs') jbeam)
   where
     dump filename contents =
       let outFile = outDir </> filename
@@ -103,7 +103,7 @@ saveAstDump outFile contents =
         pStringOpt
           defaultOutputOptionsNoColor {outputOptionsStringStyle = Literal}
           (show contents ++ "\n")
-   in saveDump outFile (LT.unpack formatted)
+   in saveDump outFile (TL.unpack formatted)
 
 dumpJbflAST :: FilePath -> String -> String -> IO FilePath
 dumpJbflAST dir outDir filename = do
@@ -132,7 +132,7 @@ dumpFormattedJbeam outDir (jbeamFile, ruleFile) = do
   jbeam <- read <$> IO.readFile (dropExtension jbeamFile ++ ".hs")
   rs <- read <$> IO.readFile (dropExtension ruleFile ++ ".hs")
   let outFilename = takeBaseName jbeamFile ++ "-" ++ takeBaseName ruleFile ++ "-jbfl.jbeam"
-   in dump outFilename (T.unpack $ formatNode rs jbeam)
+   in dump outFilename (TL.unpack $ formatNode rs jbeam)
   where
     dump filename contents =
       let outFile = outDir </> filename
@@ -184,7 +184,7 @@ dumpTransformedJbeam cfName tfConfig jbeamDir rsDirPath jbeamInputAstDir outDir 
           outDir
           cfName
           >> pure jbeam'
-  dump outFilename (T.unpack $ formatNode rs transformedJbeam)
+  dump outFilename (TL.unpack $ formatNode rs transformedJbeam)
   where
     dump filename contents =
       let outFile = outDir </> filename

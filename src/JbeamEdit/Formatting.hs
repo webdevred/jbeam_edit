@@ -9,13 +9,11 @@ module JbeamEdit.Formatting (
 ) where
 
 import Data.Bool (bool)
-import Data.ByteString.Lazy qualified as LBS (fromStrict)
 import Data.Char (isSpace)
 import Data.Foldable.Extra (notNull)
 import Data.Int
 import Data.Maybe (fromMaybe)
 import Data.Monoid.Extra
-import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Text.Lazy qualified as TL
 import Data.Text.Lazy.Builder qualified as TLB (toLazyText)
