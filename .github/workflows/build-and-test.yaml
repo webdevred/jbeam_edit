@@ -36,7 +36,7 @@ jobs:
         env:
           CABAL_FILE: jbeam-edit.cabal
       - name: Cache global Stack dependencies
-        uses: actions/cache@v5.0.1
+        uses: actions/cache@v5.0.2
         with:
           path: ${{ matrix.stack-paths }}
           key: >-
@@ -147,7 +147,7 @@ jobs:
         shell: bash
         run: bash ./.github/scripts/freeze_dependencies.sh
       - name: Cache Cabal store and build artifacts
-        uses: actions/cache@v5.0.1
+        uses: actions/cache@v5.0.2
         with:
           path: |
             ${{ steps.setup-ghc.outputs.cabal-store }}
