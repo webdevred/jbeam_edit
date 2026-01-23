@@ -7,6 +7,8 @@ import Data.Map (Map)
 import Data.Map qualified as M
 import Data.Maybe (catMaybes)
 import Data.Ord (Down (Down))
+import Data.Set (Set)
+import Data.Set qualified as S
 import Data.Text (Text)
 import Data.Vector (Vector)
 import Data.Vector qualified as V
@@ -20,15 +22,14 @@ beamQuery :: NP.NodePath
 beamQuery = fromList [NP.ObjectIndex 0, NP.ObjectKey "beams"]
 
 rejectUnknownName
-  :: Foldable t
-  => t Text
+  :: Set Text
   -> Maybe (Vector Text)
   -> Maybe (Vector Text)
 rejectUnknownName knownNodeNames maybeBeam =
   bool
     maybeBeam
     Nothing
-    (any (any (`notElem` knownNodeNames)) maybeBeam)
+    (any (any (`S.notMember` knownNodeNames)) maybeBeam)
 
 possiblyBeam :: Node -> Either Node (Maybe (Vector Text))
 possiblyBeam node
@@ -53,7 +54,7 @@ vertexConns
 vertexConns maxSupport topNode vsPerType =
   go <$> extractBeams topNode
   where
-    knownNodeNames = concatMap (map anVertexName) vsPerType
+    knownNodeNames = foldMap (foldr (S.insert . anVertexName) mempty) vsPerType
     go beams =
       let possiblyInnerBeam = (:) . fmap (rejectUnknownName knownNodeNames) . possiblyBeam
           (badNodes, beamPairs) =
