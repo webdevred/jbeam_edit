@@ -143,7 +143,7 @@ addDelimiters rs index c complexChildren state acc ns@(node : rest)
     padTxt baseTxt =
       if fsUsePad state && not (isCommentNode node) && comma
         then
-          let width = maybe 0 id (fsColumnWidths state UV.!? index)
+          let width = fromMaybe 0 (fsColumnWidths state UV.!? index)
            in T.justifyLeft (width + 1) ' ' baseTxt
         else baseTxt
 
@@ -172,7 +172,7 @@ formatArrayWithCache rs state cursor rowIdx arr =
             
             -- Add comma if not last
             withComma = if isLast then cellText else cellText <> ","
-            width = maybe 0 id (colWidths UV.!? colIdx)
+            width = fromMaybe 0 (colWidths UV.!? colIdx)
             -- Pad to column width + 1
             paddedWithComma = T.justifyLeft (width + 1) ' ' withComma
             -- Add space after comma (except for last element)
@@ -181,7 +181,7 @@ formatArrayWithCache rs state cursor rowIdx arr =
       
       fallbackFormat colIdx =
         case arr V.!? colIdx of
-          Just cellNode -> formatWithCursor rs emptyState cursor cellNode
+          Just cellNode -> formatWithCursor rs state cursor cellNode
           Nothing -> ""
       
       cells = V.imap (\i _ -> formatAndPadCell i (i == numCols - 1)) (V.generate numCols id)
@@ -236,7 +236,7 @@ transposeAndFormat rs cursor vvs =
               if colIdx < V.length row
                 then
                   -- Apply crumbs to format the cell with the correct cursor
-                  let formatRow rowCursor rowNode =
+                  let formatRow rowCursor _rowNode =
                         let formatCell cellCursor cellNode =
                               formatWithCursor rs emptyState cellCursor cellNode
                          in NC.applyCrumb rowCursor formatCell colIdx (row V.! colIdx)
