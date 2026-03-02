@@ -21,6 +21,15 @@
    - These tools should only be used when the user has clearly stated they want changes committed
    - If uncertain whether permission has been granted, ask the user first
 
+4. **NEVER update or change a pull request title**
+   - The PR title is set by the user and must not be modified under any circumstances
+   - If you believe the title is inaccurate, mention it to the user but do not change it
+
+5. **NEVER erase or replace the pull request description — only append to it**
+   - Existing content in the PR description must be preserved at all times
+   - You may add new information at the end of the description, but must not remove or overwrite any existing content
+   - If a tool would overwrite the description, do not use it without first confirming the existing content will be retained
+
 ### When Permission IS Granted
 
 Permission is considered granted only when the user:
@@ -105,5 +114,9 @@ Permission is NOT granted when:
 ## Summary
 
 **Default behavior: DO NOT commit or push anything without explicit user permission.**
+
+**NEVER update a pull request title.**
+
+**NEVER erase or replace the pull request description — you may only append to it.**
 
 When in doubt, always ask the user first.
