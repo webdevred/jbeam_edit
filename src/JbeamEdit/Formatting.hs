@@ -137,7 +137,7 @@ addDelimiters rs index c complexChildren state acc ns@(node : rest)
     padTxt baseTxt =
       if fsUsePad state && not (isCommentNode node) && comma
         then
-          let width = fromMaybe 0 (fsColumnWidths state UV.!? index)
+          let width = sum (fsColumnWidths state UV.!? index)
            in T.justifyLeft (width + 1) ' ' baseTxt
         else baseTxt
 
@@ -171,25 +171,31 @@ maxColumnLengthsWithCache rs cursor nodes
             then
               -- Format header cells properly with cursor navigation
               -- The header array is at index 0 of the parent, so we need to apply crumb for row 0 first
-              let formatHeaderCell cellCursor cellNode = formatWithCursor rs emptyState cellCursor cellNode
+              let formatHeaderCell = formatWithCursor rs emptyState
                   formatHeaderRow rowCursor _rowNode =
-                    V.imap (\colIdx cell -> NC.applyCrumb rowCursor formatHeaderCell colIdx cell) firstRow
+                    V.imap (NC.applyCrumb rowCursor formatHeaderCell) firstRow
                   headerTexts = NC.applyCrumb cursor formatHeaderRow 0 (Array firstRow)
                in (Just headerTexts, rest, True, 1)
             else (Nothing, ns, False, 0)
         _ -> (Nothing, ns, False, 0)
-    
+
     extractArrayRows ns offset =
       let indexed = V.indexed ns
-          arrays = V.mapMaybe
-            (\(idx, node) -> case expectArray node of
-              Just arr -> Just (arr, idx + offset)
-              Nothing -> Nothing)
-            indexed
+          arrays =
+            V.mapMaybe
+              ( \(idx, node) -> case expectArray node of
+                  Just arr -> Just (arr, idx + offset)
+                  Nothing -> Nothing
+              )
+              indexed
        in (V.map fst arrays, V.map snd arrays)
 
 transposeAndFormat
-  :: RuleSet -> NC.NodeCursor -> Vector (Vector Node) -> Vector Int -> Vector (Vector Text)
+  :: RuleSet
+  -> NC.NodeCursor
+  -> Vector (Vector Node)
+  -> Vector Int
+  -> Vector (Vector Text)
 transposeAndFormat rs cursor vvs arrayIndices =
   let numCols = V.maximum (V.map V.length vvs)
    in V.generate numCols $ \colIdx ->
@@ -199,8 +205,7 @@ transposeAndFormat rs cursor vvs arrayIndices =
                 then
                   let actualRowIdx = arrayIndices V.! rowIdx
                       formatRow rowCursor _rowNode =
-                        let formatCell cellCursor cellNode =
-                              formatWithCursor rs emptyState cellCursor cellNode
+                        let formatCell = formatWithCursor rs emptyState
                          in NC.applyCrumb rowCursor formatCell colIdx (row V.! colIdx)
                    in NC.applyCrumb cursor formatRow actualRowIdx (Array row)
                 else ""
@@ -219,7 +224,7 @@ doFormatNode rs cursor state nodes =
 
       (headerCache, colWidths, formattedCache, headerWasExtracted, arrayIndices) =
         maxColumnLengthsWithCache rs cursor nodes
-      
+
       state' =
         if autoPadEnabled
           then
