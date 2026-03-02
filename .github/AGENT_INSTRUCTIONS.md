@@ -74,6 +74,29 @@ Permission is NOT granted when:
 - Update Cabal file versions
 - Regenerate `*.cabal` files from `package.yaml` without permission
 
+### Protected Directory - examples/
+
+**CRITICAL: The `examples/` directory must NEVER be modified without explicit user permission.**
+
+- **Do NOT** edit, add, or remove any files in `examples/` unless the user has explicitly instructed you to do so.
+- **Do NOT** make changes to `examples/` automatically, even to fix test failures or resolve build issues.
+
+**If a test failure is caused by missing or out-of-date files in `examples/`:**
+1. **STOP** — do not modify `examples/` unprompted.
+2. Identify and report to the user which file(s) in `examples/` are causing the test failures.
+3. Recommend possible solutions (e.g., regenerating files, updating specific entries).
+4. **Wait for explicit user approval** before making any changes inside `examples/`.
+
+**The only acceptable reasons to modify `examples/` are when the user explicitly asks to:**
+- Improve documentation or onboarding materials
+- Add new example files
+- Update existing examples
+
+**Do NOT:**
+- Auto-regenerate or overwrite files in `examples/` during routine bug fixes or refactoring
+- Silently update `examples/` as a side effect of any other change
+- Propose or stage changes to `examples/` without user consent
+
 ### Exception Handling
 
 - If you are working in a sandboxed environment specifically designed for automated commits (e.g., during automated testing), these rules may be relaxed
