@@ -212,7 +212,12 @@ maxColumnLengthsWithCache rs cursor nodes
         Just (Array firstRow, rest) ->
           if all isStringNode firstRow
             then
-              let headerTexts = V.map (\n -> case n of String s -> s; _ -> "") firstRow
+              -- Format header cells properly with cursor navigation
+              -- The header array is at index 0 of the parent, so we need to apply crumb for row 0 first
+              let formatHeaderCell cellCursor cellNode = formatWithCursor rs emptyState cellCursor cellNode
+                  formatHeaderRow rowCursor _rowNode =
+                    V.imap (\colIdx cell -> NC.applyCrumb rowCursor formatHeaderCell colIdx cell) firstRow
+                  headerTexts = NC.applyCrumb cursor formatHeaderRow 0 (Array firstRow)
                in (Just headerTexts, rest, True, 1)
             else (Nothing, ns, False, 0)
         _ -> (Nothing, ns, False, 0)
