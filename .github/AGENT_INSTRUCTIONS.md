@@ -21,6 +21,15 @@
    - These tools should only be used when the user has clearly stated they want changes committed
    - If uncertain whether permission has been granted, ask the user first
 
+4. **NEVER update or change a pull request title**
+   - The PR title is set by the user and must not be modified under any circumstances
+   - If you believe the title is inaccurate, mention it to the user but do not change it
+
+5. **NEVER erase or replace the pull request description — only append to it**
+   - Existing content in the PR description must be preserved at all times
+   - You may add new information at the end of the description, but must not remove or overwrite any existing content
+   - If a tool would overwrite the description, do not use it without first confirming the existing content will be retained
+
 ### When Permission IS Granted
 
 Permission is considered granted only when the user:
@@ -74,6 +83,29 @@ Permission is NOT granted when:
 - Update Cabal file versions
 - Regenerate `*.cabal` files from `package.yaml` without permission
 
+### Protected Directory - examples/
+
+**CRITICAL: The `examples/` directory must NEVER be modified without explicit user permission.**
+
+- **Do NOT** edit, add, or remove any files in `examples/` unless the user has explicitly instructed you to do so.
+- **Do NOT** make changes to `examples/` automatically, even to fix test failures or resolve build issues.
+
+**If a test failure is caused by missing or out-of-date files in `examples/`:**
+1. **STOP** — do not modify `examples/` unprompted.
+2. Identify and report to the user which file(s) in `examples/` are causing the test failures.
+3. Recommend possible solutions (e.g., regenerating files, updating specific entries).
+4. **Wait for explicit user approval** before making any changes inside `examples/`.
+
+**The only acceptable reasons to modify `examples/` are when the user explicitly asks to:**
+- Improve documentation or onboarding materials
+- Add new example files
+- Update existing examples
+
+**Do NOT:**
+- Auto-regenerate or overwrite files in `examples/` during routine bug fixes or refactoring
+- Silently update `examples/` as a side effect of any other change
+- Propose or stage changes to `examples/` without user consent
+
 ### Exception Handling
 
 - If you are working in a sandboxed environment specifically designed for automated commits (e.g., during automated testing), these rules may be relaxed
@@ -82,5 +114,9 @@ Permission is NOT granted when:
 ## Summary
 
 **Default behavior: DO NOT commit or push anything without explicit user permission.**
+
+**NEVER update a pull request title.**
+
+**NEVER erase or replace the pull request description — you may only append to it.**
 
 When in doubt, always ask the user first.
