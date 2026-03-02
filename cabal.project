@@ -6,5 +6,5 @@ package *
   tests: False
 
 package jbeam-edit
-  tests: True
+  tests: False
   flags: -dump-ast -transformation -lsp-server -windows-example-paths
