@@ -130,13 +130,7 @@ addDelimiters rs index c complexChildren state acc ns@(node : rest)
     newlineBeforeComment = singleCharIfNot '\n' (any isObjectKeyNode rest || ["\n"] == acc)
 
     applyCrumbAndFormat n idx =
-      let padded = case (n, fsUsePad state, V.null (fsFormattedCache state)) of
-            (Array arr, True, False) ->
-              -- Use cache for array cells if available
-              formatArrayWithCache rs state c idx arr
-            _ ->
-              -- Normal formatting
-              NC.applyCrumb c (formatWithCursor rs state) idx n
+      let padded = NC.applyCrumb c (formatWithCursor rs state) idx n
           (formatted, spaces) = splitTrailing comma padded
        in formatted <> singleCharIf ',' comma <> spaces
 
@@ -150,43 +144,6 @@ addDelimiters rs index c complexChildren state acc ns@(node : rest)
     comma = notNull rest
     space = notNull rest && not complexChildren
     newline = complexChildren
-
-formatArrayWithCache
-  :: RuleSet -> FormattingState -> NC.NodeCursor -> Int -> Vector Node -> Text
-formatArrayWithCache rs state cursor rowIdx arr =
-  let cache = fsFormattedCache state
-      colWidths = fsColumnWidths state
-      numCols = max (UV.length colWidths) (V.length arr)
-      arrayIndices = fsArrayIndices state
-      
-      -- Find the cache row index for this original row index
-      mCacheRowIdx = V.findIndex (== rowIdx) arrayIndices
-      
-      formatAndPadCell colIdx isLast =
-        let cellText = case mCacheRowIdx of
-              Just cacheRowIdx ->
-                if colIdx < V.length cache && cacheRowIdx < V.length (cache V.! colIdx)
-                  then (cache V.! colIdx) V.! cacheRowIdx
-                  else fallbackFormat colIdx
-              Nothing -> fallbackFormat colIdx
-            
-            -- Add comma if not last
-            withComma = if isLast then cellText else cellText <> ","
-            width = fromMaybe 0 (colWidths UV.!? colIdx)
-            -- Pad to column width + 1
-            paddedWithComma = T.justifyLeft (width + 1) ' ' withComma
-            -- Add space after comma (except for last element)
-            result = if isLast then paddedWithComma else paddedWithComma <> " "
-         in result
-      
-      fallbackFormat colIdx =
-        case arr V.!? colIdx of
-          Just cellNode -> formatWithCursor rs state cursor cellNode
-          Nothing -> ""
-      
-      cells = V.imap (\i _ -> formatAndPadCell i (i == numCols - 1)) (V.generate numCols id)
-      concatenated = T.concat (V.toList cells)
-   in "[" <> T.stripEnd concatenated <> "]"
 
 applyIndentation :: Int -> Text -> Text
 applyIndentation n s
@@ -203,7 +160,7 @@ maxColumnLengthsWithCache rs cursor nodes
   | otherwise =
       let (headerRow, nodesToProcess, headerWasExtracted, headerOffset) = extractHeader nodes
           (arrayRows, arrayIndices) = extractArrayRows nodesToProcess headerOffset
-          formattedColumns = transposeAndFormat rs cursor arrayRows
+          formattedColumns = transposeAndFormat rs cursor arrayRows arrayIndices
           columnWidths = UV.convert $ V.map (V.maximum . V.map T.length) formattedColumns
        in (headerRow, columnWidths, formattedColumns, headerWasExtracted, arrayIndices)
   where
@@ -232,20 +189,20 @@ maxColumnLengthsWithCache rs cursor nodes
        in (V.map fst arrays, V.map snd arrays)
 
 transposeAndFormat
-  :: RuleSet -> NC.NodeCursor -> Vector (Vector Node) -> Vector (Vector Text)
-transposeAndFormat rs cursor vvs =
+  :: RuleSet -> NC.NodeCursor -> Vector (Vector Node) -> Vector Int -> Vector (Vector Text)
+transposeAndFormat rs cursor vvs arrayIndices =
   let numCols = V.maximum (V.map V.length vvs)
    in V.generate numCols $ \colIdx ->
         V.imap
           ( \rowIdx row ->
               if colIdx < V.length row
                 then
-                  -- Apply crumbs to format the cell with the correct cursor
-                  let formatRow rowCursor _rowNode =
+                  let actualRowIdx = arrayIndices V.! rowIdx
+                      formatRow rowCursor _rowNode =
                         let formatCell cellCursor cellNode =
                               formatWithCursor rs emptyState cellCursor cellNode
                          in NC.applyCrumb rowCursor formatCell colIdx (row V.! colIdx)
-                   in NC.applyCrumb cursor formatRow rowIdx (Array row)
+                   in NC.applyCrumb cursor formatRow actualRowIdx (Array row)
                 else ""
           )
           vvs
