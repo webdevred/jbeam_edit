@@ -2,7 +2,7 @@ module FormattingSpec (
   spec,
 ) where
 
-import Control.Monad (forM, forM_)
+import Control.Monad (forM, forM_, when)
 import Data.Text (Text)
 import Data.Text qualified as T
 import GHC.IsList (fromList)
@@ -80,7 +80,10 @@ spec = do
 
   dynamicTests <- runIO dynamicJbflTests
   forM_ dynamicTests $ \(outFile, formatted, expected) ->
-    it ("formats JBEAM AST to " ++ outFile) $
+    it ("formats JBEAM AST to " ++ outFile) $ do
+      when (formatted /= expected) $ do
+        writeFile ("/tmp/" ++ takeBaseName outFile ++ "_actual.txt") (T.unpack formatted)
+        writeFile ("/tmp/" ++ takeBaseName outFile ++ "_expected.txt") (T.unpack expected)
       shouldBe formatted expected
   where
     formatNodeSpec (jbeam, node) =
