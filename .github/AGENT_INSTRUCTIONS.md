@@ -59,6 +59,8 @@ Permission is NOT granted when:
 - Changes require careful testing and review by project maintainers
 - Dependency updates must be coordinated across the team
 
+**Note:** The suggested GHC version for this project can be found in the `tested-with` key in the `jbeam-edit.cabal` file.
+
 **If you need to modify these files:**
 1. **STOP** and explicitly ask the user for permission first
 2. Explain what changes you want to make and why
