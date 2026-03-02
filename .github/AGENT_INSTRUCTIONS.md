@@ -45,6 +45,33 @@ Permission is NOT granted when:
 4. **Wait for explicit approval** before using any commit/push tools
 5. **Only after approval**: Use tools to commit and push changes
 
+### Protected Files - NEVER Modify Without Explicit Permission
+
+**CRITICAL: The following build configuration files must NEVER be modified without explicit user permission:**
+
+- **Cabal files**: `*.cabal`, `cabal.project*` (including `cabal.project`, `cabal.project.ci`, `cabal.project.dev`, `cabal.project.release`)
+- **Stack files**: `stack.yaml`, `stack.yaml.lock`
+- **Package configuration**: `package.yaml`
+
+**Why these files are protected:**
+- These files define the build system, dependencies, and project structure
+- Incorrect modifications can break the build for all developers
+- Changes require careful testing and review by project maintainers
+- Dependency updates must be coordinated across the team
+
+**If you need to modify these files:**
+1. **STOP** and explicitly ask the user for permission first
+2. Explain what changes you want to make and why
+3. Wait for explicit approval before making any modifications
+4. After approval, make minimal, surgical changes only
+
+**Do NOT:**
+- Add, remove, or update dependencies without permission
+- Change GHC versions or resolver versions
+- Modify build flags or compilation options
+- Update Cabal file versions
+- Regenerate `*.cabal` files from `package.yaml` without permission
+
 ### Exception Handling
 
 - If you are working in a sandboxed environment specifically designed for automated commits (e.g., during automated testing), these rules may be relaxed
