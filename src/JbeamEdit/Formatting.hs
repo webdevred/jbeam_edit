@@ -6,6 +6,8 @@ module JbeamEdit.Formatting (
   formatScalarNode,
   formatNodeAndWrite,
   RuleSet (..),
+  FormattingState (..),
+  emptyState,
 ) where
 
 import Data.Bool (bool)
@@ -20,6 +22,7 @@ import Data.Text qualified as T
 import Data.Text.Encoding (encodeUtf8)
 import Data.Vector (Vector)
 import Data.Vector qualified as V
+import Data.Vector.Unboxed qualified as UV
 import JbeamEdit.Core.Node (
   InternalComment (..),
   Node (..),
@@ -46,6 +49,26 @@ import JbeamEdit.Formatting.Rules (
 import System.File.OsPath qualified as OS (writeFile)
 import System.OsPath (OsPath)
 
+data FormattingState = FormattingState
+  { fsUsePad :: Bool
+  , fsColumnWidths :: UV.Vector Int
+  , fsFormattedCache :: Vector (Vector Text)
+  , fsHeaderCache :: Maybe (Vector Text)
+  , fsHeaderWasExtracted :: Bool
+  , fsArrayIndices :: Vector Int
+  }
+
+emptyState :: FormattingState
+emptyState =
+  FormattingState
+    { fsUsePad = False
+    , fsColumnWidths = UV.empty
+    , fsFormattedCache = V.empty
+    , fsHeaderCache = Nothing
+    , fsHeaderWasExtracted = False
+    , fsArrayIndices = V.empty
+    }
+
 splitTrailing :: Bool -> Text -> (Text, Text)
 splitTrailing comma txt =
   let trailing = T.length (T.takeWhileEnd (== ' ') txt)
@@ -69,52 +92,52 @@ addDelimiters
   -> Int
   -> NC.NodeCursor
   -> Bool
-  -> (Bool, Vector Int) -- (usePad, columnWidths)
+  -> FormattingState
   -> [Text]
   -> [Node]
   -> [Text]
 addDelimiters _ _ _ _ _ acc [] = acc
-addDelimiters rs index c complexChildren (usePad, colWidths) acc ns@(node : rest)
+addDelimiters rs index c complexChildren state acc ns@(node : rest)
   | complexChildren && null acc =
-      addDelimiters rs index c complexChildren (usePad, colWidths) ["\n"] ns
+      addDelimiters rs index c complexChildren state ["\n"] ns
   | isCommentNode node =
       let formattedComment =
             formatWithCursor
               rs
-              (usePad, colWidths)
+              state
               c
               (normalizeCommentNode complexChildren node)
           formatted = (newlineBeforeComment <> formattedComment <> "\n") : acc
-       in addDelimiters rs index c complexChildren (usePad, colWidths) formatted rest
+       in addDelimiters rs index c complexChildren state formatted rest
   | otherwise =
       case extractPreviousAssocCmt rest of
         (Just comment, rest') ->
-          let baseTxt = applyCrumbAndFormat node
+          let baseTxt = applyCrumbAndFormat node index
               formatted = (padTxt baseTxt <> " " <> formatComment comment) : acc
            in addDelimiters
                 rs
                 (index + 1)
                 c
                 complexChildren
-                (usePad, colWidths)
+                state
                 formatted
                 rest'
         (Nothing, _) ->
-          let baseTxt = applyCrumbAndFormat node
+          let baseTxt = applyCrumbAndFormat node index
               new_acc = (padTxt baseTxt <> singleCharIf ' ' space <> singleCharIf '\n' newline) : acc
-           in addDelimiters rs (index + 1) c complexChildren (usePad, colWidths) new_acc rest
+           in addDelimiters rs (index + 1) c complexChildren state new_acc rest
   where
     newlineBeforeComment = singleCharIfNot '\n' (any isObjectKeyNode rest || ["\n"] == acc)
 
-    applyCrumbAndFormat n =
-      let padded = NC.applyCrumb c (formatWithCursor rs (usePad, colWidths)) index n
+    applyCrumbAndFormat n idx =
+      let padded = NC.applyCrumb c (formatWithCursor rs state) idx n
           (formatted, spaces) = splitTrailing comma padded
        in formatted <> singleCharIf ',' comma <> spaces
 
     padTxt baseTxt =
-      if usePad && not (isCommentNode node) && comma
+      if fsUsePad state && not (isCommentNode node) && comma
         then
-          let width = sum (colWidths V.!? index)
+          let width = fromMaybe 0 (fsColumnWidths state UV.!? index)
            in T.justifyLeft (width + 1) ' ' baseTxt
         else baseTxt
 
@@ -127,53 +150,92 @@ applyIndentation n s
   | T.all isSpace s = s
   | otherwise = T.replicate n " " <> s
 
-skipHeaderRow :: Vector (Vector Node) -> Vector (Vector Node)
-skipHeaderRow nodes =
-  case V.uncons nodes of
-    Just (headerRow, rest) ->
-      bool nodes rest (all isStringNode headerRow)
-    Nothing -> nodes
-
-maxColumnLengths
-  :: RuleSet -> NC.NodeCursor -> Vector (Vector Node) -> Vector Int
-maxColumnLengths rs cursor rows
-  | V.null rows = V.empty
+maxColumnLengthsWithCache
+  :: RuleSet
+  -> NC.NodeCursor
+  -> Vector Node
+  -> (Maybe (Vector Text), UV.Vector Int, Vector (Vector Text), Bool, Vector Int)
+maxColumnLengthsWithCache rs cursor nodes
+  | V.null nodes = (Nothing, UV.empty, V.empty, False, V.empty)
   | otherwise =
-      V.map
-        (V.maximum . V.map T.length)
-        (transposeWithPadding rs cursor $ skipHeaderRow rows)
+      let (headerRow, nodesToProcess, headerWasExtracted, headerOffset) = extractHeader nodes
+          (arrayRows, arrayIndices) = extractArrayRows nodesToProcess headerOffset
+          formattedColumns = transposeAndFormat rs cursor arrayRows arrayIndices
+          columnWidths = UV.convert $ V.map (V.maximum . V.map T.length) formattedColumns
+       in (headerRow, columnWidths, formattedColumns, headerWasExtracted, arrayIndices)
+  where
+    extractHeader ns =
+      case V.uncons ns of
+        Just (Array firstRow, rest) ->
+          if all isStringNode firstRow
+            then
+              -- Format header cells properly with cursor navigation
+              -- The header array is at index 0 of the parent, so we need to apply crumb for row 0 first
+              let formatHeaderCell cellCursor cellNode = formatWithCursor rs emptyState cellCursor cellNode
+                  formatHeaderRow rowCursor _rowNode =
+                    V.imap (\colIdx cell -> NC.applyCrumb rowCursor formatHeaderCell colIdx cell) firstRow
+                  headerTexts = NC.applyCrumb cursor formatHeaderRow 0 (Array firstRow)
+               in (Just headerTexts, rest, True, 1)
+            else (Nothing, ns, False, 0)
+        _ -> (Nothing, ns, False, 0)
+    
+    extractArrayRows ns offset =
+      let indexed = V.indexed ns
+          arrays = V.mapMaybe
+            (\(idx, node) -> case expectArray node of
+              Just arr -> Just (arr, idx + offset)
+              Nothing -> Nothing)
+            indexed
+       in (V.map fst arrays, V.map snd arrays)
 
-transposeWithPadding
-  :: RuleSet -> NC.NodeCursor -> Vector (Vector Node) -> Vector (Vector T.Text)
-transposeWithPadding rs cursor vvs =
+transposeAndFormat
+  :: RuleSet -> NC.NodeCursor -> Vector (Vector Node) -> Vector Int -> Vector (Vector Text)
+transposeAndFormat rs cursor vvs arrayIndices =
   let numCols = V.maximum (V.map V.length vvs)
-   in V.generate numCols $ \j ->
-        V.map
-          ( \row ->
-              mwhen
-                (j < V.length row)
-                (formatWithCursor rs (False, V.empty) cursor (row V.! j))
+   in V.generate numCols $ \colIdx ->
+        V.imap
+          ( \rowIdx row ->
+              if colIdx < V.length row
+                then
+                  let actualRowIdx = arrayIndices V.! rowIdx
+                      formatRow rowCursor _rowNode =
+                        let formatCell cellCursor cellNode =
+                              formatWithCursor rs emptyState cellCursor cellNode
+                         in NC.applyCrumb rowCursor formatCell colIdx (row V.! colIdx)
+                   in NC.applyCrumb cursor formatRow actualRowIdx (Array row)
+                else ""
           )
           vvs
 
 doFormatNode
   :: RuleSet
   -> NC.NodeCursor
-  -> (Bool, Vector Int)
+  -> FormattingState
   -> Vector Node
   -> Text
-doFormatNode rs cursor padAmounts nodes =
+doFormatNode rs cursor state nodes =
   let autoPadEnabled =
         lookupPropertyForCursor ExactMatch AutoPad rs cursor == Just True
 
-      childrenVectors = V.map (fromMaybe V.empty . expectArray) nodes
-      padAmounts' = maxColumnLengths rs cursor childrenVectors
-      maybePadAmounts =
-        bool padAmounts (False, padAmounts') autoPadEnabled
+      (headerCache, colWidths, formattedCache, headerWasExtracted, arrayIndices) =
+        maxColumnLengthsWithCache rs cursor nodes
+      
+      state' =
+        if autoPadEnabled
+          then
+            FormattingState
+              { fsUsePad = True
+              , fsColumnWidths = colWidths
+              , fsFormattedCache = formattedCache
+              , fsHeaderCache = headerCache
+              , fsHeaderWasExtracted = headerWasExtracted
+              , fsArrayIndices = arrayIndices
+              }
+          else state
 
       formatted =
         reverse
-          . addDelimiters rs 0 cursor complexChildren maybePadAmounts []
+          . addDelimiters rs 0 cursor complexChildren state' []
           . V.toList
           $ nodes
 
@@ -213,28 +275,28 @@ formatScalarNode Null = "null"
 formatScalarNode _ = error "Unhandled scalar node"
 
 formatWithCursor
-  :: RuleSet -> (Bool, Vector Int) -> NC.NodeCursor -> Node -> Text
-formatWithCursor rs (_, maybePadAmounts) cursor (Array a)
+  :: RuleSet -> FormattingState -> NC.NodeCursor -> Node -> Text
+formatWithCursor rs state cursor (Array a)
   | V.null a = "[]"
   | otherwise =
       T.concat
         [ "["
-        , doFormatNode rs cursor (notNull maybePadAmounts, maybePadAmounts) a
+        , doFormatNode rs cursor state a
         , "]"
         ]
-formatWithCursor rs (_, maybePadAmounts) cursor (Object o)
+formatWithCursor rs state cursor (Object o)
   | V.null o = "{}"
   | otherwise =
       T.concat
         [ "{"
-        , doFormatNode rs cursor (notNull maybePadAmounts, maybePadAmounts) o
+        , doFormatNode rs cursor state o
         , "}"
         ]
-formatWithCursor rs (_, maybePadAmounts) cursor (ObjectKey (k, v)) =
+formatWithCursor rs state cursor (ObjectKey (k, v)) =
   T.concat
-    [ formatWithCursor rs (notNull maybePadAmounts, maybePadAmounts) cursor k
+    [ formatWithCursor rs state cursor k
     , " : "
-    , formatWithCursor rs (notNull maybePadAmounts, maybePadAmounts) cursor v
+    , formatWithCursor rs state cursor v
     ]
 formatWithCursor _ _ _ (Comment comment) = formatComment comment
 formatWithCursor rs _ cursor n =
@@ -242,7 +304,7 @@ formatWithCursor rs _ cursor n =
    in applyPadLogic formatScalarNode ps n
 
 formatNode :: RuleSet -> Node -> Text
-formatNode rs node = formatWithCursor rs (False, V.empty) newCursor node <> T.singleton '\n'
+formatNode rs node = formatWithCursor rs emptyState newCursor node <> T.singleton '\n'
 
 #ifdef ENABLE_WINDOWS_NEWLINES
 replaceNewlines :: Text -> Text
