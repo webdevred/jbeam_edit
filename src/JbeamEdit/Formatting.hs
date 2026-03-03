@@ -22,7 +22,6 @@ import Data.Text qualified as T
 import Data.Text.Encoding (encodeUtf8)
 import Data.Vector (Vector)
 import Data.Vector qualified as V
-import Data.Vector.Unboxed qualified as UV
 import JbeamEdit.Core.Node (
   InternalComment (..),
   Node (..),
@@ -51,7 +50,7 @@ import System.OsPath (OsPath)
 
 data FormattingState = FormattingState
   { fsUsePad :: Bool
-  , fsColumnWidths :: UV.Vector Int
+  , fsColumnWidths :: Vector Int
   , fsFormattedCache :: Vector (Vector Text)
   , fsHeaderCache :: Maybe (Vector Text)
   , fsHeaderWasExtracted :: Bool
@@ -62,7 +61,7 @@ emptyState :: FormattingState
 emptyState =
   FormattingState
     { fsUsePad = False
-    , fsColumnWidths = UV.empty
+    , fsColumnWidths = V.empty
     , fsFormattedCache = V.empty
     , fsHeaderCache = Nothing
     , fsHeaderWasExtracted = False
@@ -137,7 +136,7 @@ addDelimiters rs index c complexChildren state acc ns@(node : rest)
     padTxt baseTxt =
       if fsUsePad state && not (isCommentNode node) && comma
         then
-          let width = sum (fsColumnWidths state UV.!? index)
+          let width = sum (fsColumnWidths state V.!? index)
            in T.justifyLeft (width + 1) ' ' baseTxt
         else baseTxt
 
@@ -154,14 +153,14 @@ maxColumnLengthsWithCache
   :: RuleSet
   -> NC.NodeCursor
   -> Vector Node
-  -> (Maybe (Vector Text), UV.Vector Int, Vector (Vector Text), Bool, Vector Int)
+  -> (Maybe (Vector Text), Vector Int, Vector (Vector Text), Bool, Vector Int)
 maxColumnLengthsWithCache rs cursor nodes
-  | V.null nodes = (Nothing, UV.empty, V.empty, False, V.empty)
+  | V.null nodes = (Nothing, V.empty, V.empty, False, V.empty)
   | otherwise =
       let (headerRow, nodesToProcess, headerWasExtracted, headerOffset) = extractHeader nodes
           (arrayRows, arrayIndices) = extractArrayRows nodesToProcess headerOffset
           formattedColumns = transposeAndFormat rs cursor arrayRows arrayIndices
-          columnWidths = UV.convert $ V.map (V.maximum . V.map T.length) formattedColumns
+          columnWidths = V.map (V.maximum . V.map T.length) formattedColumns
        in (headerRow, columnWidths, formattedColumns, headerWasExtracted, arrayIndices)
   where
     extractHeader ns =
