@@ -52,9 +52,7 @@ data FormattingState = FormattingState
   { fsUsePad :: Bool
   , fsColumnWidths :: Vector Int
   , fsFormattedCache :: Vector (Vector Text)
-  , fsHeaderCache :: Maybe (Vector Text)
   , fsHeaderWasExtracted :: Bool
-  , fsArrayIndices :: Vector Int
   }
 
 emptyState :: FormattingState
@@ -63,9 +61,7 @@ emptyState =
     { fsUsePad = False
     , fsColumnWidths = V.empty
     , fsFormattedCache = V.empty
-    , fsHeaderCache = Nothing
     , fsHeaderWasExtracted = False
-    , fsArrayIndices = V.empty
     }
 
 splitTrailing :: Bool -> Text -> (Text, Text)
@@ -153,31 +149,21 @@ maxColumnLengthsWithCache
   :: RuleSet
   -> NC.NodeCursor
   -> Vector Node
-  -> (Maybe (Vector Text), Vector Int, Vector (Vector Text), Bool, Vector Int)
+  -> (Vector Int, Vector (Vector Text), Bool)
 maxColumnLengthsWithCache rs cursor nodes
-  | V.null nodes = (Nothing, V.empty, V.empty, False, V.empty)
+  | V.null nodes = (V.empty, V.empty, False)
   | otherwise =
-      let (headerRow, nodesToProcess, headerWasExtracted, headerOffset) = extractHeader nodes
+      let (nodesToProcess, headerWasExtracted, headerOffset) = case V.uncons nodes of
+            Just (Array firstRow, rest) | all isStringNode firstRow -> (rest, True, 1)
+            _ -> (nodes, False, 0)
           (arrayRows, arrayIndices) = extractArrayRows nodesToProcess headerOffset
           formattedColumns = transposeAndFormat rs cursor arrayRows arrayIndices
-          columnWidths = V.map (V.maximum . V.map T.length) formattedColumns
-       in (headerRow, columnWidths, formattedColumns, headerWasExtracted, arrayIndices)
+          columnWidths = V.map (V.maximum . V.map scalarLength) formattedColumns
+       in (columnWidths, formattedColumns, headerWasExtracted)
   where
-    extractHeader ns =
-      case V.uncons ns of
-        Just (Array firstRow, rest) ->
-          if all isStringNode firstRow
-            then
-              -- Format header cells properly with cursor navigation
-              -- The header array is at index 0 of the parent, so we need to apply crumb for row 0 first
-              let formatHeaderCell = formatWithCursor rs emptyState
-                  formatHeaderRow rowCursor _rowNode =
-                    V.imap (NC.applyCrumb rowCursor formatHeaderCell) firstRow
-                  headerTexts = NC.applyCrumb cursor formatHeaderRow 0 (Array firstRow)
-               in (Just headerTexts, rest, True, 1)
-            else (Nothing, ns, False, 0)
-        _ -> (Nothing, ns, False, 0)
-
+    scalarLength n
+      | T.isPrefixOf "{" n || T.isPrefixOf "[" n = 0
+      | otherwise = T.length n
     extractArrayRows ns offset =
       let indexed = V.indexed ns
           arrays =
@@ -221,7 +207,7 @@ doFormatNode rs cursor state nodes =
   let autoPadEnabled =
         lookupPropertyForCursor ExactMatch AutoPad rs cursor == Just True
 
-      (headerCache, colWidths, formattedCache, headerWasExtracted, arrayIndices) =
+      (colWidths, formattedCache, headerWasExtracted) =
         maxColumnLengthsWithCache rs cursor nodes
 
       state' =
@@ -231,9 +217,7 @@ doFormatNode rs cursor state nodes =
               { fsUsePad = True
               , fsColumnWidths = colWidths
               , fsFormattedCache = formattedCache
-              , fsHeaderCache = headerCache
               , fsHeaderWasExtracted = headerWasExtracted
-              , fsArrayIndices = arrayIndices
               }
           else state
 
