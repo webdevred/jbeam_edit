@@ -22,7 +22,6 @@ import Data.Text qualified as T
 import Data.Text.Encoding (encodeUtf8)
 import Data.Vector (Vector)
 import Data.Vector qualified as V
-import Data.Vector.Unboxed qualified as UV
 import JbeamEdit.Core.Node (
   InternalComment (..),
   Node (..),
@@ -42,31 +41,27 @@ import JbeamEdit.Formatting.Rules (
   RuleSet (..),
   applyPadLogic,
   findPropertiesForCursor,
-  forceComplexNewLine,
-  lookupPropertyForCursor,
-  noComplexNewLine,
+  lookupRule,
  )
 import System.File.OsPath qualified as OS (writeFile)
 import System.OsPath (OsPath)
 
 data FormattingState = FormattingState
   { fsUsePad :: Bool
-  , fsColumnWidths :: UV.Vector Int
+  , fsColumnWidths :: Vector Int
   , fsFormattedCache :: Vector (Vector Text)
-  , fsHeaderCache :: Maybe (Vector Text)
   , fsHeaderWasExtracted :: Bool
-  , fsArrayIndices :: Vector Int
+  , fsCurrentRowIdx :: Maybe Int
   }
 
 emptyState :: FormattingState
 emptyState =
   FormattingState
     { fsUsePad = False
-    , fsColumnWidths = UV.empty
+    , fsColumnWidths = V.empty
     , fsFormattedCache = V.empty
-    , fsHeaderCache = Nothing
     , fsHeaderWasExtracted = False
-    , fsArrayIndices = V.empty
+    , fsCurrentRowIdx = Nothing
     }
 
 splitTrailing :: Bool -> Text -> (Text, Text)
@@ -90,16 +85,17 @@ singleCharIfNot a b = singleCharIf a (not b)
 addDelimiters
   :: RuleSet
   -> Int
+  -> Int
   -> NC.NodeCursor
   -> Bool
   -> FormattingState
   -> [Text]
   -> [Node]
   -> [Text]
-addDelimiters _ _ _ _ _ acc [] = acc
-addDelimiters rs index c complexChildren state acc ns@(node : rest)
+addDelimiters _ _ _ _ _ _ acc [] = acc
+addDelimiters rs index rowIdx c complexChildren state acc ns@(node : rest)
   | complexChildren && null acc =
-      addDelimiters rs index c complexChildren state ["\n"] ns
+      addDelimiters rs index rowIdx c complexChildren state ["\n"] ns
   | isCommentNode node =
       let formattedComment =
             formatWithCursor
@@ -108,15 +104,16 @@ addDelimiters rs index c complexChildren state acc ns@(node : rest)
               c
               (normalizeCommentNode complexChildren node)
           formatted = (newlineBeforeComment <> formattedComment <> "\n") : acc
-       in addDelimiters rs index c complexChildren state formatted rest
+       in addDelimiters rs index rowIdx c complexChildren state formatted rest
   | otherwise =
       case extractPreviousAssocCmt rest of
         (Just comment, rest') ->
           let baseTxt = applyCrumbAndFormat node index
-              formatted = (padTxt baseTxt <> " " <> formatComment comment) : acc
+              formatted = (baseTxt <> " " <> formatComment comment) : acc
            in addDelimiters
                 rs
                 (index + 1)
+                nextRowIdx
                 c
                 complexChildren
                 state
@@ -124,22 +121,43 @@ addDelimiters rs index c complexChildren state acc ns@(node : rest)
                 rest'
         (Nothing, _) ->
           let baseTxt = applyCrumbAndFormat node index
-              new_acc = (padTxt baseTxt <> singleCharIf ' ' space <> singleCharIf '\n' newline) : acc
-           in addDelimiters rs (index + 1) c complexChildren state new_acc rest
+              new_acc = (baseTxt <> singleCharIf ' ' space <> singleCharIf '\n' newline) : acc
+           in addDelimiters rs (index + 1) nextRowIdx c complexChildren state new_acc rest
   where
     newlineBeforeComment = singleCharIfNot '\n' (any isObjectKeyNode rest || ["\n"] == acc)
 
-    applyCrumbAndFormat n idx =
-      let padded = NC.applyCrumb c (formatWithCursor rs state) idx n
-          (formatted, spaces) = splitTrailing comma padded
-       in formatted <> singleCharIf ',' comma <> spaces
+    nextRowIdx =
+      rowIdx + case node of
+        Array _ -> 1
+        _ -> 0
 
-    padTxt baseTxt =
-      if fsUsePad state && not (isCommentNode node) && comma
-        then
-          let width = sum (fsColumnWidths state UV.!? index)
-           in T.justifyLeft (width + 1) ' ' baseTxt
-        else baseTxt
+    applyCrumbAndFormat n idx =
+      case fsCurrentRowIdx state of
+        Just ri ->
+          case fsFormattedCache state V.!? idx >>= (V.!? ri) of
+            Just cellTxt ->
+              let width = sum (fsColumnWidths state V.!? idx)
+                  (stripped, spaces) = splitTrailing comma cellTxt
+                  withComma = stripped <> singleCharIf ',' comma <> spaces
+               in if comma then T.justifyLeft (width + 1) ' ' withComma else withComma
+            Nothing ->
+              let width = sum (fsColumnWidths state V.!? idx)
+                  (stripped, spaces) = splitTrailing comma (NC.applyCrumb c (formatWithCursor rs emptyState) idx n)
+                  withComma = stripped <> singleCharIf ',' comma <> spaces
+               in if comma then T.justifyLeft (width + 1) ' ' withComma else withComma
+        Nothing ->
+          case n of
+            Array _ ->
+              let cacheIdx = rowIdx - fromEnum (fsHeaderWasExtracted state)
+                  state' =
+                    if fsUsePad state
+                      then state {fsCurrentRowIdx = Just cacheIdx}
+                      else emptyState
+                  (formatted, spaces) = splitTrailing comma (NC.applyCrumb c (formatWithCursor rs state') idx n)
+               in formatted <> singleCharIf ',' comma <> spaces
+            _ ->
+              let (formatted, spaces) = splitTrailing comma (NC.applyCrumb c (formatWithCursor rs emptyState) idx n)
+               in formatted <> singleCharIf ',' comma <> spaces
 
     comma = notNull rest
     space = notNull rest && not complexChildren
@@ -154,31 +172,21 @@ maxColumnLengthsWithCache
   :: RuleSet
   -> NC.NodeCursor
   -> Vector Node
-  -> (Maybe (Vector Text), UV.Vector Int, Vector (Vector Text), Bool, Vector Int)
+  -> (Vector Int, Vector (Vector Text), Bool)
 maxColumnLengthsWithCache rs cursor nodes
-  | V.null nodes = (Nothing, UV.empty, V.empty, False, V.empty)
+  | V.null nodes = (V.empty, V.empty, False)
   | otherwise =
-      let (headerRow, nodesToProcess, headerWasExtracted, headerOffset) = extractHeader nodes
-          (arrayRows, arrayIndices) = extractArrayRows nodesToProcess headerOffset
+      let (nodesToProcess, headerWasExtracted) = case V.uncons nodes of
+            Just (Array firstRow, rest) | all isStringNode firstRow -> (rest, True)
+            _ -> (nodes, False)
+          (arrayRows, arrayIndices) = extractArrayRows nodesToProcess (fromEnum headerWasExtracted)
           formattedColumns = transposeAndFormat rs cursor arrayRows arrayIndices
-          columnWidths = UV.convert $ V.map (V.maximum . V.map T.length) formattedColumns
-       in (headerRow, columnWidths, formattedColumns, headerWasExtracted, arrayIndices)
+          columnWidths = V.map (V.maximum . V.map scalarLength) formattedColumns
+       in (columnWidths, formattedColumns, headerWasExtracted)
   where
-    extractHeader ns =
-      case V.uncons ns of
-        Just (Array firstRow, rest) ->
-          if all isStringNode firstRow
-            then
-              -- Format header cells properly with cursor navigation
-              -- The header array is at index 0 of the parent, so we need to apply crumb for row 0 first
-              let formatHeaderCell = formatWithCursor rs emptyState
-                  formatHeaderRow rowCursor _rowNode =
-                    V.imap (NC.applyCrumb rowCursor formatHeaderCell) firstRow
-                  headerTexts = NC.applyCrumb cursor formatHeaderRow 0 (Array firstRow)
-               in (Just headerTexts, rest, True, 1)
-            else (Nothing, ns, False, 0)
-        _ -> (Nothing, ns, False, 0)
-
+    scalarLength n
+      | T.isPrefixOf "{" n || T.isPrefixOf "[" n = 0
+      | otherwise = T.length n
     extractArrayRows ns offset =
       let indexed = V.indexed ns
           arrays =
@@ -219,10 +227,17 @@ doFormatNode
   -> Vector Node
   -> Text
 doFormatNode rs cursor state nodes =
-  let autoPadEnabled =
-        lookupPropertyForCursor ExactMatch AutoPad rs cursor == Just True
+  let prefixProps = findPropertiesForCursor PrefixMatch cursor rs
+      exactProps = findPropertiesForCursor ExactMatch cursor rs
 
-      (headerCache, colWidths, formattedCache, headerWasExtracted, arrayIndices) =
+      autoPadEnabled = lookupRule AutoPad exactProps == Just True
+
+      complexChildren =
+        (lookupRule ForceComplexNewLine prefixProps == Just True)
+          || any (liftA2 (||) isSinglelineComment isComplexNode) nodes
+            && (lookupRule NoComplexNewLine prefixProps /= Just True)
+
+      (colWidths, formattedCache, headerWasExtracted) =
         maxColumnLengthsWithCache rs cursor nodes
 
       state' =
@@ -232,20 +247,18 @@ doFormatNode rs cursor state nodes =
               { fsUsePad = True
               , fsColumnWidths = colWidths
               , fsFormattedCache = formattedCache
-              , fsHeaderCache = headerCache
               , fsHeaderWasExtracted = headerWasExtracted
-              , fsArrayIndices = arrayIndices
+              , fsCurrentRowIdx = Nothing
               }
           else state
 
       formatted =
         reverse
-          . addDelimiters rs 0 cursor complexChildren state' []
+          . addDelimiters rs 0 0 cursor complexChildren state' []
           . V.toList
           $ nodes
 
-      indentationAmount =
-        fromMaybe 2 (lookupPropertyForCursor PrefixMatch Indent rs cursor)
+      indentationAmount = fromMaybe 2 (lookupRule Indent prefixProps)
    in if complexChildren
         then
           T.unlines
@@ -253,11 +266,6 @@ doFormatNode rs cursor state nodes =
             . concatMap T.lines
             $ formatted
         else T.concat formatted
-  where
-    complexChildren =
-      forceComplexNewLine rs cursor
-        || any (liftA2 (||) isSinglelineComment isComplexNode) nodes
-          && not (noComplexNewLine rs cursor)
 
 formatComment :: InternalComment -> Text
 formatComment (InternalComment {cMultiline = False, cText = c}) = "// " <> c

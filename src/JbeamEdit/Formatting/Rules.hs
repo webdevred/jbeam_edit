@@ -11,6 +11,7 @@ module JbeamEdit.Formatting.Rules (
   SomeKey (..),
   SomeProperty (..),
   PropertyKey (..),
+  Rule,
   RuleSet (..),
   lookupKey,
   allProperties,
@@ -18,6 +19,7 @@ module JbeamEdit.Formatting.Rules (
   applyPadLogic,
   noComplexNewLine,
   forceComplexNewLine,
+  lookupRule,
   lookupPropertyForCursor,
   findPropertiesForCursor,
 ) where
@@ -178,6 +180,9 @@ lookupProp targetKey m =
         Just Refl -> Just val
         Nothing -> Nothing
     Nothing -> Nothing
+
+lookupRule :: (Eq a, Read a, Show a) => PropertyKey a -> Rule -> Maybe a
+lookupRule = lookupProp
 
 applyDecimalPadding :: Int -> Text -> Text
 applyDecimalPadding padDecimals node
