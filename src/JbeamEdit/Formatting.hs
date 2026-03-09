@@ -41,9 +41,7 @@ import JbeamEdit.Formatting.Rules (
   RuleSet (..),
   applyPadLogic,
   findPropertiesForCursor,
-  forceComplexNewLine,
-  lookupPropertyForCursor,
-  noComplexNewLine,
+  lookupRule,
  )
 import System.File.OsPath qualified as OS (writeFile)
 import System.OsPath (OsPath)
@@ -231,8 +229,15 @@ doFormatNode
   -> Vector Node
   -> Text
 doFormatNode rs cursor state nodes =
-  let autoPadEnabled =
-        lookupPropertyForCursor ExactMatch AutoPad rs cursor == Just True
+  let prefixProps = findPropertiesForCursor PrefixMatch cursor rs
+      exactProps = findPropertiesForCursor ExactMatch cursor rs
+
+      autoPadEnabled = lookupRule AutoPad exactProps == Just True
+
+      complexChildren =
+        (lookupRule ForceComplexNewLine prefixProps == Just True)
+          || any (liftA2 (||) isSinglelineComment isComplexNode) nodes
+            && (lookupRule NoComplexNewLine prefixProps /= Just True)
 
       (colWidths, formattedCache, headerWasExtracted) =
         maxColumnLengthsWithCache rs cursor nodes
@@ -255,8 +260,7 @@ doFormatNode rs cursor state nodes =
           . V.toList
           $ nodes
 
-      indentationAmount =
-        fromMaybe 2 (lookupPropertyForCursor PrefixMatch Indent rs cursor)
+      indentationAmount = fromMaybe 2 (lookupRule Indent prefixProps)
    in if complexChildren
         then
           T.unlines
@@ -264,11 +268,6 @@ doFormatNode rs cursor state nodes =
             . concatMap T.lines
             $ formatted
         else T.concat formatted
-  where
-    complexChildren =
-      forceComplexNewLine rs cursor
-        || any (liftA2 (||) isSinglelineComment isComplexNode) nodes
-          && not (noComplexNewLine rs cursor)
 
 formatComment :: InternalComment -> Text
 formatComment (InternalComment {cMultiline = False, cText = c}) = "// " <> c
