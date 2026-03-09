@@ -134,7 +134,7 @@ addDelimiters rs index rowIdx c complexChildren state acc ns@(node : rest)
     applyCrumbAndFormat n idx =
       case fsCurrentRowIdx state of
         Just ri ->
-          case fsFormattedCache state V.!? ri >>= (V.!? idx) of
+          case fsFormattedCache state V.!? idx >>= (V.!? ri) of
             Just cellTxt ->
               let width = sum (fsColumnWidths state V.!? idx)
                   (stripped, spaces) = splitTrailing comma cellTxt
@@ -182,9 +182,7 @@ maxColumnLengthsWithCache rs cursor nodes
           (arrayRows, arrayIndices) = extractArrayRows nodesToProcess (fromEnum headerWasExtracted)
           formattedColumns = transposeAndFormat rs cursor arrayRows arrayIndices
           columnWidths = V.map (V.maximum . V.map scalarLength) formattedColumns
-          numDataRows = V.length arrayRows
-          formattedRows = V.generate numDataRows $ \ri -> V.map (V.! ri) formattedColumns
-       in (columnWidths, formattedRows, headerWasExtracted)
+       in (columnWidths, formattedColumns, headerWasExtracted)
   where
     scalarLength n
       | T.isPrefixOf "{" n || T.isPrefixOf "[" n = 0
