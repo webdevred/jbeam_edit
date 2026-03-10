@@ -42,6 +42,7 @@ multilineCommentSpec =
             { cText = "test"
             , cMultiline = True
             , cAssociationDirection = NextNode
+            , cHadNewlineBefore = False
             }
         )
     )
@@ -56,6 +57,7 @@ singlelineCommentSpec =
             { cText = ""
             , cMultiline = False
             , cAssociationDirection = NextNode
+            , cHadNewlineBefore = False
             }
         )
     )
@@ -66,6 +68,7 @@ singlelineCommentSpec =
             { cText = "test"
             , cMultiline = False
             , cAssociationDirection = NextNode
+            , cHadNewlineBefore = False
             }
         )
     )
@@ -80,6 +83,7 @@ singlelineCommentSpec =
                     { cText = "cool comment"
                     , cMultiline = False
                     , cAssociationDirection = PreviousNode
+                    , cHadNewlineBefore = False
                     }
                 )
             ]
@@ -109,7 +113,7 @@ objectSpec =
     ( "{\n//test\n\"test\" : 1, \"test2\" : 2}"
     , Object
         ( fromList
-            [ Comment (InternalComment "test" False NextNode)
+            [ Comment (InternalComment "test" False NextNode False)
             , ObjectKey (String "test", Number 1)
             , ObjectKey (String "test2", Number 2)
             ]
