@@ -46,9 +46,8 @@ separatorParser = do
   comma <- MP.optional (MP.label "comma" $ byteChar ',')
   ws2 <- MP.takeWhileP Nothing wordIsSpace
 
-  let hasNewline =
-        isNothing comma && '\n' `elem` map toChar (LBS.unpack ws1)
-          || '\n' `elem` map toChar (LBS.unpack ws2)
+  let nl = toWord8 '\n'
+      hasNewline = isNothing comma && LBS.count nl ws1 > 0 || LBS.count nl ws2 > 0
 
   modify (\s -> s {lastNodeEndedWithNewline = hasNewline})
 
