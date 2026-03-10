@@ -32,6 +32,6 @@
     PadAmount : 20;
 }
 
-.*.glowMap.*.off .*.glowMap.*.on {
+.*.glowMap.*.off, .*.glowMap.*.on {
     PadAmount : 10;
 }
