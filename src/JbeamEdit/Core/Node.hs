@@ -122,7 +122,7 @@ possiblyChildren n = expectArray n <|> expectObject n
 
 moreNodesThanOne :: Vector Node -> Bool
 moreNodesThanOne v
-  | len == 1 = any moreNodesThanOne . possiblyChildren $ V.head v
+  | len == 1 = any moreNodesThanOne . possiblyChildren $ V.unsafeHead v
   | len > 1 = True
   | otherwise = False
   where

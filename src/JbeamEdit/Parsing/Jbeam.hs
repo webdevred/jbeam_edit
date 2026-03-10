@@ -47,11 +47,11 @@ separatorParser = do
   comma <- MP.optional (MP.label "comma" $ byteChar ',')
   ws2 <- MP.takeWhileP Nothing wordIsSpace
 
-  let countNewlines = length . filter (== '\n') . map toChar . LBS.unpack
-      totalNewlines = countNewlines ws1 + countNewlines ws2
-      hasNewline =
-        isNothing comma && '\n' `elem` map toChar (LBS.unpack ws1)
-          || '\n' `elem` map toChar (LBS.unpack ws2)
+  let nl = toWord8 '\n'
+      ws1Newlines = LBS.count nl ws1
+      ws2Newlines = LBS.count nl ws2
+      totalNewlines = ws1Newlines + ws2Newlines
+      hasNewline = isNothing comma && ws1Newlines > 0 || ws2Newlines > 0
 
   modify
     ( \s ->
