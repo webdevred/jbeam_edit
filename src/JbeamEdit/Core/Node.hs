@@ -37,6 +37,7 @@ data InternalComment = InternalComment
   { cText :: Text
   , cMultiline :: Bool
   , cAssociationDirection :: AssociationDirection
+  , cHadNewlineBefore :: Bool
   }
   deriving (Eq, Ord, Read, Show)
 
@@ -105,7 +106,7 @@ isNumberNode (Number _) = True
 isNumberNode _ = False
 
 isSinglelineComment :: Node -> Bool
-isSinglelineComment (Comment (InternalComment _ False _)) = True
+isSinglelineComment (Comment (InternalComment _ False _ _)) = True
 isSinglelineComment _ = False
 
 expectArray :: Node -> Maybe (Vector Node)

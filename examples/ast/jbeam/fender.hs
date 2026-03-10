@@ -92,6 +92,7 @@ Object
                             { cText = "Left side"
                             , cMultiline = False
                             , cAssociationDirection = NextNode
+                            , cHadNewlineBefore = True
                             }
                         )
                     , Object
@@ -182,6 +183,7 @@ Object
                             { cText = "Right side"
                             , cMultiline = False
                             , cAssociationDirection = NextNode
+                            , cHadNewlineBefore = True
                             }
                         )
                     , Object
@@ -283,6 +285,7 @@ Object
                             { cText = "Support nodes"
                             , cMultiline = False
                             , cAssociationDirection = NextNode
+                            , cHadNewlineBefore = True
                             }
                         )
                     , Object
@@ -338,6 +341,23 @@ Object
                             { cText = "Structural beams"
                             , cMultiline = False
                             , cAssociationDirection = NextNode
+                            , cHadNewlineBefore = False
+                            }
+                        )
+                    , Comment
+                        ( InternalComment
+                            { cText = "beamSpring: 451000, beamDamp: 50"
+                            , cMultiline = False
+                            , cAssociationDirection = NextNode
+                            , cHadNewlineBefore = False
+                            }
+                        )
+                    , Comment
+                        ( InternalComment
+                            { cText = "beamStrength: FLT_MAX"
+                            , cMultiline = False
+                            , cAssociationDirection = NextNode
+                            , cHadNewlineBefore = False
                             }
                         )
                     , Object
@@ -379,6 +399,7 @@ Object
                             { cText = "Front"
                             , cMultiline = False
                             , cAssociationDirection = NextNode
+                            , cHadNewlineBefore = True
                             }
                         )
                     , Array
@@ -434,6 +455,7 @@ Object
                             { cText = "Middle"
                             , cMultiline = False
                             , cAssociationDirection = NextNode
+                            , cHadNewlineBefore = True
                             }
                         )
                     , Object
@@ -463,6 +485,7 @@ Object
                             { cText = "Rear"
                             , cMultiline = False
                             , cAssociationDirection = NextNode
+                            , cHadNewlineBefore = True
                             }
                         )
                     , Array
@@ -526,6 +549,7 @@ Object
                             { cText = "Crossing beams"
                             , cMultiline = False
                             , cAssociationDirection = NextNode
+                            , cHadNewlineBefore = True
                             }
                         )
                     , Object
@@ -539,6 +563,7 @@ Object
                             { cText = "Front"
                             , cMultiline = False
                             , cAssociationDirection = NextNode
+                            , cHadNewlineBefore = False
                             }
                         )
                     , Array
@@ -578,6 +603,7 @@ Object
                             { cText = "Rear"
                             , cMultiline = False
                             , cAssociationDirection = NextNode
+                            , cHadNewlineBefore = True
                             }
                         )
                     , Array
@@ -617,6 +643,7 @@ Object
                             { cText = "Support beams"
                             , cMultiline = False
                             , cAssociationDirection = NextNode
+                            , cHadNewlineBefore = True
                             }
                         )
                     , Array
@@ -712,6 +739,7 @@ Object
                             { cText = "Front rigid"
                             , cMultiline = False
                             , cAssociationDirection = NextNode
+                            , cHadNewlineBefore = True
                             }
                         )
                     , Object
@@ -735,6 +763,7 @@ Object
                             { cText = "Left side"
                             , cMultiline = False
                             , cAssociationDirection = NextNode
+                            , cHadNewlineBefore = True
                             }
                         )
                     , Array
@@ -750,6 +779,7 @@ Object
                             { cText = "Right side"
                             , cMultiline = False
                             , cAssociationDirection = NextNode
+                            , cHadNewlineBefore = True
                             }
                         )
                     , Array
@@ -765,6 +795,7 @@ Object
                             { cText = "Attachment beams"
                             , cMultiline = False
                             , cAssociationDirection = NextNode
+                            , cHadNewlineBefore = True
                             }
                         )
                     , Object
@@ -802,6 +833,7 @@ Object
                             { cText = "Frame"
                             , cMultiline = False
                             , cAssociationDirection = NextNode
+                            , cHadNewlineBefore = True
                             }
                         )
                     , Comment
@@ -809,6 +841,7 @@ Object
                             { cText = "Left side"
                             , cMultiline = False
                             , cAssociationDirection = NextNode
+                            , cHadNewlineBefore = True
                             }
                         )
                     , Comment
@@ -816,6 +849,7 @@ Object
                             { cText = "Front"
                             , cMultiline = False
                             , cAssociationDirection = NextNode
+                            , cHadNewlineBefore = True
                             }
                         )
                     , Object
@@ -859,6 +893,7 @@ Object
                             { cText = "Middle"
                             , cMultiline = False
                             , cAssociationDirection = NextNode
+                            , cHadNewlineBefore = True
                             }
                         )
                     , Object
@@ -902,6 +937,7 @@ Object
                             { cText = "Rear"
                             , cMultiline = False
                             , cAssociationDirection = NextNode
+                            , cHadNewlineBefore = True
                             }
                         )
                     , Object
@@ -967,6 +1003,7 @@ Object
                             { cText = "Right side"
                             , cMultiline = False
                             , cAssociationDirection = NextNode
+                            , cHadNewlineBefore = True
                             }
                         )
                     , Comment
@@ -974,6 +1011,7 @@ Object
                             { cText = "Front"
                             , cMultiline = False
                             , cAssociationDirection = NextNode
+                            , cHadNewlineBefore = True
                             }
                         )
                     , Object
@@ -1035,6 +1073,7 @@ Object
                             { cText = "Middle"
                             , cMultiline = False
                             , cAssociationDirection = NextNode
+                            , cHadNewlineBefore = True
                             }
                         )
                     , Object
@@ -1090,6 +1129,7 @@ Object
                             { cText = "Rear"
                             , cMultiline = False
                             , cAssociationDirection = NextNode
+                            , cHadNewlineBefore = True
                             }
                         )
                     , Object
@@ -1197,6 +1237,7 @@ Object
                             { cText = "Body"
                             , cMultiline = False
                             , cAssociationDirection = NextNode
+                            , cHadNewlineBefore = False
                             }
                         )
                     , Comment
@@ -1204,6 +1245,7 @@ Object
                             { cText = "Left side"
                             , cMultiline = False
                             , cAssociationDirection = NextNode
+                            , cHadNewlineBefore = True
                             }
                         )
                     , Object
@@ -1229,6 +1271,7 @@ Object
                             { cText = "Right side"
                             , cMultiline = False
                             , cAssociationDirection = NextNode
+                            , cHadNewlineBefore = True
                             }
                         )
                     , Object

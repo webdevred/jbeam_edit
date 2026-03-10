@@ -51,7 +51,7 @@ sideCommentText RightTree = "Right side"
 sideCommentText SupportTree = "Support nodes"
 
 sideComment :: VertexTreeType -> InternalComment
-sideComment t = InternalComment (sideCommentText t) False NextNode
+sideComment t = InternalComment (sideCommentText t) False NextNode False
 
 addSideComment
   :: Ord k
@@ -72,7 +72,7 @@ addPrefixComments _ trees = bool trees (fmap addToAnnotatedVertex trees) (length
   where
     addToAnnotatedVertex (VertexTree [] namedVertexGroups) =
       let commentName = dropIndex . vName . aVertex . NE.head $ namedVertexGroups
-          newComment = InternalComment ("prefix group " <> commentName) False NextNode
+          newComment = InternalComment ("prefix group " <> commentName) False NextNode True
        in VertexTree [newComment] namedVertexGroups
     addToAnnotatedVertex (VertexTree comments namedVertexGroups) = VertexTree comments namedVertexGroups
 

@@ -34,8 +34,9 @@ import Text.Megaparsec.Byte qualified as B
 import Text.Megaparsec.Byte.Lexer qualified as L (scientific)
 import Text.Megaparsec.Char qualified as C
 
-newtype ParseState = ParseState
+data ParseState = ParseState
   { lastNodeEndedWithNewline :: Bool
+  , lastSeparatorHadBlankLine :: Bool
   }
 
 type JbeamParser a = Parser (State ParseState) a
@@ -47,9 +48,18 @@ separatorParser = do
   ws2 <- MP.takeWhileP Nothing wordIsSpace
 
   let nl = toWord8 '\n'
-      hasNewline = isNothing comma && LBS.count nl ws1 > 0 || LBS.count nl ws2 > 0
+      ws1Newlines = LBS.count nl ws1
+      ws2Newlines = LBS.count nl ws2
+      totalNewlines = ws1Newlines + ws2Newlines
+      hasNewline = isNothing comma && ws1Newlines > 0 || ws2Newlines > 0
 
-  modify (\s -> s {lastNodeEndedWithNewline = hasNewline})
+  modify
+    ( \s ->
+        s
+          { lastNodeEndedWithNewline = hasNewline
+          , lastSeparatorHadBlankLine = totalNewlines >= 2
+          }
+    )
 
   pure ()
 
@@ -84,6 +94,7 @@ multilineCommentParser = do
           { cText = text
           , cMultiline = True
           , cAssociationDirection = associationDirection st
+          , cHadNewlineBefore = False
           }
       parseComment = parseWord8s (multilineComment . commentStripSpace)
   C.string "/*" >> parseComment (MP.manyTill B.asciiChar (B.string "*/"))
@@ -98,6 +109,7 @@ singlelineCommentParser = do
       { cText = T.strip . decodeUtf8Lenient $ BS.pack txt
       , cMultiline = False
       , cAssociationDirection = associationDirection st
+      , cHadNewlineBefore = lastSeparatorHadBlankLine st
       }
 
 commentParser :: JbeamParser Node
@@ -174,7 +186,8 @@ parseNodesState
   -> LBS.ByteString
   -> Either (MP.ParseErrorBundle LBS.ByteString Void) a
 parseNodesState parser input =
-  let initialState = ParseState {lastNodeEndedWithNewline = True}
+  let initialState =
+        ParseState {lastNodeEndedWithNewline = True, lastSeparatorHadBlankLine = False}
    in evalState (MP.runParserT parser "<input>" input) initialState
 
 parseNodes :: LBS.ByteString -> Either Text Node

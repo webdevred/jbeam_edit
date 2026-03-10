@@ -73,7 +73,7 @@ splitTrailing comma txt =
       )
 
 normalizeCommentNode :: Bool -> Node -> Node
-normalizeCommentNode False (Comment (InternalComment txt False dir)) = Comment (InternalComment txt True dir)
+normalizeCommentNode False (Comment (InternalComment txt False dir hadNl)) = Comment (InternalComment txt True dir hadNl)
 normalizeCommentNode _ node = node
 
 singleCharIf :: Char -> Bool -> Text
@@ -124,7 +124,12 @@ addDelimiters rs index rowIdx c complexChildren state acc ns@(node : rest)
               new_acc = (baseTxt <> singleCharIf ' ' space <> singleCharIf '\n' newline) : acc
            in addDelimiters rs (index + 1) nextRowIdx c complexChildren state new_acc rest
   where
-    newlineBeforeComment = singleCharIfNot '\n' (any isObjectKeyNode rest || ["\n"] == acc)
+    newlineBeforeComment = case node of
+      Comment ic | not (cMultiline ic) && not (cHadNewlineBefore ic) ->
+        case acc of
+          (prev : _) | T.isPrefixOf "// " (T.dropWhile (== '\n') prev) -> ""
+          _ -> singleCharIfNot '\n' (any isObjectKeyNode rest || ["\n"] == acc)
+      _ -> singleCharIfNot '\n' (any isObjectKeyNode rest || ["\n"] == acc)
 
     nextRowIdx =
       rowIdx + case node of
