@@ -61,6 +61,8 @@
       ["id1:",  "id2:"],
 
       // Structural beams
+      // beamSpring: 451000, beamDamp: 50
+      // beamStrength: FLT_MAX
       {"beamType" : "|NORMAL"},
       {"beamSpring" : 451000, "beamDamp" : 50},
       {"beamStrength" : "FLT_MAX"},

@@ -344,6 +344,22 @@ Object
                             , cHadNewlineBefore = False
                             }
                         )
+                    , Comment
+                        ( InternalComment
+                            { cText = "beamSpring: 451000, beamDamp: 50"
+                            , cMultiline = False
+                            , cAssociationDirection = NextNode
+                            , cHadNewlineBefore = False
+                            }
+                        )
+                    , Comment
+                        ( InternalComment
+                            { cText = "beamStrength: FLT_MAX"
+                            , cMultiline = False
+                            , cAssociationDirection = NextNode
+                            , cHadNewlineBefore = False
+                            }
+                        )
                     , Object
                         [ ObjectKey
                             ( String "beamType"
