@@ -24,6 +24,7 @@ Object
                     { cText = "\nThe purpose of this file is prove that moving metadata\nalong with vertices when moving vertices works as intended.\nSee issue for #69 explanation on the transformation part of the codebase.\n"
                     , cMultiline = True
                     , cAssociationDirection = NextNode
+                    , cHadNewlineBefore = False
                     }
                 )
             , Comment
@@ -31,6 +32,7 @@ Object
                     { cText = "--Nodes--"
                     , cMultiline = False
                     , cAssociationDirection = NextNode
+                    , cHadNewlineBefore = False
                     }
                 )
             , ObjectKey
@@ -164,6 +166,7 @@ Object
                             { cText = "support for front"
                             , cMultiline = False
                             , cAssociationDirection = PreviousNode
+                            , cHadNewlineBefore = False
                             }
                         )
                     , Array
@@ -208,6 +211,7 @@ Object
                             { cText = "support"
                             , cMultiline = False
                             , cAssociationDirection = PreviousNode
+                            , cHadNewlineBefore = False
                             }
                         )
                     , Array
@@ -401,6 +405,7 @@ Object
                             { cText = "support for rear"
                             , cMultiline = False
                             , cAssociationDirection = PreviousNode
+                            , cHadNewlineBefore = False
                             }
                         )
                     , Array
@@ -454,6 +459,7 @@ Object
                     { cText = "--Beams--"
                     , cMultiline = False
                     , cAssociationDirection = NextNode
+                    , cHadNewlineBefore = False
                     }
                 )
             , ObjectKey
@@ -468,6 +474,7 @@ Object
                             { cText = "Structural beams"
                             , cMultiline = False
                             , cAssociationDirection = NextNode
+                            , cHadNewlineBefore = True
                             }
                         )
                     , Object
@@ -495,6 +502,7 @@ Object
                             { cText = "Front end"
                             , cMultiline = False
                             , cAssociationDirection = NextNode
+                            , cHadNewlineBefore = True
                             }
                         )
                     , Object
@@ -604,6 +612,7 @@ Object
                             { cText = "Middle"
                             , cMultiline = False
                             , cAssociationDirection = NextNode
+                            , cHadNewlineBefore = True
                             }
                         )
                     , Object
@@ -749,6 +758,7 @@ Object
                             { cText = "Rear end"
                             , cMultiline = False
                             , cAssociationDirection = NextNode
+                            , cHadNewlineBefore = True
                             }
                         )
                     , Object
@@ -898,6 +908,7 @@ Object
                             { cText = "Crossing beams"
                             , cMultiline = False
                             , cAssociationDirection = NextNode
+                            , cHadNewlineBefore = True
                             }
                         )
                     , Comment
@@ -905,6 +916,7 @@ Object
                             { cText = "Front end"
                             , cMultiline = False
                             , cAssociationDirection = NextNode
+                            , cHadNewlineBefore = True
                             }
                         )
                     , Object
@@ -982,6 +994,7 @@ Object
                             { cText = "Middle"
                             , cMultiline = False
                             , cAssociationDirection = NextNode
+                            , cHadNewlineBefore = True
                             }
                         )
                     , Object
@@ -1091,6 +1104,7 @@ Object
                             { cText = "Rear end"
                             , cMultiline = False
                             , cAssociationDirection = NextNode
+                            , cHadNewlineBefore = True
                             }
                         )
                     , Object
@@ -1200,6 +1214,7 @@ Object
                             { cText = "Support beams"
                             , cMultiline = False
                             , cAssociationDirection = NextNode
+                            , cHadNewlineBefore = True
                             }
                         )
                     , Comment
@@ -1207,6 +1222,7 @@ Object
                             { cText = "Front end"
                             , cMultiline = False
                             , cAssociationDirection = NextNode
+                            , cHadNewlineBefore = True
                             }
                         )
                     , Object
@@ -1276,6 +1292,7 @@ Object
                             { cText = "Middle"
                             , cMultiline = False
                             , cAssociationDirection = NextNode
+                            , cHadNewlineBefore = True
                             }
                         )
                     , Object
@@ -1361,6 +1378,7 @@ Object
                             { cText = "Rear end"
                             , cMultiline = False
                             , cAssociationDirection = NextNode
+                            , cHadNewlineBefore = True
                             }
                         )
                     , Object
@@ -1438,6 +1456,7 @@ Object
                             { cText = "Front crush"
                             , cMultiline = False
                             , cAssociationDirection = NextNode
+                            , cHadNewlineBefore = True
                             }
                         )
                     , Object
@@ -1461,6 +1480,7 @@ Object
                     { cText = "--Collision Triangles--"
                     , cMultiline = False
                     , cAssociationDirection = NextNode
+                    , cHadNewlineBefore = False
                     }
                 )
             , ObjectKey

@@ -7,7 +7,7 @@ spec :: Spec
 spec = do
   describe "isCommentNode" . works $
     ( do
-        isCommentNode (Comment (InternalComment "test" False NextNode)) `shouldBe` True
+        isCommentNode (Comment (InternalComment "test" False NextNode False)) `shouldBe` True
         isCommentNode (Number 123) `shouldBe` False
     )
   describe "isObjectNode" . works $
