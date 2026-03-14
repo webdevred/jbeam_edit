@@ -37,7 +37,10 @@ singlelineCommentSpec = [("// test", Comment (InternalComment "test" False NextN
 
 arraySpec :: [(String, Node)]
 arraySpec =
-  [ ("[1, 2, 3]", Array (fromList [Number (IntValue 1), Number (IntValue 2), Number (IntValue 3)]))
+  [
+    ( "[1, 2, 3]"
+    , Array (fromList [Number (IntValue 1), Number (IntValue 2), Number (IntValue 3)])
+    )
   ]
 
 objectSpec :: [(String, Node)]

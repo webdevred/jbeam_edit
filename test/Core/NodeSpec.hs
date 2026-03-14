@@ -13,7 +13,8 @@ spec = do
     )
   describe "isObjectNode" . works $
     ( do
-        isObjectNode (Object (V.singleton (ObjectKey (String "test", Number (IntValue 1)))))
+        isObjectNode
+          (Object (V.singleton (ObjectKey (String "test", Number (IntValue 1)))))
           `shouldBe` True
         isObjectNode (Number (IntValue 123)) `shouldBe` False
     )
@@ -38,9 +39,12 @@ spec = do
         isComplexNode
           ( Object
               ( V.fromList
-                  [ObjectKey (String "test", Number (IntValue 1)), ObjectKey (String "test", Number (IntValue 1))]
+                  [ ObjectKey (String "test", Number (IntValue 1))
+                  , ObjectKey (String "test", Number (IntValue 1))
+                  ]
               )
           )
           `shouldBe` True
-        isComplexNode (Array (V.fromList [String "test", Number (IntValue 1)])) `shouldBe` True
+        isComplexNode (Array (V.fromList [String "test", Number (IntValue 1)]))
+          `shouldBe` True
     )
