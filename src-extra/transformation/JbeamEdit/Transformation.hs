@@ -290,9 +290,9 @@ annotatedVertexToNodesWithPrev prevMeta (AnnotatedVertex comments vertex meta) =
       vertexArray :: Node
       vertexArray =
         let name = String (vName vertex)
-            x = Number (vX vertex)
-            y = Number (vY vertex)
-            z = Number (vZ vertex)
+            x = Number (DecimalValue (vX vertex))
+            y = Number (DecimalValue (vY vertex))
+            z = Number (DecimalValue (vZ vertex))
             possiblyMeta = concatMap (pure . Object) (vMeta vertex)
          in Array . V.fromList $ [name, x, y, z] ++ possiblyMeta
    in ( map Comment preComments
