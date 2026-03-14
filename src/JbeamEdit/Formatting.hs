@@ -239,9 +239,9 @@ doFormatNode rs cursor state nodes =
       autoPadEnabled = lookupRule AutoPad exactProps == Just True
 
       complexChildren =
-        (lookupRule ForceComplexNewLine prefixProps == Just True)
+        lookupRule ForceComplexNewLine prefixProps == Just True
           || any (liftA2 (||) isSinglelineComment isComplexNode) nodes
-            && (lookupRule NoComplexNewLine prefixProps /= Just True)
+            && lookupRule NoComplexNewLine prefixProps /= Just True
 
       (colWidths, formattedCache, headerWasExtracted) =
         maxColumnLengthsWithCache rs cursor nodes
