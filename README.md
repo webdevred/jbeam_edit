@@ -33,7 +33,7 @@ A fast, robust command-line parser, formatter, and editor for JBeam files, the J
   Renames nodes sequentially (e.g., `["bf1", ...]` → `["bf0", "bf1", "bf2"]`) and updates all references automatically. Feature currently unstable, enabled by build flag `transformation`.
 
 - **Configurable Formatting with JBFL:**
-  Customize formatting rules using JBFL, a mini-language to specify padding, decimals, indentation, and more with wildcard targeting.
+  Customize formatting rules using JBFL, a mini-language to specify padding, decimals, indentation, object key alignment, and more with wildcard targeting.
 
   Example JBFL snippet:
 
