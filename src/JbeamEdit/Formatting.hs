@@ -271,19 +271,15 @@ doFormatNode rs cursor state nodes =
       (colWidths, formattedCache, headerWasExtracted) =
         maxColumnLengthsWithCache rs cursor nodes
 
-      objectKeyItems =
-        V.mapMaybe
-          ( \(i, n) -> case n of
-              ObjectKey (k, v) -> Just (i, k, v)
-              _ -> Nothing
-          )
-          (V.indexed nodes)
-
       maxKeyW
-        | V.null objectKeyItems = Nothing
+        | not alignObjectKeysEnabled = Nothing
         | otherwise =
-            Just . V.maximum . V.map (\(_, k, _) -> T.length (formatScalarNode k)) $
-              objectKeyItems
+            let toKey (ObjectKey (k, _)) = Just k
+                toKey _ = Nothing
+                ks = V.mapMaybe toKey nodes
+             in if V.null ks
+                  then Nothing
+                  else Just (V.maximum (V.map (T.length . formatScalarNode) ks))
 
       subObjectWidths :: Map Text Int
       subObjectWidths
@@ -295,8 +291,12 @@ doFormatNode rs cursor state nodes =
                       ( \acc2 sn -> case sn of
                           ObjectKey (sk, sv) ->
                             let kt = formatScalarNode sk
-                                vt = formatWithCursor rs emptyState cursor sv
-                                vw = if T.any (== '\n') vt || isComplexNode sv then 0 else T.length vt
+                                vw =
+                                  if isComplexNode sv
+                                    then 0
+                                    else
+                                      let vt = formatWithCursor rs emptyState cursor sv
+                                       in if T.any (== '\n') vt then 0 else T.length vt
                              in Map.insertWith max kt vw acc2
                           _ -> acc2
                       )
@@ -307,9 +307,6 @@ doFormatNode rs cursor state nodes =
               Map.empty
               nodes
         | otherwise = Map.empty
-
-      newKeyWidth = if alignObjectKeysEnabled then maxKeyW else Nothing
-      newSubWidths = if autopadSubObjectsEnabled then subObjectWidths else Map.empty
 
       state'
         | autoPadEnabled
@@ -325,8 +322,8 @@ doFormatNode rs cursor state nodes =
               }
         | alignObjectKeysEnabled || autopadSubObjectsEnabled =
             emptyState
-              { fsObjectKeyWidth = newKeyWidth
-              , fsSubObjectWidths = newSubWidths
+              { fsObjectKeyWidth = maxKeyW
+              , fsSubObjectWidths = subObjectWidths
               }
         | otherwise = state
 
