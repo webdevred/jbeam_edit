@@ -1828,6 +1828,332 @@ Object
                         ]
                     ]
                 )
+            , ObjectKey
+                ( String "glowMap"
+                , Object
+                    [ Comment
+                        ( InternalComment
+                            { cText = "main lights"
+                            , cMultiline = False
+                            , cAssociationDirection = NextNode
+                            , cHadNewlineBefore = False
+                            }
+                        )
+                    , ObjectKey
+                        ( String "chassis_headlight_L"
+                        , Object
+                            [ ObjectKey
+                                ( String "simpleFunction"
+                                , String "lowhighbeam_filament"
+                                )
+                            , ObjectKey
+                                ( String "off"
+                                , String "chassis_headlight"
+                                )
+                            , ObjectKey
+                                ( String "on"
+                                , String "chassis_headlight_on"
+                                )
+                            , ObjectKey
+                                ( String "materialEmissiveScaling"
+                                , Object
+                                    [ ObjectKey
+                                        ( String "on_max"
+                                        , Number 1.0
+                                        )
+                                    ]
+                                )
+                            ]
+                        )
+                    , ObjectKey
+                        ( String "chassis_headlight_R"
+                        , Object
+                            [ ObjectKey
+                                ( String "simpleFunction"
+                                , String "lowhighbeam_filament"
+                                )
+                            , ObjectKey
+                                ( String "off"
+                                , String "chassis_headlight"
+                                )
+                            , ObjectKey
+                                ( String "on"
+                                , String "chassis_headlight_on"
+                                )
+                            , ObjectKey
+                                ( String "materialEmissiveScaling"
+                                , Object
+                                    [ ObjectKey
+                                        ( String "on_max"
+                                        , Number 1.0
+                                        )
+                                    ]
+                                )
+                            ]
+                        )
+                    , ObjectKey
+                        ( String "chassis_signal_L"
+                        , Object
+                            [ ObjectKey
+                                ( String "simpleFunction"
+                                , String "signal_L_filament"
+                                )
+                            , ObjectKey
+                                ( String "off"
+                                , String "chassis_signal_amber"
+                                )
+                            , ObjectKey
+                                ( String "on"
+                                , String "chassis_signal_amber_on"
+                                )
+                            , ObjectKey
+                                ( String "materialEmissiveScaling"
+                                , Object
+                                    [ ObjectKey
+                                        ( String "on_max"
+                                        , Number 1.0
+                                        )
+                                    ]
+                                )
+                            ]
+                        )
+                    , ObjectKey
+                        ( String "chassis_signal_R"
+                        , Object
+                            [ ObjectKey
+                                ( String "simpleFunction"
+                                , String "signal_R_filament"
+                                )
+                            , ObjectKey
+                                ( String "off"
+                                , String "chassis_signal_amber"
+                                )
+                            , ObjectKey
+                                ( String "on"
+                                , String "chassis_signal_amber_on"
+                                )
+                            , ObjectKey
+                                ( String "materialEmissiveScaling"
+                                , Object
+                                    [ ObjectKey
+                                        ( String "on_max"
+                                        , Number 1.0
+                                        )
+                                    ]
+                                )
+                            ]
+                        )
+                    , ObjectKey
+                        ( String "chassis_reverselight"
+                        , Object
+                            [ ObjectKey
+                                ( String "simpleFunction"
+                                , String "reverselight_filament"
+                                )
+                            , ObjectKey
+                                ( String "off"
+                                , String "chassis_reverselight"
+                                )
+                            , ObjectKey
+                                ( String "on"
+                                , String "chassis_reverselight_on"
+                                )
+                            , ObjectKey
+                                ( String "materialEmissiveScaling"
+                                , Object
+                                    [ ObjectKey
+                                        ( String "on_max"
+                                        , Number 1.0
+                                        )
+                                    ]
+                                )
+                            ]
+                        )
+                    , ObjectKey
+                        ( String "chassis_brakelight_L"
+                        , Object
+                            [ ObjectKey
+                                ( String "simpleFunction"
+                                , String "brakelight_filament"
+                                )
+                            , ObjectKey
+                                ( String "off"
+                                , String "chassis_taillight"
+                                )
+                            , ObjectKey
+                                ( String "on"
+                                , String "chassis_taillight_on"
+                                )
+                            , ObjectKey
+                                ( String "materialEmissiveScaling"
+                                , Object
+                                    [ ObjectKey
+                                        ( String "on_max"
+                                        , Number 1.0
+                                        )
+                                    ]
+                                )
+                            ]
+                        )
+                    , ObjectKey
+                        ( String "chassis_brakelight_R"
+                        , Object
+                            [ ObjectKey
+                                ( String "simpleFunction"
+                                , String "brakelight_filament"
+                                )
+                            , ObjectKey
+                                ( String "off"
+                                , String "chassis_taillight"
+                                )
+                            , ObjectKey
+                                ( String "on"
+                                , String "chassis_taillight_on"
+                                )
+                            , ObjectKey
+                                ( String "materialEmissiveScaling"
+                                , Object
+                                    [ ObjectKey
+                                        ( String "on_max"
+                                        , Number 1.0
+                                        )
+                                    ]
+                                )
+                            ]
+                        )
+                    , Comment
+                        ( InternalComment
+                            { cText = "gauge lights"
+                            , cMultiline = False
+                            , cAssociationDirection = NextNode
+                            , cHadNewlineBefore = False
+                            }
+                        )
+                    , ObjectKey
+                        ( String "chassis_gaugelight_highbeam"
+                        , Object
+                            [ ObjectKey
+                                ( String "simpleFunction"
+                                , String "highbeam"
+                                )
+                            , ObjectKey
+                                ( String "off"
+                                , String "chassis_gauges"
+                                )
+                            , ObjectKey
+                                ( String "on"
+                                , String "chassis_gauges_on"
+                                )
+                            ]
+                        )
+                    , ObjectKey
+                        ( String "chassis_gaugelight_signal_L"
+                        , Object
+                            [ ObjectKey
+                                ( String "simpleFunction"
+                                , String "signal_L"
+                                )
+                            , ObjectKey
+                                ( String "off"
+                                , String "chassis_gauges"
+                                )
+                            , ObjectKey
+                                ( String "on"
+                                , String "chassis_gauges_on"
+                                )
+                            ]
+                        )
+                    , ObjectKey
+                        ( String "chassis_gaugelight_signal_R"
+                        , Object
+                            [ ObjectKey
+                                ( String "simpleFunction"
+                                , String "signal_R"
+                                )
+                            , ObjectKey
+                                ( String "off"
+                                , String "chassis_gauges"
+                                )
+                            , ObjectKey
+                                ( String "on"
+                                , String "chassis_gauges_on"
+                                )
+                            ]
+                        )
+                    , ObjectKey
+                        ( String "chassis_gaugelight_battery"
+                        , Object
+                            [ ObjectKey
+                                ( String "simpleFunction"
+                                , String "battery"
+                                )
+                            , ObjectKey
+                                ( String "off"
+                                , String "chassis_gauges"
+                                )
+                            , ObjectKey
+                                ( String "on"
+                                , String "chassis_gauges_on"
+                                )
+                            ]
+                        )
+                    , ObjectKey
+                        ( String "chassis_gaugelight_parkbrake"
+                        , Object
+                            [ ObjectKey
+                                ( String "simpleFunction"
+                                , String "parkingbrakelight"
+                                )
+                            , ObjectKey
+                                ( String "off"
+                                , String "chassis_gauges"
+                                )
+                            , ObjectKey
+                                ( String "on"
+                                , String "chassis_gauges_on"
+                                )
+                            ]
+                        )
+                    , Comment
+                        ( InternalComment
+                            { cText = "multi-condition warning light"
+                            , cMultiline = False
+                            , cAssociationDirection = NextNode
+                            , cHadNewlineBefore = False
+                            }
+                        )
+                    , ObjectKey
+                        ( String "chassis_gaugelight_warning"
+                        , Object
+                            [ ObjectKey
+                                ( String "simpleFunction"
+                                , Object
+                                    [ ObjectKey
+                                        ( String "checkengine"
+                                        , Number 1.0
+                                        )
+                                    , ObjectKey
+                                        ( String "battery"
+                                        , Number 1.0
+                                        )
+                                    , ObjectKey
+                                        ( String "lowpressure"
+                                        , Number 1.0
+                                        )
+                                    ]
+                                )
+                            , ObjectKey
+                                ( String "off"
+                                , String "chassis_gauges"
+                                )
+                            , ObjectKey
+                                ( String "on"
+                                , String "chassis_gauges_on"
+                                )
+                            ]
+                        )
+                    ]
+                )
             ]
         )
     ]

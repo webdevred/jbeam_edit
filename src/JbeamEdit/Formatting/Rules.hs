@@ -75,6 +75,8 @@ data PropertyKey a where
   AutoPad :: PropertyKey Bool
   NoComplexNewLine :: PropertyKey Bool
   ForceComplexNewLine :: PropertyKey Bool
+  AlignObjectKeys :: PropertyKey Bool
+  AutoPadSubObjects :: PropertyKey Bool
   PadAmount :: PropertyKey Int
   PadDecimals :: PropertyKey Int
   Indent :: PropertyKey Int
@@ -107,6 +109,8 @@ eqKey AutoPad AutoPad = Just Refl
 eqKey PadAmount PadAmount = Just Refl
 eqKey NoComplexNewLine NoComplexNewLine = Just Refl
 eqKey ForceComplexNewLine ForceComplexNewLine = Just Refl
+eqKey AlignObjectKeys AlignObjectKeys = Just Refl
+eqKey AutoPadSubObjects AutoPadSubObjects = Just Refl
 eqKey PadDecimals PadDecimals = Just Refl
 eqKey Indent Indent = Just Refl
 eqKey _ _ = Nothing
@@ -147,6 +151,8 @@ propertyName :: PropertyKey a -> Text
 propertyName AutoPad = "AutoPad"
 propertyName NoComplexNewLine = "NoComplexNewLine"
 propertyName ForceComplexNewLine = "ForceComplexNewLine"
+propertyName AlignObjectKeys = "AlignObjectKeys"
+propertyName AutoPadSubObjects = "AutoPadSubObjects"
 propertyName PadAmount = "PadAmount"
 propertyName PadDecimals = "PadDecimals"
 propertyName Indent = "Indent"
@@ -158,7 +164,15 @@ lookupKey :: Text -> [SomeKey] -> Maybe SomeKey
 lookupKey txt = find (\(SomeKey k) -> propertyName k == txt)
 
 boolProperties :: [SomeKey]
-boolProperties = map SomeKey [ForceComplexNewLine, NoComplexNewLine, AutoPad]
+boolProperties =
+  map
+    SomeKey
+    [ ForceComplexNewLine
+    , NoComplexNewLine
+    , AutoPad
+    , AlignObjectKeys
+    , AutoPadSubObjects
+    ]
 
 intProperties :: [SomeKey]
 intProperties = map SomeKey [PadAmount, PadDecimals, Indent]
