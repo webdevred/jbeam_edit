@@ -11,7 +11,9 @@ module JbeamEdit.Core.Node (
   isComplexNode,
   extractPreviousAssocCmt,
   possiblyChildren,
+  numberValueToScientific,
   Node (..),
+  NumberValue (..),
   InternalComment (..),
   AssociationDirection (..),
   Object,
@@ -60,12 +62,17 @@ Text is yet a another string type in Haskell which is good fit when doing append
 I comptemplated using something like [OMap](https://hackage.haskell.org/package/ordered-containers-0.2.4/docs/Data-Map-Ordered.html) for the Object but then I realized that I do not only need support pairs of keys and values for the Object case, I also need to support the Object having Comments as direct children.
 The parser is currently written using attoaparsec but I are considering to migrate to Megaparsec since Megaparsec has better support implementing error messages which can be given to the end user.
 -}
+data NumberValue
+  = IntValue Integer
+  | DecimalValue Scientific
+  deriving (Eq, Ord, Read, Show)
+
 data Node
   = Array Array
   | Object Object
   | ObjectKey ObjectKey
   | String Text
-  | Number Scientific
+  | Number NumberValue
   | Bool Bool
   | Comment InternalComment
   | Null
@@ -104,6 +111,10 @@ isStringNode _ = False
 isNumberNode :: Node -> Bool
 isNumberNode (Number _) = True
 isNumberNode _ = False
+
+numberValueToScientific :: NumberValue -> Scientific
+numberValueToScientific (IntValue n) = fromIntegral n
+numberValueToScientific (DecimalValue n) = n
 
 isSinglelineComment :: Node -> Bool
 isSinglelineComment (Comment (InternalComment _ False _ _)) = True

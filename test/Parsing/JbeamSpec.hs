@@ -11,17 +11,18 @@ import JbeamEdit.Parsing.Jbeam
 import SpecHelper
 import Test.Hspec.Megaparsec
 import Text.Megaparsec qualified as MP
+import Text.Megaparsec.Byte.Lexer qualified as L (scientific)
 
 numberSpec :: [(String, Node)]
 numberSpec =
-  [ ("123", Number 123)
-  , ("123.123", Number 123.123)
-  , ("-123", Number (-123))
-  , ("-123.123", Number (-123.123))
-  , ("0", Number 0)
-  , ("0.0", Number 0.0)
-  , ("-0", Number 0)
-  , ("-0.0", Number 0.0)
+  [ ("123", Number (IntValue 123))
+  , ("123.123", Number (DecimalValue 123.123))
+  , ("-123", Number (IntValue (-123)))
+  , ("-123.123", Number (DecimalValue (-123.123)))
+  , ("0", Number (IntValue 0))
+  , ("0.0", Number (DecimalValue 0.0))
+  , ("-0", Number (IntValue 0))
+  , ("-0.0", Number (DecimalValue 0.0))
   ]
 
 stringSpec :: [(String, Node)]
@@ -93,8 +94,8 @@ singlelineCommentSpec =
 
 arraySpec :: [(String, Node)]
 arraySpec =
-  [ ("[1,2,3]", Array (fromList [Number 1, Number 2, Number 3]))
-  , ("[1\n 2\n 3]", Array (fromList [Number 1, Number 2, Number 3]))
+  [ ("[1,2,3]", Array (fromList [Number (IntValue 1), Number (IntValue 2), Number (IntValue 3)]))
+  , ("[1\n 2\n 3]", Array (fromList [Number (IntValue 1), Number (IntValue 2), Number (IntValue 3)]))
   ]
 
 objectSpec :: [(String, Node)]
@@ -114,8 +115,8 @@ objectSpec =
     , Object
         ( fromList
             [ Comment (InternalComment "test" False NextNode False)
-            , ObjectKey (String "test", Number 1)
-            , ObjectKey (String "test2", Number 2)
+            , ObjectKey (String "test", Number (IntValue 1))
+            , ObjectKey (String "test2", Number (IntValue 2))
             ]
         )
     )
@@ -123,8 +124,8 @@ objectSpec =
     ( "{\"test\" : 1, \"test2\" : 2}"
     , Object
         ( fromList
-            [ ObjectKey (String "test", Number 1)
-            , ObjectKey (String "test2", Number 2)
+            [ ObjectKey (String "test", Number (IntValue 1))
+            , ObjectKey (String "test2", Number (IntValue 2))
             ]
         )
     )
@@ -132,8 +133,8 @@ objectSpec =
     ( "{\"test\" : 1\n \"test2\" : 2}"
     , Object
         ( fromList
-            [ ObjectKey (String "test", Number 1)
-            , ObjectKey (String "test2", Number 2)
+            [ ObjectKey (String "test", Number (IntValue 1))
+            , ObjectKey (String "test2", Number (IntValue 2))
             ]
         )
     )
@@ -152,7 +153,7 @@ invalidNumberSpec =
   describe
     "should fail parsing Number when there is space after the negative sign"
     . works
-    $ parseNodesState numberParser "- 0.3"
+    $ parseNodesState (numberParser (Number . DecimalValue) L.scientific) "- 0.3"
       `shouldFailWith` err 1 (utok (toWord8 ' ') <> elabel "digit")
 
 topNodeSpec :: FilePath -> FilePath -> Spec
