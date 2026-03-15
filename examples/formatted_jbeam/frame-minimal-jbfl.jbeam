@@ -399,6 +399,7 @@
       "chassis_brakelight_L"         : {"simpleFunction" : "brakelight_filament",   "off" : "chassis_taillight",    "on" : "chassis_taillight_on",    "materialEmissiveScaling" : {"on_max" : 1}},
       "chassis_brakelight_R"         : {"simpleFunction" : "brakelight_filament",   "off" : "chassis_taillight",    "on" : "chassis_taillight_on",    "materialEmissiveScaling" : {"on_max" : 1}},
       // gauge lights
+      // (turn signals, battery, parking brake, highbeam)
       "chassis_gaugelight_highbeam"  : {"simpleFunction" : "highbeam",              "off" : "chassis_gauges",       "on" : "chassis_gauges_on"},
       "chassis_gaugelight_signal_L"  : {"simpleFunction" : "signal_L",              "off" : "chassis_gauges",       "on" : "chassis_gauges_on"},
       "chassis_gaugelight_signal_R"  : {"simpleFunction" : "signal_R",              "off" : "chassis_gauges",       "on" : "chassis_gauges_on"},

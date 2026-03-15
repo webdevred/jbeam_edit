@@ -131,10 +131,15 @@ addDelimiters rs index rowIdx c complexChildren state acc ns@(node : rest)
            in addDelimiters rs (index + 1) nextRowIdx c complexChildren state new_acc rest
   where
     newlineBeforeComment = case node of
-      Comment ic | not (cMultiline ic) && not (cHadNewlineBefore ic) ->
+      Comment ic | not (cMultiline ic) ->
         case acc of
-          (prev : _) | T.isPrefixOf "// " (T.dropWhile (== '\n') prev) -> ""
-          _ -> singleCharIfNot '\n' (any isObjectKeyNode rest || ["\n"] == acc)
+          (prev : _)
+            | T.isPrefixOf "// " (T.dropWhile (== '\n') prev) ->
+                if cHadNewlineBefore ic then "\n" else ""
+          _ ->
+            singleCharIfNot
+              '\n'
+              (["\n"] == acc || (not (cHadNewlineBefore ic) && any isObjectKeyNode rest))
       _ -> singleCharIfNot '\n' (any isObjectKeyNode rest || ["\n"] == acc)
 
     nextRowIdx =

@@ -2029,6 +2029,14 @@ Object
                             , cHadNewlineBefore = False
                             }
                         )
+                    , Comment
+                        ( InternalComment
+                            { cText = "(turn signals, battery, parking brake, highbeam)"
+                            , cMultiline = False
+                            , cAssociationDirection = NextNode
+                            , cHadNewlineBefore = True
+                            }
+                        )
                     , ObjectKey
                         ( String "chassis_gaugelight_highbeam"
                         , Object
@@ -2119,7 +2127,7 @@ Object
                             { cText = "multi-condition warning light"
                             , cMultiline = False
                             , cAssociationDirection = NextNode
-                            , cHadNewlineBefore = False
+                            , cHadNewlineBefore = True
                             }
                         )
                     , ObjectKey
