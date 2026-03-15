@@ -14,6 +14,8 @@ import Data.Bool (bool)
 import Data.ByteString.Lazy qualified as LBS (fromStrict)
 import Data.Char (isSpace)
 import Data.Foldable.Extra (notNull)
+import Data.Map.Strict (Map)
+import Data.Map.Strict qualified as Map
 import Data.Maybe (fromMaybe)
 import Data.Monoid.Extra
 import Data.Scientific (FPFormat (Fixed), formatScientific)
@@ -52,6 +54,8 @@ data FormattingState = FormattingState
   , fsFormattedCache :: Vector (Vector Text)
   , fsHeaderWasExtracted :: Bool
   , fsCurrentRowIdx :: Maybe Int
+  , fsObjectKeyWidth :: Maybe Int
+  , fsSubObjectWidths :: Map Text Int
   }
 
 emptyState :: FormattingState
@@ -62,6 +66,8 @@ emptyState =
     , fsFormattedCache = V.empty
     , fsHeaderWasExtracted = False
     , fsCurrentRowIdx = Nothing
+    , fsObjectKeyWidth = Nothing
+    , fsSubObjectWidths = Map.empty
     }
 
 splitTrailing :: Bool -> Text -> (Text, Text)
@@ -125,10 +131,15 @@ addDelimiters rs index rowIdx c complexChildren state acc ns@(node : rest)
            in addDelimiters rs (index + 1) nextRowIdx c complexChildren state new_acc rest
   where
     newlineBeforeComment = case node of
-      Comment ic | not (cMultiline ic) && not (cHadNewlineBefore ic) ->
+      Comment ic | not (cMultiline ic) ->
         case acc of
-          (prev : _) | T.isPrefixOf "// " (T.dropWhile (== '\n') prev) -> ""
-          _ -> singleCharIfNot '\n' (any isObjectKeyNode rest || ["\n"] == acc)
+          (prev : _)
+            | T.isPrefixOf "// " (T.dropWhile (== '\n') prev) ->
+                if cHadNewlineBefore ic then "\n" else ""
+          _ ->
+            singleCharIfNot
+              '\n'
+              (["\n"] == acc || (not (cHadNewlineBefore ic) && any isObjectKeyNode rest))
       _ -> singleCharIfNot '\n' (any isObjectKeyNode rest || ["\n"] == acc)
 
     nextRowIdx =
@@ -160,6 +171,22 @@ addDelimiters rs index rowIdx c complexChildren state acc ns@(node : rest)
                       else emptyState
                   (formatted, spaces) = splitTrailing comma (NC.applyCrumb c (formatWithCursor rs state') idx n)
                in formatted <> singleCharIf ',' comma <> spaces
+            ObjectKey (k, _) ->
+              let stateForObjKey =
+                    emptyState
+                      { fsObjectKeyWidth = fsObjectKeyWidth state
+                      , fsSubObjectWidths = fsSubObjectWidths state
+                      }
+                  keyText = formatScalarNode k
+                  raw = NC.applyCrumb c (formatWithCursor rs stateForObjKey) idx n
+                  (formatted, spaces) = splitTrailing comma raw
+                  withComma = formatted <> singleCharIf ',' comma <> spaces
+               in case Map.lookup keyText (fsSubObjectWidths state) of
+                    Just vw
+                      | comma ->
+                          let kw = fromMaybe (T.length keyText) (fsObjectKeyWidth state)
+                           in T.justifyLeft (kw + 3 + vw + 1) ' ' withComma
+                    _ -> withComma
             _ ->
               let (formatted, spaces) = splitTrailing comma (NC.applyCrumb c (formatWithCursor rs emptyState) idx n)
                in formatted <> singleCharIf ',' comma <> spaces
@@ -190,7 +217,7 @@ maxColumnLengthsWithCache rs cursor nodes
        in (columnWidths, formattedColumns, headerWasExtracted)
   where
     scalarLength n
-      | T.isPrefixOf "{" n || T.isPrefixOf "[" n = 0
+      | T.any (== '\n') n = 0
       | otherwise = T.length n
     extractArrayRows ns offset =
       let indexed = V.indexed ns
@@ -209,21 +236,23 @@ transposeAndFormat
   -> Vector (Vector Node)
   -> Vector Int
   -> Vector (Vector Text)
-transposeAndFormat rs cursor vvs arrayIndices =
-  let numCols = V.maximum (V.map V.length vvs)
-   in V.generate numCols $ \colIdx ->
-        V.imap
-          ( \rowIdx row ->
-              if colIdx < V.length row
-                then
-                  let actualRowIdx = arrayIndices V.! rowIdx
-                      formatRow rowCursor _rowNode =
-                        let formatCell = formatWithCursor rs emptyState
-                         in NC.applyCrumb rowCursor formatCell colIdx (row V.! colIdx)
-                   in NC.applyCrumb cursor formatRow actualRowIdx (Array row)
-                else ""
-          )
-          vvs
+transposeAndFormat rs cursor vvs arrayIndices
+  | V.null vvs = V.empty
+  | otherwise =
+      let numCols = V.maximum (V.map V.length vvs)
+       in V.generate numCols $ \colIdx ->
+            V.imap
+              ( \rowIdx row ->
+                  if colIdx < V.length row
+                    then
+                      let actualRowIdx = arrayIndices V.! rowIdx
+                          formatRow rowCursor _rowNode =
+                            let formatCell = formatWithCursor rs emptyState
+                             in NC.applyCrumb rowCursor formatCell colIdx (row V.! colIdx)
+                       in NC.applyCrumb cursor formatRow actualRowIdx (Array row)
+                    else ""
+              )
+              vvs
 
 doFormatNode
   :: RuleSet
@@ -236,6 +265,8 @@ doFormatNode rs cursor state nodes =
       exactProps = findPropertiesForCursor ExactMatch cursor rs
 
       autoPadEnabled = lookupRule AutoPad exactProps == Just True
+      alignObjectKeysEnabled = lookupRule AlignObjectKeys exactProps == Just True
+      autopadSubObjectsEnabled = lookupRule AutoPadSubObjects exactProps == Just True
 
       complexChildren =
         (lookupRule ForceComplexNewLine prefixProps == Just True)
@@ -245,17 +276,61 @@ doFormatNode rs cursor state nodes =
       (colWidths, formattedCache, headerWasExtracted) =
         maxColumnLengthsWithCache rs cursor nodes
 
-      state' =
-        if autoPadEnabled
-          then
+      maxKeyW
+        | not alignObjectKeysEnabled = Nothing
+        | otherwise =
+            let toKey (ObjectKey (k, _)) = Just k
+                toKey _ = Nothing
+                ks = V.mapMaybe toKey nodes
+             in if V.null ks
+                  then Nothing
+                  else Just (V.maximum (V.map (T.length . formatScalarNode) ks))
+
+      subObjectWidths :: Map Text Int
+      subObjectWidths
+        | autopadSubObjectsEnabled =
+            V.foldl'
+              ( \acc n -> case n of
+                  ObjectKey (_, Object subNodes) ->
+                    V.foldl'
+                      ( \acc2 sn -> case sn of
+                          ObjectKey (sk, sv) ->
+                            let kt = formatScalarNode sk
+                                vw =
+                                  if isComplexNode sv
+                                    then 0
+                                    else
+                                      let vt = formatWithCursor rs emptyState cursor sv
+                                       in if T.any (== '\n') vt then 0 else T.length vt
+                             in Map.insertWith max kt vw acc2
+                          _ -> acc2
+                      )
+                      acc
+                      subNodes
+                  _ -> acc
+              )
+              Map.empty
+              nodes
+        | otherwise = Map.empty
+
+      state'
+        | autoPadEnabled
+        , not (V.null colWidths) =
             FormattingState
               { fsUsePad = True
               , fsColumnWidths = colWidths
               , fsFormattedCache = formattedCache
               , fsHeaderWasExtracted = headerWasExtracted
               , fsCurrentRowIdx = Nothing
+              , fsObjectKeyWidth = Nothing
+              , fsSubObjectWidths = Map.empty
               }
-          else state
+        | alignObjectKeysEnabled || autopadSubObjectsEnabled =
+            emptyState
+              { fsObjectKeyWidth = maxKeyW
+              , fsSubObjectWidths = subObjectWidths
+              }
+        | otherwise = state
 
       formatted =
         reverse
@@ -311,11 +386,11 @@ formatWithCursor rs state cursor (Object o)
         , "}"
         ]
 formatWithCursor rs state cursor (ObjectKey (k, v)) =
-  T.concat
-    [ formatWithCursor rs state cursor k
-    , " : "
-    , formatWithCursor rs state cursor v
-    ]
+  let keyText = formatWithCursor rs state cursor k
+      paddedKey = maybe keyText (\w -> T.justifyLeft w ' ' keyText) (fsObjectKeyWidth state)
+      stateForValue = emptyState {fsSubObjectWidths = fsSubObjectWidths state}
+      valueText = formatWithCursor rs stateForValue cursor v
+   in paddedKey <> " : " <> valueText
 formatWithCursor _ _ _ (Comment comment) = formatComment comment
 formatWithCursor rs _ cursor n =
   let ps = findPropertiesForCursor PrefixMatch cursor rs

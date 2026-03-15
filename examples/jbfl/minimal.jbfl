@@ -1,13 +1,15 @@
 .*.nodes[*][*] {
-    // Pad all node values to 8 chars and force 3 decimals (e.g., 1.000)
     PadDecimals: 3;
 }
 
 .*.nodes, .*.beams, .*.triangles {
-   AutoPad : true;
+    AutoPad: true;
 }
 
-// Keep things inline where applicable (no extra newlines for nested content)
+.*.nodes {
+    AlignObjectKeys: true;
+}
+
 .*.nodes[*], .*.flexbodies[*],
 .*.beams[*], .*.triangles[*],
 .*.variables[*], .*.glowMap.*,
@@ -20,18 +22,12 @@
 }
 
 .*.sounds, .*.soundConfig, .*.soundConfigExhaust,
-.*.information, .*.glowMap.dumptruck_gaugelight_warning {
+.*.information {
     ForceComplexNewLine: true;
+    AlignObjectKeys: true;
 }
 
-.*.glowMap.signal_L, .*.glowMap.signal_R,
-.*.glowMap.checkengine, .*.glowMap.hazard,
-.*.glowMap.battery,  .*.glowMap.highbeam,
-.*.glowMap.parkingbrake, .*.glowMap.lowfuel,
-.*.glowMap.lowpressure, .*.glowMap.abs {
-    PadAmount : 20;
-}
-
-.*.glowMap.*.off, .*.glowMap.*.on {
-    PadAmount : 10;
+.*.glowMap {
+    AlignObjectKeys: true;
+    AutoPadSubObjects: true;
 }

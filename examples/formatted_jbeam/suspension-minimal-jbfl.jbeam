@@ -2,7 +2,7 @@
   "chassis_rails" : {
     "information" : {
       "authors" : "gittarrgy01",
-      "name" : ""
+      "name"    : ""
     },
     "slotType" : "main",
     /* The purpose of this file is prove that moving metadata along with vertices when

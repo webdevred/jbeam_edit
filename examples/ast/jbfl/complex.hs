@@ -198,6 +198,27 @@ RuleSet
                     , Selector
                         ( ObjectKey "glowMap" )
                     , Selector
+                        ( ObjectKey "chassis_gaugelight_warning" )
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey AlignObjectKeys
+                    , SomeProperty AlignObjectKeys True
+                    )
+                ,
+                    ( SomeKey ForceComplexNewLine
+                    , SomeProperty ForceComplexNewLine True
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
+                        ( ObjectKey "glowMap" )
+                    , Selector
                         ( ObjectKey "checkengine" )
                     ]
                 )
@@ -220,6 +241,10 @@ RuleSet
                 )
             , fromList
                 [
+                    ( SomeKey AlignObjectKeys
+                    , SomeProperty AlignObjectKeys True
+                    )
+                ,
                     ( SomeKey ForceComplexNewLine
                     , SomeProperty ForceComplexNewLine True
                     )
@@ -508,11 +533,34 @@ RuleSet
                 ( fromList
                     [ AnyObjectKey
                     , Selector
+                        ( ObjectKey "glowMap" )
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey AlignObjectKeys
+                    , SomeProperty AlignObjectKeys True
+                    )
+                ,
+                    ( SomeKey AutoPadSubObjects
+                    , SomeProperty AutoPadSubObjects True
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
                         ( ObjectKey "information" )
                     ]
                 )
             , fromList
                 [
+                    ( SomeKey AlignObjectKeys
+                    , SomeProperty AlignObjectKeys True
+                    )
+                ,
                     ( SomeKey ForceComplexNewLine
                     , SomeProperty ForceComplexNewLine True
                     )
@@ -528,6 +576,10 @@ RuleSet
                 )
             , fromList
                 [
+                    ( SomeKey AlignObjectKeys
+                    , SomeProperty AlignObjectKeys True
+                    )
+                ,
                     ( SomeKey AutoPad
                     , SomeProperty AutoPad True
                     )
@@ -543,6 +595,10 @@ RuleSet
                 )
             , fromList
                 [
+                    ( SomeKey AlignObjectKeys
+                    , SomeProperty AlignObjectKeys True
+                    )
+                ,
                     ( SomeKey ForceComplexNewLine
                     , SomeProperty ForceComplexNewLine True
                     )
@@ -558,6 +614,10 @@ RuleSet
                 )
             , fromList
                 [
+                    ( SomeKey AlignObjectKeys
+                    , SomeProperty AlignObjectKeys True
+                    )
+                ,
                     ( SomeKey ForceComplexNewLine
                     , SomeProperty ForceComplexNewLine True
                     )
@@ -573,6 +633,10 @@ RuleSet
                 )
             , fromList
                 [
+                    ( SomeKey AlignObjectKeys
+                    , SomeProperty AlignObjectKeys True
+                    )
+                ,
                     ( SomeKey ForceComplexNewLine
                     , SomeProperty ForceComplexNewLine True
                     )

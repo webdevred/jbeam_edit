@@ -94,6 +94,8 @@ parseValueForKey :: PropertyKey a -> JbflParser a
 parseValueForKey AutoPad = parseBool <?> "bool"
 parseValueForKey NoComplexNewLine = parseBool <?> "bool"
 parseValueForKey ForceComplexNewLine = parseBool <?> "bool"
+parseValueForKey AlignObjectKeys = parseBool <?> "bool"
+parseValueForKey AutoPadSubObjects = parseBool <?> "bool"
 parseValueForKey PadAmount = L.decimal <?> "integer"
 parseValueForKey PadDecimals = L.decimal <?> "integer"
 parseValueForKey Indent = L.decimal <?> "integer"
