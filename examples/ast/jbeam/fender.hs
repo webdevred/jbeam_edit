@@ -60,13 +60,15 @@ Object
                     , Object
                         [ ObjectKey
                             ( String "nodeWeight"
-                            , Number 0.65
+                            , Number
+                                ( DecimalValue 0.65 )
                             )
                         ]
                     , Object
                         [ ObjectKey
                             ( String "frictionCoef"
-                            , Number 0.7
+                            , Number
+                                ( DecimalValue 0.7 )
                             )
                         ]
                     , Object
@@ -103,80 +105,124 @@ Object
                         ]
                     , Array
                         [ String "bfl0"
-                        , Number 0.959
                         , Number
-                            ( -1.762 )
-                        , Number 0.576
+                            ( DecimalValue 0.959 )
+                        , Number
+                            ( DecimalValue
+                                ( -1.762 )
+                            )
+                        , Number
+                            ( DecimalValue 0.576 )
                         ]
                     , Array
                         [ String "bfl1"
-                        , Number 0.855
                         , Number
-                            ( -1.788 )
-                        , Number 0.707
+                            ( DecimalValue 0.855 )
+                        , Number
+                            ( DecimalValue
+                                ( -1.788 )
+                            )
+                        , Number
+                            ( DecimalValue 0.707 )
                         ]
                     , Array
                         [ String "bfl2"
-                        , Number 0.739
                         , Number
-                            ( -1.845 )
-                        , Number 0.716
+                            ( DecimalValue 0.739 )
+                        , Number
+                            ( DecimalValue
+                                ( -1.845 )
+                            )
+                        , Number
+                            ( DecimalValue 0.716 )
                         ]
                     , Array
                         [ String "bfl3"
-                        , Number 0.948
                         , Number
-                            ( -1.435 )
-                        , Number 0.73
+                            ( DecimalValue 0.948 )
+                        , Number
+                            ( DecimalValue
+                                ( -1.435 )
+                            )
+                        , Number
+                            ( DecimalValue 0.73 )
                         ]
                     , Array
                         [ String "bfl4"
-                        , Number 0.756
                         , Number
-                            ( -1.413 )
-                        , Number 0.843
+                            ( DecimalValue 0.756 )
+                        , Number
+                            ( DecimalValue
+                                ( -1.413 )
+                            )
+                        , Number
+                            ( DecimalValue 0.843 )
                         ]
                     , Array
                         [ String "bfl5"
-                        , Number 0.963
                         , Number
-                            ( -1.024 )
-                        , Number 0.112
+                            ( DecimalValue 0.963 )
+                        , Number
+                            ( DecimalValue
+                                ( -1.024 )
+                            )
+                        , Number
+                            ( DecimalValue 0.112 )
                         ]
                     , Array
                         [ String "bfl6"
-                        , Number 0.964
                         , Number
-                            ( -1.072 )
-                        , Number 0.507
+                            ( DecimalValue 0.964 )
+                        , Number
+                            ( DecimalValue
+                                ( -1.072 )
+                            )
+                        , Number
+                            ( DecimalValue 0.507 )
                         ]
                     , Array
                         [ String "bfl7"
-                        , Number 0.778
                         , Number
-                            ( -1.008 )
-                        , Number 0.873
+                            ( DecimalValue 0.778 )
+                        , Number
+                            ( DecimalValue
+                                ( -1.008 )
+                            )
+                        , Number
+                            ( DecimalValue 0.873 )
                         ]
                     , Array
                         [ String "bfl8"
-                        , Number 0.987
                         , Number
-                            ( -0.743 )
-                        , Number 0.109
+                            ( DecimalValue 0.987 )
+                        , Number
+                            ( DecimalValue
+                                ( -0.743 )
+                            )
+                        , Number
+                            ( DecimalValue 0.109 )
                         ]
                     , Array
                         [ String "bfl9"
-                        , Number 0.987
                         , Number
-                            ( -0.744 )
-                        , Number 0.494
+                            ( DecimalValue 0.987 )
+                        , Number
+                            ( DecimalValue
+                                ( -0.744 )
+                            )
+                        , Number
+                            ( DecimalValue 0.494 )
                         ]
                     , Array
                         [ String "bfl10"
-                        , Number 0.812
                         , Number
-                            ( -0.759 )
-                        , Number 0.896
+                            ( DecimalValue 0.812 )
+                        , Number
+                            ( DecimalValue
+                                ( -0.759 )
+                            )
+                        , Number
+                            ( DecimalValue 0.896 )
                         ]
                     , Comment
                         ( InternalComment
@@ -195,90 +241,145 @@ Object
                     , Array
                         [ String "bfr0"
                         , Number
-                            ( -0.906 )
+                            ( DecimalValue
+                                ( -0.906 )
+                            )
                         , Number
-                            ( -1.737 )
-                        , Number 0.578
+                            ( DecimalValue
+                                ( -1.737 )
+                            )
+                        , Number
+                            ( DecimalValue 0.578 )
                         ]
                     , Array
                         [ String "bfr1"
                         , Number
-                            ( -0.807 )
+                            ( DecimalValue
+                                ( -0.807 )
+                            )
                         , Number
-                            ( -1.769 )
-                        , Number 0.707
+                            ( DecimalValue
+                                ( -1.769 )
+                            )
+                        , Number
+                            ( DecimalValue 0.707 )
                         ]
                     , Array
                         [ String "bfr2"
                         , Number
-                            ( -0.691 )
+                            ( DecimalValue
+                                ( -0.691 )
+                            )
                         , Number
-                            ( -1.829 )
-                        , Number 0.716
+                            ( DecimalValue
+                                ( -1.829 )
+                            )
+                        , Number
+                            ( DecimalValue 0.716 )
                         ]
                     , Array
                         [ String "bfr3"
                         , Number
-                            ( -0.89 )
+                            ( DecimalValue
+                                ( -0.89 )
+                            )
                         , Number
-                            ( -1.409 )
-                        , Number 0.729
+                            ( DecimalValue
+                                ( -1.409 )
+                            )
+                        , Number
+                            ( DecimalValue 0.729 )
                         ]
                     , Array
                         [ String "bfr4"
                         , Number
-                            ( -0.7 )
+                            ( DecimalValue
+                                ( -0.7 )
+                            )
                         , Number
-                            ( -1.397 )
-                        , Number 0.843
+                            ( DecimalValue
+                                ( -1.397 )
+                            )
+                        , Number
+                            ( DecimalValue 0.843 )
                         ]
                     , Array
                         [ String "bfr5"
                         , Number
-                            ( -0.899 )
+                            ( DecimalValue
+                                ( -0.899 )
+                            )
                         , Number
-                            ( -1.005 )
-                        , Number 0.112
+                            ( DecimalValue
+                                ( -1.005 )
+                            )
+                        , Number
+                            ( DecimalValue 0.112 )
                         ]
                     , Array
                         [ String "bfr6"
                         , Number
-                            ( -0.9 )
+                            ( DecimalValue
+                                ( -0.9 )
+                            )
                         , Number
-                            ( -1.053 )
-                        , Number 0.508
+                            ( DecimalValue
+                                ( -1.053 )
+                            )
+                        , Number
+                            ( DecimalValue 0.508 )
                         ]
                     , Array
                         [ String "bfr7"
                         , Number
-                            ( -0.715 )
+                            ( DecimalValue
+                                ( -0.715 )
+                            )
                         , Number
-                            ( -0.991 )
-                        , Number 0.873
+                            ( DecimalValue
+                                ( -0.991 )
+                            )
+                        , Number
+                            ( DecimalValue 0.873 )
                         ]
                     , Array
                         [ String "bfr8"
                         , Number
-                            ( -0.916 )
+                            ( DecimalValue
+                                ( -0.916 )
+                            )
                         , Number
-                            ( -0.742 )
-                        , Number 0.112
+                            ( DecimalValue
+                                ( -0.742 )
+                            )
+                        , Number
+                            ( DecimalValue 0.112 )
                         ]
                     , Array
                         [ String "bfr9"
                         , Number
-                            ( -0.917 )
+                            ( DecimalValue
+                                ( -0.917 )
+                            )
                         , Number
-                            ( -0.746 )
-                        , Number 0.494
+                            ( DecimalValue
+                                ( -0.746 )
+                            )
+                        , Number
+                            ( DecimalValue 0.494 )
                         ]
                     , Array
                         [ String "bfr10"
                         , Number
-                            ( -0.734 )
+                            ( DecimalValue
+                                ( -0.734 )
+                            )
                         , Number
-                            ( -0.746 )
-                        , Number 0.888
+                            ( DecimalValue
+                                ( -0.746 )
+                            )
+                        , Number
+                            ( DecimalValue 0.888 )
                         ]
                     , Comment
                         ( InternalComment
@@ -303,7 +404,8 @@ Object
                     , Object
                         [ ObjectKey
                             ( String "nodeWeight"
-                            , Number 1.2
+                            , Number
+                                ( DecimalValue 1.2 )
                             )
                         ]
                     , Object
@@ -314,18 +416,27 @@ Object
                         ]
                     , Array
                         [ String "bfsl"
-                        , Number 0.684
                         , Number
-                            ( -1.079 )
-                        , Number 0.507
+                            ( DecimalValue 0.684 )
+                        , Number
+                            ( DecimalValue
+                                ( -1.079 )
+                            )
+                        , Number
+                            ( DecimalValue 0.507 )
                         ]
                     , Array
                         [ String "bfsr"
                         , Number
-                            ( -0.623 )
+                            ( DecimalValue
+                                ( -0.623 )
+                            )
                         , Number
-                            ( -1.064 )
-                        , Number 0.507
+                            ( DecimalValue
+                                ( -1.064 )
+                            )
+                        , Number
+                            ( DecimalValue 0.507 )
                         ]
                     ]
                 )
@@ -369,11 +480,13 @@ Object
                     , Object
                         [ ObjectKey
                             ( String "beamSpring"
-                            , Number 451000.0
+                            , Number
+                                ( IntValue 451000 )
                             )
                         , ObjectKey
                             ( String "beamDamp"
-                            , Number 50.0
+                            , Number
+                                ( IntValue 50 )
                             )
                         ]
                     , Object
@@ -385,13 +498,15 @@ Object
                     , Object
                         [ ObjectKey
                             ( String "deformLimitExpansion"
-                            , Number 1.1
+                            , Number
+                                ( DecimalValue 1.1 )
                             )
                         ]
                     , Object
                         [ ObjectKey
                             ( String "beamDeform"
-                            , Number 6000.0
+                            , Number
+                                ( IntValue 6000 )
                             )
                         ]
                     , Comment
@@ -461,7 +576,8 @@ Object
                     , Object
                         [ ObjectKey
                             ( String "beamDeform"
-                            , Number 12000.0
+                            , Number
+                                ( IntValue 12000 )
                             )
                         ]
                     , Array
@@ -745,17 +861,20 @@ Object
                     , Object
                         [ ObjectKey
                             ( String "beamSpring"
-                            , Number 350000.0
+                            , Number
+                                ( IntValue 350000 )
                             )
                         , ObjectKey
                             ( String "beamDamp"
-                            , Number 115.0
+                            , Number
+                                ( IntValue 115 )
                             )
                         ]
                     , Object
                         [ ObjectKey
                             ( String "beamDeform"
-                            , Number 900.0
+                            , Number
+                                ( IntValue 900 )
                             )
                         ]
                     , Comment
@@ -807,19 +926,23 @@ Object
                     , Object
                         [ ObjectKey
                             ( String "beamSpring"
-                            , Number 501000.0
+                            , Number
+                                ( IntValue 501000 )
                             )
                         , ObjectKey
                             ( String "beamDamp"
-                            , Number 75.0
+                            , Number
+                                ( IntValue 75 )
                             )
                         , ObjectKey
                             ( String "beamStrength"
-                            , Number 20000.0
+                            , Number
+                                ( IntValue 20000 )
                             )
                         , ObjectKey
                             ( String "beamDeform"
-                            , Number 1000.0
+                            , Number
+                                ( IntValue 1000 )
                             )
                         ]
                     , Object
@@ -861,7 +984,8 @@ Object
                     , Object
                         [ ObjectKey
                             ( String "breakGroupType"
-                            , Number 1.0
+                            , Number
+                                ( IntValue 1 )
                             )
                         ]
                     , Array
@@ -899,19 +1023,22 @@ Object
                     , Object
                         [ ObjectKey
                             ( String "beamDeform"
-                            , Number 18000.0
+                            , Number
+                                ( IntValue 18000 )
                             )
                         ]
                     , Object
                         [ ObjectKey
                             ( String "beamStrength"
-                            , Number 4000.0
+                            , Number
+                                ( IntValue 4000 )
                             )
                         ]
                     , Object
                         [ ObjectKey
                             ( String "breakGroupType"
-                            , Number 1.0
+                            , Number
+                                ( IntValue 1 )
                             )
                         ]
                     , Array
@@ -929,7 +1056,8 @@ Object
                     , Object
                         [ ObjectKey
                             ( String "breakGroupType"
-                            , Number 0.0
+                            , Number
+                                ( IntValue 0 )
                             )
                         ]
                     , Comment
@@ -943,11 +1071,13 @@ Object
                     , Object
                         [ ObjectKey
                             ( String "beamStrength"
-                            , Number 16000.0
+                            , Number
+                                ( IntValue 16000 )
                             )
                         , ObjectKey
                             ( String "beamDeform"
-                            , Number 12000.0
+                            , Number
+                                ( IntValue 12000 )
                             )
                         ]
                     , Array
@@ -1017,11 +1147,13 @@ Object
                     , Object
                         [ ObjectKey
                             ( String "beamStrength"
-                            , Number 20000.0
+                            , Number
+                                ( IntValue 20000 )
                             )
                         , ObjectKey
                             ( String "beamDeform"
-                            , Number 1000.0
+                            , Number
+                                ( IntValue 1000 )
                             )
                         ]
                     , Object
@@ -1033,7 +1165,8 @@ Object
                     , Object
                         [ ObjectKey
                             ( String "breakGroupType"
-                            , Number 1.0
+                            , Number
+                                ( IntValue 1 )
                             )
                         ]
                     , Array
@@ -1079,19 +1212,22 @@ Object
                     , Object
                         [ ObjectKey
                             ( String "beamDeform"
-                            , Number 18000.0
+                            , Number
+                                ( IntValue 18000 )
                             )
                         ]
                     , Object
                         [ ObjectKey
                             ( String "beamStrength"
-                            , Number 4000.0
+                            , Number
+                                ( IntValue 4000 )
                             )
                         ]
                     , Object
                         [ ObjectKey
                             ( String "breakGroupType"
-                            , Number 1.0
+                            , Number
+                                ( IntValue 1 )
                             )
                         ]
                     , Array
@@ -1121,7 +1257,8 @@ Object
                     , Object
                         [ ObjectKey
                             ( String "breakGroupType"
-                            , Number 0.0
+                            , Number
+                                ( IntValue 0 )
                             )
                         ]
                     , Comment
@@ -1135,11 +1272,13 @@ Object
                     , Object
                         [ ObjectKey
                             ( String "beamStrength"
-                            , Number 16000.0
+                            , Number
+                                ( IntValue 16000 )
                             )
                         , ObjectKey
                             ( String "beamDeform"
-                            , Number 12000.0
+                            , Number
+                                ( IntValue 12000 )
                             )
                         ]
                     , Array
@@ -1225,7 +1364,8 @@ Object
                     , Object
                         [ ObjectKey
                             ( String "beamStrength"
-                            , Number 16000.0
+                            , Number
+                                ( IntValue 16000 )
                             )
                         , ObjectKey
                             ( String "beamDeform"

@@ -26,7 +26,7 @@ spec = do
       lookupKey "NotAKey" allProperties `shouldBe` Nothing
 
   describe "applyPadLogic" $ do
-    let fakeNode = Number 123
+    let fakeNode = Number (DecimalValue 123.0)
         ruleSet =
           fromList
             [ (SomeKey PadAmount, SomeProperty PadAmount 7)

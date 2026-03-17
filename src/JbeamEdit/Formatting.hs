@@ -25,6 +25,7 @@ import Data.Vector qualified as V
 import JbeamEdit.Core.Node (
   InternalComment (..),
   Node (..),
+  NumberValue (..),
   expectArray,
   extractPreviousAssocCmt,
   isCommentNode,
@@ -238,9 +239,9 @@ doFormatNode rs cursor state nodes =
       autoPadEnabled = lookupRule AutoPad exactProps == Just True
 
       complexChildren =
-        (lookupRule ForceComplexNewLine prefixProps == Just True)
+        lookupRule ForceComplexNewLine prefixProps == Just True
           || any (liftA2 (||) isSinglelineComment isComplexNode) nodes
-            && (lookupRule NoComplexNewLine prefixProps /= Just True)
+            && lookupRule NoComplexNewLine prefixProps /= Just True
 
       (colWidths, formattedCache, headerWasExtracted) =
         maxColumnLengthsWithCache rs cursor nodes
@@ -286,7 +287,8 @@ formatComment (InternalComment {cMultiline = True, cText = c}) =
 
 formatScalarNode :: Node -> Text
 formatScalarNode (String s) = T.concat ["\"", s, "\""]
-formatScalarNode (Number n) = T.pack (formatScientific Fixed Nothing n)
+formatScalarNode (Number (IntValue n)) = T.pack (show n)
+formatScalarNode (Number (DecimalValue n)) = T.pack (formatScientific Fixed Nothing n)
 formatScalarNode (Bool True) = "true"
 formatScalarNode (Bool _) = "false"
 formatScalarNode Null = "null"

@@ -26,12 +26,13 @@ import JbeamEdit.Core.Node (
   AssociationDirection (..),
   InternalComment (..),
   Node (..),
+  NumberValue (..),
  )
 import JbeamEdit.Parsing.Common
 import Text.Megaparsec ((<?>), (<|>))
 import Text.Megaparsec qualified as MP
 import Text.Megaparsec.Byte qualified as B
-import Text.Megaparsec.Byte.Lexer qualified as L (scientific)
+import Text.Megaparsec.Byte.Lexer qualified as L (decimal, scientific)
 import Text.Megaparsec.Char qualified as C
 
 data ParseState = ParseState
@@ -66,13 +67,18 @@ separatorParser = do
 ---
 --- selectors for numbers, comments, strings and bools
 ---
-numberParser :: JbeamParser Node
-numberParser = do
+
+numberParser
+  :: Num b
+  => (b -> Node)
+  -> JbeamParser b
+  -> JbeamParser Node
+numberParser c p = do
   char <- MP.lookAhead B.asciiChar
-  Number
+  c
     <$> bool
-      L.scientific
-      (negate <$> (byteChar '-' *> L.scientific))
+      p
+      (negate <$> (byteChar '-' *> p))
       (char == toWord8 '-')
 
 associationDirection :: ParseState -> AssociationDirection
@@ -132,10 +138,20 @@ stringParser = parseWord8s String string
     emptyString = C.string "\"\"" >> pure []
     string = emptyString <|> validString
 
+intDecimalParser :: JbeamParser Integer
+intDecimalParser =
+  L.decimal <* MP.notFollowedBy (byteChar '.' <|> byteChar 'e' <|> byteChar 'E')
+
 scalarParser :: JbeamParser Node
 scalarParser =
   tryScalarParsers
-    [stringParser, commentParser, numberParser, boolParser, nullParser]
+    [ stringParser
+    , commentParser
+    , numberParser (Number . IntValue) intDecimalParser
+    , numberParser (Number . DecimalValue) L.scientific
+    , boolParser
+    , nullParser
+    ]
   where
     tryScalarParsers = MP.try . tryParsers . map MP.hidden
 
