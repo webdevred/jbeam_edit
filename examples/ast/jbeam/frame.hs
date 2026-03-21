@@ -2079,7 +2079,8 @@ Object
                                 , Object
                                     [ ObjectKey
                                         ( String "on_max"
-                                        , Number 1.0
+                                        , Number
+                                            ( IntValue 1 )
                                         )
                                     ]
                                 )
@@ -2105,7 +2106,8 @@ Object
                                 , Object
                                     [ ObjectKey
                                         ( String "on_max"
-                                        , Number 1.0
+                                        , Number
+                                            ( IntValue 1 )
                                         )
                                     ]
                                 )
@@ -2131,7 +2133,8 @@ Object
                                 , Object
                                     [ ObjectKey
                                         ( String "on_max"
-                                        , Number 1.0
+                                        , Number
+                                            ( IntValue 1 )
                                         )
                                     ]
                                 )
@@ -2157,7 +2160,8 @@ Object
                                 , Object
                                     [ ObjectKey
                                         ( String "on_max"
-                                        , Number 1.0
+                                        , Number
+                                            ( IntValue 1 )
                                         )
                                     ]
                                 )
@@ -2183,7 +2187,8 @@ Object
                                 , Object
                                     [ ObjectKey
                                         ( String "on_max"
-                                        , Number 1.0
+                                        , Number
+                                            ( IntValue 1 )
                                         )
                                     ]
                                 )
@@ -2209,7 +2214,8 @@ Object
                                 , Object
                                     [ ObjectKey
                                         ( String "on_max"
-                                        , Number 1.0
+                                        , Number
+                                            ( IntValue 1 )
                                         )
                                     ]
                                 )
@@ -2235,7 +2241,8 @@ Object
                                 , Object
                                     [ ObjectKey
                                         ( String "on_max"
-                                        , Number 1.0
+                                        , Number
+                                            ( IntValue 1 )
                                         )
                                     ]
                                 )
@@ -2358,15 +2365,18 @@ Object
                                 , Object
                                     [ ObjectKey
                                         ( String "checkengine"
-                                        , Number 1.0
+                                        , Number
+                                            ( IntValue 1 )
                                         )
                                     , ObjectKey
                                         ( String "battery"
-                                        , Number 1.0
+                                        , Number
+                                            ( IntValue 1 )
                                         )
                                     , ObjectKey
                                         ( String "lowpressure"
-                                        , Number 1.0
+                                        , Number
+                                            ( IntValue 1 )
                                         )
                                     ]
                                 )
