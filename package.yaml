@@ -188,7 +188,7 @@ tests:
     when:
       - condition: flag(lsp-server)
         then:
-          build-tools: jbeam-edit:jbeam-lsp-server
+          build-tools: [jbeam-edit:jbeam-lsp-server, happy:happy]
           dependencies: [jbeam-language-server, lsp-test, lsp >= 2.7]
         else:
           buildable: false
