@@ -58,7 +58,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-cabal-${{ steps.get-ghc.outputs.ghc-version }}-
       - name: Install happy
-        run: cabal install happy alex --overwrite-policy=always
+        run: cabal install happy --overwrite-policy=always
+      - name: Install alex
+        run: cabal install alex --overwrite-policy=always
       - name: Build dependencies, good to do separate for caching
         run: cabal build --project-file cabal.project.ci --only-dependencies
       - name: Build project (GHC latest)
