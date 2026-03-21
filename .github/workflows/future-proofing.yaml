@@ -27,7 +27,6 @@ jobs:
           ghc-version: ${{ steps.get-ghc.outputs.ghc-version }}
           cabal-version: latest
           cabal-update: true
-          install-happy: true
       - name: Log GHC and Cabal outputs
         run: |
           echo "GHC Version: ${{ steps.get-ghc.outputs.ghc-version }}"
@@ -58,6 +57,8 @@ jobs:
             }}
           restore-keys: |
             ${{ runner.os }}-cabal-${{ steps.get-ghc.outputs.ghc-version }}-
+      - name: Install happy
+        run: cabal install happy --overwrite-policy=always
       - name: Build dependencies, good to do separate for caching
         run: cabal build --project-file cabal.project.ci --only-dependencies
       - name: Build project (GHC latest)
