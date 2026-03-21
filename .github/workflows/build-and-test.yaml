@@ -140,7 +140,10 @@ jobs:
         if: |
           matrix.oldest == true &&
           matrix.newest == false
-        run: cabal configure --project-file cabal.project.ci --prefer-oldest
+        shell: bash
+        run: |
+          sed -i 's/ +lsp-server//' cabal.project.ci
+          cabal configure --project-file cabal.project.ci --prefer-oldest
       - name: Freeze and check dependencies
         env:
           CABAL_PROJECT: cabal.project.ci
