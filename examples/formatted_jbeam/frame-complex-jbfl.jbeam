@@ -2,7 +2,7 @@
   "chassis_rails" : {
     "information" : {
       "authors" : "gittarrgy01",
-      "name" : ""
+      "name"    : ""
     },
     "slotType" : "main",
     /*
@@ -388,6 +388,35 @@
     "flexbodies" : [
       ["mesh", "[group]:", "nonFlexMaterials"],
       ["rails", ["chassis_rails"]]
-    ]
+    ],
+    "glowMap" : {
+      // main lights
+      "chassis_headlight_L"          : {"simpleFunction" : "lowhighbeam_filament",  "off"      : "chassis_headlight", "on"       : "chassis_headlight_on", "materialEmissiveScaling" : {"on_max" : 1}},
+      "chassis_headlight_R"          : {"simpleFunction" : "lowhighbeam_filament",  "off"      : "chassis_headlight", "on"       : "chassis_headlight_on", "materialEmissiveScaling" : {"on_max" : 1}},
+      "chassis_signal_L"             : {"simpleFunction" : "signal_L_filament",     "off"      : "chassis_signal_amber", "on"       : "chassis_signal_amber_on", "materialEmissiveScaling" : {"on_max" : 1}},
+      "chassis_signal_R"             : {"simpleFunction" : "signal_R_filament",     "off"      : "chassis_signal_amber", "on"       : "chassis_signal_amber_on", "materialEmissiveScaling" : {"on_max" : 1}},
+      "chassis_reverselight"         : {"simpleFunction" : "reverselight_filament", "off"      : "chassis_reverselight", "on"       : "chassis_reverselight_on", "materialEmissiveScaling" : {"on_max" : 1}},
+      "chassis_brakelight_L"         : {"simpleFunction" : "brakelight_filament",   "off"      : "chassis_taillight", "on"       : "chassis_taillight_on", "materialEmissiveScaling" : {"on_max" : 1}},
+      "chassis_brakelight_R"         : {"simpleFunction" : "brakelight_filament",   "off"      : "chassis_taillight", "on"       : "chassis_taillight_on", "materialEmissiveScaling" : {"on_max" : 1}},
+      // gauge lights
+
+      // (turn signals, battery, parking brake, highbeam)
+      "chassis_gaugelight_highbeam"  : {"simpleFunction" : "highbeam",              "off"      : "chassis_gauges",  "on"       : "chassis_gauges_on"},
+      "chassis_gaugelight_signal_L"  : {"simpleFunction" : "signal_L",              "off"      : "chassis_gauges",  "on"       : "chassis_gauges_on"},
+      "chassis_gaugelight_signal_R"  : {"simpleFunction" : "signal_R",              "off"      : "chassis_gauges",  "on"       : "chassis_gauges_on"},
+      "chassis_gaugelight_battery"   : {"simpleFunction" : "battery",               "off"      : "chassis_gauges",  "on"       : "chassis_gauges_on"},
+      "chassis_gaugelight_parkbrake" : {"simpleFunction" : "parkingbrakelight",     "off"      : "chassis_gauges",  "on"       : "chassis_gauges_on"},
+
+      // multi-condition warning light
+      "chassis_gaugelight_warning"   : {
+        "simpleFunction" : {
+          "checkengine" : 1,
+          "battery" : 1,
+          "lowpressure" : 1
+        },
+        "off"            : "chassis_gauges",
+        "on"             : "chassis_gauges_on"
+      }
+    }
   }
 }

@@ -46,13 +46,16 @@ Typical use cases include:
 
 # Properties Overview
 
-| Setting Name          | Description                                                                                                                                                              | Applies To                     |
-|-----------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------|
-| `PadDecimals`         | Adds trailing zeros only if the fractional part is shorter than `PadDecimals`, leaving existing extra decimals untouched. Guarantees a minimum number of decimal digits. | Numeric values                 |
-| `PadAmount`           | Specifies the **total length** (number of characters) the formatted value should occupy.                                                                                 | Any scalar except for comments |
-| `NoComplexNewLine`    | When true, disables multiline or indented formatting for arrays, outputting values inline.                                                                               | Any complex data structure     |
-| `ForceComplexNewLine` | Forces complex structures (arrays or objects) to always use multiline and indented formatting, even if NoComplexNewLine is not set. Overrides inline formatting.         | Any complex data structure     |
-| `Indent`              | When set, controls the the amount of indentation. Defaults to 2 spaces.                                                                                                  | Any complex data structure     |
+| Setting Name          | Description                                                                                                                                                              | Applies To                      |
+|-----------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
+| `PadDecimals`         | Adds trailing zeros only if the fractional part is shorter than `PadDecimals`, leaving existing extra decimals untouched. Guarantees a minimum number of decimal digits. | Numeric values                  |
+| `PadAmount`           | Specifies the **total length** (number of characters) the formatted value should occupy.                                                                                 | Any scalar except for comments  |
+| `AutoPad`             | Aligns values in array rows into columns by padding each cell to the maximum width in that column. Applies to the array it is set on (e.g. `nodes`, `beams`).            | Arrays of arrays                |
+| `AlignObjectKeys`     | Pads object keys so that `:` separators align vertically across all entries in the same object.                                                                          | Objects                         |
+| `AutoPadSubObjects`   | Aligns values within sibling inline objects by treating matching sub-keys as columns. Useful for `glowMap`-style structures.                                             | Objects with inline sub-objects |
+| `NoComplexNewLine`    | When true, disables multiline or indented formatting for arrays, outputting values inline.                                                                               | Any complex data structure      |
+| `ForceComplexNewLine` | Forces complex structures (arrays or objects) to always use multiline and indented formatting, even if NoComplexNewLine is not set. Overrides inline formatting.         | Any complex data structure      |
+| `Indent`              | Controls the amount of indentation. Defaults to 4 spaces.                                                                                                               | Any complex data structure      |
 
 # How Matching Works
 

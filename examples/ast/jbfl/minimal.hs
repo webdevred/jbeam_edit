@@ -25,42 +25,6 @@ RuleSet
                 ( fromList
                     [ AnyObjectKey
                     , Selector
-                        ( ObjectKey "glowMap" )
-                    , AnyObjectKey
-                    , Selector
-                        ( ObjectKey "off" )
-                    ]
-                )
-            , fromList
-                [
-                    ( SomeKey PadAmount
-                    , SomeProperty PadAmount 10
-                    )
-                ]
-            )
-        ,
-            ( NodePattern
-                ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "glowMap" )
-                    , AnyObjectKey
-                    , Selector
-                        ( ObjectKey "on" )
-                    ]
-                )
-            , fromList
-                [
-                    ( SomeKey PadAmount
-                    , SomeProperty PadAmount 10
-                    )
-                ]
-            )
-        ,
-            ( NodePattern
-                ( fromList
-                    [ AnyObjectKey
-                    , Selector
                         ( ObjectKey "mainEngine" )
                     , Selector
                         ( ObjectKey "burnEfficiency" )
@@ -154,193 +118,6 @@ RuleSet
                 [
                     ( SomeKey NoComplexNewLine
                     , SomeProperty NoComplexNewLine True
-                    )
-                ]
-            )
-        ,
-            ( NodePattern
-                ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "glowMap" )
-                    , Selector
-                        ( ObjectKey "abs" )
-                    ]
-                )
-            , fromList
-                [
-                    ( SomeKey PadAmount
-                    , SomeProperty PadAmount 20
-                    )
-                ]
-            )
-        ,
-            ( NodePattern
-                ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "glowMap" )
-                    , Selector
-                        ( ObjectKey "battery" )
-                    ]
-                )
-            , fromList
-                [
-                    ( SomeKey PadAmount
-                    , SomeProperty PadAmount 20
-                    )
-                ]
-            )
-        ,
-            ( NodePattern
-                ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "glowMap" )
-                    , Selector
-                        ( ObjectKey "checkengine" )
-                    ]
-                )
-            , fromList
-                [
-                    ( SomeKey PadAmount
-                    , SomeProperty PadAmount 20
-                    )
-                ]
-            )
-        ,
-            ( NodePattern
-                ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "glowMap" )
-                    , Selector
-                        ( ObjectKey "dumptruck_gaugelight_warning" )
-                    ]
-                )
-            , fromList
-                [
-                    ( SomeKey ForceComplexNewLine
-                    , SomeProperty ForceComplexNewLine True
-                    )
-                ]
-            )
-        ,
-            ( NodePattern
-                ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "glowMap" )
-                    , Selector
-                        ( ObjectKey "hazard" )
-                    ]
-                )
-            , fromList
-                [
-                    ( SomeKey PadAmount
-                    , SomeProperty PadAmount 20
-                    )
-                ]
-            )
-        ,
-            ( NodePattern
-                ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "glowMap" )
-                    , Selector
-                        ( ObjectKey "highbeam" )
-                    ]
-                )
-            , fromList
-                [
-                    ( SomeKey PadAmount
-                    , SomeProperty PadAmount 20
-                    )
-                ]
-            )
-        ,
-            ( NodePattern
-                ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "glowMap" )
-                    , Selector
-                        ( ObjectKey "lowfuel" )
-                    ]
-                )
-            , fromList
-                [
-                    ( SomeKey PadAmount
-                    , SomeProperty PadAmount 20
-                    )
-                ]
-            )
-        ,
-            ( NodePattern
-                ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "glowMap" )
-                    , Selector
-                        ( ObjectKey "lowpressure" )
-                    ]
-                )
-            , fromList
-                [
-                    ( SomeKey PadAmount
-                    , SomeProperty PadAmount 20
-                    )
-                ]
-            )
-        ,
-            ( NodePattern
-                ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "glowMap" )
-                    , Selector
-                        ( ObjectKey "parkingbrake" )
-                    ]
-                )
-            , fromList
-                [
-                    ( SomeKey PadAmount
-                    , SomeProperty PadAmount 20
-                    )
-                ]
-            )
-        ,
-            ( NodePattern
-                ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "glowMap" )
-                    , Selector
-                        ( ObjectKey "signal_L" )
-                    ]
-                )
-            , fromList
-                [
-                    ( SomeKey PadAmount
-                    , SomeProperty PadAmount 20
-                    )
-                ]
-            )
-        ,
-            ( NodePattern
-                ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "glowMap" )
-                    , Selector
-                        ( ObjectKey "signal_R" )
-                    ]
-                )
-            , fromList
-                [
-                    ( SomeKey PadAmount
-                    , SomeProperty PadAmount 20
                     )
                 ]
             )
@@ -508,11 +285,34 @@ RuleSet
                 ( fromList
                     [ AnyObjectKey
                     , Selector
+                        ( ObjectKey "glowMap" )
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey AlignObjectKeys
+                    , SomeProperty AlignObjectKeys True
+                    )
+                ,
+                    ( SomeKey AutoPadSubObjects
+                    , SomeProperty AutoPadSubObjects True
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
                         ( ObjectKey "information" )
                     ]
                 )
             , fromList
                 [
+                    ( SomeKey AlignObjectKeys
+                    , SomeProperty AlignObjectKeys True
+                    )
+                ,
                     ( SomeKey ForceComplexNewLine
                     , SomeProperty ForceComplexNewLine True
                     )
@@ -528,6 +328,10 @@ RuleSet
                 )
             , fromList
                 [
+                    ( SomeKey AlignObjectKeys
+                    , SomeProperty AlignObjectKeys True
+                    )
+                ,
                     ( SomeKey AutoPad
                     , SomeProperty AutoPad True
                     )
@@ -543,6 +347,10 @@ RuleSet
                 )
             , fromList
                 [
+                    ( SomeKey AlignObjectKeys
+                    , SomeProperty AlignObjectKeys True
+                    )
+                ,
                     ( SomeKey ForceComplexNewLine
                     , SomeProperty ForceComplexNewLine True
                     )
@@ -558,6 +366,10 @@ RuleSet
                 )
             , fromList
                 [
+                    ( SomeKey AlignObjectKeys
+                    , SomeProperty AlignObjectKeys True
+                    )
+                ,
                     ( SomeKey ForceComplexNewLine
                     , SomeProperty ForceComplexNewLine True
                     )
@@ -573,6 +385,10 @@ RuleSet
                 )
             , fromList
                 [
+                    ( SomeKey AlignObjectKeys
+                    , SomeProperty AlignObjectKeys True
+                    )
+                ,
                     ( SomeKey ForceComplexNewLine
                     , SomeProperty ForceComplexNewLine True
                     )

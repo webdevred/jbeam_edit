@@ -189,7 +189,7 @@ objectParser :: JbeamParser Node
 objectParser = do
   _ <- byteChar '{'
   skipWhiteSpace
-  keys <- MP.many (commentParser <* skipWhiteSpace <|> objectKeyParser)
+  keys <- MP.many (commentParser <* separatorParser <|> objectKeyParser)
   _ <- MP.optional separatorParser
   _ <- byteChar '}'
   pure . Object . V.fromList $ keys
