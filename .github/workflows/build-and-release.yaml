@@ -44,6 +44,7 @@ jobs:
           ghc-version: ${{ matrix.ghc }}
           cabal-version: latest
           cabal-update: true
+          install-happy: true
       - name: Configure
         run: bash ./.github/scripts/configure_project.sh
         env:

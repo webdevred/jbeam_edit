@@ -128,6 +128,7 @@ jobs:
         with:
           ghc-version: ${{ matrix.ghc }}
           cabal-version: latest
+          install-happy: true
           # cabal-version: ${{ steps.cabal-version.outputs.cabal-version }}
       - name: Log GHC and Cabal outputs
         run: |-
