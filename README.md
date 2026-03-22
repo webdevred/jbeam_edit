@@ -1,23 +1,29 @@
 # JBeam Tool in Haskell
 
+<!--toc:start-->
+- [Features](#features)
+- [Configuration](#configuration)
+- [Usage](#usage)
+  - [1. Download the latest release](#1-download-the-latest-release)
+  - [2. Unzip the file](#2-unzip-the-file)
+  - [3. Run the setup as Administrator](#3-run-the-setup-as-administrator)
+- [4. Allow in Windows Defender if needed](#4-allow-in-windows-defender-if-needed)
+  - [5. Path refresh](#5-path-refresh)
+  - [6. Open Command Prompt or PowerShell](#6-open-command-prompt-or-powershell)
+  - [7. Run jbeam-edit on a file](#7-run-jbeam-edit-on-a-file)
+  - [From source (Linux or development)](#from-source-linux-or-development)
+- [Examples](#examples)
+- [Planned Features / TODO](#planned-features-todo)
+- [Why Haskell + Megaparsec?](#why-haskell-megaparsec)
+- [Prerequisites](#prerequisites)
+- [Contributing & License](#contributing-license)
+<!--toc:end-->
+
 [![Build & test (dev)](https://github.com/webdevred/jbeam_edit/actions/workflows/build-and-test.yaml/badge.svg)](https://github.com/webdevred/jbeam_edit/actions/workflows/build-and-test.yaml)
 [![Build & test (latest GHC & deps)](https://github.com/webdevred/jbeam_edit/actions/workflows/future-proofing.yaml/badge.svg?branch=master&event=schedule)](https://github.com/webdevred/jbeam_edit/actions/workflows/future-proofing.yaml)
 [![Build for release](https://github.com/webdevred/jbeam_edit/actions/workflows/build-and-release.yaml/badge.svg?branch=master)](https://github.com/webdevred/jbeam_edit/actions/workflows/build-and-release.yaml)
 [![Lint & format](https://github.com/webdevred/jbeam_edit/actions/workflows/lint-and-format.yaml/badge.svg?branch=master)](https://github.com/webdevred/jbeam_edit/actions/workflows/lint-and-format.yaml)
 
-<!--toc:start-->
-- [JBeam Tool in Haskell](#jbeam-tool-in-haskell)
-  - [Features](#features)
-  - [Configuration](#configuration)
-  - [Usage](#usage)
-  - [Examples](#examples)
-  - [Explanation of Source Code](#explanation-of-source-code)
-  - [Planned Features / TODO](#planned-features-todo)
-  - [Why Haskell + Megaparsec?](#why-haskell-megaparsec)
-  - [Future Considerations](#future-considerations)
-  - [Prerequisites](#prerequisites)
-  - [Contributing & License](#contributing-license)
-<!--toc:end-->
 
 A fast, robust command-line parser, formatter, and editor for JBeam files, the JSON-like format used by BeamNG to define vehicles and physics structures.
 

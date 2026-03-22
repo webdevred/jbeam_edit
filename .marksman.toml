@@ -1,0 +1,10 @@
+[core]
+markdown.file_extensions = ["md"]
+markdown.glfm_heading_ids.enable = true
+
+[code_action]
+toc.enable = true
+
+toc.include = [2, 3]
+
+create_missing_file.enable = true
