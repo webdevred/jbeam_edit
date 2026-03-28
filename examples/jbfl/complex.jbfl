@@ -7,7 +7,8 @@
     AlignObjectKeys : true;
 }
 
-.*.nodes, .*.beams, .*.triangles {
+.*.nodes, .*.beams,
+.*.triangles {
    AutoPad : true;
 }
 
@@ -16,9 +17,12 @@
 .*.variables[*], .*.glowMap.*,
 .*.rails.*, .*.props[*],
 .*.slots[*], .*.slots2[*],
-.*.controller[*], .*.components.electrics.smoothers[*],
-.*.mainEngine.torque[*], .*.mainEngine.burnEfficiency[*],
-.*.mainEngine.torqueModIntake[*], .*.mainEngine.torqueModMult[*],
+.*.controller[*],
+.*.components.electrics.smoothers[*],
+.*.mainEngine.torque[*],
+.*.mainEngine.burnEfficiency[*],
+.*.mainEngine.torqueModIntake[*],
+.*.mainEngine.torqueModMult[*],
 .*.powertrain[*], .*.flexbodies[*] {
     PreserveNumberFormat : true;
     NoComplexNewLine : true;
@@ -38,8 +42,9 @@
     AutoPadSubObjects: true;
 }
 
-.*.sounds, .*.soundConfig, .*.soundConfigExhaust,
-.*.information, .*.glowMap.dumptruck_gaugelight_warning,
+.*.sounds, .*.soundConfig,
+.*.soundConfigExhaust, .*.information,
+.*.glowMap.dumptruck_gaugelight_warning,
 .*.glowMap.chassis_gaugelight_warning {
     ForceComplexNewLine: true;
     AlignObjectKeys: true;

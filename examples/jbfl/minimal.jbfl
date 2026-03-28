@@ -2,7 +2,8 @@
     PadDecimals: 3;
 }
 
-.*.nodes, .*.beams, .*.triangles {
+.*.nodes, .*.beams,
+.*.triangles {
     AutoPad: true;
 }
 
@@ -14,10 +15,13 @@
 .*.variables[*], .*.glowMap.*,
 .*.rails.*, .*.props[*],
 .*.slots[*], .*.slots2[*],
-.*.controller[*], .*.components.electrics.smoothers[*],
-.*.mainEngine.torque[*], .*.mainEngine.burnEfficiency[*],
-.*.mainEngine.torqueModIntake[*], .*.mainEngine.torqueModMult[*],
-.*.powertrain[*],.*.flexbodies[*] {
+.*.controller[*],
+.*.components.electrics.smoothers[*],
+.*.mainEngine.torque[*],
+.*.mainEngine.burnEfficiency[*],
+.*.mainEngine.torqueModIntake[*],
+.*.mainEngine.torqueModMult[*],
+.*.powertrain[*], .*.flexbodies[*] {
     PreserveNumberFormat : true;
     NoComplexNewLine : true;
 }
@@ -31,7 +35,8 @@
     NoComplexNewLine : true;
 }
 
-.*.sounds, .*.soundConfig, .*.soundConfigExhaust,
+.*.sounds, .*.soundConfig,
+.*.soundConfigExhaust,
 .*.information {
     ForceComplexNewLine: true;
     AlignObjectKeys: true;
