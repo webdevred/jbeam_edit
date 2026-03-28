@@ -1,11 +1,5 @@
 (* -*- mode: pascal -*- *)
 
-const
-  HWND_BROADCAST = $FFFF;
-  WM_SETTINGCHANGE = $1A;
-  SMTO_ABORTIFHUNG = $0002;
-  ENV_CHANGE_TIMEOUT = 5000;
-
 function SendMessageTimeoutA(hWnd: Integer; Msg: Integer;
   wParam: Longint; lParam: Longint; fuFlags: Longint;
   uTimeout: Longint; var lpdwResult: Longint): Longint;
@@ -15,8 +9,8 @@ procedure BroadcastEnvChange;
 var
   resultValue: Longint;
 begin
-  SendMessageTimeoutA(HWND_BROADCAST, WM_SETTINGCHANGE, 0, 0,
-    SMTO_ABORTIFHUNG, ENV_CHANGE_TIMEOUT, resultValue);
+  { HWND_BROADCAST, WM_SETTINGCHANGE, SMTO_ABORTIFHUNG, 5s timeout }
+  SendMessageTimeoutA($FFFF, $1A, 0, 0, $0002, 5000, resultValue);
 end;
 
 function ExcludeTrailingPathDelimiter(const S: string): string;
