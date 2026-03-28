@@ -1,8 +1,13 @@
+/* Node coordinates use PadDecimals for uniform decimal places.
+  PreserveNumberFormat is excluded here because it would override
+  PadDecimals, keeping the original varying precision (e.g. 0.5
+  vs 0.500) instead of normalizing to 3 decimals. */
 .*.nodes[*][*] {
     PadDecimals: 3;
 }
 
-.*.nodes, .*.beams, .*.triangles {
+.*.nodes, .*.beams,
+.*.triangles {
     AutoPad: true;
 }
 
@@ -10,21 +15,42 @@
     AlignObjectKeys: true;
 }
 
-.*.nodes[*], .*.flexbodies[*],
 .*.beams[*], .*.triangles[*],
 .*.variables[*], .*.glowMap.*,
 .*.rails.*, .*.props[*],
 .*.slots[*], .*.slots2[*],
-.*.controller[*], .*.components.electrics.smoothers[*],
-.*.mainEngine.torque[*], .*.mainEngine.burnEfficiency[*],
-.*.powertrain[*] {
+.*.controller[*],
+.*.components.electrics.smoothers[*],
+.*.mainEngine.torque[*],
+.*.mainEngine.burnEfficiency[*],
+.*.mainEngine.torqueModIntake[*],
+.*.mainEngine.torqueModMult[*],
+.*.powertrain[*], .*.flexbodies[*] {
+    PreserveNumberFormat : true;
     NoComplexNewLine : true;
 }
 
-.*.sounds, .*.soundConfig, .*.soundConfigExhaust,
+.*.nodes[*] {
+    NoComplexNewLine : true;
+}
+
+.*.nodes[*].*, .*.nodes[*][*].*,
+.*.beams[*].*, .*.beams[*][*].*,
+.*.slots[*].*, .*.slots[*][*].*,
+.*.slots2[*].*, .*.slots2[*][*].*,
+.*.props[*].*, .*.props[*][*].*,
+.*.flexbodies[*].*,
+.*.flexbodies[*][*].* {
+    PreserveNumberFormat : true;
+    NoComplexNewLine : true;
+}
+
+.*.mainEngine, .*.sounds,
+.*.soundConfig, .*.soundConfigExhaust,
 .*.information {
     ForceComplexNewLine: true;
     AlignObjectKeys: true;
+    PreserveNumberFormat: true;
 }
 
 .*.glowMap {

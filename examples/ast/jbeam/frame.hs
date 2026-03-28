@@ -53,179 +53,317 @@ Object
                     , Array
                         [ String "rl_f0"
                         , Number
-                            ( DecimalValue 0.523 )
-                        , Number
-                            ( DecimalValue
-                                ( -2.098 )
+                            ( NumberValue
+                                { nvText = "0.523"
+                                , nvValue = 0.523
+                                }
                             )
                         , Number
-                            ( DecimalValue 0.319 )
+                            ( NumberValue
+                                { nvText = "-2.098"
+                                , nvValue = -2.098
+                                }
+                            )
+                        , Number
+                            ( NumberValue
+                                { nvText = "0.319"
+                                , nvValue = 0.319
+                                }
+                            )
                         ]
                     , Array
                         [ String "rl_f1"
                         , Number
-                            ( DecimalValue
-                                ( -0.417 )
+                            ( NumberValue
+                                { nvText = "-0.417"
+                                , nvValue = -0.417
+                                }
                             )
                         , Number
-                            ( DecimalValue
-                                ( -2.098 )
+                            ( NumberValue
+                                { nvText = "-2.098"
+                                , nvValue = -2.098
+                                }
                             )
                         , Number
-                            ( DecimalValue 0.319 )
+                            ( NumberValue
+                                { nvText = "0.319"
+                                , nvValue = 0.319
+                                }
+                            )
                         ]
                     , Array
                         [ String "rl_f2"
                         , Number
-                            ( DecimalValue 5.3e-2 )
-                        , Number
-                            ( DecimalValue
-                                ( -2.095 )
+                            ( NumberValue
+                                { nvText = "0.053"
+                                , nvValue = 5.3e-2
+                                }
                             )
                         , Number
-                            ( DecimalValue 0.319 )
+                            ( NumberValue
+                                { nvText = "-2.095"
+                                , nvValue = -2.095
+                                }
+                            )
+                        , Number
+                            ( NumberValue
+                                { nvText = "0.319"
+                                , nvValue = 0.319
+                                }
+                            )
                         ]
                     , Array
                         [ String "rl_f3"
                         , Number
-                            ( DecimalValue 0.523 )
-                        , Number
-                            ( DecimalValue
-                                ( -2.093 )
+                            ( NumberValue
+                                { nvText = "0.523"
+                                , nvValue = 0.523
+                                }
                             )
                         , Number
-                            ( DecimalValue 0.268 )
+                            ( NumberValue
+                                { nvText = "-2.093"
+                                , nvValue = -2.093
+                                }
+                            )
+                        , Number
+                            ( NumberValue
+                                { nvText = "0.268"
+                                , nvValue = 0.268
+                                }
+                            )
                         ]
                     , Array
                         [ String "rl_f4"
                         , Number
-                            ( DecimalValue
-                                ( -0.417 )
+                            ( NumberValue
+                                { nvText = "-0.417"
+                                , nvValue = -0.417
+                                }
                             )
                         , Number
-                            ( DecimalValue
-                                ( -2.093 )
+                            ( NumberValue
+                                { nvText = "-2.093"
+                                , nvValue = -2.093
+                                }
                             )
                         , Number
-                            ( DecimalValue 0.268 )
+                            ( NumberValue
+                                { nvText = "0.268"
+                                , nvValue = 0.268
+                                }
+                            )
                         ]
                     , Array
                         [ String "rl_f5"
                         , Number
-                            ( DecimalValue 5.3e-2 )
-                        , Number
-                            ( DecimalValue
-                                ( -2.09 )
+                            ( NumberValue
+                                { nvText = "0.053"
+                                , nvValue = 5.3e-2
+                                }
                             )
                         , Number
-                            ( DecimalValue 0.269 )
+                            ( NumberValue
+                                { nvText = "-2.090"
+                                , nvValue = -2.09
+                                }
+                            )
+                        , Number
+                            ( NumberValue
+                                { nvText = "0.269"
+                                , nvValue = 0.269
+                                }
+                            )
                         ]
                     , Array
                         [ String "rl_f6"
                         , Number
-                            ( DecimalValue 0.531 )
-                        , Number
-                            ( DecimalValue
-                                ( -1.724 )
+                            ( NumberValue
+                                { nvText = "0.531"
+                                , nvValue = 0.531
+                                }
                             )
                         , Number
-                            ( DecimalValue 0.341 )
+                            ( NumberValue
+                                { nvText = "-1.724"
+                                , nvValue = -1.724
+                                }
+                            )
+                        , Number
+                            ( NumberValue
+                                { nvText = "0.341"
+                                , nvValue = 0.341
+                                }
+                            )
                         ]
                     , Array
                         [ String "rl_f7"
                         , Number
-                            ( DecimalValue
-                                ( -0.424 )
+                            ( NumberValue
+                                { nvText = "-0.424"
+                                , nvValue = -0.424
+                                }
                             )
                         , Number
-                            ( DecimalValue
-                                ( -1.724 )
+                            ( NumberValue
+                                { nvText = "-1.724"
+                                , nvValue = -1.724
+                                }
                             )
                         , Number
-                            ( DecimalValue 0.341 )
+                            ( NumberValue
+                                { nvText = "0.341"
+                                , nvValue = 0.341
+                                }
+                            )
                         ]
                     , Array
                         [ String "rl_f8"
                         , Number
-                            ( DecimalValue 0.531 )
-                        , Number
-                            ( DecimalValue
-                                ( -1.721 )
+                            ( NumberValue
+                                { nvText = "0.531"
+                                , nvValue = 0.531
+                                }
                             )
                         , Number
-                            ( DecimalValue 0.289 )
+                            ( NumberValue
+                                { nvText = "-1.721"
+                                , nvValue = -1.721
+                                }
+                            )
+                        , Number
+                            ( NumberValue
+                                { nvText = "0.289"
+                                , nvValue = 0.289
+                                }
+                            )
                         ]
                     , Array
                         [ String "rl_f9"
                         , Number
-                            ( DecimalValue
-                                ( -0.424 )
+                            ( NumberValue
+                                { nvText = "-0.424"
+                                , nvValue = -0.424
+                                }
                             )
                         , Number
-                            ( DecimalValue
-                                ( -1.721 )
+                            ( NumberValue
+                                { nvText = "-1.721"
+                                , nvValue = -1.721
+                                }
                             )
                         , Number
-                            ( DecimalValue 0.289 )
+                            ( NumberValue
+                                { nvText = "0.289"
+                                , nvValue = 0.289
+                                }
+                            )
                         ]
                     , Array
                         [ String "rl_f10"
                         , Number
-                            ( DecimalValue 0.547 )
-                        , Number
-                            ( DecimalValue
-                                ( -1.35 )
+                            ( NumberValue
+                                { nvText = "0.547"
+                                , nvValue = 0.547
+                                }
                             )
                         , Number
-                            ( DecimalValue 0.31 )
+                            ( NumberValue
+                                { nvText = "-1.350"
+                                , nvValue = -1.35
+                                }
+                            )
+                        , Number
+                            ( NumberValue
+                                { nvText = "0.310"
+                                , nvValue = 0.31
+                                }
+                            )
                         ]
                     , Array
                         [ String "rl_f11"
                         , Number
-                            ( DecimalValue 0.547 )
-                        , Number
-                            ( DecimalValue
-                                ( -1.35 )
+                            ( NumberValue
+                                { nvText = "0.547"
+                                , nvValue = 0.547
+                                }
                             )
                         , Number
-                            ( DecimalValue 0.364 )
+                            ( NumberValue
+                                { nvText = "-1.350"
+                                , nvValue = -1.35
+                                }
+                            )
+                        , Number
+                            ( NumberValue
+                                { nvText = "0.364"
+                                , nvValue = 0.364
+                                }
+                            )
                         ]
                     , Array
                         [ String "rl_f12"
                         , Number
-                            ( DecimalValue
-                                ( -0.44 )
+                            ( NumberValue
+                                { nvText = "-0.440"
+                                , nvValue = -0.44
+                                }
                             )
                         , Number
-                            ( DecimalValue
-                                ( -1.35 )
+                            ( NumberValue
+                                { nvText = "-1.350"
+                                , nvValue = -1.35
+                                }
                             )
                         , Number
-                            ( DecimalValue 0.31 )
+                            ( NumberValue
+                                { nvText = "0.310"
+                                , nvValue = 0.31
+                                }
+                            )
                         ]
                     , Array
                         [ String "rl_f13"
                         , Number
-                            ( DecimalValue
-                                ( -0.44 )
+                            ( NumberValue
+                                { nvText = "-0.440"
+                                , nvValue = -0.44
+                                }
                             )
                         , Number
-                            ( DecimalValue
-                                ( -1.35 )
+                            ( NumberValue
+                                { nvText = "-1.350"
+                                , nvValue = -1.35
+                                }
                             )
                         , Number
-                            ( DecimalValue 0.364 )
+                            ( NumberValue
+                                { nvText = "0.364"
+                                , nvValue = 0.364
+                                }
+                            )
                         ]
                     , Array
                         [ String "rl_f14"
                         , Number
-                            ( DecimalValue 5.3e-2 )
-                        , Number
-                            ( DecimalValue
-                                ( -1.314 )
+                            ( NumberValue
+                                { nvText = "0.053"
+                                , nvValue = 5.3e-2
+                                }
                             )
                         , Number
-                            ( DecimalValue 0.382 )
+                            ( NumberValue
+                                { nvText = "-1.314"
+                                , nvValue = -1.314
+                                }
+                            )
+                        , Number
+                            ( NumberValue
+                                { nvText = "0.382"
+                                , nvValue = 0.382
+                                }
+                            )
                         ]
                     , Comment
                         ( InternalComment
@@ -238,61 +376,107 @@ Object
                     , Array
                         [ String "rl15"
                         , Number
-                            ( DecimalValue 0.79 )
-                        , Number
-                            ( DecimalValue
-                                ( -0.919 )
+                            ( NumberValue
+                                { nvText = "0.790"
+                                , nvValue = 0.79
+                                }
                             )
                         , Number
-                            ( DecimalValue 0.182 )
+                            ( NumberValue
+                                { nvText = "-0.919"
+                                , nvValue = -0.919
+                                }
+                            )
+                        , Number
+                            ( NumberValue
+                                { nvText = "0.182"
+                                , nvValue = 0.182
+                                }
+                            )
                         ]
                     , Array
                         [ String "rl16"
                         , Number
-                            ( DecimalValue 0.79 )
-                        , Number
-                            ( DecimalValue
-                                ( -0.919 )
+                            ( NumberValue
+                                { nvText = "0.790"
+                                , nvValue = 0.79
+                                }
                             )
                         , Number
-                            ( DecimalValue 0.233 )
+                            ( NumberValue
+                                { nvText = "-0.919"
+                                , nvValue = -0.919
+                                }
+                            )
+                        , Number
+                            ( NumberValue
+                                { nvText = "0.233"
+                                , nvValue = 0.233
+                                }
+                            )
                         ]
                     , Array
                         [ String "rl17"
                         , Number
-                            ( DecimalValue
-                                ( -0.683 )
+                            ( NumberValue
+                                { nvText = "-0.683"
+                                , nvValue = -0.683
+                                }
                             )
                         , Number
-                            ( DecimalValue
-                                ( -0.919 )
+                            ( NumberValue
+                                { nvText = "-0.919"
+                                , nvValue = -0.919
+                                }
                             )
                         , Number
-                            ( DecimalValue 0.182 )
+                            ( NumberValue
+                                { nvText = "0.182"
+                                , nvValue = 0.182
+                                }
+                            )
                         ]
                     , Array
                         [ String "rl18"
                         , Number
-                            ( DecimalValue
-                                ( -0.683 )
+                            ( NumberValue
+                                { nvText = "-0.683"
+                                , nvValue = -0.683
+                                }
                             )
                         , Number
-                            ( DecimalValue
-                                ( -0.919 )
+                            ( NumberValue
+                                { nvText = "-0.919"
+                                , nvValue = -0.919
+                                }
                             )
                         , Number
-                            ( DecimalValue 0.233 )
+                            ( NumberValue
+                                { nvText = "0.233"
+                                , nvValue = 0.233
+                                }
+                            )
                         ]
                     , Array
                         [ String "rl19"
                         , Number
-                            ( DecimalValue 5.3e-2 )
-                        , Number
-                            ( DecimalValue
-                                ( -2.4e-2 )
+                            ( NumberValue
+                                { nvText = "0.053"
+                                , nvValue = 5.3e-2
+                                }
                             )
                         , Number
-                            ( DecimalValue 0.578 )
+                            ( NumberValue
+                                { nvText = "-0.024"
+                                , nvValue = -2.4e-2
+                                }
+                            )
+                        , Number
+                            ( NumberValue
+                                { nvText = "0.578"
+                                , nvValue = 0.578
+                                }
+                            )
                         ]
                     , Comment
                         ( InternalComment
@@ -305,287 +489,611 @@ Object
                     , Array
                         [ String "rl20"
                         , Number
-                            ( DecimalValue 0.837 )
+                            ( NumberValue
+                                { nvText = "0.837"
+                                , nvValue = 0.837
+                                }
+                            )
                         , Number
-                            ( DecimalValue 2.0e-3 )
+                            ( NumberValue
+                                { nvText = "0.002"
+                                , nvValue = 2.0e-3
+                                }
+                            )
                         , Number
-                            ( DecimalValue 0.182 )
+                            ( NumberValue
+                                { nvText = "0.182"
+                                , nvValue = 0.182
+                                }
+                            )
                         ]
                     , Array
                         [ String "rl21"
                         , Number
-                            ( DecimalValue 0.837 )
+                            ( NumberValue
+                                { nvText = "0.837"
+                                , nvValue = 0.837
+                                }
+                            )
                         , Number
-                            ( DecimalValue 2.0e-3 )
+                            ( NumberValue
+                                { nvText = "0.002"
+                                , nvValue = 2.0e-3
+                                }
+                            )
                         , Number
-                            ( DecimalValue 0.233 )
+                            ( NumberValue
+                                { nvText = "0.233"
+                                , nvValue = 0.233
+                                }
+                            )
                         ]
                     , Array
                         [ String "rl22"
                         , Number
-                            ( DecimalValue 0.415 )
+                            ( NumberValue
+                                { nvText = "0.415"
+                                , nvValue = 0.415
+                                }
+                            )
                         , Number
-                            ( DecimalValue 2.0e-3 )
+                            ( NumberValue
+                                { nvText = "0.002"
+                                , nvValue = 2.0e-3
+                                }
+                            )
                         , Number
-                            ( DecimalValue 0.182 )
+                            ( NumberValue
+                                { nvText = "0.182"
+                                , nvValue = 0.182
+                                }
+                            )
                         ]
                     , Array
                         [ String "rl23"
                         , Number
-                            ( DecimalValue 0.415 )
+                            ( NumberValue
+                                { nvText = "0.415"
+                                , nvValue = 0.415
+                                }
+                            )
                         , Number
-                            ( DecimalValue 2.0e-3 )
+                            ( NumberValue
+                                { nvText = "0.002"
+                                , nvValue = 2.0e-3
+                                }
+                            )
                         , Number
-                            ( DecimalValue 0.233 )
+                            ( NumberValue
+                                { nvText = "0.233"
+                                , nvValue = 0.233
+                                }
+                            )
                         ]
                     , Array
                         [ String "rl24"
                         , Number
-                            ( DecimalValue 5.3e-2 )
+                            ( NumberValue
+                                { nvText = "0.053"
+                                , nvValue = 5.3e-2
+                                }
+                            )
                         , Number
-                            ( DecimalValue 2.0e-3 )
+                            ( NumberValue
+                                { nvText = "0.002"
+                                , nvValue = 2.0e-3
+                                }
+                            )
                         , Number
-                            ( DecimalValue 0.182 )
+                            ( NumberValue
+                                { nvText = "0.182"
+                                , nvValue = 0.182
+                                }
+                            )
                         ]
                     , Array
                         [ String "rl25"
                         , Number
-                            ( DecimalValue 5.3e-2 )
+                            ( NumberValue
+                                { nvText = "0.053"
+                                , nvValue = 5.3e-2
+                                }
+                            )
                         , Number
-                            ( DecimalValue 2.0e-3 )
+                            ( NumberValue
+                                { nvText = "0.002"
+                                , nvValue = 2.0e-3
+                                }
+                            )
                         , Number
-                            ( DecimalValue 0.233 )
+                            ( NumberValue
+                                { nvText = "0.233"
+                                , nvValue = 0.233
+                                }
+                            )
                         ]
                     , Array
                         [ String "rl26"
                         , Number
-                            ( DecimalValue
-                                ( -0.308 )
+                            ( NumberValue
+                                { nvText = "-0.308"
+                                , nvValue = -0.308
+                                }
                             )
                         , Number
-                            ( DecimalValue 2.0e-3 )
+                            ( NumberValue
+                                { nvText = "0.002"
+                                , nvValue = 2.0e-3
+                                }
+                            )
                         , Number
-                            ( DecimalValue 0.182 )
+                            ( NumberValue
+                                { nvText = "0.182"
+                                , nvValue = 0.182
+                                }
+                            )
                         ]
                     , Array
                         [ String "rl27"
                         , Number
-                            ( DecimalValue
-                                ( -0.308 )
+                            ( NumberValue
+                                { nvText = "-0.308"
+                                , nvValue = -0.308
+                                }
                             )
                         , Number
-                            ( DecimalValue 2.0e-3 )
+                            ( NumberValue
+                                { nvText = "0.002"
+                                , nvValue = 2.0e-3
+                                }
+                            )
                         , Number
-                            ( DecimalValue 0.233 )
+                            ( NumberValue
+                                { nvText = "0.233"
+                                , nvValue = 0.233
+                                }
+                            )
                         ]
                     , Array
                         [ String "rl28"
                         , Number
-                            ( DecimalValue
-                                ( -0.73 )
+                            ( NumberValue
+                                { nvText = "-0.730"
+                                , nvValue = -0.73
+                                }
                             )
                         , Number
-                            ( DecimalValue 2.0e-3 )
+                            ( NumberValue
+                                { nvText = "0.002"
+                                , nvValue = 2.0e-3
+                                }
+                            )
                         , Number
-                            ( DecimalValue 0.182 )
+                            ( NumberValue
+                                { nvText = "0.182"
+                                , nvValue = 0.182
+                                }
+                            )
                         ]
                     , Array
                         [ String "rl29"
                         , Number
-                            ( DecimalValue
-                                ( -0.73 )
+                            ( NumberValue
+                                { nvText = "-0.730"
+                                , nvValue = -0.73
+                                }
                             )
                         , Number
-                            ( DecimalValue 2.0e-3 )
+                            ( NumberValue
+                                { nvText = "0.002"
+                                , nvValue = 2.0e-3
+                                }
+                            )
                         , Number
-                            ( DecimalValue 0.233 )
+                            ( NumberValue
+                                { nvText = "0.233"
+                                , nvValue = 0.233
+                                }
+                            )
                         ]
                     , Array
                         [ String "rl30"
                         , Number
-                            ( DecimalValue 0.822 )
+                            ( NumberValue
+                                { nvText = "0.822"
+                                , nvValue = 0.822
+                                }
+                            )
                         , Number
-                            ( DecimalValue 0.791 )
+                            ( NumberValue
+                                { nvText = "0.791"
+                                , nvValue = 0.791
+                                }
+                            )
                         , Number
-                            ( DecimalValue 0.182 )
+                            ( NumberValue
+                                { nvText = "0.182"
+                                , nvValue = 0.182
+                                }
+                            )
                         ]
                     , Array
                         [ String "rl31"
                         , Number
-                            ( DecimalValue 0.822 )
+                            ( NumberValue
+                                { nvText = "0.822"
+                                , nvValue = 0.822
+                                }
+                            )
                         , Number
-                            ( DecimalValue 0.791 )
+                            ( NumberValue
+                                { nvText = "0.791"
+                                , nvValue = 0.791
+                                }
+                            )
                         , Number
-                            ( DecimalValue 0.233 )
+                            ( NumberValue
+                                { nvText = "0.233"
+                                , nvValue = 0.233
+                                }
+                            )
                         ]
                     , Array
                         [ String "rl32"
                         , Number
-                            ( DecimalValue
-                                ( -0.715 )
+                            ( NumberValue
+                                { nvText = "-0.715"
+                                , nvValue = -0.715
+                                }
                             )
                         , Number
-                            ( DecimalValue 0.791 )
+                            ( NumberValue
+                                { nvText = "0.791"
+                                , nvValue = 0.791
+                                }
+                            )
                         , Number
-                            ( DecimalValue 0.182 )
+                            ( NumberValue
+                                { nvText = "0.182"
+                                , nvValue = 0.182
+                                }
+                            )
                         ]
                     , Array
                         [ String "rl33"
                         , Number
-                            ( DecimalValue
-                                ( -0.715 )
+                            ( NumberValue
+                                { nvText = "-0.715"
+                                , nvValue = -0.715
+                                }
                             )
                         , Number
-                            ( DecimalValue 0.791 )
+                            ( NumberValue
+                                { nvText = "0.791"
+                                , nvValue = 0.791
+                                }
+                            )
                         , Number
-                            ( DecimalValue 0.233 )
+                            ( NumberValue
+                                { nvText = "0.233"
+                                , nvValue = 0.233
+                                }
+                            )
                         ]
                     , Array
                         [ String "rl_r34"
                         , Number
-                            ( DecimalValue 0.651 )
+                            ( NumberValue
+                                { nvText = "0.651"
+                                , nvValue = 0.651
+                                }
+                            )
                         , Number
-                            ( DecimalValue 1.121 )
+                            ( NumberValue
+                                { nvText = "1.121"
+                                , nvValue = 1.121
+                                }
+                            )
                         , Number
-                            ( DecimalValue 0.628 )
+                            ( NumberValue
+                                { nvText = "0.628"
+                                , nvValue = 0.628
+                                }
+                            )
                         ]
                     , Array
                         [ String "rl_r35"
                         , Number
-                            ( DecimalValue 5.3e-2 )
+                            ( NumberValue
+                                { nvText = "0.053"
+                                , nvValue = 5.3e-2
+                                }
+                            )
                         , Number
-                            ( DecimalValue 1.121 )
+                            ( NumberValue
+                                { nvText = "1.121"
+                                , nvValue = 1.121
+                                }
+                            )
                         , Number
-                            ( DecimalValue 0.628 )
+                            ( NumberValue
+                                { nvText = "0.628"
+                                , nvValue = 0.628
+                                }
+                            )
                         ]
                     , Array
                         [ String "rl_r36"
                         , Number
-                            ( DecimalValue
-                                ( -0.544 )
+                            ( NumberValue
+                                { nvText = "-0.544"
+                                , nvValue = -0.544
+                                }
                             )
                         , Number
-                            ( DecimalValue 1.121 )
+                            ( NumberValue
+                                { nvText = "1.121"
+                                , nvValue = 1.121
+                                }
+                            )
                         , Number
-                            ( DecimalValue 0.628 )
+                            ( NumberValue
+                                { nvText = "0.628"
+                                , nvValue = 0.628
+                                }
+                            )
                         ]
                     , Array
                         [ String "rl_r37"
                         , Number
-                            ( DecimalValue 0.651 )
+                            ( NumberValue
+                                { nvText = "0.651"
+                                , nvValue = 0.651
+                                }
+                            )
                         , Number
-                            ( DecimalValue 1.152 )
+                            ( NumberValue
+                                { nvText = "1.152"
+                                , nvValue = 1.152
+                                }
+                            )
                         , Number
-                            ( DecimalValue 0.565 )
+                            ( NumberValue
+                                { nvText = "0.565"
+                                , nvValue = 0.565
+                                }
+                            )
                         ]
                     , Array
                         [ String "rl_r38"
                         , Number
-                            ( DecimalValue 5.3e-2 )
+                            ( NumberValue
+                                { nvText = "0.053"
+                                , nvValue = 5.3e-2
+                                }
+                            )
                         , Number
-                            ( DecimalValue 1.152 )
+                            ( NumberValue
+                                { nvText = "1.152"
+                                , nvValue = 1.152
+                                }
+                            )
                         , Number
-                            ( DecimalValue 0.565 )
+                            ( NumberValue
+                                { nvText = "0.565"
+                                , nvValue = 0.565
+                                }
+                            )
                         ]
                     , Array
                         [ String "rl_r39"
                         , Number
-                            ( DecimalValue
-                                ( -0.544 )
+                            ( NumberValue
+                                { nvText = "-0.544"
+                                , nvValue = -0.544
+                                }
                             )
                         , Number
-                            ( DecimalValue 1.152 )
+                            ( NumberValue
+                                { nvText = "1.152"
+                                , nvValue = 1.152
+                                }
+                            )
                         , Number
-                            ( DecimalValue 0.565 )
+                            ( NumberValue
+                                { nvText = "0.565"
+                                , nvValue = 0.565
+                                }
+                            )
                         ]
                     , Array
                         [ String "rl_r40"
                         , Number
-                            ( DecimalValue 0.602 )
+                            ( NumberValue
+                                { nvText = "0.602"
+                                , nvValue = 0.602
+                                }
+                            )
                         , Number
-                            ( DecimalValue 1.514 )
+                            ( NumberValue
+                                { nvText = "1.514"
+                                , nvValue = 1.514
+                                }
+                            )
                         , Number
-                            ( DecimalValue 0.566 )
+                            ( NumberValue
+                                { nvText = "0.566"
+                                , nvValue = 0.566
+                                }
+                            )
                         ]
                     , Array
                         [ String "rl_r41"
                         , Number
-                            ( DecimalValue
-                                ( -0.495 )
+                            ( NumberValue
+                                { nvText = "-0.495"
+                                , nvValue = -0.495
+                                }
                             )
                         , Number
-                            ( DecimalValue 1.514 )
+                            ( NumberValue
+                                { nvText = "1.514"
+                                , nvValue = 1.514
+                                }
+                            )
                         , Number
-                            ( DecimalValue 0.566 )
+                            ( NumberValue
+                                { nvText = "0.566"
+                                , nvValue = 0.566
+                                }
+                            )
                         ]
                     , Array
                         [ String "rl_r42"
                         , Number
-                            ( DecimalValue 0.602 )
+                            ( NumberValue
+                                { nvText = "0.602"
+                                , nvValue = 0.602
+                                }
+                            )
                         , Number
-                            ( DecimalValue 1.532 )
+                            ( NumberValue
+                                { nvText = "1.532"
+                                , nvValue = 1.532
+                                }
+                            )
                         , Number
-                            ( DecimalValue 0.623 )
+                            ( NumberValue
+                                { nvText = "0.623"
+                                , nvValue = 0.623
+                                }
+                            )
                         ]
                     , Array
                         [ String "rl_r43"
                         , Number
-                            ( DecimalValue
-                                ( -0.495 )
+                            ( NumberValue
+                                { nvText = "-0.495"
+                                , nvValue = -0.495
+                                }
                             )
                         , Number
-                            ( DecimalValue 1.532 )
+                            ( NumberValue
+                                { nvText = "1.532"
+                                , nvValue = 1.532
+                                }
+                            )
                         , Number
-                            ( DecimalValue 0.623 )
+                            ( NumberValue
+                                { nvText = "0.623"
+                                , nvValue = 0.623
+                                }
+                            )
                         ]
                     , Array
                         [ String "rl_r44"
                         , Number
-                            ( DecimalValue 0.553 )
+                            ( NumberValue
+                                { nvText = "0.553"
+                                , nvValue = 0.553
+                                }
+                            )
                         , Number
-                            ( DecimalValue 1.654 )
+                            ( NumberValue
+                                { nvText = "1.654"
+                                , nvValue = 1.654
+                                }
+                            )
                         , Number
-                            ( DecimalValue 0.359 )
+                            ( NumberValue
+                                { nvText = "0.359"
+                                , nvValue = 0.359
+                                }
+                            )
                         ]
                     , Array
                         [ String "rl_r45"
                         , Number
-                            ( DecimalValue
-                                ( -0.446 )
+                            ( NumberValue
+                                { nvText = "-0.446"
+                                , nvValue = -0.446
+                                }
                             )
                         , Number
-                            ( DecimalValue 1.654 )
+                            ( NumberValue
+                                { nvText = "1.654"
+                                , nvValue = 1.654
+                                }
+                            )
                         , Number
-                            ( DecimalValue 0.359 )
+                            ( NumberValue
+                                { nvText = "0.359"
+                                , nvValue = 0.359
+                                }
+                            )
                         ]
                     , Array
                         [ String "rl_r46"
                         , Number
-                            ( DecimalValue 0.553 )
+                            ( NumberValue
+                                { nvText = "0.553"
+                                , nvValue = 0.553
+                                }
+                            )
                         , Number
-                            ( DecimalValue 1.679 )
+                            ( NumberValue
+                                { nvText = "1.679"
+                                , nvValue = 1.679
+                                }
+                            )
                         , Number
-                            ( DecimalValue 0.448 )
+                            ( NumberValue
+                                { nvText = "0.448"
+                                , nvValue = 0.448
+                                }
+                            )
                         ]
                     , Array
                         [ String "rl_r47"
                         , Number
-                            ( DecimalValue
-                                ( -0.446 )
+                            ( NumberValue
+                                { nvText = "-0.446"
+                                , nvValue = -0.446
+                                }
                             )
                         , Number
-                            ( DecimalValue 1.679 )
+                            ( NumberValue
+                                { nvText = "1.679"
+                                , nvValue = 1.679
+                                }
+                            )
                         , Number
-                            ( DecimalValue 0.448 )
+                            ( NumberValue
+                                { nvText = "0.448"
+                                , nvValue = 0.448
+                                }
+                            )
                         ]
                     , Array
                         [ String "rl_r48"
                         , Number
-                            ( DecimalValue 5.3e-2 )
+                            ( NumberValue
+                                { nvText = "0.053"
+                                , nvValue = 5.3e-2
+                                }
+                            )
                         , Number
-                            ( DecimalValue 1.71 )
+                            ( NumberValue
+                                { nvText = "1.710"
+                                , nvValue = 1.71
+                                }
+                            )
                         , Number
-                            ( DecimalValue 0.565 )
+                            ( NumberValue
+                                { nvText = "0.565"
+                                , nvValue = 0.565
+                                }
+                            )
                         ]
                     , Comment
                         ( InternalComment
@@ -598,60 +1106,128 @@ Object
                     , Array
                         [ String "rl_r49"
                         , Number
-                            ( DecimalValue 0.558 )
+                            ( NumberValue
+                                { nvText = "0.558"
+                                , nvValue = 0.558
+                                }
+                            )
                         , Number
-                            ( DecimalValue 2.284 )
+                            ( NumberValue
+                                { nvText = "2.284"
+                                , nvValue = 2.284
+                                }
+                            )
                         , Number
-                            ( DecimalValue 0.364 )
+                            ( NumberValue
+                                { nvText = "0.364"
+                                , nvValue = 0.364
+                                }
+                            )
                         ]
                     , Array
                         [ String "rl_r50"
                         , Number
-                            ( DecimalValue 0.558 )
+                            ( NumberValue
+                                { nvText = "0.558"
+                                , nvValue = 0.558
+                                }
+                            )
                         , Number
-                            ( DecimalValue 2.284 )
+                            ( NumberValue
+                                { nvText = "2.284"
+                                , nvValue = 2.284
+                                }
+                            )
                         , Number
-                            ( DecimalValue 0.447 )
+                            ( NumberValue
+                                { nvText = "0.447"
+                                , nvValue = 0.447
+                                }
+                            )
                         ]
                     , Array
                         [ String "rl_r51"
                         , Number
-                            ( DecimalValue 5.3e-2 )
+                            ( NumberValue
+                                { nvText = "0.053"
+                                , nvValue = 5.3e-2
+                                }
+                            )
                         , Number
-                            ( DecimalValue 2.284 )
+                            ( NumberValue
+                                { nvText = "2.284"
+                                , nvValue = 2.284
+                                }
+                            )
                         , Number
-                            ( DecimalValue 0.37 )
+                            ( NumberValue
+                                { nvText = "0.370"
+                                , nvValue = 0.37
+                                }
+                            )
                         ]
                     , Array
                         [ String "rl_r52"
                         , Number
-                            ( DecimalValue 5.3e-2 )
+                            ( NumberValue
+                                { nvText = "0.053"
+                                , nvValue = 5.3e-2
+                                }
+                            )
                         , Number
-                            ( DecimalValue 2.284 )
+                            ( NumberValue
+                                { nvText = "2.284"
+                                , nvValue = 2.284
+                                }
+                            )
                         , Number
-                            ( DecimalValue 0.441 )
+                            ( NumberValue
+                                { nvText = "0.441"
+                                , nvValue = 0.441
+                                }
+                            )
                         ]
                     , Array
                         [ String "rl_r53"
                         , Number
-                            ( DecimalValue
-                                ( -0.451 )
+                            ( NumberValue
+                                { nvText = "-0.451"
+                                , nvValue = -0.451
+                                }
                             )
                         , Number
-                            ( DecimalValue 2.284 )
+                            ( NumberValue
+                                { nvText = "2.284"
+                                , nvValue = 2.284
+                                }
+                            )
                         , Number
-                            ( DecimalValue 0.364 )
+                            ( NumberValue
+                                { nvText = "0.364"
+                                , nvValue = 0.364
+                                }
+                            )
                         ]
                     , Array
                         [ String "rl_r54"
                         , Number
-                            ( DecimalValue
-                                ( -0.451 )
+                            ( NumberValue
+                                { nvText = "-0.451"
+                                , nvValue = -0.451
+                                }
                             )
                         , Number
-                            ( DecimalValue 2.284 )
+                            ( NumberValue
+                                { nvText = "2.284"
+                                , nvValue = 2.284
+                                }
+                            )
                         , Number
-                            ( DecimalValue 0.447 )
+                            ( NumberValue
+                                { nvText = "0.447"
+                                , nvValue = 0.447
+                                }
+                            )
                         ]
                     , Object
                         [ ObjectKey
@@ -698,12 +1274,20 @@ Object
                         [ ObjectKey
                             ( String "beamDamp"
                             , Number
-                                ( IntValue 130 )
+                                ( NumberValue
+                                    { nvText = "130"
+                                    , nvValue = 130.0
+                                    }
+                                )
                             )
                         , ObjectKey
                             ( String "deformLimit"
                             , Number
-                                ( DecimalValue 1.1 )
+                                ( NumberValue
+                                    { nvText = "1.1"
+                                    , nvValue = 1.1
+                                    }
+                                )
                             )
                         ]
                     , Comment
@@ -718,12 +1302,20 @@ Object
                         [ ObjectKey
                             ( String "beamDeform"
                             , Number
-                                ( IntValue 20600 )
+                                ( NumberValue
+                                    { nvText = "20600"
+                                    , nvValue = 20600.0
+                                    }
+                                )
                             )
                         , ObjectKey
                             ( String "deformLimit"
                             , Number
-                                ( DecimalValue 1.1 )
+                                ( NumberValue
+                                    { nvText = "1.1"
+                                    , nvValue = 1.1
+                                    }
+                                )
                             )
                         ]
                     , Array
@@ -830,7 +1422,11 @@ Object
                         [ ObjectKey
                             ( String "beamDeform"
                             , Number
-                                ( IntValue 27000 )
+                                ( NumberValue
+                                    { nvText = "27000"
+                                    , nvValue = 27000.0
+                                    }
+                                )
                             )
                         ]
                     , Array
@@ -977,7 +1573,11 @@ Object
                         [ ObjectKey
                             ( String "beamDeform"
                             , Number
-                                ( IntValue 22000 )
+                                ( NumberValue
+                                    { nvText = "22000"
+                                    , nvValue = 22000.0
+                                    }
+                                )
                             )
                         ]
                     , Array
@@ -1136,7 +1736,11 @@ Object
                         [ ObjectKey
                             ( String "beamDeform"
                             , Number
-                                ( IntValue 16000 )
+                                ( NumberValue
+                                    { nvText = "16000"
+                                    , nvValue = 16000.0
+                                    }
+                                )
                             )
                         ]
                     , Array
@@ -1215,7 +1819,11 @@ Object
                         [ ObjectKey
                             ( String "beamDeform"
                             , Number
-                                ( IntValue 6500 )
+                                ( NumberValue
+                                    { nvText = "6500"
+                                    , nvValue = 6500.0
+                                    }
+                                )
                             )
                         ]
                     , Array
@@ -1326,7 +1934,11 @@ Object
                         [ ObjectKey
                             ( String "beamDeform"
                             , Number
-                                ( IntValue 16000 )
+                                ( NumberValue
+                                    { nvText = "16000"
+                                    , nvValue = 16000.0
+                                    }
+                                )
                             )
                         ]
                     , Array
@@ -1445,7 +2057,11 @@ Object
                         [ ObjectKey
                             ( String "beamDeform"
                             , Number
-                                ( IntValue 19000 )
+                                ( NumberValue
+                                    { nvText = "19000"
+                                    , nvValue = 19000.0
+                                    }
+                                )
                             )
                         ]
                     , Array
@@ -1516,7 +2132,11 @@ Object
                         [ ObjectKey
                             ( String "beamDeform"
                             , Number
-                                ( IntValue 11000 )
+                                ( NumberValue
+                                    { nvText = "11000"
+                                    , nvValue = 11000.0
+                                    }
+                                )
                             )
                         ]
                     , Array
@@ -1603,7 +2223,11 @@ Object
                         [ ObjectKey
                             ( String "beamDeform"
                             , Number
-                                ( IntValue 19000 )
+                                ( NumberValue
+                                    { nvText = "19000"
+                                    , nvValue = 19000.0
+                                    }
+                                )
                             )
                         ]
                     , Array
@@ -1682,7 +2306,11 @@ Object
                         [ ObjectKey
                             ( String "beamDeform"
                             , Number
-                                ( IntValue 8500 )
+                                ( NumberValue
+                                    { nvText = "8500"
+                                    , nvValue = 8500.0
+                                    }
+                                )
                             )
                         ]
                     , Array
@@ -2080,7 +2708,11 @@ Object
                                     [ ObjectKey
                                         ( String "on_max"
                                         , Number
-                                            ( IntValue 1 )
+                                            ( NumberValue
+                                                { nvText = "1"
+                                                , nvValue = 1.0
+                                                }
+                                            )
                                         )
                                     ]
                                 )
@@ -2107,7 +2739,11 @@ Object
                                     [ ObjectKey
                                         ( String "on_max"
                                         , Number
-                                            ( IntValue 1 )
+                                            ( NumberValue
+                                                { nvText = "1"
+                                                , nvValue = 1.0
+                                                }
+                                            )
                                         )
                                     ]
                                 )
@@ -2134,7 +2770,11 @@ Object
                                     [ ObjectKey
                                         ( String "on_max"
                                         , Number
-                                            ( IntValue 1 )
+                                            ( NumberValue
+                                                { nvText = "1"
+                                                , nvValue = 1.0
+                                                }
+                                            )
                                         )
                                     ]
                                 )
@@ -2161,7 +2801,11 @@ Object
                                     [ ObjectKey
                                         ( String "on_max"
                                         , Number
-                                            ( IntValue 1 )
+                                            ( NumberValue
+                                                { nvText = "1"
+                                                , nvValue = 1.0
+                                                }
+                                            )
                                         )
                                     ]
                                 )
@@ -2188,7 +2832,11 @@ Object
                                     [ ObjectKey
                                         ( String "on_max"
                                         , Number
-                                            ( IntValue 1 )
+                                            ( NumberValue
+                                                { nvText = "1"
+                                                , nvValue = 1.0
+                                                }
+                                            )
                                         )
                                     ]
                                 )
@@ -2215,7 +2863,11 @@ Object
                                     [ ObjectKey
                                         ( String "on_max"
                                         , Number
-                                            ( IntValue 1 )
+                                            ( NumberValue
+                                                { nvText = "1"
+                                                , nvValue = 1.0
+                                                }
+                                            )
                                         )
                                     ]
                                 )
@@ -2242,7 +2894,11 @@ Object
                                     [ ObjectKey
                                         ( String "on_max"
                                         , Number
-                                            ( IntValue 1 )
+                                            ( NumberValue
+                                                { nvText = "1"
+                                                , nvValue = 1.0
+                                                }
+                                            )
                                         )
                                     ]
                                 )
@@ -2366,17 +3022,29 @@ Object
                                     [ ObjectKey
                                         ( String "checkengine"
                                         , Number
-                                            ( IntValue 1 )
+                                            ( NumberValue
+                                                { nvText = "1"
+                                                , nvValue = 1.0
+                                                }
+                                            )
                                         )
                                     , ObjectKey
                                         ( String "battery"
                                         , Number
-                                            ( IntValue 1 )
+                                            ( NumberValue
+                                                { nvText = "1"
+                                                , nvValue = 1.0
+                                                }
+                                            )
                                         )
                                     , ObjectKey
                                         ( String "lowpressure"
                                         , Number
-                                            ( IntValue 1 )
+                                            ( NumberValue
+                                                { nvText = "1"
+                                                , nvValue = 1.0
+                                                }
+                                            )
                                         )
                                     ]
                                 )

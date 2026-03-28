@@ -13,11 +13,11 @@ import System.FilePath (takeBaseName, (</>))
 
 numberSpec :: [(String, Node)]
 numberSpec =
-  [ ("123", Number (IntValue 123))
-  , ("123.123", Number (DecimalValue 123.123))
-  , ("-123", Number (IntValue (-123)))
-  , ("-123.123", Number (DecimalValue (-123.123)))
-  , ("0", Number (IntValue 0))
+  [ ("123", Number (mkNumberValue "123" 123))
+  , ("123.123", Number (mkNumberValue "123.123" 123.123))
+  , ("-123", Number (mkNumberValue "-123" (-123)))
+  , ("-123.123", Number (mkNumberValue "-123.123" (-123.123)))
+  , ("0", Number (mkNumberValue "0" 0))
   ]
 
 stringSpec :: [(String, Node)]
@@ -39,7 +39,13 @@ arraySpec :: [(String, Node)]
 arraySpec =
   [
     ( "[1, 2, 3]"
-    , Array (fromList [Number (IntValue 1), Number (IntValue 2), Number (IntValue 3)])
+    , Array
+        ( fromList
+            [ Number (mkNumberValue "1" 1)
+            , Number (mkNumberValue "2" 2)
+            , Number (mkNumberValue "3" 3)
+            ]
+        )
     )
   ]
 
@@ -49,8 +55,8 @@ objectSpec =
     ( "{\"test\" : 1, \"test2\" : 2}"
     , Object
         ( fromList
-            [ ObjectKey (String "test", Number (IntValue 1))
-            , ObjectKey (String "test2", Number (IntValue 2))
+            [ ObjectKey (String "test", Number (mkNumberValue "1" 1))
+            , ObjectKey (String "test2", Number (mkNumberValue "2" 2))
             ]
         )
     )

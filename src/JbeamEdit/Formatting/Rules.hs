@@ -77,6 +77,7 @@ data PropertyKey a where
   ForceComplexNewLine :: PropertyKey Bool
   AlignObjectKeys :: PropertyKey Bool
   AutoPadSubObjects :: PropertyKey Bool
+  PreserveNumberFormat :: PropertyKey Bool
   PadAmount :: PropertyKey Int
   PadDecimals :: PropertyKey Int
   Indent :: PropertyKey Int
@@ -111,6 +112,7 @@ eqKey NoComplexNewLine NoComplexNewLine = Just Refl
 eqKey ForceComplexNewLine ForceComplexNewLine = Just Refl
 eqKey AlignObjectKeys AlignObjectKeys = Just Refl
 eqKey AutoPadSubObjects AutoPadSubObjects = Just Refl
+eqKey PreserveNumberFormat PreserveNumberFormat = Just Refl
 eqKey PadDecimals PadDecimals = Just Refl
 eqKey Indent Indent = Just Refl
 eqKey _ _ = Nothing
@@ -153,6 +155,7 @@ propertyName NoComplexNewLine = "NoComplexNewLine"
 propertyName ForceComplexNewLine = "ForceComplexNewLine"
 propertyName AlignObjectKeys = "AlignObjectKeys"
 propertyName AutoPadSubObjects = "AutoPadSubObjects"
+propertyName PreserveNumberFormat = "PreserveNumberFormat"
 propertyName PadAmount = "PadAmount"
 propertyName PadDecimals = "PadDecimals"
 propertyName Indent = "Indent"
@@ -172,6 +175,7 @@ boolProperties =
     , AutoPad
     , AlignObjectKeys
     , AutoPadSubObjects
+    , PreserveNumberFormat
     ]
 
 intProperties :: [SomeKey]
@@ -200,11 +204,11 @@ lookupRule = lookupProp
 
 applyDecimalPadding :: Int -> Text -> Text
 applyDecimalPadding padDecimals node
-  | padDecimals /= 0 =
+  | padDecimals /= 0
+  , T.any (== '.') node =
       let (int, frac) = T.breakOnEnd "." node
           paddedFrac = T.justifyLeft padDecimals '0' frac
        in int <> paddedFrac
-  | T.isSuffixOf ".0" node = T.dropEnd 2 node
   | otherwise = node
 
 applyPadLogic :: (Node -> Text) -> Rule -> Node -> Text

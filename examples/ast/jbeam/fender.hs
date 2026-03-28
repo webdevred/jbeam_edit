@@ -61,14 +61,22 @@ Object
                         [ ObjectKey
                             ( String "nodeWeight"
                             , Number
-                                ( DecimalValue 0.65 )
+                                ( NumberValue
+                                    { nvText = "0.65"
+                                    , nvValue = 0.65
+                                    }
+                                )
                             )
                         ]
                     , Object
                         [ ObjectKey
                             ( String "frictionCoef"
                             , Number
-                                ( DecimalValue 0.7 )
+                                ( NumberValue
+                                    { nvText = "0.7"
+                                    , nvValue = 0.7
+                                    }
+                                )
                             )
                         ]
                     , Object
@@ -106,123 +114,233 @@ Object
                     , Array
                         [ String "bfl0"
                         , Number
-                            ( DecimalValue 0.959 )
-                        , Number
-                            ( DecimalValue
-                                ( -1.762 )
+                            ( NumberValue
+                                { nvText = "0.959"
+                                , nvValue = 0.959
+                                }
                             )
                         , Number
-                            ( DecimalValue 0.576 )
+                            ( NumberValue
+                                { nvText = "-1.762"
+                                , nvValue = -1.762
+                                }
+                            )
+                        , Number
+                            ( NumberValue
+                                { nvText = "0.576"
+                                , nvValue = 0.576
+                                }
+                            )
                         ]
                     , Array
                         [ String "bfl1"
                         , Number
-                            ( DecimalValue 0.855 )
-                        , Number
-                            ( DecimalValue
-                                ( -1.788 )
+                            ( NumberValue
+                                { nvText = "0.855"
+                                , nvValue = 0.855
+                                }
                             )
                         , Number
-                            ( DecimalValue 0.707 )
+                            ( NumberValue
+                                { nvText = "-1.788"
+                                , nvValue = -1.788
+                                }
+                            )
+                        , Number
+                            ( NumberValue
+                                { nvText = "0.707"
+                                , nvValue = 0.707
+                                }
+                            )
                         ]
                     , Array
                         [ String "bfl2"
                         , Number
-                            ( DecimalValue 0.739 )
-                        , Number
-                            ( DecimalValue
-                                ( -1.845 )
+                            ( NumberValue
+                                { nvText = "0.739"
+                                , nvValue = 0.739
+                                }
                             )
                         , Number
-                            ( DecimalValue 0.716 )
+                            ( NumberValue
+                                { nvText = "-1.845"
+                                , nvValue = -1.845
+                                }
+                            )
+                        , Number
+                            ( NumberValue
+                                { nvText = "0.716"
+                                , nvValue = 0.716
+                                }
+                            )
                         ]
                     , Array
                         [ String "bfl3"
                         , Number
-                            ( DecimalValue 0.948 )
-                        , Number
-                            ( DecimalValue
-                                ( -1.435 )
+                            ( NumberValue
+                                { nvText = "0.948"
+                                , nvValue = 0.948
+                                }
                             )
                         , Number
-                            ( DecimalValue 0.73 )
+                            ( NumberValue
+                                { nvText = "-1.435"
+                                , nvValue = -1.435
+                                }
+                            )
+                        , Number
+                            ( NumberValue
+                                { nvText = "0.730"
+                                , nvValue = 0.73
+                                }
+                            )
                         ]
                     , Array
                         [ String "bfl4"
                         , Number
-                            ( DecimalValue 0.756 )
-                        , Number
-                            ( DecimalValue
-                                ( -1.413 )
+                            ( NumberValue
+                                { nvText = "0.756"
+                                , nvValue = 0.756
+                                }
                             )
                         , Number
-                            ( DecimalValue 0.843 )
+                            ( NumberValue
+                                { nvText = "-1.413"
+                                , nvValue = -1.413
+                                }
+                            )
+                        , Number
+                            ( NumberValue
+                                { nvText = "0.843"
+                                , nvValue = 0.843
+                                }
+                            )
                         ]
                     , Array
                         [ String "bfl5"
                         , Number
-                            ( DecimalValue 0.963 )
-                        , Number
-                            ( DecimalValue
-                                ( -1.024 )
+                            ( NumberValue
+                                { nvText = "0.963"
+                                , nvValue = 0.963
+                                }
                             )
                         , Number
-                            ( DecimalValue 0.112 )
+                            ( NumberValue
+                                { nvText = "-1.024"
+                                , nvValue = -1.024
+                                }
+                            )
+                        , Number
+                            ( NumberValue
+                                { nvText = "0.112"
+                                , nvValue = 0.112
+                                }
+                            )
                         ]
                     , Array
                         [ String "bfl6"
                         , Number
-                            ( DecimalValue 0.964 )
-                        , Number
-                            ( DecimalValue
-                                ( -1.072 )
+                            ( NumberValue
+                                { nvText = "0.964"
+                                , nvValue = 0.964
+                                }
                             )
                         , Number
-                            ( DecimalValue 0.507 )
+                            ( NumberValue
+                                { nvText = "-1.072"
+                                , nvValue = -1.072
+                                }
+                            )
+                        , Number
+                            ( NumberValue
+                                { nvText = "0.507"
+                                , nvValue = 0.507
+                                }
+                            )
                         ]
                     , Array
                         [ String "bfl7"
                         , Number
-                            ( DecimalValue 0.778 )
-                        , Number
-                            ( DecimalValue
-                                ( -1.008 )
+                            ( NumberValue
+                                { nvText = "0.778"
+                                , nvValue = 0.778
+                                }
                             )
                         , Number
-                            ( DecimalValue 0.873 )
+                            ( NumberValue
+                                { nvText = "-1.008"
+                                , nvValue = -1.008
+                                }
+                            )
+                        , Number
+                            ( NumberValue
+                                { nvText = "0.873"
+                                , nvValue = 0.873
+                                }
+                            )
                         ]
                     , Array
                         [ String "bfl8"
                         , Number
-                            ( DecimalValue 0.987 )
-                        , Number
-                            ( DecimalValue
-                                ( -0.743 )
+                            ( NumberValue
+                                { nvText = "0.987"
+                                , nvValue = 0.987
+                                }
                             )
                         , Number
-                            ( DecimalValue 0.109 )
+                            ( NumberValue
+                                { nvText = "-0.743"
+                                , nvValue = -0.743
+                                }
+                            )
+                        , Number
+                            ( NumberValue
+                                { nvText = "0.109"
+                                , nvValue = 0.109
+                                }
+                            )
                         ]
                     , Array
                         [ String "bfl9"
                         , Number
-                            ( DecimalValue 0.987 )
-                        , Number
-                            ( DecimalValue
-                                ( -0.744 )
+                            ( NumberValue
+                                { nvText = "0.987"
+                                , nvValue = 0.987
+                                }
                             )
                         , Number
-                            ( DecimalValue 0.494 )
+                            ( NumberValue
+                                { nvText = "-0.744"
+                                , nvValue = -0.744
+                                }
+                            )
+                        , Number
+                            ( NumberValue
+                                { nvText = "0.494"
+                                , nvValue = 0.494
+                                }
+                            )
                         ]
                     , Array
                         [ String "bfl10"
                         , Number
-                            ( DecimalValue 0.812 )
-                        , Number
-                            ( DecimalValue
-                                ( -0.759 )
+                            ( NumberValue
+                                { nvText = "0.812"
+                                , nvValue = 0.812
+                                }
                             )
                         , Number
-                            ( DecimalValue 0.896 )
+                            ( NumberValue
+                                { nvText = "-0.759"
+                                , nvValue = -0.759
+                                }
+                            )
+                        , Number
+                            ( NumberValue
+                                { nvText = "0.896"
+                                , nvValue = 0.896
+                                }
+                            )
                         ]
                     , Comment
                         ( InternalComment
@@ -241,145 +359,233 @@ Object
                     , Array
                         [ String "bfr0"
                         , Number
-                            ( DecimalValue
-                                ( -0.906 )
+                            ( NumberValue
+                                { nvText = "-0.906"
+                                , nvValue = -0.906
+                                }
                             )
                         , Number
-                            ( DecimalValue
-                                ( -1.737 )
+                            ( NumberValue
+                                { nvText = "-1.737"
+                                , nvValue = -1.737
+                                }
                             )
                         , Number
-                            ( DecimalValue 0.578 )
+                            ( NumberValue
+                                { nvText = "0.578"
+                                , nvValue = 0.578
+                                }
+                            )
                         ]
                     , Array
                         [ String "bfr1"
                         , Number
-                            ( DecimalValue
-                                ( -0.807 )
+                            ( NumberValue
+                                { nvText = "-0.807"
+                                , nvValue = -0.807
+                                }
                             )
                         , Number
-                            ( DecimalValue
-                                ( -1.769 )
+                            ( NumberValue
+                                { nvText = "-1.769"
+                                , nvValue = -1.769
+                                }
                             )
                         , Number
-                            ( DecimalValue 0.707 )
+                            ( NumberValue
+                                { nvText = "0.707"
+                                , nvValue = 0.707
+                                }
+                            )
                         ]
                     , Array
                         [ String "bfr2"
                         , Number
-                            ( DecimalValue
-                                ( -0.691 )
+                            ( NumberValue
+                                { nvText = "-0.691"
+                                , nvValue = -0.691
+                                }
                             )
                         , Number
-                            ( DecimalValue
-                                ( -1.829 )
+                            ( NumberValue
+                                { nvText = "-1.829"
+                                , nvValue = -1.829
+                                }
                             )
                         , Number
-                            ( DecimalValue 0.716 )
+                            ( NumberValue
+                                { nvText = "0.716"
+                                , nvValue = 0.716
+                                }
+                            )
                         ]
                     , Array
                         [ String "bfr3"
                         , Number
-                            ( DecimalValue
-                                ( -0.89 )
+                            ( NumberValue
+                                { nvText = "-0.890"
+                                , nvValue = -0.89
+                                }
                             )
                         , Number
-                            ( DecimalValue
-                                ( -1.409 )
+                            ( NumberValue
+                                { nvText = "-1.409"
+                                , nvValue = -1.409
+                                }
                             )
                         , Number
-                            ( DecimalValue 0.729 )
+                            ( NumberValue
+                                { nvText = "0.729"
+                                , nvValue = 0.729
+                                }
+                            )
                         ]
                     , Array
                         [ String "bfr4"
                         , Number
-                            ( DecimalValue
-                                ( -0.7 )
+                            ( NumberValue
+                                { nvText = "-0.700"
+                                , nvValue = -0.7
+                                }
                             )
                         , Number
-                            ( DecimalValue
-                                ( -1.397 )
+                            ( NumberValue
+                                { nvText = "-1.397"
+                                , nvValue = -1.397
+                                }
                             )
                         , Number
-                            ( DecimalValue 0.843 )
+                            ( NumberValue
+                                { nvText = "0.843"
+                                , nvValue = 0.843
+                                }
+                            )
                         ]
                     , Array
                         [ String "bfr5"
                         , Number
-                            ( DecimalValue
-                                ( -0.899 )
+                            ( NumberValue
+                                { nvText = "-0.899"
+                                , nvValue = -0.899
+                                }
                             )
                         , Number
-                            ( DecimalValue
-                                ( -1.005 )
+                            ( NumberValue
+                                { nvText = "-1.005"
+                                , nvValue = -1.005
+                                }
                             )
                         , Number
-                            ( DecimalValue 0.112 )
+                            ( NumberValue
+                                { nvText = "0.112"
+                                , nvValue = 0.112
+                                }
+                            )
                         ]
                     , Array
                         [ String "bfr6"
                         , Number
-                            ( DecimalValue
-                                ( -0.9 )
+                            ( NumberValue
+                                { nvText = "-0.900"
+                                , nvValue = -0.9
+                                }
                             )
                         , Number
-                            ( DecimalValue
-                                ( -1.053 )
+                            ( NumberValue
+                                { nvText = "-1.053"
+                                , nvValue = -1.053
+                                }
                             )
                         , Number
-                            ( DecimalValue 0.508 )
+                            ( NumberValue
+                                { nvText = "0.508"
+                                , nvValue = 0.508
+                                }
+                            )
                         ]
                     , Array
                         [ String "bfr7"
                         , Number
-                            ( DecimalValue
-                                ( -0.715 )
+                            ( NumberValue
+                                { nvText = "-0.715"
+                                , nvValue = -0.715
+                                }
                             )
                         , Number
-                            ( DecimalValue
-                                ( -0.991 )
+                            ( NumberValue
+                                { nvText = "-0.991"
+                                , nvValue = -0.991
+                                }
                             )
                         , Number
-                            ( DecimalValue 0.873 )
+                            ( NumberValue
+                                { nvText = "0.873"
+                                , nvValue = 0.873
+                                }
+                            )
                         ]
                     , Array
                         [ String "bfr8"
                         , Number
-                            ( DecimalValue
-                                ( -0.916 )
+                            ( NumberValue
+                                { nvText = "-0.916"
+                                , nvValue = -0.916
+                                }
                             )
                         , Number
-                            ( DecimalValue
-                                ( -0.742 )
+                            ( NumberValue
+                                { nvText = "-0.742"
+                                , nvValue = -0.742
+                                }
                             )
                         , Number
-                            ( DecimalValue 0.112 )
+                            ( NumberValue
+                                { nvText = "0.112"
+                                , nvValue = 0.112
+                                }
+                            )
                         ]
                     , Array
                         [ String "bfr9"
                         , Number
-                            ( DecimalValue
-                                ( -0.917 )
+                            ( NumberValue
+                                { nvText = "-0.917"
+                                , nvValue = -0.917
+                                }
                             )
                         , Number
-                            ( DecimalValue
-                                ( -0.746 )
+                            ( NumberValue
+                                { nvText = "-0.746"
+                                , nvValue = -0.746
+                                }
                             )
                         , Number
-                            ( DecimalValue 0.494 )
+                            ( NumberValue
+                                { nvText = "0.494"
+                                , nvValue = 0.494
+                                }
+                            )
                         ]
                     , Array
                         [ String "bfr10"
                         , Number
-                            ( DecimalValue
-                                ( -0.734 )
+                            ( NumberValue
+                                { nvText = "-0.734"
+                                , nvValue = -0.734
+                                }
                             )
                         , Number
-                            ( DecimalValue
-                                ( -0.746 )
+                            ( NumberValue
+                                { nvText = "-0.746"
+                                , nvValue = -0.746
+                                }
                             )
                         , Number
-                            ( DecimalValue 0.888 )
+                            ( NumberValue
+                                { nvText = "0.888"
+                                , nvValue = 0.888
+                                }
+                            )
                         ]
                     , Comment
                         ( InternalComment
@@ -405,7 +611,11 @@ Object
                         [ ObjectKey
                             ( String "nodeWeight"
                             , Number
-                                ( DecimalValue 1.2 )
+                                ( NumberValue
+                                    { nvText = "1.2"
+                                    , nvValue = 1.2
+                                    }
+                                )
                             )
                         ]
                     , Object
@@ -417,26 +627,44 @@ Object
                     , Array
                         [ String "bfsl"
                         , Number
-                            ( DecimalValue 0.684 )
-                        , Number
-                            ( DecimalValue
-                                ( -1.079 )
+                            ( NumberValue
+                                { nvText = "0.684"
+                                , nvValue = 0.684
+                                }
                             )
                         , Number
-                            ( DecimalValue 0.507 )
+                            ( NumberValue
+                                { nvText = "-1.079"
+                                , nvValue = -1.079
+                                }
+                            )
+                        , Number
+                            ( NumberValue
+                                { nvText = "0.507"
+                                , nvValue = 0.507
+                                }
+                            )
                         ]
                     , Array
                         [ String "bfsr"
                         , Number
-                            ( DecimalValue
-                                ( -0.623 )
+                            ( NumberValue
+                                { nvText = "-0.623"
+                                , nvValue = -0.623
+                                }
                             )
                         , Number
-                            ( DecimalValue
-                                ( -1.064 )
+                            ( NumberValue
+                                { nvText = "-1.064"
+                                , nvValue = -1.064
+                                }
                             )
                         , Number
-                            ( DecimalValue 0.507 )
+                            ( NumberValue
+                                { nvText = "0.507"
+                                , nvValue = 0.507
+                                }
+                            )
                         ]
                     ]
                 )
@@ -481,12 +709,20 @@ Object
                         [ ObjectKey
                             ( String "beamSpring"
                             , Number
-                                ( IntValue 451000 )
+                                ( NumberValue
+                                    { nvText = "451000"
+                                    , nvValue = 451000.0
+                                    }
+                                )
                             )
                         , ObjectKey
                             ( String "beamDamp"
                             , Number
-                                ( IntValue 50 )
+                                ( NumberValue
+                                    { nvText = "50"
+                                    , nvValue = 50.0
+                                    }
+                                )
                             )
                         ]
                     , Object
@@ -499,14 +735,22 @@ Object
                         [ ObjectKey
                             ( String "deformLimitExpansion"
                             , Number
-                                ( DecimalValue 1.1 )
+                                ( NumberValue
+                                    { nvText = "1.1"
+                                    , nvValue = 1.1
+                                    }
+                                )
                             )
                         ]
                     , Object
                         [ ObjectKey
                             ( String "beamDeform"
                             , Number
-                                ( IntValue 6000 )
+                                ( NumberValue
+                                    { nvText = "6000"
+                                    , nvValue = 6000.0
+                                    }
+                                )
                             )
                         ]
                     , Comment
@@ -577,7 +821,11 @@ Object
                         [ ObjectKey
                             ( String "beamDeform"
                             , Number
-                                ( IntValue 12000 )
+                                ( NumberValue
+                                    { nvText = "12000"
+                                    , nvValue = 12000.0
+                                    }
+                                )
                             )
                         ]
                     , Array
@@ -862,19 +1110,31 @@ Object
                         [ ObjectKey
                             ( String "beamSpring"
                             , Number
-                                ( IntValue 350000 )
+                                ( NumberValue
+                                    { nvText = "350000"
+                                    , nvValue = 350000.0
+                                    }
+                                )
                             )
                         , ObjectKey
                             ( String "beamDamp"
                             , Number
-                                ( IntValue 115 )
+                                ( NumberValue
+                                    { nvText = "115"
+                                    , nvValue = 115.0
+                                    }
+                                )
                             )
                         ]
                     , Object
                         [ ObjectKey
                             ( String "beamDeform"
                             , Number
-                                ( IntValue 900 )
+                                ( NumberValue
+                                    { nvText = "900"
+                                    , nvValue = 900.0
+                                    }
+                                )
                             )
                         ]
                     , Comment
@@ -927,22 +1187,38 @@ Object
                         [ ObjectKey
                             ( String "beamSpring"
                             , Number
-                                ( IntValue 501000 )
+                                ( NumberValue
+                                    { nvText = "501000"
+                                    , nvValue = 501000.0
+                                    }
+                                )
                             )
                         , ObjectKey
                             ( String "beamDamp"
                             , Number
-                                ( IntValue 75 )
+                                ( NumberValue
+                                    { nvText = "75"
+                                    , nvValue = 75.0
+                                    }
+                                )
                             )
                         , ObjectKey
                             ( String "beamStrength"
                             , Number
-                                ( IntValue 20000 )
+                                ( NumberValue
+                                    { nvText = "20000"
+                                    , nvValue = 20000.0
+                                    }
+                                )
                             )
                         , ObjectKey
                             ( String "beamDeform"
                             , Number
-                                ( IntValue 1000 )
+                                ( NumberValue
+                                    { nvText = "1000"
+                                    , nvValue = 1000.0
+                                    }
+                                )
                             )
                         ]
                     , Object
@@ -985,7 +1261,11 @@ Object
                         [ ObjectKey
                             ( String "breakGroupType"
                             , Number
-                                ( IntValue 1 )
+                                ( NumberValue
+                                    { nvText = "1"
+                                    , nvValue = 1.0
+                                    }
+                                )
                             )
                         ]
                     , Array
@@ -1024,21 +1304,33 @@ Object
                         [ ObjectKey
                             ( String "beamDeform"
                             , Number
-                                ( IntValue 18000 )
+                                ( NumberValue
+                                    { nvText = "18000"
+                                    , nvValue = 18000.0
+                                    }
+                                )
                             )
                         ]
                     , Object
                         [ ObjectKey
                             ( String "beamStrength"
                             , Number
-                                ( IntValue 4000 )
+                                ( NumberValue
+                                    { nvText = "4000"
+                                    , nvValue = 4000.0
+                                    }
+                                )
                             )
                         ]
                     , Object
                         [ ObjectKey
                             ( String "breakGroupType"
                             , Number
-                                ( IntValue 1 )
+                                ( NumberValue
+                                    { nvText = "1"
+                                    , nvValue = 1.0
+                                    }
+                                )
                             )
                         ]
                     , Array
@@ -1057,7 +1349,11 @@ Object
                         [ ObjectKey
                             ( String "breakGroupType"
                             , Number
-                                ( IntValue 0 )
+                                ( NumberValue
+                                    { nvText = "0"
+                                    , nvValue = 0.0
+                                    }
+                                )
                             )
                         ]
                     , Comment
@@ -1072,12 +1368,20 @@ Object
                         [ ObjectKey
                             ( String "beamStrength"
                             , Number
-                                ( IntValue 16000 )
+                                ( NumberValue
+                                    { nvText = "16000"
+                                    , nvValue = 16000.0
+                                    }
+                                )
                             )
                         , ObjectKey
                             ( String "beamDeform"
                             , Number
-                                ( IntValue 12000 )
+                                ( NumberValue
+                                    { nvText = "12000"
+                                    , nvValue = 12000.0
+                                    }
+                                )
                             )
                         ]
                     , Array
@@ -1148,12 +1452,20 @@ Object
                         [ ObjectKey
                             ( String "beamStrength"
                             , Number
-                                ( IntValue 20000 )
+                                ( NumberValue
+                                    { nvText = "20000"
+                                    , nvValue = 20000.0
+                                    }
+                                )
                             )
                         , ObjectKey
                             ( String "beamDeform"
                             , Number
-                                ( IntValue 1000 )
+                                ( NumberValue
+                                    { nvText = "1000"
+                                    , nvValue = 1000.0
+                                    }
+                                )
                             )
                         ]
                     , Object
@@ -1166,7 +1478,11 @@ Object
                         [ ObjectKey
                             ( String "breakGroupType"
                             , Number
-                                ( IntValue 1 )
+                                ( NumberValue
+                                    { nvText = "1"
+                                    , nvValue = 1.0
+                                    }
+                                )
                             )
                         ]
                     , Array
@@ -1213,21 +1529,33 @@ Object
                         [ ObjectKey
                             ( String "beamDeform"
                             , Number
-                                ( IntValue 18000 )
+                                ( NumberValue
+                                    { nvText = "18000"
+                                    , nvValue = 18000.0
+                                    }
+                                )
                             )
                         ]
                     , Object
                         [ ObjectKey
                             ( String "beamStrength"
                             , Number
-                                ( IntValue 4000 )
+                                ( NumberValue
+                                    { nvText = "4000"
+                                    , nvValue = 4000.0
+                                    }
+                                )
                             )
                         ]
                     , Object
                         [ ObjectKey
                             ( String "breakGroupType"
                             , Number
-                                ( IntValue 1 )
+                                ( NumberValue
+                                    { nvText = "1"
+                                    , nvValue = 1.0
+                                    }
+                                )
                             )
                         ]
                     , Array
@@ -1258,7 +1586,11 @@ Object
                         [ ObjectKey
                             ( String "breakGroupType"
                             , Number
-                                ( IntValue 0 )
+                                ( NumberValue
+                                    { nvText = "0"
+                                    , nvValue = 0.0
+                                    }
+                                )
                             )
                         ]
                     , Comment
@@ -1273,12 +1605,20 @@ Object
                         [ ObjectKey
                             ( String "beamStrength"
                             , Number
-                                ( IntValue 16000 )
+                                ( NumberValue
+                                    { nvText = "16000"
+                                    , nvValue = 16000.0
+                                    }
+                                )
                             )
                         , ObjectKey
                             ( String "beamDeform"
                             , Number
-                                ( IntValue 12000 )
+                                ( NumberValue
+                                    { nvText = "12000"
+                                    , nvValue = 12000.0
+                                    }
+                                )
                             )
                         ]
                     , Array
@@ -1365,7 +1705,11 @@ Object
                         [ ObjectKey
                             ( String "beamStrength"
                             , Number
-                                ( IntValue 16000 )
+                                ( NumberValue
+                                    { nvText = "16000"
+                                    , nvValue = 16000.0
+                                    }
+                                )
                             )
                         , ObjectKey
                             ( String "beamDeform"

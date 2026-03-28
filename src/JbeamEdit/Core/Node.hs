@@ -12,6 +12,9 @@ module JbeamEdit.Core.Node (
   extractPreviousAssocCmt,
   possiblyChildren,
   numberValueToScientific,
+  scientificToText,
+  mkNumberValue,
+  mkNumberValueNormalized,
   Node (..),
   NumberValue (..),
   InternalComment (..),
@@ -21,8 +24,14 @@ module JbeamEdit.Core.Node (
 ) where
 
 import Control.Applicative ((<|>))
-import Data.Scientific (Scientific)
+import Data.Scientific (
+  FPFormat (Fixed),
+  Scientific,
+  formatScientific,
+  isInteger,
+ )
 import Data.Text (Text)
+import Data.Text qualified as T
 import Data.Vector (Vector)
 import Data.Vector qualified as V
 
@@ -62,9 +71,10 @@ Text is yet a another string type in Haskell which is good fit when doing append
 I comptemplated using something like [OMap](https://hackage.haskell.org/package/ordered-containers-0.2.4/docs/Data-Map-Ordered.html) for the Object but then I realized that I do not only need support pairs of keys and values for the Object case, I also need to support the Object having Comments as direct children.
 The parser is currently written using attoaparsec but I are considering to migrate to Megaparsec since Megaparsec has better support implementing error messages which can be given to the end user.
 -}
-data NumberValue
-  = IntValue Integer
-  | DecimalValue Scientific
+data NumberValue = NumberValue
+  { nvText :: Text
+  , nvValue :: Scientific
+  }
   deriving (Eq, Ord, Read, Show)
 
 data Node
@@ -113,8 +123,18 @@ isNumberNode (Number _) = True
 isNumberNode _ = False
 
 numberValueToScientific :: NumberValue -> Scientific
-numberValueToScientific (IntValue n) = fromIntegral n
-numberValueToScientific (DecimalValue n) = n
+numberValueToScientific = nvValue
+
+scientificToText :: Scientific -> Text
+scientificToText v
+  | isInteger v = T.pack $ show (floor v :: Integer)
+  | otherwise = T.pack $ formatScientific Fixed Nothing v
+
+mkNumberValue :: Text -> Scientific -> NumberValue
+mkNumberValue = NumberValue
+
+mkNumberValueNormalized :: Scientific -> NumberValue
+mkNumberValueNormalized v = NumberValue {nvText = scientificToText v, nvValue = v}
 
 isSinglelineComment :: Node -> Bool
 isSinglelineComment (Comment (InternalComment _ False _ _)) = True

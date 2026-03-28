@@ -17,6 +17,7 @@ import Data.Char (isSpace)
 import Data.Functor (($>))
 import Data.Maybe (isNothing)
 import Data.Monoid.Extra (mwhen)
+import Data.Scientific (Scientific)
 import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Text.Encoding (decodeUtf8Lenient)
@@ -27,6 +28,7 @@ import JbeamEdit.Core.Node (
   InternalComment (..),
   Node (..),
   NumberValue (..),
+  mkNumberValue,
  )
 import JbeamEdit.Parsing.Common
 import Text.Megaparsec ((<?>), (<|>))
@@ -68,18 +70,24 @@ separatorParser = do
 --- selectors for numbers, comments, strings and bools
 ---
 
-numberParser
-  :: Num b
-  => (b -> Node)
-  -> JbeamParser b
-  -> JbeamParser Node
-numberParser c p = do
+numberParser :: JbeamParser Node
+numberParser = do
   char <- MP.lookAhead B.asciiChar
-  c
-    <$> bool
-      p
-      (negate <$> (byteChar '-' *> p))
-      (char == toWord8 '-')
+  let isSign c = c == toWord8 '+' || c == toWord8 '-'
+  signText <-
+    if isSign char
+      then T.singleton . toChar <$> B.asciiChar
+      else pure ""
+  let signFactor = if char == toWord8 '-' then negate else id
+  before <- MP.getInput
+  value <- MP.try intAsScientific <|> L.scientific
+  after <- MP.getInput
+  let rawBytes = LBS.take (LBS.length before - LBS.length after) before
+      rawText = decodeUtf8Lenient (LBS.toStrict rawBytes)
+  pure $ Number (mkNumberValue (signText <> rawText) (signFactor value))
+  where
+    intAsScientific :: JbeamParser Scientific
+    intAsScientific = fromIntegral <$> intDecimalParser
 
 associationDirection :: ParseState -> AssociationDirection
 associationDirection st = bool PreviousNode NextNode (lastNodeEndedWithNewline st)
@@ -147,8 +155,7 @@ scalarParser =
   tryScalarParsers
     [ stringParser
     , commentParser
-    , numberParser (Number . IntValue) intDecimalParser
-    , numberParser (Number . DecimalValue) L.scientific
+    , numberParser
     , boolParser
     , nullParser
     ]
