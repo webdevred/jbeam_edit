@@ -23,7 +23,12 @@ module JbeamEdit.Core.Node (
 ) where
 
 import Control.Applicative ((<|>))
-import Data.Scientific (Scientific)
+import Data.Scientific (
+  FPFormat (Fixed),
+  Scientific,
+  formatScientific,
+  isInteger,
+ )
 import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Vector (Vector)
@@ -123,7 +128,11 @@ mkNumberValue :: Text -> Scientific -> NumberValue
 mkNumberValue = NumberValue
 
 mkNumberValueNormalized :: Scientific -> NumberValue
-mkNumberValueNormalized v = NumberValue {nvText = T.pack (show v), nvValue = v}
+mkNumberValueNormalized v =
+  let text
+        | isInteger v = T.pack $ show (floor v :: Integer)
+        | otherwise = T.pack $ formatScientific Fixed Nothing v
+   in NumberValue {nvText = text, nvValue = v}
 
 isSinglelineComment :: Node -> Bool
 isSinglelineComment (Comment (InternalComment _ False _ _)) = True
