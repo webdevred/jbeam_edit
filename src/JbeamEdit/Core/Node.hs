@@ -12,6 +12,7 @@ module JbeamEdit.Core.Node (
   extractPreviousAssocCmt,
   possiblyChildren,
   numberValueToScientific,
+  scientificToText,
   mkNumberValue,
   mkNumberValueNormalized,
   Node (..),
@@ -124,15 +125,16 @@ isNumberNode _ = False
 numberValueToScientific :: NumberValue -> Scientific
 numberValueToScientific = nvValue
 
+scientificToText :: Scientific -> Text
+scientificToText v
+  | isInteger v = T.pack $ show (floor v :: Integer)
+  | otherwise = T.pack $ formatScientific Fixed Nothing v
+
 mkNumberValue :: Text -> Scientific -> NumberValue
 mkNumberValue = NumberValue
 
 mkNumberValueNormalized :: Scientific -> NumberValue
-mkNumberValueNormalized v =
-  let text
-        | isInteger v = T.pack $ show (floor v :: Integer)
-        | otherwise = T.pack $ formatScientific Fixed Nothing v
-   in NumberValue {nvText = text, nvValue = v}
+mkNumberValueNormalized v = NumberValue {nvText = scientificToText v, nvValue = v}
 
 isSinglelineComment :: Node -> Bool
 isSinglelineComment (Comment (InternalComment _ False _ _)) = True

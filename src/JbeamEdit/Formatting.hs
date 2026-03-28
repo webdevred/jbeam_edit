@@ -18,7 +18,6 @@ import Data.Map.Strict (Map)
 import Data.Map.Strict qualified as Map
 import Data.Maybe (fromMaybe)
 import Data.Monoid.Extra
-import Data.Scientific (FPFormat (Fixed), formatScientific, isInteger)
 import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Text.Encoding (encodeUtf8)
@@ -35,6 +34,7 @@ import JbeamEdit.Core.Node (
   isObjectKeyNode,
   isSinglelineComment,
   isStringNode,
+  scientificToText,
  )
 import JbeamEdit.Core.NodeCursor (newCursor)
 import JbeamEdit.Core.NodeCursor qualified as NC
@@ -360,15 +360,10 @@ formatComment (InternalComment {cMultiline = True, cText = c}) =
     leadingSpace = singleCharIfNot ' ' (T.isPrefixOf "\n" c)
     trailingSpace = singleCharIfNot ' ' (T.isSuffixOf "\n" c)
 
-formatNormalized :: NumberValue -> Text
-formatNormalized NumberValue {nvValue}
-  | isInteger nvValue = T.pack $ show (floor nvValue :: Integer)
-  | otherwise = T.pack $ formatScientific Fixed Nothing nvValue
-
 formatScalarNode :: Bool -> Node -> Text
 formatScalarNode _ (String s) = T.concat ["\"", s, "\""]
 formatScalarNode True (Number nv) = nvText nv
-formatScalarNode _ (Number nv) = formatNormalized nv
+formatScalarNode _ (Number nv) = scientificToText (nvValue nv)
 formatScalarNode _ (Bool True) = "true"
 formatScalarNode _ (Bool _) = "false"
 formatScalarNode _ Null = "null"
