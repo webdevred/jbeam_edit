@@ -65,9 +65,13 @@ custom_diff() {
 
 mapfile -t JBEAM_FILES < <(find "$JBEAM_DIR" -maxdepth 1 -name "*.jbeam" -printf "%f\n")
 
+TMP_DIRS=()
+cleanup() { for d in "${TMP_DIRS[@]}"; do rm -rf "$d"; done; }
+trap cleanup EXIT
+
 for f in "${JBEAM_FILES[@]}"; do
   TMP_DIR=$(mktemp -d)
-  trap 'rm -rf "$TMP_DIR"' EXIT
+  TMP_DIRS+=("$TMP_DIR")
 
   if [[ "${LABEL:-}" == "experimental" ]]; then
     if [[ "$f" == "frame.jbeam" ]]; then
@@ -97,7 +101,6 @@ for f in "${JBEAM_FILES[@]}"; do
     custom_diff "$TMP_DIR/$f" "$expected"
   fi
 
-  rm -rf "$TMP_DIR"
 done
 
 echo "All jbeam files passed checks!"

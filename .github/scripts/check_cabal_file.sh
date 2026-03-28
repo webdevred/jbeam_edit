@@ -13,7 +13,12 @@ cabal format "$TMP_DIR/current.cabal" 2>/dev/null
 
 git show HEAD:"$CABAL_FILE" >"$TMP_DIR/committed.cabal"
 
-HEADER_LINE=$(("$(grep -n "$HPACK_HEADER" "$TMP_DIR/committed.cabal" | cut -d: -f1)" - 1))
+HEADER_LINE_RAW=$(grep -n "$HPACK_HEADER" "$TMP_DIR/committed.cabal" | cut -d: -f1)
+if [[ -z "$HEADER_LINE_RAW" ]]; then
+  echo "Error: hpack header not found in committed .cabal file"
+  exit 1
+fi
+HEADER_LINE=$(("$HEADER_LINE_RAW" - 1))
 
 awk -v header="$HPACK_HEADER" -f ./.github/script_helpers/filter_cabal_file.awk "$TMP_DIR/committed.cabal" >"$TMP_DIR/committed_filtered.cabal"
 
