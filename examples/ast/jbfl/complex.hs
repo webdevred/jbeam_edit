@@ -18,6 +18,10 @@ RuleSet
                     ( SomeKey NoComplexNewLine
                     , SomeProperty NoComplexNewLine True
                     )
+                ,
+                    ( SomeKey PreserveNumberFormat
+                    , SomeProperty PreserveNumberFormat True
+                    )
                 ]
             )
         ,
@@ -72,6 +76,10 @@ RuleSet
                     ( SomeKey NoComplexNewLine
                     , SomeProperty NoComplexNewLine True
                     )
+                ,
+                    ( SomeKey PreserveNumberFormat
+                    , SomeProperty PreserveNumberFormat True
+                    )
                 ]
             )
         ,
@@ -89,6 +97,10 @@ RuleSet
                 [
                     ( SomeKey NoComplexNewLine
                     , SomeProperty NoComplexNewLine True
+                    )
+                ,
+                    ( SomeKey PreserveNumberFormat
+                    , SomeProperty PreserveNumberFormat True
                     )
                 ]
             )
@@ -123,6 +135,10 @@ RuleSet
                     ( SomeKey NoComplexNewLine
                     , SomeProperty NoComplexNewLine True
                     )
+                ,
+                    ( SomeKey PreserveNumberFormat
+                    , SomeProperty PreserveNumberFormat True
+                    )
                 ]
             )
         ,
@@ -139,6 +155,10 @@ RuleSet
                     ( SomeKey NoComplexNewLine
                     , SomeProperty NoComplexNewLine True
                     )
+                ,
+                    ( SomeKey PreserveNumberFormat
+                    , SomeProperty PreserveNumberFormat True
+                    )
                 ]
             )
         ,
@@ -154,6 +174,10 @@ RuleSet
                 [
                     ( SomeKey NoComplexNewLine
                     , SomeProperty NoComplexNewLine True
+                    )
+                ,
+                    ( SomeKey PreserveNumberFormat
+                    , SomeProperty PreserveNumberFormat True
                     )
                 ]
             )
@@ -383,6 +407,10 @@ RuleSet
                     ( SomeKey NoComplexNewLine
                     , SomeProperty NoComplexNewLine True
                     )
+                ,
+                    ( SomeKey PreserveNumberFormat
+                    , SomeProperty PreserveNumberFormat True
+                    )
                 ]
             )
         ,
@@ -398,6 +426,10 @@ RuleSet
                 [
                     ( SomeKey NoComplexNewLine
                     , SomeProperty NoComplexNewLine True
+                    )
+                ,
+                    ( SomeKey PreserveNumberFormat
+                    , SomeProperty PreserveNumberFormat True
                     )
                 ]
             )
@@ -415,6 +447,10 @@ RuleSet
                     ( SomeKey NoComplexNewLine
                     , SomeProperty NoComplexNewLine True
                     )
+                ,
+                    ( SomeKey PreserveNumberFormat
+                    , SomeProperty PreserveNumberFormat True
+                    )
                 ]
             )
         ,
@@ -430,6 +466,10 @@ RuleSet
                 [
                     ( SomeKey NoComplexNewLine
                     , SomeProperty NoComplexNewLine True
+                    )
+                ,
+                    ( SomeKey PreserveNumberFormat
+                    , SomeProperty PreserveNumberFormat True
                     )
                 ]
             )
@@ -447,6 +487,10 @@ RuleSet
                     ( SomeKey NoComplexNewLine
                     , SomeProperty NoComplexNewLine True
                     )
+                ,
+                    ( SomeKey PreserveNumberFormat
+                    , SomeProperty PreserveNumberFormat True
+                    )
                 ]
             )
         ,
@@ -462,6 +506,10 @@ RuleSet
                 [
                     ( SomeKey NoComplexNewLine
                     , SomeProperty NoComplexNewLine True
+                    )
+                ,
+                    ( SomeKey PreserveNumberFormat
+                    , SomeProperty PreserveNumberFormat True
                     )
                 ]
             )
@@ -479,6 +527,10 @@ RuleSet
                     ( SomeKey NoComplexNewLine
                     , SomeProperty NoComplexNewLine True
                     )
+                ,
+                    ( SomeKey PreserveNumberFormat
+                    , SomeProperty PreserveNumberFormat True
+                    )
                 ]
             )
         ,
@@ -495,6 +547,10 @@ RuleSet
                     ( SomeKey NoComplexNewLine
                     , SomeProperty NoComplexNewLine True
                     )
+                ,
+                    ( SomeKey PreserveNumberFormat
+                    , SomeProperty PreserveNumberFormat True
+                    )
                 ]
             )
         ,
@@ -510,6 +566,10 @@ RuleSet
                 [
                     ( SomeKey NoComplexNewLine
                     , SomeProperty NoComplexNewLine True
+                    )
+                ,
+                    ( SomeKey PreserveNumberFormat
+                    , SomeProperty PreserveNumberFormat True
                     )
                 ]
             )

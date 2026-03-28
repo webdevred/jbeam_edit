@@ -19,6 +19,7 @@
 .*.mainEngine.torque[*], .*.mainEngine.burnEfficiency[*],
 .*.powertrain[*] {
     NoComplexNewLine : true;
+    PreserveNumberFormat : true;
 }
 
 .*.sounds, .*.soundConfig, .*.soundConfigExhaust,
