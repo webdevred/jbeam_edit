@@ -3,7 +3,7 @@
 set -euo pipefail
 
 if [[ -z "$MATRIX" ]]; then
-  echo "matrix mising"
+  echo "matrix missing"
   exit 1
 fi
 

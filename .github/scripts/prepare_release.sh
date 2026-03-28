@@ -4,6 +4,7 @@ set -euo pipefail
 
 RELEASE_DIR="${RELEASE_DIR:?Environment variable RELEASE_DIR is required}"
 ZIP_DIR="${ZIP_DIR:?Environment variable ZIP_DIR is required}"
+LABEL="${LABEL:?Environment variable LABEL is required}"
 ZIP_FILE="${ZIP_FILE:-dist/jbeam-edit-${GITHUB_REF_NAME}.zip}"
 
 mkdir -p "$ZIP_DIR"

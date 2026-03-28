@@ -7,6 +7,10 @@ on:
   schedule:
     - cron: 0 5 * * 0  # every sunday 05:00 UTC
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build-with-latest-ghc:
     name: Build and test with Cabal (GHC latest) on ${{ matrix.os }}
@@ -53,7 +57,7 @@ jobs:
             ${{ runner.os }}-cabal-${{
               steps.get-ghc.outputs.ghc-version
             }}-${{
-              hashFiles('**/dist-newstyle/**/plan.json')
+              hashFiles('cabal.project.ci.freeze')
             }}
           restore-keys: |
             ${{ runner.os }}-cabal-${{ steps.get-ghc.outputs.ghc-version }}-

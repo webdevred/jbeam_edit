@@ -4,6 +4,19 @@ on:
   push:
     branches: [master]
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - '**.hs'
+      - 'package.yaml'
+      - '*.cabal'
+      - 'cabal.project*'
+      - 'stack.yaml*'
+      - 'examples/**'
+      - '.github/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -162,7 +175,7 @@ jobs:
             }}-cabal-${{
               matrix.ghc
             }}-${{
-              hashFiles('**/dist-newstyle/**/plan.json')
+              hashFiles('cabal.project.ci.freeze')
             }}
           restore-keys: |
             ${{ runner.os }}-cabal-${{ matrix.ghc }}-

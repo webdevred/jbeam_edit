@@ -57,8 +57,9 @@ REL_DIST_DIR="..\\dist\\release"
 
   while read -r file_path; do
     [[ -z "$file_path" ]] && continue
-    dest="{app}\\$(dirname "$file_path")"
-    echo "Source: \"$REL_DIST_DIR\\$file_path\"; DestDir: \"$dest\"; Flags: ignoreversion"
+    win_path="${file_path//\//\\}"
+    dest="{app}\\$(dirname "$file_path" | tr '/' '\\')"
+    echo "Source: \"$REL_DIST_DIR\\$win_path\"; DestDir: \"$dest\"; Flags: ignoreversion"
   done < <(get_multi_field "data-files")
 
 } >"$OUT_FILE"
