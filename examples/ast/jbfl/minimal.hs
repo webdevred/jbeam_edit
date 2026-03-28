@@ -5,6 +5,28 @@ RuleSet
                 ( fromList
                     [ AnyObjectKey
                     , Selector
+                        ( ObjectKey "beams" )
+                    , AnyArrayIndex
+                    , AnyArrayIndex
+                    , AnyObjectKey
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey NoComplexNewLine
+                    , SomeProperty NoComplexNewLine True
+                    )
+                ,
+                    ( SomeKey PreserveNumberFormat
+                    , SomeProperty PreserveNumberFormat True
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
                         ( ObjectKey "components" )
                     , Selector
                         ( ObjectKey "electrics" )
@@ -29,8 +51,138 @@ RuleSet
                 ( fromList
                     [ AnyObjectKey
                     , Selector
+                        ( ObjectKey "flexbodies" )
+                    , AnyArrayIndex
+                    , AnyArrayIndex
+                    , AnyObjectKey
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey NoComplexNewLine
+                    , SomeProperty NoComplexNewLine True
+                    )
+                ,
+                    ( SomeKey PreserveNumberFormat
+                    , SomeProperty PreserveNumberFormat True
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
                         ( ObjectKey "nodes" )
                     , AnyArrayIndex
+                    , AnyArrayIndex
+                    , AnyObjectKey
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey NoComplexNewLine
+                    , SomeProperty NoComplexNewLine True
+                    )
+                ,
+                    ( SomeKey PreserveNumberFormat
+                    , SomeProperty PreserveNumberFormat True
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
+                        ( ObjectKey "props" )
+                    , AnyArrayIndex
+                    , AnyArrayIndex
+                    , AnyObjectKey
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey NoComplexNewLine
+                    , SomeProperty NoComplexNewLine True
+                    )
+                ,
+                    ( SomeKey PreserveNumberFormat
+                    , SomeProperty PreserveNumberFormat True
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
+                        ( ObjectKey "slots" )
+                    , AnyArrayIndex
+                    , AnyArrayIndex
+                    , AnyObjectKey
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey NoComplexNewLine
+                    , SomeProperty NoComplexNewLine True
+                    )
+                ,
+                    ( SomeKey PreserveNumberFormat
+                    , SomeProperty PreserveNumberFormat True
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
+                        ( ObjectKey "slots2" )
+                    , AnyArrayIndex
+                    , AnyArrayIndex
+                    , AnyObjectKey
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey NoComplexNewLine
+                    , SomeProperty NoComplexNewLine True
+                    )
+                ,
+                    ( SomeKey PreserveNumberFormat
+                    , SomeProperty PreserveNumberFormat True
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
+                        ( ObjectKey "beams" )
+                    , AnyArrayIndex
+                    , AnyObjectKey
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey NoComplexNewLine
+                    , SomeProperty NoComplexNewLine True
+                    )
+                ,
+                    ( SomeKey PreserveNumberFormat
+                    , SomeProperty PreserveNumberFormat True
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
+                        ( ObjectKey "flexbodies" )
                     , AnyArrayIndex
                     , AnyObjectKey
                     ]
@@ -169,6 +321,69 @@ RuleSet
                 [
                     ( SomeKey PadDecimals
                     , SomeProperty PadDecimals 3
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
+                        ( ObjectKey "props" )
+                    , AnyArrayIndex
+                    , AnyObjectKey
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey NoComplexNewLine
+                    , SomeProperty NoComplexNewLine True
+                    )
+                ,
+                    ( SomeKey PreserveNumberFormat
+                    , SomeProperty PreserveNumberFormat True
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
+                        ( ObjectKey "slots" )
+                    , AnyArrayIndex
+                    , AnyObjectKey
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey NoComplexNewLine
+                    , SomeProperty NoComplexNewLine True
+                    )
+                ,
+                    ( SomeKey PreserveNumberFormat
+                    , SomeProperty PreserveNumberFormat True
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
+                        ( ObjectKey "slots2" )
+                    , AnyArrayIndex
+                    , AnyObjectKey
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey NoComplexNewLine
+                    , SomeProperty NoComplexNewLine True
+                    )
+                ,
+                    ( SomeKey PreserveNumberFormat
+                    , SomeProperty PreserveNumberFormat True
                     )
                 ]
             )
@@ -459,6 +674,33 @@ RuleSet
                     ( SomeKey ForceComplexNewLine
                     , SomeProperty ForceComplexNewLine True
                     )
+                ,
+                    ( SomeKey PreserveNumberFormat
+                    , SomeProperty PreserveNumberFormat True
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
+                        ( ObjectKey "mainEngine" )
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey AlignObjectKeys
+                    , SomeProperty AlignObjectKeys True
+                    )
+                ,
+                    ( SomeKey ForceComplexNewLine
+                    , SomeProperty ForceComplexNewLine True
+                    )
+                ,
+                    ( SomeKey PreserveNumberFormat
+                    , SomeProperty PreserveNumberFormat True
+                    )
                 ]
             )
         ,
@@ -497,6 +739,10 @@ RuleSet
                     ( SomeKey ForceComplexNewLine
                     , SomeProperty ForceComplexNewLine True
                     )
+                ,
+                    ( SomeKey PreserveNumberFormat
+                    , SomeProperty PreserveNumberFormat True
+                    )
                 ]
             )
         ,
@@ -516,6 +762,10 @@ RuleSet
                     ( SomeKey ForceComplexNewLine
                     , SomeProperty ForceComplexNewLine True
                     )
+                ,
+                    ( SomeKey PreserveNumberFormat
+                    , SomeProperty PreserveNumberFormat True
+                    )
                 ]
             )
         ,
@@ -534,6 +784,10 @@ RuleSet
                 ,
                     ( SomeKey ForceComplexNewLine
                     , SomeProperty ForceComplexNewLine True
+                    )
+                ,
+                    ( SomeKey PreserveNumberFormat
+                    , SomeProperty PreserveNumberFormat True
                     )
                 ]
             )

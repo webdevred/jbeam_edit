@@ -32,7 +32,13 @@
     NoComplexNewLine : true;
 }
 
-.*.nodes[*].*, .*.nodes[*][*].* {
+.*.nodes[*].*, .*.nodes[*][*].*,
+.*.beams[*].*, .*.beams[*][*].*,
+.*.slots[*].*, .*.slots[*][*].*,
+.*.slots2[*].*, .*.slots2[*][*].*,
+.*.props[*].*, .*.props[*][*].*,
+.*.flexbodies[*].*,
+.*.flexbodies[*][*].* {
     PreserveNumberFormat : true;
     NoComplexNewLine : true;
 }
@@ -42,12 +48,14 @@
     AutoPadSubObjects: true;
 }
 
-.*.sounds, .*.soundConfig,
-.*.soundConfigExhaust, .*.information,
+.*.mainEngine, .*.sounds,
+.*.soundConfig, .*.soundConfigExhaust,
+.*.information,
 .*.glowMap.dumptruck_gaugelight_warning,
 .*.glowMap.chassis_gaugelight_warning {
     ForceComplexNewLine: true;
     AlignObjectKeys: true;
+    PreserveNumberFormat: true;
 }
 
 // extra padding for glowMap indicators

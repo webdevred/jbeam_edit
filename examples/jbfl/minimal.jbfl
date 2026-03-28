@@ -30,16 +30,23 @@
     NoComplexNewLine : true;
 }
 
-.*.nodes[*].*, .*.nodes[*][*].* {
+.*.nodes[*].*, .*.nodes[*][*].*,
+.*.beams[*].*, .*.beams[*][*].*,
+.*.slots[*].*, .*.slots[*][*].*,
+.*.slots2[*].*, .*.slots2[*][*].*,
+.*.props[*].*, .*.props[*][*].*,
+.*.flexbodies[*].*,
+.*.flexbodies[*][*].* {
     PreserveNumberFormat : true;
     NoComplexNewLine : true;
 }
 
-.*.sounds, .*.soundConfig,
-.*.soundConfigExhaust,
+.*.mainEngine, .*.sounds,
+.*.soundConfig, .*.soundConfigExhaust,
 .*.information {
     ForceComplexNewLine: true;
     AlignObjectKeys: true;
+    PreserveNumberFormat: true;
 }
 
 .*.glowMap {
