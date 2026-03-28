@@ -11,6 +11,7 @@ Compression=lzma
 SolidCompression=yes
 PrivilegesRequired=admin
 UninstallDisplayName={#AppName}
+AppReadmeFile=https://github.com/webdevred/jbeam-edit#readme
 
 [UninstallDelete]
 Name: "{app}\*"; Type: files
