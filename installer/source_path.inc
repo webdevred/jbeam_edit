@@ -1,5 +1,11 @@
 (* -*- mode: pascal -*- *)
 
+const
+  HWND_BROADCAST = $FFFF;
+  WM_SETTINGCHANGE = $1A;
+  SMTO_ABORTIFHUNG = $0002;
+  ENV_CHANGE_TIMEOUT = 5000;
+
 function SendMessageTimeoutA(hWnd: Integer; Msg: Integer;
   wParam: Longint; lParam: Longint; fuFlags: Longint;
   uTimeout: Longint; var lpdwResult: Longint): Longint;
@@ -9,7 +15,8 @@ procedure BroadcastEnvChange;
 var
   resultValue: Longint;
 begin
-  SendMessageTimeoutA($FFFF, $1A, 0, 0, $0002, 5000, resultValue);
+  SendMessageTimeoutA(HWND_BROADCAST, WM_SETTINGCHANGE, 0, 0,
+    SMTO_ABORTIFHUNG, ENV_CHANGE_TIMEOUT, resultValue);
 end;
 
 function ExcludeTrailingPathDelimiter(const S: string): string;
@@ -40,35 +47,38 @@ begin
   end;
 end;
 
-function ReplaceText(const S, OldPattern, NewPattern: string): string;
-var
-  P: Integer;
-  Temp: string;
-begin
-  Temp := S;
-  P := Pos(OldPattern, Temp);
-  while P > 0 do
-  begin
-    Delete(Temp, P, Length(OldPattern));
-    Insert(NewPattern, Temp, P);
-    P := Pos(OldPattern, Temp);
-  end;
-  Result := Temp;
-end;
-
 procedure RemovePathEntry(const Entry: string);
 var
-  Key, PathValue, Cleaned, NormalizedEntry, UpperPath: string;
+  Key, PathValue, NormalizedEntry, Current, NewPath: string;
+  P: Integer;
 begin
   Key := 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment';
   if not RegQueryStringValue(HKLM, Key, 'Path', PathValue) then Exit;
   NormalizedEntry := UpperCase(ExcludeTrailingPathDelimiter(Entry));
-  UpperPath := UpperCase(';' + PathValue + ';');
-  Cleaned := ReplaceText(UpperPath, ';' + NormalizedEntry + ';', ';');
-  Cleaned := ReplaceText(Cleaned, ';' + NormalizedEntry + '\;', ';');
-  if (Length(Cleaned) > 0) and (Cleaned[1] = ';') then Delete(Cleaned, 1, 1);
-  if (Length(Cleaned) > 0) and (Cleaned[Length(Cleaned)] = ';') then Delete(Cleaned, Length(Cleaned), 1);
-  RegWriteExpandStringValue(HKLM, Key, 'Path', Cleaned);
+  NewPath := '';
+  while Length(PathValue) > 0 do
+  begin
+    P := Pos(';', PathValue);
+    if P > 0 then
+    begin
+      Current := Copy(PathValue, 1, P - 1);
+      PathValue := Copy(PathValue, P + 1, Length(PathValue));
+    end
+    else
+    begin
+      Current := PathValue;
+      PathValue := '';
+    end;
+    if (Current <> '') and
+       (UpperCase(ExcludeTrailingPathDelimiter(Current)) <> NormalizedEntry) then
+    begin
+      if NewPath = '' then
+        NewPath := Current
+      else
+        NewPath := NewPath + ';' + Current;
+    end;
+  end;
+  RegWriteExpandStringValue(HKLM, Key, 'Path', NewPath);
   BroadcastEnvChange;
 end;
 
