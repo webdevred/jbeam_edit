@@ -5,6 +5,18 @@ on:
     branches: [master]
     tags: [v*]
   pull_request:
+    paths:
+      - '**.hs'
+      - 'package.yaml'
+      - '*.cabal'
+      - 'cabal.project*'
+      - 'examples/**'
+      - 'installer/**'
+      - '.github/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   get-newest-supported-ghc:
@@ -66,7 +78,7 @@ jobs:
             }}-${{
               matrix.label
             }}-${{
-              hashFiles('**/dist-newstyle/**/plan.json')
+              hashFiles('cabal.project.release.freeze')
             }}
           restore-keys: |
             ${{ runner.os }}-cabal-${{ matrix.ghc }}-${{ matrix.label }}
@@ -129,7 +141,7 @@ jobs:
       - name: Generate constants innosetup values which come from cabal file
         env:
           CABAL_FILE: jbeam-edit.cabal
-        run: bash ./.github/scripts/gen_iss_constans.sh
+        run: bash ./.github/scripts/gen_iss_constants.sh
       - name: Build Inno Setup Installer
         uses: Minionguyjpro/Inno-Setup-Action@v1.2.7
         with:
