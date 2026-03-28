@@ -29,6 +29,28 @@ RuleSet
                 ( fromList
                     [ AnyObjectKey
                     , Selector
+                        ( ObjectKey "nodes" )
+                    , AnyArrayIndex
+                    , AnyArrayIndex
+                    , AnyObjectKey
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey NoComplexNewLine
+                    , SomeProperty NoComplexNewLine True
+                    )
+                ,
+                    ( SomeKey PreserveNumberFormat
+                    , SomeProperty PreserveNumberFormat True
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
                         ( ObjectKey "glowMap" )
                     , AnyObjectKey
                     , Selector
@@ -135,6 +157,27 @@ RuleSet
                     , Selector
                         ( ObjectKey "torqueModMult" )
                     , AnyArrayIndex
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey NoComplexNewLine
+                    , SomeProperty NoComplexNewLine True
+                    )
+                ,
+                    ( SomeKey PreserveNumberFormat
+                    , SomeProperty PreserveNumberFormat True
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
+                        ( ObjectKey "nodes" )
+                    , AnyArrayIndex
+                    , AnyObjectKey
                     ]
                 )
             , fromList
@@ -470,10 +513,6 @@ RuleSet
                 [
                     ( SomeKey NoComplexNewLine
                     , SomeProperty NoComplexNewLine True
-                    )
-                ,
-                    ( SomeKey PreserveNumberFormat
-                    , SomeProperty PreserveNumberFormat True
                     )
                 ]
             )

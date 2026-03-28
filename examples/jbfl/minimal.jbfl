@@ -10,7 +10,6 @@
     AlignObjectKeys: true;
 }
 
-.*.nodes[*], .*.flexbodies[*],
 .*.beams[*], .*.triangles[*],
 .*.variables[*], .*.glowMap.*,
 .*.rails.*, .*.props[*],
@@ -18,9 +17,18 @@
 .*.controller[*], .*.components.electrics.smoothers[*],
 .*.mainEngine.torque[*], .*.mainEngine.burnEfficiency[*],
 .*.mainEngine.torqueModIntake[*], .*.mainEngine.torqueModMult[*],
-.*.powertrain[*] {
-    NoComplexNewLine : true;
+.*.powertrain[*],.*.flexbodies[*] {
     PreserveNumberFormat : true;
+    NoComplexNewLine : true;
+}
+
+.*.nodes[*] {
+    NoComplexNewLine : true;
+}
+
+.*.nodes[*].*, .*.nodes[*][*].* {
+    PreserveNumberFormat : true;
+    NoComplexNewLine : true;
 }
 
 .*.sounds, .*.soundConfig, .*.soundConfigExhaust,
