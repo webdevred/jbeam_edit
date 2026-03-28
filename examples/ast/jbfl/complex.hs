@@ -109,6 +109,50 @@ RuleSet
                 ( fromList
                     [ AnyObjectKey
                     , Selector
+                        ( ObjectKey "mainEngine" )
+                    , Selector
+                        ( ObjectKey "torqueModIntake" )
+                    , AnyArrayIndex
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey NoComplexNewLine
+                    , SomeProperty NoComplexNewLine True
+                    )
+                ,
+                    ( SomeKey PreserveNumberFormat
+                    , SomeProperty PreserveNumberFormat True
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
+                        ( ObjectKey "mainEngine" )
+                    , Selector
+                        ( ObjectKey "torqueModMult" )
+                    , AnyArrayIndex
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey NoComplexNewLine
+                    , SomeProperty NoComplexNewLine True
+                    )
+                ,
+                    ( SomeKey PreserveNumberFormat
+                    , SomeProperty PreserveNumberFormat True
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
                         ( ObjectKey "nodes" )
                     , AnyArrayIndex
                     , AnyArrayIndex

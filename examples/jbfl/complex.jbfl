@@ -19,6 +19,7 @@
 .*.slots[*], .*.slots2[*],
 .*.controller[*], .*.components.electrics.smoothers[*],
 .*.mainEngine.torque[*], .*.mainEngine.burnEfficiency[*],
+.*.mainEngine.torqueModIntake[*], .*.mainEngine.torqueModMult[*],
 .*.powertrain[*] {
     NoComplexNewLine : true;
     PreserveNumberFormat : true;
