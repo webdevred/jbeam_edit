@@ -26,11 +26,11 @@ spec = do
       lookupKey "NotAKey" allProperties `shouldBe` Nothing
 
   describe "applyPadLogic" $ do
-    let fakeNode = Number (DecimalValue 123.0)
+    let fakeNode = Number (mkNumberValue "123.5" 123.5)
         ruleSet =
           fromList
             [ (SomeKey PadAmount, SomeProperty PadAmount 7)
             , (SomeKey PadDecimals, SomeProperty PadDecimals 2)
             ]
     it "applies PadAmount and PadDecimals" $
-      applyPadLogic formatScalarNode ruleSet fakeNode `shouldBe` "123.00 "
+      applyPadLogic (formatScalarNode False) ruleSet fakeNode `shouldBe` "123.50 "

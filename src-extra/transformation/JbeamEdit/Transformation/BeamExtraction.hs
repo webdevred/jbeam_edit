@@ -34,12 +34,12 @@ rejectUnknownName knownNodeNames maybeBeam =
 possiblyBeam :: Node -> Either Node (Maybe (Vector Text))
 possiblyBeam node
   | isCommentNode node || isObjectNode node = Right Nothing
-  | otherwise = maybe (Left node) (Right . Just) (maybeBeam node)
+  | otherwise = case node of
+      Array beamVec -> Right (mapM maybeString beamVec)
+      _ -> Left node
   where
     maybeString (String vertexName) = Just vertexName
     maybeString _ = Nothing
-    maybeBeam (Array beamVec) = mapM maybeString beamVec
-    maybeBeam _ = Nothing
 
 extractBeams :: Node -> Either Text (Vector Node)
 extractBeams topNode =

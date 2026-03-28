@@ -18,7 +18,7 @@ import Data.Map.Strict (Map)
 import Data.Map.Strict qualified as Map
 import Data.Maybe (fromMaybe)
 import Data.Monoid.Extra
-import Data.Scientific (FPFormat (Fixed), formatScientific)
+import Data.Scientific (FPFormat (Fixed), formatScientific, isInteger)
 import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Text.Encoding (encodeUtf8)
@@ -178,7 +178,7 @@ addDelimiters rs index rowIdx c complexChildren state acc ns@(node : rest)
                       { fsObjectKeyWidth = fsObjectKeyWidth state
                       , fsSubObjectWidths = fsSubObjectWidths state
                       }
-                  keyText = formatScalarNode k
+                  keyText = formatScalarNode False k
                   raw = NC.applyCrumb c (formatWithCursor rs stateForObjKey) idx n
                   (formatted, spaces) = splitTrailing comma raw
                   withComma = formatted <> singleCharIf ',' comma <> spaces
@@ -285,7 +285,7 @@ doFormatNode rs cursor state nodes =
                 ks = V.mapMaybe toKey nodes
              in if V.null ks
                   then Nothing
-                  else Just (V.maximum (V.map (T.length . formatScalarNode) ks))
+                  else Just (V.maximum (V.map (T.length . formatScalarNode False) ks))
 
       subObjectWidths :: Map Text Int
       subObjectWidths
@@ -296,7 +296,7 @@ doFormatNode rs cursor state nodes =
                     V.foldl'
                       ( \acc2 sn -> case sn of
                           ObjectKey (sk, sv) ->
-                            let kt = formatScalarNode sk
+                            let kt = formatScalarNode False sk
                                 vw =
                                   if isComplexNode sv
                                     then 0
@@ -360,14 +360,19 @@ formatComment (InternalComment {cMultiline = True, cText = c}) =
     leadingSpace = singleCharIfNot ' ' (T.isPrefixOf "\n" c)
     trailingSpace = singleCharIfNot ' ' (T.isSuffixOf "\n" c)
 
-formatScalarNode :: Node -> Text
-formatScalarNode (String s) = T.concat ["\"", s, "\""]
-formatScalarNode (Number (IntValue n)) = T.pack (show n)
-formatScalarNode (Number (DecimalValue n)) = T.pack (formatScientific Fixed Nothing n)
-formatScalarNode (Bool True) = "true"
-formatScalarNode (Bool _) = "false"
-formatScalarNode Null = "null"
-formatScalarNode _ = error "Unhandled scalar node"
+formatNormalized :: NumberValue -> Text
+formatNormalized NumberValue {nvValue}
+  | isInteger nvValue = T.pack $ show (floor nvValue :: Integer)
+  | otherwise = T.pack $ formatScientific Fixed Nothing nvValue
+
+formatScalarNode :: Bool -> Node -> Text
+formatScalarNode _ (String s) = T.concat ["\"", s, "\""]
+formatScalarNode True (Number nv) = nvText nv
+formatScalarNode _ (Number nv) = formatNormalized nv
+formatScalarNode _ (Bool True) = "true"
+formatScalarNode _ (Bool _) = "false"
+formatScalarNode _ Null = "null"
+formatScalarNode _ n = error $ "Unhandled scalar node: " <> show n
 
 formatWithCursor
   :: RuleSet -> FormattingState -> NC.NodeCursor -> Node -> Text
@@ -396,7 +401,8 @@ formatWithCursor rs state cursor (ObjectKey (k, v)) =
 formatWithCursor _ _ _ (Comment comment) = formatComment comment
 formatWithCursor rs _ cursor n =
   let ps = findPropertiesForCursor PrefixMatch cursor rs
-   in applyPadLogic formatScalarNode ps n
+      preserve = fromMaybe False (lookupRule PreserveNumberFormat ps)
+   in applyPadLogic (formatScalarNode preserve) ps n
 
 formatNode :: RuleSet -> Node -> Text
 formatNode rs node = formatWithCursor rs emptyState newCursor node <> T.singleton '\n'
