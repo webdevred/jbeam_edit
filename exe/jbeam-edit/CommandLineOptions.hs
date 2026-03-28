@@ -22,6 +22,7 @@ import Data.Text qualified as T
 data Options = Options
   { optInPlace :: Bool
   , optCopyJbflConfig :: Maybe ConfigType
+  , optRulesFile :: Maybe OsPath
   , optInputFile :: Maybe OsPath
   , optUpdateNames :: Map Text Text
   , optTransformation :: Bool
@@ -35,6 +36,7 @@ startOptions =
     { optInPlace = False
     , optInputFile = Nothing
     , optCopyJbflConfig = Nothing
+    , optRulesFile = Nothing
     , optUpdateNames = M.empty
     , optTransformation = False
     , optValidateBeams = False
@@ -114,6 +116,17 @@ options =
           "JBFL-CONFIG"
       )
       "Copy rules file to config directory"
+  , Option
+      "r"
+      ["rules-path"]
+      ( ReqArg
+          ( \f opt -> case encodeUtf f of
+              Just p -> pure opt {optRulesFile = Just p}
+              Nothing -> putErrorLine "invalid rules-path filepath" >> exitFailure
+          )
+          "FILE"
+      )
+      "Path to JBFL rules file"
   ]
     ++ updateNamesOption
     ++ [ Option

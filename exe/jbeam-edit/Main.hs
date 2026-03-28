@@ -43,7 +43,7 @@ createBackupFile filename opts = do
 
 editFile :: Options -> IO ()
 editFile opts = do
-  formattingConfig <- readFormattingConfig Nothing
+  formattingConfig <- readFormattingConfig (optRulesFile opts)
   case optInputFile opts of
     Just filename -> do
       createBackupFile filename opts
