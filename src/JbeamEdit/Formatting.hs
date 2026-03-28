@@ -140,7 +140,7 @@ addDelimiters rs index rowIdx c complexChildren state acc ns@(node : rest)
           _ ->
             singleCharIfNot
               '\n'
-              (["\n"] == acc || (not (cHadNewlineBefore ic) && any isObjectKeyNode rest))
+              (["\n"] == acc || not (cHadNewlineBefore ic) && any isObjectKeyNode rest)
       _ -> singleCharIfNot '\n' (any isObjectKeyNode rest || ["\n"] == acc)
 
     nextRowIdx =
@@ -396,7 +396,7 @@ formatWithCursor rs state cursor (ObjectKey (k, v)) =
 formatWithCursor _ _ _ (Comment comment) = formatComment comment
 formatWithCursor rs _ cursor n =
   let ps = findPropertiesForCursor PrefixMatch cursor rs
-      preserve = fromMaybe False (lookupRule PreserveNumberFormat ps)
+      preserve = (Just True == lookupRule PreserveNumberFormat ps)
    in applyPadLogic (formatScalarNode preserve) ps n
 
 formatNode :: RuleSet -> Node -> Text
