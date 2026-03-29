@@ -92,14 +92,20 @@ propertyParser (SomeKey key) = do
 
 parseValueForKey :: PropertyKey a -> JbflParser a
 parseValueForKey AutoPad = parseBool <?> "bool"
-parseValueForKey NoComplexNewLine = parseBool <?> "bool"
-parseValueForKey ForceComplexNewLine = parseBool <?> "bool"
+parseValueForKey ComplexNewLine = parseComplexNewLineMode <?> "Force or None"
 parseValueForKey AlignObjectKeys = parseBool <?> "bool"
 parseValueForKey AutoPadSubObjects = parseBool <?> "bool"
 parseValueForKey PreserveNumberFormat = parseBool <?> "bool"
 parseValueForKey PadAmount = L.decimal <?> "integer"
 parseValueForKey PadDecimals = L.decimal <?> "integer"
 parseValueForKey Indent = L.decimal <?> "integer"
+
+parseComplexNewLineMode :: JbflParser ComplexNewLineMode
+parseComplexNewLineMode =
+  tryParsers
+    [ B.string "Force" $> Force
+    , B.string "None" $> None
+    ]
 
 skipComment :: JbflParser ()
 skipComment = void . MP.many $ comment <* skipWhiteSpace
@@ -120,7 +126,23 @@ keyPropertyPairParser = do
           allProperties
       failParser u = MP.setOffset offset *> MP.failure u expToks
       key' = tryDecodeKey key (`lookupKey` allProperties)
-   in maybe (unexpTok >>= failParser) propertyParser key'
+      deprecatedFull = case decodeUtf8' (BS.pack key) of
+        Right text' -> lookup text' deprecatedAliases
+        Left _ -> Nothing
+   in case (key', deprecatedFull) of
+        (Just k, _) -> propertyParser k
+        (_, Just (sk, valTrue, valFalse)) -> deprecatedBoolPropertyParser sk valTrue valFalse
+        _ -> unexpTok >>= failParser
+
+deprecatedBoolPropertyParser
+  :: SomeKey -> SomeProperty -> SomeProperty -> JbflParser (SomeKey, SomeProperty)
+deprecatedBoolPropertyParser sk valTrue valFalse = do
+  _ <- byteChar ':'
+  skipWhiteSpace
+  b <- parseBool <?> "bool (deprecated)"
+  separatorParser
+  skipComment
+  pure (sk, if b then valTrue else valFalse)
 
 separatorParser :: JbflParser ()
 separatorParser = skipWhiteSpace *> void (byteChar ';') <* skipWhiteSpace

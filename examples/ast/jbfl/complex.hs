@@ -13,8 +13,8 @@ RuleSet
                 )
             , fromList
                 [
-                    ( SomeKey NoComplexNewLine
-                    , SomeProperty NoComplexNewLine True
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine None
                     )
                 ,
                     ( SomeKey PreserveNumberFormat
@@ -37,8 +37,8 @@ RuleSet
                 )
             , fromList
                 [
-                    ( SomeKey NoComplexNewLine
-                    , SomeProperty NoComplexNewLine True
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine None
                     )
                 ,
                     ( SomeKey PreserveNumberFormat
@@ -59,8 +59,8 @@ RuleSet
                 )
             , fromList
                 [
-                    ( SomeKey NoComplexNewLine
-                    , SomeProperty NoComplexNewLine True
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine None
                     )
                 ,
                     ( SomeKey PreserveNumberFormat
@@ -81,8 +81,8 @@ RuleSet
                 )
             , fromList
                 [
-                    ( SomeKey NoComplexNewLine
-                    , SomeProperty NoComplexNewLine True
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine None
                     )
                 ,
                     ( SomeKey PreserveNumberFormat
@@ -103,8 +103,8 @@ RuleSet
                 )
             , fromList
                 [
-                    ( SomeKey NoComplexNewLine
-                    , SomeProperty NoComplexNewLine True
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine None
                     )
                 ,
                     ( SomeKey PreserveNumberFormat
@@ -125,8 +125,8 @@ RuleSet
                 )
             , fromList
                 [
-                    ( SomeKey NoComplexNewLine
-                    , SomeProperty NoComplexNewLine True
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine None
                     )
                 ,
                     ( SomeKey PreserveNumberFormat
@@ -147,8 +147,8 @@ RuleSet
                 )
             , fromList
                 [
-                    ( SomeKey NoComplexNewLine
-                    , SomeProperty NoComplexNewLine True
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine None
                     )
                 ,
                     ( SomeKey PreserveNumberFormat
@@ -168,8 +168,8 @@ RuleSet
                 )
             , fromList
                 [
-                    ( SomeKey NoComplexNewLine
-                    , SomeProperty NoComplexNewLine True
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine None
                     )
                 ,
                     ( SomeKey PreserveNumberFormat
@@ -189,8 +189,8 @@ RuleSet
                 )
             , fromList
                 [
-                    ( SomeKey NoComplexNewLine
-                    , SomeProperty NoComplexNewLine True
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine None
                     )
                 ,
                     ( SomeKey PreserveNumberFormat
@@ -247,8 +247,8 @@ RuleSet
                 )
             , fromList
                 [
-                    ( SomeKey NoComplexNewLine
-                    , SomeProperty NoComplexNewLine True
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine None
                     )
                 ,
                     ( SomeKey PreserveNumberFormat
@@ -269,8 +269,8 @@ RuleSet
                 )
             , fromList
                 [
-                    ( SomeKey NoComplexNewLine
-                    , SomeProperty NoComplexNewLine True
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine None
                     )
                 ,
                     ( SomeKey PreserveNumberFormat
@@ -291,8 +291,8 @@ RuleSet
                 )
             , fromList
                 [
-                    ( SomeKey NoComplexNewLine
-                    , SomeProperty NoComplexNewLine True
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine None
                     )
                 ,
                     ( SomeKey PreserveNumberFormat
@@ -313,8 +313,8 @@ RuleSet
                 )
             , fromList
                 [
-                    ( SomeKey NoComplexNewLine
-                    , SomeProperty NoComplexNewLine True
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine None
                     )
                 ,
                     ( SomeKey PreserveNumberFormat
@@ -334,8 +334,8 @@ RuleSet
                 )
             , fromList
                 [
-                    ( SomeKey NoComplexNewLine
-                    , SomeProperty NoComplexNewLine True
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine None
                     )
                 ,
                     ( SomeKey PreserveNumberFormat
@@ -372,8 +372,8 @@ RuleSet
                 )
             , fromList
                 [
-                    ( SomeKey NoComplexNewLine
-                    , SomeProperty NoComplexNewLine True
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine None
                     )
                 ,
                     ( SomeKey PreserveNumberFormat
@@ -393,8 +393,8 @@ RuleSet
                 )
             , fromList
                 [
-                    ( SomeKey NoComplexNewLine
-                    , SomeProperty NoComplexNewLine True
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine None
                     )
                 ,
                     ( SomeKey PreserveNumberFormat
@@ -414,8 +414,8 @@ RuleSet
                 )
             , fromList
                 [
-                    ( SomeKey NoComplexNewLine
-                    , SomeProperty NoComplexNewLine True
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine None
                     )
                 ,
                     ( SomeKey PreserveNumberFormat
@@ -434,8 +434,8 @@ RuleSet
                 )
             , fromList
                 [
-                    ( SomeKey NoComplexNewLine
-                    , SomeProperty NoComplexNewLine True
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine None
                     )
                 ,
                     ( SomeKey PreserveNumberFormat
@@ -454,8 +454,8 @@ RuleSet
                 )
             , fromList
                 [
-                    ( SomeKey NoComplexNewLine
-                    , SomeProperty NoComplexNewLine True
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine None
                     )
                 ,
                     ( SomeKey PreserveNumberFormat
@@ -474,8 +474,8 @@ RuleSet
                 )
             , fromList
                 [
-                    ( SomeKey NoComplexNewLine
-                    , SomeProperty NoComplexNewLine True
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine None
                     )
                 ,
                     ( SomeKey PreserveNumberFormat
@@ -533,8 +533,8 @@ RuleSet
                     , SomeProperty AlignObjectKeys True
                     )
                 ,
-                    ( SomeKey ForceComplexNewLine
-                    , SomeProperty ForceComplexNewLine True
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine Force
                     )
                 ,
                     ( SomeKey PreserveNumberFormat
@@ -575,8 +575,8 @@ RuleSet
                     , SomeProperty AlignObjectKeys True
                     )
                 ,
-                    ( SomeKey ForceComplexNewLine
-                    , SomeProperty ForceComplexNewLine True
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine Force
                     )
                 ,
                     ( SomeKey PreserveNumberFormat
@@ -714,8 +714,8 @@ RuleSet
                 )
             , fromList
                 [
-                    ( SomeKey NoComplexNewLine
-                    , SomeProperty NoComplexNewLine True
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine None
                     )
                 ,
                     ( SomeKey PreserveNumberFormat
@@ -734,8 +734,8 @@ RuleSet
                 )
             , fromList
                 [
-                    ( SomeKey NoComplexNewLine
-                    , SomeProperty NoComplexNewLine True
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine None
                     )
                 ]
             )
@@ -750,8 +750,8 @@ RuleSet
                 )
             , fromList
                 [
-                    ( SomeKey NoComplexNewLine
-                    , SomeProperty NoComplexNewLine True
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine None
                     )
                 ,
                     ( SomeKey PreserveNumberFormat
@@ -770,8 +770,8 @@ RuleSet
                 )
             , fromList
                 [
-                    ( SomeKey NoComplexNewLine
-                    , SomeProperty NoComplexNewLine True
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine None
                     )
                 ,
                     ( SomeKey PreserveNumberFormat
@@ -790,8 +790,8 @@ RuleSet
                 )
             , fromList
                 [
-                    ( SomeKey NoComplexNewLine
-                    , SomeProperty NoComplexNewLine True
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine None
                     )
                 ,
                     ( SomeKey PreserveNumberFormat
@@ -810,8 +810,8 @@ RuleSet
                 )
             , fromList
                 [
-                    ( SomeKey NoComplexNewLine
-                    , SomeProperty NoComplexNewLine True
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine None
                     )
                 ,
                     ( SomeKey PreserveNumberFormat
@@ -830,8 +830,8 @@ RuleSet
                 )
             , fromList
                 [
-                    ( SomeKey NoComplexNewLine
-                    , SomeProperty NoComplexNewLine True
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine None
                     )
                 ,
                     ( SomeKey PreserveNumberFormat
@@ -850,8 +850,8 @@ RuleSet
                 )
             , fromList
                 [
-                    ( SomeKey NoComplexNewLine
-                    , SomeProperty NoComplexNewLine True
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine None
                     )
                 ,
                     ( SomeKey PreserveNumberFormat
@@ -870,8 +870,8 @@ RuleSet
                 )
             , fromList
                 [
-                    ( SomeKey NoComplexNewLine
-                    , SomeProperty NoComplexNewLine True
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine None
                     )
                 ,
                     ( SomeKey PreserveNumberFormat
@@ -927,8 +927,8 @@ RuleSet
                     , SomeProperty AlignObjectKeys True
                     )
                 ,
-                    ( SomeKey ForceComplexNewLine
-                    , SomeProperty ForceComplexNewLine True
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine Force
                     )
                 ,
                     ( SomeKey PreserveNumberFormat
@@ -950,8 +950,8 @@ RuleSet
                     , SomeProperty AlignObjectKeys True
                     )
                 ,
-                    ( SomeKey ForceComplexNewLine
-                    , SomeProperty ForceComplexNewLine True
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine Force
                     )
                 ,
                     ( SomeKey PreserveNumberFormat
@@ -992,8 +992,8 @@ RuleSet
                     , SomeProperty AlignObjectKeys True
                     )
                 ,
-                    ( SomeKey ForceComplexNewLine
-                    , SomeProperty ForceComplexNewLine True
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine Force
                     )
                 ,
                     ( SomeKey PreserveNumberFormat
@@ -1015,8 +1015,8 @@ RuleSet
                     , SomeProperty AlignObjectKeys True
                     )
                 ,
-                    ( SomeKey ForceComplexNewLine
-                    , SomeProperty ForceComplexNewLine True
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine Force
                     )
                 ,
                     ( SomeKey PreserveNumberFormat
@@ -1038,8 +1038,8 @@ RuleSet
                     , SomeProperty AlignObjectKeys True
                     )
                 ,
-                    ( SomeKey ForceComplexNewLine
-                    , SomeProperty ForceComplexNewLine True
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine Force
                     )
                 ,
                     ( SomeKey PreserveNumberFormat

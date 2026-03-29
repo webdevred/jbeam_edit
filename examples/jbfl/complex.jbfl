@@ -25,11 +25,11 @@
 .*.mainEngine.torqueModMult[*],
 .*.powertrain[*], .*.flexbodies[*] {
     PreserveNumberFormat : true;
-    NoComplexNewLine : true;
+    ComplexNewLine : None;
 }
 
 .*.nodes[*] {
-    NoComplexNewLine : true;
+    ComplexNewLine : None;
 }
 
 .*.nodes[*].*, .*.nodes[*][*].*,
@@ -40,7 +40,7 @@
 .*.flexbodies[*].*,
 .*.flexbodies[*][*].* {
     PreserveNumberFormat : true;
-    NoComplexNewLine : true;
+    ComplexNewLine : None;
 }
 
 .*.glowMap {
@@ -53,7 +53,7 @@
 .*.information,
 .*.glowMap.dumptruck_gaugelight_warning,
 .*.glowMap.chassis_gaugelight_warning {
-    ForceComplexNewLine: true;
+    ComplexNewLine: Force;
     AlignObjectKeys: true;
     PreserveNumberFormat: true;
 }
