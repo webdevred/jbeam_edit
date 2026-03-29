@@ -33,6 +33,7 @@
 .*.vehicleController.*,
 .*.radiator.*, .*.waterDamage.*,
 .*.engineBlock.*,
+.*.pressureWheels[*],
 .*.driveModes.defaultSettings[*],
 .*.driveModes.modes.*.settings[*],
 .*.mirrors[*], .*.soundscape[*],
