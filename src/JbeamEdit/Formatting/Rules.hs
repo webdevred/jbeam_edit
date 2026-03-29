@@ -11,14 +11,15 @@ module JbeamEdit.Formatting.Rules (
   SomeKey (..),
   SomeProperty (..),
   PropertyKey (..),
+  ComplexNewLineMode (..),
   Rule,
   RuleSet (..),
   lookupKey,
   allProperties,
+  deprecatedAliases,
   keyName,
   applyPadLogic,
-  noComplexNewLine,
-  forceComplexNewLine,
+  complexNewLine,
   lookupRule,
   lookupPropertyForCursor,
   findPropertiesForCursor,
@@ -71,10 +72,12 @@ instance Ord NodePattern where
       EQ -> compare a b
       c -> c
 
+data ComplexNewLineMode = Force | None
+  deriving stock (Eq, Ord, Read, Show)
+
 data PropertyKey a where
   AutoPad :: PropertyKey Bool
-  NoComplexNewLine :: PropertyKey Bool
-  ForceComplexNewLine :: PropertyKey Bool
+  ComplexNewLine :: PropertyKey ComplexNewLineMode
   AlignObjectKeys :: PropertyKey Bool
   AutoPadSubObjects :: PropertyKey Bool
   PreserveNumberFormat :: PropertyKey Bool
@@ -108,8 +111,7 @@ instance Eq SomeKey where
 eqKey :: PropertyKey a -> PropertyKey b -> Maybe (a :~: b)
 eqKey AutoPad AutoPad = Just Refl
 eqKey PadAmount PadAmount = Just Refl
-eqKey NoComplexNewLine NoComplexNewLine = Just Refl
-eqKey ForceComplexNewLine ForceComplexNewLine = Just Refl
+eqKey ComplexNewLine ComplexNewLine = Just Refl
 eqKey AlignObjectKeys AlignObjectKeys = Just Refl
 eqKey AutoPadSubObjects AutoPadSubObjects = Just Refl
 eqKey PreserveNumberFormat PreserveNumberFormat = Just Refl
@@ -151,8 +153,7 @@ instance Eq SomeProperty where
 
 propertyName :: PropertyKey a -> Text
 propertyName AutoPad = "AutoPad"
-propertyName NoComplexNewLine = "NoComplexNewLine"
-propertyName ForceComplexNewLine = "ForceComplexNewLine"
+propertyName ComplexNewLine = "ComplexNewLine"
 propertyName AlignObjectKeys = "AlignObjectKeys"
 propertyName AutoPadSubObjects = "AutoPadSubObjects"
 propertyName PreserveNumberFormat = "PreserveNumberFormat"
@@ -170,19 +171,41 @@ boolProperties :: [SomeKey]
 boolProperties =
   map
     SomeKey
-    [ ForceComplexNewLine
-    , NoComplexNewLine
-    , AutoPad
+    [ AutoPad
     , AlignObjectKeys
     , AutoPadSubObjects
     , PreserveNumberFormat
     ]
 
+enumProperties :: [SomeKey]
+enumProperties = [SomeKey ComplexNewLine]
+
 intProperties :: [SomeKey]
 intProperties = map SomeKey [PadAmount, PadDecimals, Indent]
 
 allProperties :: [SomeKey]
-allProperties = boolProperties ++ intProperties
+allProperties = boolProperties ++ enumProperties ++ intProperties
+
+-- | Maps deprecated property names to (key, value-when-true, value-when-false).
+deprecatedAliases :: [(Text, (SomeKey, SomeProperty, SomeProperty))]
+deprecatedAliases =
+  [
+    ( "NoComplexNewLine"
+    ,
+      ( SomeKey ComplexNewLine
+      , SomeProperty ComplexNewLine None
+      , SomeProperty ComplexNewLine Force
+      )
+    )
+  ,
+    ( "ForceComplexNewLine"
+    ,
+      ( SomeKey ComplexNewLine
+      , SomeProperty ComplexNewLine Force
+      , SomeProperty ComplexNewLine None
+      )
+    )
+  ]
 
 type Rule = Map SomeKey SomeProperty
 
@@ -220,17 +243,10 @@ applyPadLogic f rs n =
         | otherwise = f n
    in bool (T.justifyLeft padAmount ' ' decimalPaddedText) (f n) (isComplexNode n)
 
-forceComplexNewLine :: RuleSet -> NC.NodeCursor -> Bool
-forceComplexNewLine rs cursor =
+complexNewLine :: RuleSet -> NC.NodeCursor -> Maybe ComplexNewLineMode
+complexNewLine rs cursor =
   let ps = findPropertiesForCursor PrefixMatch cursor rs
-      maybeProp = lookupProp ForceComplexNewLine ps
-   in (Just True == maybeProp)
-
-noComplexNewLine :: RuleSet -> NC.NodeCursor -> Bool
-noComplexNewLine rs cursor =
-  let ps = findPropertiesForCursor PrefixMatch cursor rs
-      maybeProp = lookupProp NoComplexNewLine ps
-   in (Just True == maybeProp)
+   in lookupProp ComplexNewLine ps
 
 data MatchMode = PrefixMatch | ExactMatch deriving (Eq, Show)
 

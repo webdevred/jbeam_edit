@@ -27,11 +27,11 @@
 .*.mainEngine.torqueModMult[*],
 .*.powertrain[*], .*.flexbodies[*] {
     PreserveNumberFormat : true;
-    NoComplexNewLine : true;
+    ComplexNewLine : None;
 }
 
 .*.nodes[*] {
-    NoComplexNewLine : true;
+    ComplexNewLine : None;
 }
 
 .*.nodes[*].*, .*.nodes[*][*].*,
@@ -42,13 +42,13 @@
 .*.flexbodies[*].*,
 .*.flexbodies[*][*].* {
     PreserveNumberFormat : true;
-    NoComplexNewLine : true;
+    ComplexNewLine : None;
 }
 
 .*.mainEngine, .*.sounds,
 .*.soundConfig, .*.soundConfigExhaust,
 .*.information {
-    ForceComplexNewLine: true;
+    ComplexNewLine: Force;
     AlignObjectKeys: true;
     PreserveNumberFormat: true;
 }

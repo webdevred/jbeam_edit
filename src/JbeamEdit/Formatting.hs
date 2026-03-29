@@ -39,6 +39,7 @@ import JbeamEdit.Core.Node (
 import JbeamEdit.Core.NodeCursor (newCursor)
 import JbeamEdit.Core.NodeCursor qualified as NC
 import JbeamEdit.Formatting.Rules (
+  ComplexNewLineMode (..),
   MatchMode (..),
   PropertyKey (..),
   RuleSet (..),
@@ -270,9 +271,9 @@ doFormatNode rs cursor state nodes =
       autopadSubObjectsEnabled = lookupRule AutoPadSubObjects exactProps == Just True
 
       complexChildren =
-        lookupRule ForceComplexNewLine prefixProps == Just True
+        lookupRule ComplexNewLine prefixProps == Just Force
           || any (liftA2 (||) isSinglelineComment isComplexNode) nodes
-            && lookupRule NoComplexNewLine prefixProps /= Just True
+            && lookupRule ComplexNewLine prefixProps /= Just None
 
       (colWidths, formattedCache, headerWasExtracted) =
         maxColumnLengthsWithCache rs cursor nodes
