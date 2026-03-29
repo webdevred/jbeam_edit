@@ -1212,6 +1212,26 @@ RuleSet
                 ( fromList
                     [ AnyObjectKey
                     , Selector
+                        ( ObjectKey "pressureWheels" )
+                    , AnyArrayIndex
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine None
+                    )
+                ,
+                    ( SomeKey PreserveNumberFormat
+                    , SomeProperty PreserveNumberFormat True
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
                         ( ObjectKey "props" )
                     , AnyArrayIndex
                     ]
