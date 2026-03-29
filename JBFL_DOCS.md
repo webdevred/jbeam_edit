@@ -52,8 +52,7 @@ Typical use cases include:
 | `AutoPad`             | Aligns values in array rows into columns by padding each cell to the maximum width in that column. Applies to the array it is set on (e.g. `nodes`, `beams`).            | Arrays of arrays                |
 | `AlignObjectKeys`     | Pads object keys so that `:` separators align vertically across all entries in the same object.                                                                          | Objects                         |
 | `AutoPadSubObjects`   | Aligns values within sibling inline objects by treating matching sub-keys as columns. Useful for `glowMap`-style structures.                                             | Objects with inline sub-objects |
-| `NoComplexNewLine`    | When true, disables multiline or indented formatting for arrays, outputting values inline.                                                                               | Any complex data structure      |
-| `ForceComplexNewLine` | Forces complex structures (arrays or objects) to always use multiline and indented formatting, even if NoComplexNewLine is not set. Overrides inline formatting.         | Any complex data structure      |
+| `ComplexNewLine`      | Controls multiline formatting for complex structures. `None` disables it (inline output). `Force` always enables it. Replaces the deprecated `NoComplexNewLine` and `ForceComplexNewLine` properties. | Any complex data structure      |
 | `Indent`              | Controls the amount of indentation. Defaults to 4 spaces.                                                                                                               | Any complex data structure      |
 
 ## How Matching Works
@@ -64,8 +63,9 @@ Typical use cases include:
 - Combinations like `.*.nodes[*][*]` match all elements inside inner lists under `nodes` keys.
 - Properties apply **to each matched value individually**.
 - Matching is agnostic to the data type; however, settings may behave differently based on type.
-- ForceComplexNewLine ensures that matched complex structures are always output in multiline format with indentation.
-- If both NoComplexNewLine and ForceComplexNewLine are set, ForceComplexNewLine takes precedence.
+- `ComplexNewLine: Force` ensures that matched complex structures are always output in multiline format with indentation.
+- `ComplexNewLine: None` keeps structures inline even when they contain nested arrays or objects.
+- The deprecated `NoComplexNewLine: true` and `ForceComplexNewLine: true` are still accepted for backward compatibility.
 
 ## Detailed Rules Examples
 
@@ -75,7 +75,7 @@ Typical use cases include:
 .*.nodes[*][*] {
     PadDecimals: 3;
     PadAmount: 8;
-    NoComplexNewLine: true;
+    ComplexNewLine: None;
     Indent: 4;
 }
 ```
@@ -88,9 +88,9 @@ Typical use cases include:
 - Properties:
   - `PadDecimals: 3`
   - `PadAmount: 8`
-  - `ForceComplexNewLine: true`
+  - `ComplexNewLine: None`
   - `Indent: 4`
-- Behavior: Format floats as fixed-width strings of length 8, padding with trailing zeros after the decimal point, and always output nested arrays in multiline format with 4-space indentation.
+- Behavior: Format floats as fixed-width strings of length 8, padding with trailing zeros after the decimal point, keeping nested arrays inline with 4-space indentation.
 
 Examples
 
@@ -152,4 +152,5 @@ Examples:
 - Patterns are powerful and flexible; combine `.*`, `[*]`, and object keys to precisely target values.
 - `PadDecimals` applies only to numbers, while `PadAmount` applies to all non-comment scalar values.
 - String values receive space padding regardless of `PadDecimals`.
-- Use `NoComplexNewLine` to simplify output layout when working with complex structures like lists and objects.
+- Use `ComplexNewLine: None` to simplify output layout when working with complex structures like lists and objects.
+- Use `ComplexNewLine: Force` to ensure nested structures always use multiline formatting.

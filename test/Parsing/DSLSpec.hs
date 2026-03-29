@@ -34,11 +34,27 @@ intProperties =
   , ("Indent : 4;", (SomeKey Indent, SomeProperty Indent 4))
   ]
 
-boolProperties :: [(String, (SomeKey, SomeProperty))]
-boolProperties =
+enumProperties :: [(String, (SomeKey, SomeProperty))]
+enumProperties =
+  [
+    ( "ComplexNewLine : Force;"
+    , (SomeKey ComplexNewLine, SomeProperty ComplexNewLine Force)
+    )
+  ,
+    ( "ComplexNewLine : None;"
+    , (SomeKey ComplexNewLine, SomeProperty ComplexNewLine None)
+    )
+  ]
+
+deprecatedProperties :: [(String, (SomeKey, SomeProperty))]
+deprecatedProperties =
   [
     ( "NoComplexNewLine : true;"
-    , (SomeKey NoComplexNewLine, SomeProperty NoComplexNewLine True)
+    , (SomeKey ComplexNewLine, SomeProperty ComplexNewLine None)
+    )
+  ,
+    ( "ForceComplexNewLine : true;"
+    , (SomeKey ComplexNewLine, SomeProperty ComplexNewLine Force)
     )
   ]
 
@@ -64,7 +80,8 @@ expLabels :: [String] -> ET ByteString
 expLabels = foldMap elabel
 
 keyPropertyPairSpecs :: [Spec]
-keyPropertyPairSpecs = map applyPropertySpec (boolProperties ++ intProperties)
+keyPropertyPairSpecs =
+  map applyPropertySpec (enumProperties ++ deprecatedProperties ++ intProperties)
   where
     applyPropertySpec = applyParserSpec keyPropertyPairParser
 
@@ -84,11 +101,11 @@ invalidIntProperties =
     )
   ]
 
-invalidBoolProperties :: [(String, ParseError ByteString Void)]
-invalidBoolProperties =
+invalidEnumProperties :: [(String, ParseError ByteString Void)]
+invalidEnumProperties =
   [
-    ( "NoComplexNewLine : 3;"
-    , err 19 (utoks "3;" <> expLabels ["bool", "white space"])
+    ( "ComplexNewLine : 3;"
+    , err 17 (utoks "3;" <> expLabels ["Force or None", "white space"])
     )
   ]
 
@@ -96,7 +113,7 @@ invalidKeyPropertySpecs :: [Spec]
 invalidKeyPropertySpecs =
   map
     (assertParserFailure keyPropertyPairParser)
-    (invalidBoolProperties ++ invalidIntProperties)
+    (invalidEnumProperties ++ invalidIntProperties)
 
 applyParserSpec
   :: (Eq a, Show a) => ParsecT Void ByteString Identity a -> (String, a) -> Spec
