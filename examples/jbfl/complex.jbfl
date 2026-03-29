@@ -23,7 +23,11 @@
 .*.mainEngine.burnEfficiency[*],
 .*.mainEngine.torqueModIntake[*],
 .*.mainEngine.torqueModMult[*],
-.*.powertrain[*], .*.flexbodies[*] {
+.*.powertrain[*], .*.flexbodies[*],
+.*.driveModes.defaultSettings[*],
+.*.driveModes.modes.*.settings[*],
+.*.mirrors[*], .*.soundscape[*],
+.*.camerasInternal[*] {
     PreserveNumberFormat : true;
     NoComplexNewLine : true;
 }
@@ -38,7 +42,16 @@
 .*.slots2[*].*, .*.slots2[*][*].*,
 .*.props[*].*, .*.props[*][*].*,
 .*.flexbodies[*].*,
-.*.flexbodies[*][*].* {
+.*.flexbodies[*][*].*,
+.*.driveModes.defaultSettings[*].*,
+.*.driveModes.defaultSettings[*][*].*,
+.*.driveModes.modes.*.settings[*].*,
+.*.driveModes.modes.*.settings[*][*].*,
+.*.mirrors[*].*, .*.mirrors[*][*].*,
+.*.soundscape[*].*,
+.*.soundscape[*][*].*,
+.*.camerasInternal[*].*,
+.*.camerasInternal[*][*].* {
     PreserveNumberFormat : true;
     NoComplexNewLine : true;
 }
