@@ -1,50 +1,72 @@
-module JbeamEdit.Transformation.BeamExtraction (vertexConns, possiblyBeam, extractBeams) where
+module JbeamEdit.Transformation.BeamExtraction (vertexConns, possiblyBeam, extractBeams, extractBeamsWithMeta, beamInKnownSet) where
 
-import Data.Bool (bool)
-import Data.Either (partitionEithers)
 import Data.List (genericTake, sortOn)
 import Data.Map (Map)
 import Data.Map qualified as M
-import Data.Maybe (catMaybes)
+import Data.Maybe (mapMaybe)
 import Data.Ord (Down (Down))
 import Data.Set (Set)
 import Data.Set qualified as S
 import Data.Text (Text)
+import Data.Text qualified as T
 import Data.Vector (Vector)
 import Data.Vector qualified as V
 import GHC.IsList
 import JbeamEdit.Core.Node
 import JbeamEdit.Core.NodePath qualified as NP
 import JbeamEdit.Transformation.Types
+import JbeamEdit.Transformation.VertexExtraction (metaMapFromObject)
 import Numeric.Natural (Natural)
 
 beamQuery :: NP.NodePath
 beamQuery = fromList [NP.ObjectIndex 0, NP.ObjectKey "beams"]
 
-rejectUnknownName
-  :: Set Text
-  -> Maybe (Vector Text)
-  -> Maybe (Vector Text)
-rejectUnknownName knownNodeNames maybeBeam =
-  bool
-    maybeBeam
-    Nothing
-    (any (any (`S.notMember` knownNodeNames)) maybeBeam)
-
-possiblyBeam :: Node -> Either Node (Maybe (Vector Text))
-possiblyBeam node
+possiblyBeam :: MetaMap -> Node -> Either Node (Maybe Beam)
+possiblyBeam sectionMeta node
   | isCommentNode node || isObjectNode node = Right Nothing
   | otherwise = case node of
-      Array beamVec -> Right (mapM maybeString beamVec)
+      Array beamVec ->
+        Right (extractBeamFromArray sectionMeta beamVec)
       _ -> Left node
+
+extractBeamFromArray :: MetaMap -> Vector Node -> Maybe Beam
+extractBeamFromArray sectionMeta vec
+  | V.length vec < 2 = Nothing
+  | otherwise = do
+      n1 <- maybeString (vec V.! 0)
+      n2 <- maybeString (vec V.! 1)
+      if T.isSuffixOf ":" n1
+        then Nothing
+        else
+          let inlineObjects = mapMaybe maybeObject (V.toList (V.drop 2 vec))
+              inlineMeta = M.unions (map metaMapFromObject inlineObjects)
+              effectiveMeta = M.union inlineMeta sectionMeta
+           in Just (Beam (mkBeamPair n1 n2) effectiveMeta)
   where
-    maybeString (String vertexName) = Just vertexName
+    maybeString (String t) = Just t
     maybeString _ = Nothing
+    maybeObject n@(Object _) = Just n
+    maybeObject _ = Nothing
 
 extractBeams :: Node -> Either Text (Vector Node)
 extractBeams topNode =
   NP.queryNodes beamQuery topNode
     >>= NP.expectArray beamQuery
+
+extractBeamsWithMeta :: Vector Node -> ([Node], [Beam])
+extractBeamsWithMeta = go M.empty [] [] . V.toList
+  where
+    go _meta badAcc beamAcc [] = (reverse badAcc, reverse beamAcc)
+    go meta badAcc beamAcc (n : ns) =
+      case n of
+        Object _ ->
+          let newMeta = M.union (metaMapFromObject n) meta
+           in go newMeta badAcc beamAcc ns
+        _ ->
+          case possiblyBeam meta n of
+            Left bad -> go meta (bad : badAcc) beamAcc ns
+            Right Nothing -> go meta badAcc beamAcc ns
+            Right (Just beam) -> go meta badAcc (beam : beamAcc) ns
 
 vertexConns
   :: Natural
@@ -55,17 +77,12 @@ vertexConns maxSupport topNode vsPerType =
   go <$> extractBeams topNode
   where
     knownNodeNames = S.fromList $ concatMap (map anVertexName) vsPerType
-    go beams =
-      let possiblyInnerBeam = (:) . fmap (rejectUnknownName knownNodeNames) . possiblyBeam
-          (badNodes, beamPairs) =
-            partitionEithers (V.foldr possiblyInnerBeam [] beams)
+    go beamNodes =
+      let (badNodes, beams) = extractBeamsWithMeta beamNodes
+          validBeams = filter (beamInKnownSet knownNodeNames) beams
 
           counts :: Map Text Int
-          counts =
-            foldr
-              (flip (V.foldr (\nodeName -> M.insertWith (+) nodeName 1)))
-              M.empty
-              (catMaybes beamPairs)
+          counts = foldr countBeamNodes M.empty validBeams
 
           topVerticesPerType :: Map VertexTreeType [(AnnotatedVertex, Int)]
           topVerticesPerType =
@@ -86,3 +103,11 @@ vertexConns maxSupport topNode vsPerType =
               , (v, c) <- vs
               ]
        in (badNodes, vertexConnMap)
+
+beamInKnownSet :: Set Text -> Beam -> Bool
+beamInKnownSet known (Beam (BeamPair a b) _) =
+  S.member a known && S.member b known
+
+countBeamNodes :: Beam -> Map Text Int -> Map Text Int
+countBeamNodes (Beam (BeamPair a b) _) =
+  M.insertWith (+) a 1 . M.insertWith (+) b 1
