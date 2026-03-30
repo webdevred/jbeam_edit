@@ -1,4 +1,4 @@
-module JbeamEdit.Transformation.BeamExtraction (vertexConns, possiblyBeam, extractBeams, extractBeamsWithMeta) where
+module JbeamEdit.Transformation.BeamExtraction (vertexConns, possiblyBeam, extractBeams, extractBeamsWithMeta, beamInKnownSet) where
 
 import Data.List (genericTake, sortOn)
 import Data.Map (Map)
@@ -30,11 +30,9 @@ possiblyBeam sectionMeta node
       _ -> Left node
 
 extractBeamFromArray :: MetaMap -> Vector Node -> Maybe Beam
-extractBeamFromArray sectionMeta vec = do
-  let len = V.length vec
-  if len < 2
-    then Nothing
-    else do
+extractBeamFromArray sectionMeta vec
+  | V.length vec < 2 = Nothing
+  | otherwise = do
       n1 <- maybeString (vec V.! 0)
       n2 <- maybeString (vec V.! 1)
       if T.isSuffixOf ":" n1

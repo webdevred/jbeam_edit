@@ -59,7 +59,7 @@ extractFileBeams :: Node -> [Beam]
 extractFileBeams node =
   case extractBeams node of
     Right bs
-      | V.length bs >= 1 -> snd (extractBeamsWithMeta bs)
+      | not (V.null bs) -> snd (extractBeamsWithMeta bs)
     _ -> []
 
 findInvalidRefs :: Set Text -> [Beam] -> [(Text, Text, Set Text)]
@@ -103,15 +103,16 @@ addBeamsFromFile fp beams acc =
 reportDuplicates :: BeamOccurrences -> IO ()
 reportDuplicates occurrences =
   forM_ (M.toList occurrences) $ \(Beam (BeamPair n1 n2) _, locations) ->
-    unless (length locations <= 1) . putErrorStringLn $
-      "Duplicate beam [\""
-        ++ T.unpack n1
-        ++ "\", \""
-        ++ T.unpack n2
-        ++ "\"] with identical metadata found "
-        ++ show (length locations)
-        ++ " times in: "
-        ++ T.unpack (humanJoin "and" (map (T.pack . show) locations))
+    let count = length locations
+     in unless (count <= 1) . putErrorStringLn $
+          "Duplicate beam [\""
+            ++ T.unpack n1
+            ++ "\", \""
+            ++ T.unpack n2
+            ++ "\"] with identical metadata found "
+            ++ show count
+            ++ " times in: "
+            ++ T.unpack (humanJoin "and" (map (T.pack . show) locations))
 
 validateBeams :: Maybe OsPath -> IO ()
 validateBeams inputFile = do

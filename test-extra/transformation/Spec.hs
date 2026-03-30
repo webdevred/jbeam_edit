@@ -2,7 +2,6 @@ module Spec (
   main,
 ) where
 
-import Data.Foldable (fold)
 import Data.List (isPrefixOf, isSuffixOf)
 import Data.Map qualified as M
 import Data.Set qualified as S
@@ -12,9 +11,10 @@ import JbeamEdit.Formatting
 import JbeamEdit.IOUtils (tryReadFile)
 import JbeamEdit.Parsing.Jbeam (parseNodes)
 import JbeamEdit.Transformation
+import JbeamEdit.Transformation.BeamExtraction (beamInKnownSet)
 import JbeamEdit.Transformation.BeamValidation
 import JbeamEdit.Transformation.Config
-import JbeamEdit.Transformation.Types (Beam (..), BeamPair (..))
+import JbeamEdit.Transformation.Types (Beam)
 import System.Directory (getDirectoryContents)
 import System.OsPath
 import Test.Hspec
@@ -60,14 +60,17 @@ beamValidationSpec = do
   fenderNode <-
     runIO $
       parseJbeamFile "examples/transformed_jbeam/fender-after-frame-cfg-default.jbeam"
-  let allVerts = foldMap (fold . extractVertexNames) [frameNode, fenderNode]
+  let allVerts =
+        foldMap
+          (either (error . T.unpack) id . extractVertexNames)
+          [frameNode, fenderNode]
       allBeams :: [(String, [Beam])]
       allBeams =
         [ ("frame", extractFileBeams frameNode)
         , ("fender", extractFileBeams fenderNode)
         ]
       internalBeams =
-        [ (name, filter (bothNodesKnown allVerts) beams)
+        [ (name, filter (beamInKnownSet allVerts) beams)
         | (name, beams) <- allBeams
         ]
   describe "beam validation across frame and fender" $ do
@@ -81,10 +84,6 @@ beamValidationSpec = do
 
     it "has no duplicate beams" $
       findDuplicateBeams internalBeams `shouldBe` []
-
-bothNodesKnown :: S.Set T.Text -> Beam -> Bool
-bothNodesKnown known (Beam (BeamPair a b) _) =
-  S.member a known && S.member b known
 
 main :: IO ()
 main = hspec $ do
