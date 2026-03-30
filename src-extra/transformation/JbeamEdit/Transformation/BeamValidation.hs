@@ -37,10 +37,9 @@ parseFileIO fp = do
     Left err -> fail $ "Failed to parse nodes in file " ++ show fp ++ ": " ++ T.unpack err
     Right n -> pure n
 
-  verts <- case extractVertexNames node of
-    Left err ->
-      fail $ "Failed to get vertices from file " ++ show fp ++ ": " ++ T.unpack err
-    Right vs -> pure vs
+  let verts = case extractVertexNames node of
+        Left _ -> S.empty
+        Right vs -> vs
 
   pure (fp, node, verts, extractFileBeams node)
 
