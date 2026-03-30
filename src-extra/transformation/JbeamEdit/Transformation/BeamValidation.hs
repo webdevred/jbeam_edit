@@ -1,16 +1,22 @@
-module JbeamEdit.Transformation.BeamValidation (validateBeams) where
+module JbeamEdit.Transformation.BeamValidation (
+  validateBeams,
+  extractVertexNames,
+  extractFileBeams,
+  findInvalidRefs,
+  findDuplicateBeams,
+) where
 
-import Control.Monad (unless)
+import Control.Monad (forM_, unless)
+import Data.Foldable (foldl')
 import Data.List.NonEmpty (toList)
 import Data.Map qualified as M
 import Data.Set (Set)
 import Data.Set qualified as S
 import Data.Text (Text)
 import Data.Text qualified as T
-import Data.Tuple.Extra (thd3)
 import Data.Vector qualified as V
 import JbeamEdit.Core.Node (Node)
-import JbeamEdit.IOUtils (humanJoin, tryReadFile)
+import JbeamEdit.IOUtils (humanJoin, putErrorStringLn, tryReadFile)
 import JbeamEdit.Parsing.Jbeam (parseNodes)
 import JbeamEdit.Transformation
 import JbeamEdit.Transformation.BeamExtraction
@@ -20,7 +26,7 @@ import JbeamEdit.Transformation.VertexExtraction
 import System.Directory.OsPath (getCurrentDirectory, listDirectory)
 import System.OsPath (OsPath)
 
-parseFileIO :: OsPath -> IO (OsPath, Node, Set Text)
+parseFileIO :: OsPath -> IO (OsPath, Node, Set Text, [Beam])
 parseFileIO fp = do
   eBs <- tryReadFile [] fp
   bs <- case eBs of
@@ -31,12 +37,12 @@ parseFileIO fp = do
     Left err -> fail $ "Failed to parse nodes in file " ++ show fp ++ ": " ++ T.unpack err
     Right n -> pure n
 
-  verts <- case getVertexForest defaultBreakpoints verticesQuery node of
+  verts <- case extractVertexNames node of
     Left err ->
       fail $ "Failed to get vertices from file " ++ show fp ++ ": " ++ T.unpack err
-    Right (_, _, vf) -> pure (allVerticesInForest vf)
+    Right vs -> pure vs
 
-  pure (fp, node, verts)
+  pure (fp, node, verts, extractFileBeams node)
 
 allVerticesInForest :: VertexForest -> Set Text
 allVerticesInForest =
@@ -44,33 +50,69 @@ allVerticesInForest =
     (foldMap (S.fromList . map anVertexName . toList . tAnnotatedVertices))
     . M.elems
 
-validateBeamsInDirectory :: Set Text -> (OsPath, Node) -> IO ()
-validateBeamsInDirectory allVertexNames (fp, node) =
-  do
-    beamNodes <- case extractBeams node of
-      Right bs
-        | V.length bs >= 1 -> pure (V.tail bs)
-        | otherwise ->
-            fail $ "Failed to extract beams from file " ++ show fp ++ ": empty beam array"
-      Left err ->
-        fail $ "Failed to extract beams from file " ++ show fp ++ ": " ++ T.unpack err
-    mapM_ (validateBeam fp allVertexNames) beamNodes
+extractVertexNames :: Node -> Either Text (Set Text)
+extractVertexNames node =
+  case getVertexForest defaultBreakpoints verticesQuery node of
+    Left err -> Left err
+    Right (_, _, vf) -> Right (allVerticesInForest vf)
 
-validateBeam :: OsPath -> Set Text -> Node -> IO ()
-validateBeam fp allVertexNames beamNode =
-  case possiblyBeam beamNode of
-    Left _ -> fail $ "Invalid beam node in file " ++ show fp
-    Right Nothing -> pure ()
-    Right (Just vertexNames) ->
-      let vertexNames' = V.toList vertexNames
-          invalid = S.difference (S.fromList vertexNames') allVertexNames
-       in unless (S.null invalid) . fail $
-            "Beam in file "
-              ++ show fp
-              ++ " references unknown vertices: "
-              ++ T.unpack (humanJoin "and" (S.toList invalid))
-              ++ " in "
-              ++ show vertexNames'
+extractFileBeams :: Node -> [Beam]
+extractFileBeams node =
+  case extractBeams node of
+    Right bs
+      | V.length bs >= 1 -> snd (extractBeamsWithMeta bs)
+    _ -> []
+
+findInvalidRefs :: Set Text -> [Beam] -> [(Text, Text, Set Text)]
+findInvalidRefs allVertexNames beams =
+  [ (n1, n2, invalid)
+  | Beam (BeamPair n1 n2) _ <- beams
+  , let invalid = S.difference (S.fromList [n1, n2]) allVertexNames
+  , not (S.null invalid)
+  ]
+
+findDuplicateBeams :: [(a, [Beam])] -> [(Beam, Int)]
+findDuplicateBeams files =
+  let occurrences =
+        foldl'
+          (\acc (_, beams) -> foldl' (\m b -> M.insertWith (+) b (1 :: Int) m) acc beams)
+          M.empty
+          files
+   in [(b, n) | (b, n) <- M.toList occurrences, n > 1]
+
+validateBeamRefs :: OsPath -> Set Text -> [Beam] -> IO ()
+validateBeamRefs fp allVertexNames beams =
+  forM_ beams $ \(Beam (BeamPair n1 n2) _) -> do
+    let invalid = S.difference (S.fromList [n1, n2]) allVertexNames
+    unless (S.null invalid) . putErrorStringLn $
+      "Beam in file "
+        ++ show fp
+        ++ " references unknown vertices: "
+        ++ T.unpack (humanJoin "and" (S.toList invalid))
+        ++ " in [\""
+        ++ T.unpack n1
+        ++ "\", \""
+        ++ T.unpack n2
+        ++ "\"]"
+
+type BeamOccurrences = M.Map Beam [OsPath]
+
+addBeamsFromFile :: OsPath -> [Beam] -> BeamOccurrences -> BeamOccurrences
+addBeamsFromFile fp beams acc =
+  foldl' (\m b -> M.insertWith (++) b [fp] m) acc beams
+
+reportDuplicates :: BeamOccurrences -> IO ()
+reportDuplicates occurrences =
+  forM_ (M.toList occurrences) $ \(Beam (BeamPair n1 n2) _, locations) ->
+    unless (length locations <= 1) . putErrorStringLn $
+      "Duplicate beam [\""
+        ++ T.unpack n1
+        ++ "\", \""
+        ++ T.unpack n2
+        ++ "\"] with identical metadata found "
+        ++ show (length locations)
+        ++ " times in: "
+        ++ T.unpack (humanJoin "and" (map (T.pack . show) locations))
 
 validateBeams :: Maybe OsPath -> IO ()
 validateBeams inputFile = do
@@ -79,8 +121,13 @@ validateBeams inputFile = do
 
   parsedFiles <- mapM parseFileIO allFiles
 
-  let allVertexNames = foldMap thd3 parsedFiles
+  let allVertexNames = foldMap (\(_, _, verts, _) -> verts) parsedFiles
       filesToCheck = case inputFile of
-        Just f -> [(fp, node) | (fp, node, _) <- parsedFiles, fp == f]
-        Nothing -> [(fp, node) | (fp, node, _) <- parsedFiles]
-   in mapM_ (validateBeamsInDirectory allVertexNames) filesToCheck
+        Just f -> [(fp, beams) | (fp, _, _, beams) <- parsedFiles, fp == f]
+        Nothing -> [(fp, beams) | (fp, _, _, beams) <- parsedFiles]
+
+  mapM_ (\(fp, beams) -> validateBeamRefs fp allVertexNames beams) filesToCheck
+
+  let allBeamOccurrences =
+        foldl' (\acc (fp, beams) -> addBeamsFromFile fp beams acc) M.empty filesToCheck
+  reportDuplicates allBeamOccurrences

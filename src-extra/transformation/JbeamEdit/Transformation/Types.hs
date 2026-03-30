@@ -6,6 +6,9 @@ module JbeamEdit.Transformation.Types (
   Vertex (..),
   AnnotatedVertex (..),
   VertexTreeKey (..),
+  Beam (..),
+  BeamPair (..),
+  mkBeamPair,
   MetaMap,
   VertexConnMap,
   UpdateNamesMap,
@@ -71,3 +74,23 @@ type MetaMap = Map Text Node
 type VertexConnMap = Map Text (VertexTreeType, Int)
 
 type UpdateNamesMap = Map Text Text
+
+data BeamPair = BeamPair Text Text
+  deriving (Show)
+
+instance Eq BeamPair where
+  (BeamPair a1 b1) == (BeamPair a2 b2) =
+    (a1 == a2 && b1 == b2) || (a1 == b2 && b1 == a2)
+
+instance Ord BeamPair where
+  compare (BeamPair a1 b1) (BeamPair a2 b2) =
+    compare (min a1 b1, max a1 b1) (min a2 b2, max a2 b2)
+
+mkBeamPair :: Text -> Text -> BeamPair
+mkBeamPair a b = BeamPair (min a b) (max a b)
+
+data Beam = Beam
+  { beamPair :: BeamPair
+  , beamMeta :: MetaMap
+  }
+  deriving (Eq, Ord, Show)
