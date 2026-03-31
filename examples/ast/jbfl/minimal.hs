@@ -606,7 +606,70 @@ RuleSet
                 ( fromList
                     [ AnyObjectKey
                     , Selector
+                        ( ObjectKey "powertrain" )
+                    , AnyArrayIndex
+                    , AnyObjectKey
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine None
+                    )
+                ,
+                    ( SomeKey PreserveNumberFormat
+                    , SomeProperty PreserveNumberFormat True
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
+                        ( ObjectKey "pressureWheels" )
+                    , AnyArrayIndex
+                    , AnyObjectKey
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine None
+                    )
+                ,
+                    ( SomeKey PreserveNumberFormat
+                    , SomeProperty PreserveNumberFormat True
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
                         ( ObjectKey "props" )
+                    , AnyArrayIndex
+                    , AnyObjectKey
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine None
+                    )
+                ,
+                    ( SomeKey PreserveNumberFormat
+                    , SomeProperty PreserveNumberFormat True
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
+                        ( ObjectKey "slidenodes" )
                     , AnyArrayIndex
                     , AnyObjectKey
                     ]
@@ -690,6 +753,27 @@ RuleSet
                 ( fromList
                     [ AnyObjectKey
                     , Selector
+                        ( ObjectKey "torsionbars" )
+                    , AnyArrayIndex
+                    , AnyObjectKey
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine None
+                    )
+                ,
+                    ( SomeKey PreserveNumberFormat
+                    , SomeProperty PreserveNumberFormat True
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
                         ( ObjectKey "beams" )
                     , AnyArrayIndex
                     ]
@@ -751,6 +835,26 @@ RuleSet
                     [ AnyObjectKey
                     , Selector
                         ( ObjectKey "controller" )
+                    , AnyArrayIndex
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine None
+                    )
+                ,
+                    ( SomeKey PreserveNumberFormat
+                    , SomeProperty PreserveNumberFormat True
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
+                        ( ObjectKey "deformGroups" )
                     , AnyArrayIndex
                     ]
                 )
@@ -1036,6 +1140,26 @@ RuleSet
                 ( fromList
                     [ AnyObjectKey
                     , Selector
+                        ( ObjectKey "slidenodes" )
+                    , AnyArrayIndex
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine None
+                    )
+                ,
+                    ( SomeKey PreserveNumberFormat
+                    , SomeProperty PreserveNumberFormat True
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
                         ( ObjectKey "slots" )
                     , AnyArrayIndex
                     ]
@@ -1077,6 +1201,26 @@ RuleSet
                     [ AnyObjectKey
                     , Selector
                         ( ObjectKey "soundscape" )
+                    , AnyArrayIndex
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine None
+                    )
+                ,
+                    ( SomeKey PreserveNumberFormat
+                    , SomeProperty PreserveNumberFormat True
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
+                        ( ObjectKey "torsionbars" )
                     , AnyArrayIndex
                     ]
                 )
@@ -1212,6 +1356,75 @@ RuleSet
                     [ AnyObjectKey
                     , Selector
                         ( ObjectKey "clutch" )
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey AlignObjectKeys
+                    , SomeProperty AlignObjectKeys True
+                    )
+                ,
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine Force
+                    )
+                ,
+                    ( SomeKey PreserveNumberFormat
+                    , SomeProperty PreserveNumberFormat True
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
+                        ( ObjectKey "differential_C" )
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey AlignObjectKeys
+                    , SomeProperty AlignObjectKeys True
+                    )
+                ,
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine Force
+                    )
+                ,
+                    ( SomeKey PreserveNumberFormat
+                    , SomeProperty PreserveNumberFormat True
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
+                        ( ObjectKey "differential_F" )
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey AlignObjectKeys
+                    , SomeProperty AlignObjectKeys True
+                    )
+                ,
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine Force
+                    )
+                ,
+                    ( SomeKey PreserveNumberFormat
+                    , SomeProperty PreserveNumberFormat True
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
+                        ( ObjectKey "differential_R" )
                     ]
                 )
             , fromList
@@ -1425,6 +1638,21 @@ RuleSet
                 ( fromList
                     [ AnyObjectKey
                     , Selector
+                        ( ObjectKey "slidenodes" )
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey AutoPad
+                    , SomeProperty AutoPad True
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
                         ( ObjectKey "slots" )
                     ]
                 )
@@ -1516,6 +1744,21 @@ RuleSet
                 ,
                     ( SomeKey PreserveNumberFormat
                     , SomeProperty PreserveNumberFormat True
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
+                        ( ObjectKey "torsionbars" )
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey AutoPad
+                    , SomeProperty AutoPad True
                     )
                 ]
             )

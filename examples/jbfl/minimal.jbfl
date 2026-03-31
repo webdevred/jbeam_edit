@@ -8,7 +8,8 @@
 
 .*.nodes, .*.beams,
 .*.triangles, .*.slots,
-.*.slots2, .*.props {
+.*.slots2, .*.props,
+.*.slidenodes, .*.torsionbars {
     AutoPad: true;
 }
 
@@ -34,6 +35,8 @@
 .*.radiator.*, .*.waterDamage.*,
 .*.engineBlock.*,
 .*.pressureWheels[*],
+.*.slidenodes[*], .*.torsionbars[*],
+.*.deformGroups[*],
 .*.driveModes.defaultSettings[*],
 .*.driveModes.modes.*.settings[*],
 .*.mirrors[*], .*.soundscape[*],
@@ -61,7 +64,11 @@
 .*.soundscape[*].*,
 .*.soundscape[*][*].*,
 .*.camerasInternal[*].*,
-.*.camerasInternal[*][*].* {
+.*.camerasInternal[*][*].*,
+.*.slidenodes[*].*,
+.*.torsionbars[*].*,
+.*.pressureWheels[*].*,
+.*.powertrain[*].* {
     PreserveNumberFormat : true;
     ComplexNewLine : None;
 }
@@ -73,7 +80,9 @@
 .*.vehicleController, .*.radiator,
 .*.waterDamage, .*.engineBlock,
 .*.gauges, .*.gauges.configuration,
-.*.gauges.displayData {
+.*.gauges.displayData,
+.*.differential_R, .*.differential_F,
+.*.differential_C {
     ComplexNewLine: Force;
     AlignObjectKeys: true;
     PreserveNumberFormat: true;

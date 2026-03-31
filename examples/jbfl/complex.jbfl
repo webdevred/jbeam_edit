@@ -9,7 +9,8 @@
 
 .*.nodes, .*.beams,
 .*.triangles, .*.slots,
-.*.slots2, .*.props {
+.*.slots2, .*.props,
+.*.slidenodes, .*.torsionbars {
    AutoPad : true;
 }
 
@@ -32,6 +33,8 @@
 .*.radiator.*, .*.waterDamage.*,
 .*.engineBlock.*,
 .*.pressureWheels[*],
+.*.slidenodes[*], .*.torsionbars[*],
+.*.deformGroups[*],
 .*.driveModes.defaultSettings[*],
 .*.driveModes.modes.*.settings[*],
 .*.mirrors[*], .*.soundscape[*],
@@ -59,7 +62,11 @@
 .*.soundscape[*].*,
 .*.soundscape[*][*].*,
 .*.camerasInternal[*].*,
-.*.camerasInternal[*][*].* {
+.*.camerasInternal[*][*].*,
+.*.slidenodes[*].*,
+.*.torsionbars[*].*,
+.*.pressureWheels[*].*,
+.*.powertrain[*].* {
     PreserveNumberFormat : true;
     ComplexNewLine : None;
 }
@@ -77,6 +84,8 @@
 .*.waterDamage, .*.engineBlock,
 .*.gauges, .*.gauges.configuration,
 .*.gauges.displayData,
+.*.differential_R, .*.differential_F,
+.*.differential_C,
 .*.glowMap.dumptruck_gaugelight_warning,
 .*.glowMap.chassis_gaugelight_warning {
     ComplexNewLine: Force;
