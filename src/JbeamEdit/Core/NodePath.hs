@@ -25,6 +25,7 @@ import JbeamEdit.Core.Node qualified as N (
 data NodeSelector
   = ArrayIndex Int
   | ObjectKey Text
+  | ObjectPrefixKey Text
   | ObjectIndex Int
   deriving (Eq, Ord, Read, Show)
 

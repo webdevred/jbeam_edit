@@ -21,7 +21,7 @@ import Data.Map qualified as M (fromList, fromListWith, union)
 import Data.Sequence qualified as Seq (fromList)
 import Data.Set qualified as S (fromList)
 import Data.Text (Text)
-import Data.Text qualified as T (unpack)
+import Data.Text qualified as T (init, isSuffixOf, unpack)
 import Data.Text.Encoding (decodeUtf8')
 import Data.Word (Word8)
 import JbeamEdit.Core.NodePath
@@ -41,7 +41,8 @@ type JbflParser a = Parser Identity a
 objectKeyParser :: JbflParser NodePatternSelector
 objectKeyParser = byteChar '.' *> key
   where
-    key = parseWord8s (Selector . ObjectKey) (MP.some . MP.satisfy $ p)
+    key = parseWord8s (Selector . t) (MP.some . MP.satisfy $ p)
+    t k = if T.isSuffixOf "*" k then ObjectPrefixKey (T.init k) else ObjectKey k
     p = charBoth (not . isSpace) (`notElem` [',', '[', '.']) . toChar
 
 objectIndexParser :: JbflParser NodePatternSelector
