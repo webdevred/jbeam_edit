@@ -37,11 +37,13 @@ Typical use cases include:
 
 | Pattern  | Description                                                                      |
 |----------|----------------------------------------------------------------------------------|
-| `.*`     | Matches **any key** at the current object level, regardless of name.             |
-| `[*]`    | Matches **all elements** in a list (1D array).                                   |
-| `[*][*]` | Matches **all elements in the innermost lists** of 2D arrays (arrays of arrays). |
-| `.test`  | Matches the value with key `test` in an object.                                  |
-| `[4]`    | Matches the value at index 4 in an array.                                        |
+| `.*`      | Matches **any key** at the current object level, regardless of name.             |
+| `[*]`     | Matches **all elements** in a list (1D array).                                   |
+| `[*][*]`  | Matches **all elements in the innermost lists** of 2D arrays (arrays of arrays). |
+| `.test`   | Matches the value with key `test` in an object.                                  |
+| `.test*`  | Matches any key that **starts with** `test` (prefix match).                      |
+| `.0`      | Matches the object child at positional index 0 (by order, ignoring key name).    |
+| `[4]`     | Matches the value at index 4 in an array.                                        |
 
 ## Properties Overview
 
@@ -53,12 +55,14 @@ Typical use cases include:
 | `AlignObjectKeys`     | Pads object keys so that `:` separators align vertically across all entries in the same object.                                                                          | Objects                         |
 | `AutoPadSubObjects`   | Aligns values within sibling inline objects by treating matching sub-keys as columns. Useful for `glowMap`-style structures.                                             | Objects with inline sub-objects |
 | `ComplexNewLine`      | Controls multiline formatting for complex structures. `None` disables it (inline output). `Force` always enables it. Replaces the deprecated `NoComplexNewLine` and `ForceComplexNewLine` properties. | Any complex data structure      |
+| `PreserveNumberFormat` | Outputs numbers exactly as written in the source file instead of normalizing them. Useful for preserving intentional formatting like `+1` or `0.002` vs `2.0e-3`.       | Numeric values                  |
 | `Indent`              | Controls the amount of indentation. Defaults to 4 spaces.                                                                                                               | Any complex data structure      |
 
 ## How Matching Works
 
 - Patterns traverse nested objects and arrays.
 - `.*` matches all keys at the current level.
+- `.foo*` matches any key starting with `foo` (e.g. `.deformGroups_oilPan*` matches `deformGroups_oilPanFront`, `deformGroups_oilPanRear`, etc.).
 - `[*]` matches all elements of an array.
 - Combinations like `.*.nodes[*][*]` match all elements inside inner lists under `nodes` keys.
 - Properties apply **to each matched value individually**.
