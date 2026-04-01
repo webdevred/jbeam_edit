@@ -34,7 +34,7 @@
 .*.engineBlock.*,
 .*.pressureWheels[*],
 .*.slidenodes[*], .*.torsionbars[*],
-.*.deformGroups[*],
+.*.mainEngine.deformGroups*,
 .*.driveModes.defaultSettings[*],
 .*.driveModes.modes.*.settings[*],
 .*.mirrors[*], .*.soundscape[*],

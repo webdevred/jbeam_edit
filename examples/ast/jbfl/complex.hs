@@ -890,26 +890,6 @@ RuleSet
                 ( fromList
                     [ AnyObjectKey
                     , Selector
-                        ( ObjectKey "deformGroups" )
-                    , AnyArrayIndex
-                    ]
-                )
-            , fromList
-                [
-                    ( SomeKey ComplexNewLine
-                    , SomeProperty ComplexNewLine None
-                    )
-                ,
-                    ( SomeKey PreserveNumberFormat
-                    , SomeProperty PreserveNumberFormat True
-                    )
-                ]
-            )
-        ,
-            ( NodePattern
-                ( fromList
-                    [ AnyObjectKey
-                    , Selector
                         ( ObjectKey "engineBlock" )
                     , AnyObjectKey
                     ]
@@ -1242,6 +1222,27 @@ RuleSet
                     , Selector
                         ( ObjectKey "glowMap" )
                     , AnyObjectKey
+                    ]
+                )
+            , fromList
+                [
+                    ( SomeKey ComplexNewLine
+                    , SomeProperty ComplexNewLine None
+                    )
+                ,
+                    ( SomeKey PreserveNumberFormat
+                    , SomeProperty PreserveNumberFormat True
+                    )
+                ]
+            )
+        ,
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey
+                    , Selector
+                        ( ObjectKey "mainEngine" )
+                    , Selector
+                        ( ObjectPrefixKey "deformGroups" )
                     ]
                 )
             , fromList
