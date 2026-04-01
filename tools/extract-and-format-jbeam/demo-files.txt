@@ -1,0 +1,10 @@
+autobello_body.jbeam autobello.zip
+barstow_engine_v8_small.jbeam barstow.zip
+bolide_headlights.jbeam bolide.zip
+citybus_engine.jbeam citybus.zip
+citybus_interior.jbeam citybus.zip
+etk800_dse_drivemodes.jbeam etk800.zip
+pickup_body.jbeam pickup.zip
+sbr_electric.jbeam sbr.zip
+sbr_transaxle.jbeam sbr.zip
+wendover_headlights.jbeam wendover.zip
