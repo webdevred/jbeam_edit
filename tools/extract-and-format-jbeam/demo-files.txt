@@ -8,3 +8,7 @@ pickup_body.jbeam pickup.zip
 sbr_electric.jbeam sbr.zip
 sbr_transaxle.jbeam sbr.zip
 wendover_headlights.jbeam wendover.zip
+dumptruck.jbeam dumptruck.zip
+dumptruck_bumper.jbeam dumptruck.zip
+dumptruck_engine.jbeam dumptruck.zip
+dumptruck_fueltank.jbeam dumptruck.zip
