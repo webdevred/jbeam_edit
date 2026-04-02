@@ -175,7 +175,11 @@ Rules for editing:
 - **Priorities**: Keep items that are still open. Move solved items to the Done section (remove the ordinal, keep the description). Re-number remaining items as 1., 2., etc. Try to keep 5 active priorities if there are enough open problems.
 - **Done**: Append newly solved items. Keep existing done items as-is.
 
-If PROPOSALS is true, also add to Observations. Only propose properties that exist in `JBFL_DOCS.md`. If the diff suggests a formatting behavior that no existing property can address, propose it as a new property.
+If PROPOSALS is true, also add to Observations.
+
+**Default vs setting rule**: Be careful about proposing new JBFL properties for behaviors that should just be the formatter's default. But giving users a choice can be valuable -- it makes jbeam-edit and JBFL more flexible, and it lets maintainers tune formatting behavior per AST section without writing Haskell. When proposing a new property, always consider: what should the default be?
+
+For properties that exist in `JBFL_DOCS.md`, propose JBFL rule changes directly. If the diff suggests a formatting behavior that no existing property can address, propose it as a new property.
 
 ```markdown
 ## Proposed JBFL changes
