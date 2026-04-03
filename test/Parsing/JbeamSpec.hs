@@ -77,7 +77,7 @@ singlelineCommentSpec =
     )
   ,
     ( "[\"test\", \"test\" // cool comment \n ]"
-    , Array
+    , mkArray
         ( fromList
             [ String "test"
             , String "test"
@@ -98,7 +98,7 @@ arraySpec :: [(String, Node)]
 arraySpec =
   [
     ( "[1,2,3]"
-    , Array
+    , mkArray
         ( fromList
             [ Number (mkNumberValue "1" 1)
             , Number (mkNumberValue "2" 2)
@@ -108,7 +108,7 @@ arraySpec =
     )
   ,
     ( "[1\n 2\n 3]"
-    , Array
+    , mkArray
         ( fromList
             [ Number (mkNumberValue "1" 1)
             , Number (mkNumberValue "2" 2)
@@ -122,17 +122,17 @@ objectSpec :: [(String, Node)]
 objectSpec =
   [
     ( "{}"
-    , Object
+    , mkObject
         (fromList [])
     )
   ,
     ( "{ }"
-    , Object
+    , mkObject
         (fromList [])
     )
   ,
     ( "{\n//test\n\"test\" : 1, \"test2\" : 2}"
-    , Object
+    , mkObject
         ( fromList
             [ Comment (InternalComment "test" False NextNode False)
             , ObjectKey (String "test", Number (mkNumberValue "1" 1))
@@ -142,7 +142,7 @@ objectSpec =
     )
   ,
     ( "{\"test\" : 1, \"test2\" : 2}"
-    , Object
+    , mkObject
         ( fromList
             [ ObjectKey (String "test", Number (mkNumberValue "1" 1))
             , ObjectKey (String "test2", Number (mkNumberValue "2" 2))
@@ -151,7 +151,7 @@ objectSpec =
     )
   ,
     ( "{\"test\" : 1\n \"test2\" : 2}"
-    , Object
+    , mkObject
         ( fromList
             [ ObjectKey (String "test", Number (mkNumberValue "1" 1))
             , ObjectKey (String "test2", Number (mkNumberValue "2" 2))

@@ -15,7 +15,7 @@ import Data.ByteString qualified as BS
 import Data.ByteString.Lazy qualified as LBS
 import Data.Char (isSpace)
 import Data.Functor (($>))
-import Data.Maybe (isNothing)
+import Data.Maybe (isJust, isNothing)
 import Data.Monoid.Extra (mwhen)
 import Data.Scientific (Scientific)
 import Data.Text (Text)
@@ -24,10 +24,12 @@ import Data.Text.Encoding (decodeUtf8Lenient)
 import Data.Vector qualified as V (fromList)
 import Data.Void (Void)
 import JbeamEdit.Core.Node (
+  ArrayValue (..),
   AssociationDirection (..),
   InternalComment (..),
   Node (..),
   NumberValue (..),
+  ObjectValue (..),
   mkNumberValue,
  )
 import JbeamEdit.Parsing.Common
@@ -40,6 +42,7 @@ import Text.Megaparsec.Char qualified as C
 data ParseState = ParseState
   { lastNodeEndedWithNewline :: Bool
   , lastSeparatorHadBlankLine :: Bool
+  , lastSeparatorHadComma :: Bool
   }
 
 type JbeamParser a = Parser (State ParseState) a
@@ -61,6 +64,7 @@ separatorParser = do
         s
           { lastNodeEndedWithNewline = hasNewline
           , lastSeparatorHadBlankLine = totalNewlines >= 2
+          , lastSeparatorHadComma = isJust comma
           }
     )
 
@@ -175,9 +179,10 @@ arrayParser :: JbeamParser Node
 arrayParser = do
   _ <- byteChar '['
   elems <- MP.sepEndBy nodeParser separatorParser
+  trailingComma <- gets lastSeparatorHadComma
   _ <- MP.optional separatorParser
   _ <- byteChar ']'
-  pure . Array . V.fromList $ elems
+  pure . Array $ ArrayValue (V.fromList elems) (trailingComma && not (null elems))
 
 objectKeyParser :: JbeamParser Node
 objectKeyParser = do
@@ -189,7 +194,7 @@ objectKeyParser = do
   let obj = ObjectKey (key, value)
   c <- MP.lookAhead B.asciiChar
   case toChar c of
-    '}' -> pure obj
+    '}' -> modify (\s -> s {lastSeparatorHadComma = False}) $> obj
     _ -> separatorParser $> obj
 
 objectParser :: JbeamParser Node
@@ -197,9 +202,10 @@ objectParser = do
   _ <- byteChar '{'
   skipWhiteSpace
   keys <- MP.many (commentParser <* separatorParser <|> objectKeyParser)
+  trailingComma <- gets lastSeparatorHadComma
   _ <- MP.optional separatorParser
   _ <- byteChar '}'
-  pure . Object . V.fromList $ keys
+  pure . Object $ ObjectValue (V.fromList keys) (trailingComma && not (null keys))
 
 topNodeParser :: JbeamParser Node
 topNodeParser = nodeParser <* skipWhiteSpace <* MP.eof
@@ -210,7 +216,11 @@ parseNodesState
   -> Either (MP.ParseErrorBundle LBS.ByteString Void) a
 parseNodesState parser input =
   let initialState =
-        ParseState {lastNodeEndedWithNewline = True, lastSeparatorHadBlankLine = False}
+        ParseState
+          { lastNodeEndedWithNewline = True
+          , lastSeparatorHadBlankLine = False
+          , lastSeparatorHadComma = False
+          }
    in evalState (MP.runParserT parser "<input>" input) initialState
 
 parseNodes :: LBS.ByteString -> Either Text Node

@@ -17,10 +17,12 @@ module JbeamEdit.Core.Node (
   mkNumberValueNormalized,
   Node (..),
   NumberValue (..),
+  ArrayValue (..),
+  ObjectValue (..),
   InternalComment (..),
   AssociationDirection (..),
-  Object,
-  Array,
+  mkArray,
+  mkObject,
 ) where
 
 import Control.Applicative ((<|>))
@@ -35,11 +37,19 @@ import Data.Text qualified as T
 import Data.Vector (Vector)
 import Data.Vector qualified as V
 
-type Object = Vector Node
+data ArrayValue = ArrayValue
+  { avElements :: Vector Node
+  , avTrailingComma :: Bool
+  }
+  deriving (Eq, Ord, Read, Show)
+
+data ObjectValue = ObjectValue
+  { ovElements :: Vector Node
+  , ovTrailingComma :: Bool
+  }
+  deriving (Eq, Ord, Read, Show)
 
 type ObjectKey = (Node, Node)
-
-type Array = Vector Node
 
 data AssociationDirection = PreviousNode | NextNode
   deriving (Eq, Ord, Read, Show)
@@ -78,8 +88,8 @@ data NumberValue = NumberValue
   deriving (Eq, Ord, Read, Show)
 
 data Node
-  = Array Array
-  | Object Object
+  = Array ArrayValue
+  | Object ObjectValue
   | ObjectKey ObjectKey
   | String Text
   | Number NumberValue
@@ -109,6 +119,12 @@ isCommentNode _ = False
 isObjectNode :: Node -> Bool
 isObjectNode (Object _) = True
 isObjectNode _ = False
+
+mkArray :: Vector Node -> Node
+mkArray v = Array (ArrayValue v False)
+
+mkObject :: Vector Node -> Node
+mkObject v = Object (ObjectValue v False)
 
 isObjectKeyNode :: Node -> Bool
 isObjectKeyNode (ObjectKey _) = True
@@ -141,11 +157,11 @@ isSinglelineComment (Comment (InternalComment _ False _ _)) = True
 isSinglelineComment _ = False
 
 expectArray :: Node -> Maybe (Vector Node)
-expectArray (Array ns) = Just ns
+expectArray (Array av) = Just (avElements av)
 expectArray _ = Nothing
 
 expectObject :: Node -> Maybe (Vector Node)
-expectObject (Object ns) = Just ns
+expectObject (Object ov) = Just (ovElements ov)
 expectObject _ = Nothing
 
 possiblyChildren :: Node -> Maybe (Vector Node)
@@ -173,30 +189,30 @@ moreNodesThanOne v
   Examples in AST form:
 
     -- [1] → not complex
-    Array (fromList [Number 1])
+    mkArray (fromList [Number 1])
 
     -- [[1]] → not complex
-    Array (fromList [Array (fromList [Number 1])])
+    mkArray (fromList [mkArray (fromList [Number 1])])
 
     -- [1,2] → complex
-    Array (fromList [Number 1, Number 2])
+    mkArray (fromList [Number 1, Number 2])
 
     -- { a: 1 } → not complex
-    Object (fromList [ObjectKey (String "a", Number 1)])
+    mkObject (fromList [ObjectKey (String "a", Number 1)])
 
     -- { a: 1, b: 2 } → complex
-    Object (fromList [ ObjectKey (String "a", Number 1)
-                     , ObjectKey (String "b", Number 2)
-                     ])
+    mkObject (fromList [ ObjectKey (String "a", Number 1)
+                       , ObjectKey (String "b", Number 2)
+                       ])
 
     -- { a: [1] } → not complex
-    Object (fromList [ObjectKey (String "a", Array (fromList [Number 1]))])
+    mkObject (fromList [ObjectKey (String "a", mkArray (fromList [Number 1]))])
 
     -- { a: [1,2] } → complex
-    Object (fromList [ObjectKey (String "a", Array (fromList [Number 1, Number 2]))])
+    mkObject (fromList [ObjectKey (String "a", mkArray (fromList [Number 1, Number 2]))])
 -}
 isComplexNode :: Node -> Bool
-isComplexNode (Object v) = moreNodesThanOne v
-isComplexNode (Array v) = moreNodesThanOne v
+isComplexNode (Object ov) = moreNodesThanOne (ovElements ov)
+isComplexNode (Array av) = moreNodesThanOne (avElements av)
 isComplexNode (ObjectKey (_key, val)) = isComplexNode val
 isComplexNode _ = False

@@ -84,6 +84,7 @@ data PropertyKey a where
   PadAmount :: PropertyKey Int
   PadDecimals :: PropertyKey Int
   Indent :: PropertyKey Int
+  PreserveTrailingCommas :: PropertyKey Bool
 
 data SomeKey
   = forall a.
@@ -117,6 +118,7 @@ eqKey AutoPadSubObjects AutoPadSubObjects = Just Refl
 eqKey PreserveNumberFormat PreserveNumberFormat = Just Refl
 eqKey PadDecimals PadDecimals = Just Refl
 eqKey Indent Indent = Just Refl
+eqKey PreserveTrailingCommas PreserveTrailingCommas = Just Refl
 eqKey _ _ = Nothing
 
 instance Ord SomeKey where
@@ -160,6 +162,7 @@ propertyName PreserveNumberFormat = "PreserveNumberFormat"
 propertyName PadAmount = "PadAmount"
 propertyName PadDecimals = "PadDecimals"
 propertyName Indent = "Indent"
+propertyName PreserveTrailingCommas = "PreserveTrailingCommas"
 
 keyName :: SomeKey -> Text
 keyName (SomeKey key) = propertyName key
@@ -175,6 +178,7 @@ boolProperties =
     , AlignObjectKeys
     , AutoPadSubObjects
     , PreserveNumberFormat
+    , PreserveTrailingCommas
     ]
 
 enumProperties :: [SomeKey]

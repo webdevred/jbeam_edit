@@ -100,6 +100,7 @@ parseValueForKey PreserveNumberFormat = parseBool <?> "bool"
 parseValueForKey PadAmount = L.decimal <?> "integer"
 parseValueForKey PadDecimals = L.decimal <?> "integer"
 parseValueForKey Indent = L.decimal <?> "integer"
+parseValueForKey PreserveTrailingCommas = parseBool <?> "bool"
 
 parseComplexNewLineMode :: JbflParser ComplexNewLineMode
 parseComplexNewLineMode =

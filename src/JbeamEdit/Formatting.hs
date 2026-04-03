@@ -24,9 +24,11 @@ import Data.Text.Encoding (encodeUtf8)
 import Data.Vector (Vector)
 import Data.Vector qualified as V
 import JbeamEdit.Core.Node (
+  ArrayValue (..),
   InternalComment (..),
   Node (..),
   NumberValue (..),
+  ObjectValue (..),
   expectArray,
   extractPreviousAssocCmt,
   isCommentNode,
@@ -96,14 +98,15 @@ addDelimiters
   -> Int
   -> NC.NodeCursor
   -> Bool
+  -> Bool
   -> FormattingState
   -> [Text]
   -> [Node]
   -> [Text]
-addDelimiters _ _ _ _ _ _ acc [] = acc
-addDelimiters rs index rowIdx c complexChildren state acc ns@(node : rest)
+addDelimiters _ _ _ _ _ _ _ acc [] = acc
+addDelimiters rs index rowIdx c complexChildren hasTrailingComma state acc ns@(node : rest)
   | complexChildren && null acc =
-      addDelimiters rs index rowIdx c complexChildren state ["\n"] ns
+      addDelimiters rs index rowIdx c complexChildren hasTrailingComma state ["\n"] ns
   | isCommentNode node =
       let formattedComment =
             formatWithCursor
@@ -112,7 +115,16 @@ addDelimiters rs index rowIdx c complexChildren state acc ns@(node : rest)
               c
               (normalizeCommentNode complexChildren node)
           formatted = (newlineBeforeComment <> formattedComment <> "\n") : acc
-       in addDelimiters rs index rowIdx c complexChildren state formatted rest
+       in addDelimiters
+            rs
+            index
+            rowIdx
+            c
+            complexChildren
+            hasTrailingComma
+            state
+            formatted
+            rest
   | otherwise =
       case extractPreviousAssocCmt rest of
         (Just comment, rest') ->
@@ -124,13 +136,23 @@ addDelimiters rs index rowIdx c complexChildren state acc ns@(node : rest)
                 nextRowIdx
                 c
                 complexChildren
+                hasTrailingComma
                 state
                 formatted
                 rest'
         (Nothing, _) ->
           let baseTxt = applyCrumbAndFormat node index
               new_acc = (baseTxt <> singleCharIf ' ' space <> singleCharIf '\n' newline) : acc
-           in addDelimiters rs (index + 1) nextRowIdx c complexChildren state new_acc rest
+           in addDelimiters
+                rs
+                (index + 1)
+                nextRowIdx
+                c
+                complexChildren
+                hasTrailingComma
+                state
+                new_acc
+                rest
   where
     newlineBeforeComment = case node of
       Comment ic | not (cMultiline ic) ->
@@ -193,7 +215,7 @@ addDelimiters rs index rowIdx c complexChildren state acc ns@(node : rest)
               let (formatted, spaces) = splitTrailing comma (NC.applyCrumb c (formatWithCursor rs emptyState) idx n)
                in formatted <> singleCharIf ',' comma <> spaces
 
-    comma = notNull rest
+    comma = notNull rest || (null rest && hasTrailingComma)
     space = notNull rest && not complexChildren
     newline = complexChildren
 
@@ -211,7 +233,7 @@ maxColumnLengthsWithCache rs cursor nodes
   | V.null nodes = (V.empty, V.empty, False)
   | otherwise =
       let (nodesToProcess, headerWasExtracted) = case V.uncons nodes of
-            Just (Array firstRow, rest) | all isStringNode firstRow -> (rest, True)
+            Just (Array (ArrayValue firstRow _), rest) | all isStringNode firstRow -> (rest, True)
             _ -> (nodes, False)
           (arrayRows, arrayIndices) = extractArrayRows nodesToProcess (fromEnum headerWasExtracted)
           formattedColumns = transposeAndFormat rs cursor arrayRows arrayIndices
@@ -251,7 +273,7 @@ transposeAndFormat rs cursor vvs arrayIndices
                           formatRow rowCursor _rowNode =
                             let formatCell = formatWithCursor rs emptyState
                              in NC.applyCrumb rowCursor formatCell colIdx (row V.! colIdx)
-                       in NC.applyCrumb cursor formatRow actualRowIdx (Array row)
+                       in NC.applyCrumb cursor formatRow actualRowIdx (Array (ArrayValue row False))
                     else ""
               )
               vvs
@@ -260,9 +282,10 @@ doFormatNode
   :: RuleSet
   -> NC.NodeCursor
   -> FormattingState
+  -> Bool
   -> Vector Node
   -> Text
-doFormatNode rs cursor state nodes =
+doFormatNode rs cursor state containerTrailingComma nodes =
   let prefixProps = findPropertiesForCursor PrefixMatch cursor rs
       exactProps = findPropertiesForCursor ExactMatch cursor rs
 
@@ -293,7 +316,7 @@ doFormatNode rs cursor state nodes =
         | autopadSubObjectsEnabled =
             V.foldl'
               ( \acc n -> case n of
-                  ObjectKey (_, Object subNodes) ->
+                  ObjectKey (_, Object (ObjectValue subNodes _)) ->
                     V.foldl'
                       ( \acc2 sn -> case sn of
                           ObjectKey (sk, sv) ->
@@ -334,9 +357,12 @@ doFormatNode rs cursor state nodes =
               }
         | otherwise = state
 
+      preserveTC = fromMaybe True (lookupRule PreserveTrailingCommas prefixProps)
+      trailingComma = containerTrailingComma && preserveTC
+
       formatted =
         reverse
-          . addDelimiters rs 0 0 cursor complexChildren state' []
+          . addDelimiters rs 0 0 cursor complexChildren trailingComma state' []
           . V.toList
           $ nodes
 
@@ -372,20 +398,20 @@ formatScalarNode _ n = error $ "Unhandled scalar node: " <> show n
 
 formatWithCursor
   :: RuleSet -> FormattingState -> NC.NodeCursor -> Node -> Text
-formatWithCursor rs state cursor (Array a)
+formatWithCursor rs state cursor (Array (ArrayValue a tc))
   | V.null a = "[]"
   | otherwise =
       T.concat
         [ "["
-        , doFormatNode rs cursor state a
+        , doFormatNode rs cursor state tc a
         , "]"
         ]
-formatWithCursor rs state cursor (Object o)
+formatWithCursor rs state cursor (Object (ObjectValue o tc))
   | V.null o = "{}"
   | otherwise =
       T.concat
         [ "{"
-        , doFormatNode rs cursor state o
+        , doFormatNode rs cursor state tc o
         , "}"
         ]
 formatWithCursor rs state cursor (ObjectKey (k, v)) =

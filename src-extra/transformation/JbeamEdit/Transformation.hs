@@ -281,7 +281,7 @@ annotatedVertexToNodesWithPrev prevMeta (AnnotatedVertex comments vertex meta) =
       newPrevMeta = M.union localsMeta prevMeta
 
       metaNodes =
-        [ Object (V.singleton (ObjectKey (String k, v)))
+        [ mkObject (V.singleton (ObjectKey (String k, v)))
         | (k, v) <- M.assocs localsMeta
         ]
 
@@ -293,8 +293,8 @@ annotatedVertexToNodesWithPrev prevMeta (AnnotatedVertex comments vertex meta) =
             x = Number (mkNumberValueNormalized (vX vertex))
             y = Number (mkNumberValueNormalized (vY vertex))
             z = Number (mkNumberValueNormalized (vZ vertex))
-            possiblyMeta = concatMap (pure . Object) (vMeta vertex)
-         in Array . V.fromList $ [name, x, y, z] ++ possiblyMeta
+            possiblyMeta = concatMap (pure . mkObject) (vMeta vertex)
+         in mkArray . V.fromList $ [name, x, y, z] ++ possiblyMeta
    in ( map Comment preComments
           ++ metaNodes
           ++ pure vertexArray
@@ -405,26 +405,36 @@ sortVertices treeType newNames tfCfg (VertexTree comments vertices) =
 
 updateVerticesInNode
   :: NP.NodePath -> VertexForest -> NE.NonEmpty Node -> Node -> Node
-updateVerticesInNode (NP.NodePath Empty) g globals (Array _) =
+updateVerticesInNode (NP.NodePath Empty) g globals (Array av) =
   let globalsList = NE.toList globals
       initialMeta =
         M.unions (map metaMapFromObject globalsList)
-   in Array (V.fromList globalsList <> vertexForestToNodeVector initialMeta g)
-updateVerticesInNode (NP.NodePath ((NP.ArrayIndex i) :<| qrest)) g globals (Array children) =
-  let updateInNode nodeToUpdate =
+   in Array
+        av
+          { avElements = V.fromList globalsList <> vertexForestToNodeVector initialMeta g
+          }
+updateVerticesInNode (NP.NodePath ((NP.ArrayIndex i) :<| qrest)) g globals (Array av) =
+  let children = avElements av
+      updateInNode nodeToUpdate =
         children
           // [(i, updateVerticesInNode (NP.NodePath qrest) g globals nodeToUpdate)]
-   in Array $ maybe children updateInNode (children !? i)
-updateVerticesInNode (NP.NodePath ((NP.ObjectIndex i) :<| qrest)) g globals (Object children) =
-  let updateInNode child =
+   in Array av {avElements = maybe children updateInNode (children !? i)}
+updateVerticesInNode (NP.NodePath ((NP.ObjectIndex i) :<| qrest)) g globals (Object ov) =
+  let children = ovElements ov
+      updateInNode child =
         children
           // [(i, updateVerticesInNode (NP.NodePath qrest) g globals child)]
-   in Object $ maybe children updateInNode (children !? i)
-updateVerticesInNode (NP.NodePath (k@(NP.ObjectKey _) :<| qrest)) g globals (Object children) =
-  let updateInNode i =
+   in Object ov {ovElements = maybe children updateInNode (children !? i)}
+updateVerticesInNode (NP.NodePath (k@(NP.ObjectKey _) :<| qrest)) g globals (Object ov) =
+  let children = ovElements ov
+      updateInNode i =
         children
           // [(i, updateVerticesInNode (NP.NodePath qrest) g globals (children ! i))]
-   in Object . maybe children updateInNode $ V.findIndex (isObjectKeyEqual k) children
+   in Object
+        ov
+          { ovElements =
+              maybe children updateInNode $ V.findIndex (isObjectKeyEqual k) children
+          }
 updateVerticesInNode query g globals (ObjectKey (k, v)) =
   ObjectKey (k, updateVerticesInNode query g globals v)
 updateVerticesInNode _ _ _ a = a
@@ -436,10 +446,11 @@ isObjectKeyEqual _ _ = False
 findAndUpdateTextInNode :: UpdateNamesMap -> NC.NodeCursor -> Node -> Node
 findAndUpdateTextInNode m cursor node =
   case node of
-    Array arr
-      | NC.comparePathAndCursor verticesQuery cursor -> Array arr
-      | otherwise -> Array $ V.imap applyBreadcrumbAndUpdateText arr
-    Object obj -> Object $ V.imap applyBreadcrumbAndUpdateText obj
+    Array av
+      | NC.comparePathAndCursor verticesQuery cursor -> Array av
+      | otherwise ->
+          Array av {avElements = V.imap applyBreadcrumbAndUpdateText (avElements av)}
+    Object ov -> Object ov {ovElements = V.imap applyBreadcrumbAndUpdateText (ovElements ov)}
     ObjectKey (key, value) ->
       ObjectKey
         (key, findAndUpdateTextInNode m cursor value)
