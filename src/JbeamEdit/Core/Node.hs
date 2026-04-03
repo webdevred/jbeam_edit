@@ -15,6 +15,8 @@ module JbeamEdit.Core.Node (
   scientificToText,
   mkNumberValue,
   mkNumberValueNormalized,
+  avNodes,
+  ovNodes,
   Node (..),
   NumberValue (..),
   ArrayValue (..),
@@ -37,15 +39,13 @@ import Data.Text qualified as T
 import Data.Vector (Vector)
 import Data.Vector qualified as V
 
-data ArrayValue = ArrayValue
-  { avElements :: Vector Node
-  , avTrailingComma :: Bool
+newtype ArrayValue = ArrayValue
+  { avElements :: Vector (Node, Bool)
   }
   deriving (Eq, Ord, Read, Show)
 
-data ObjectValue = ObjectValue
-  { ovElements :: Vector Node
-  , ovTrailingComma :: Bool
+newtype ObjectValue = ObjectValue
+  { ovElements :: Vector (Node, Bool)
   }
   deriving (Eq, Ord, Read, Show)
 
@@ -120,11 +120,27 @@ isObjectNode :: Node -> Bool
 isObjectNode (Object _) = True
 isObjectNode _ = False
 
+avNodes :: ArrayValue -> Vector Node
+avNodes = V.map fst . avElements
+
+ovNodes :: ObjectValue -> Vector Node
+ovNodes = V.map fst . ovElements
+
 mkArray :: Vector Node -> Node
-mkArray v = Array (ArrayValue v False)
+mkArray v
+  | V.null v = Array (ArrayValue V.empty)
+  | otherwise =
+      let (n, _) = V.last pairs
+          pairs = V.map (,True) v
+       in Array (ArrayValue (V.init pairs `V.snoc` (n, False)))
 
 mkObject :: Vector Node -> Node
-mkObject v = Object (ObjectValue v False)
+mkObject v
+  | V.null v = Object (ObjectValue V.empty)
+  | otherwise =
+      let (n, _) = V.last pairs
+          pairs = V.map (,True) v
+       in Object (ObjectValue (V.init pairs `V.snoc` (n, False)))
 
 isObjectKeyNode :: Node -> Bool
 isObjectKeyNode (ObjectKey _) = True
@@ -157,11 +173,11 @@ isSinglelineComment (Comment (InternalComment _ False _ _)) = True
 isSinglelineComment _ = False
 
 expectArray :: Node -> Maybe (Vector Node)
-expectArray (Array av) = Just (avElements av)
+expectArray (Array av) = Just (avNodes av)
 expectArray _ = Nothing
 
 expectObject :: Node -> Maybe (Vector Node)
-expectObject (Object ov) = Just (ovElements ov)
+expectObject (Object ov) = Just (ovNodes ov)
 expectObject _ = Nothing
 
 possiblyChildren :: Node -> Maybe (Vector Node)
@@ -212,7 +228,7 @@ moreNodesThanOne v
     mkObject (fromList [ObjectKey (String "a", mkArray (fromList [Number 1, Number 2]))])
 -}
 isComplexNode :: Node -> Bool
-isComplexNode (Object ov) = moreNodesThanOne (ovElements ov)
-isComplexNode (Array av) = moreNodesThanOne (avElements av)
+isComplexNode (Object ov) = moreNodesThanOne (ovNodes ov)
+isComplexNode (Array av) = moreNodesThanOne (avNodes av)
 isComplexNode (ObjectKey (_key, val)) = isComplexNode val
 isComplexNode _ = False

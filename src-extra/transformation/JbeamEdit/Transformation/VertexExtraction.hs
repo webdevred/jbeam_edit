@@ -41,9 +41,9 @@ nodeScientific (Number nv) = Just (numberValueToScientific nv)
 nodeScientific _ = Nothing
 
 newVertex :: Node -> Maybe Vertex
-newVertex (Array av) = case V.toList (avElements av) of
+newVertex (Array av) = case V.toList (avNodes av) of
   [String name, n1, n2, n3] -> mkVertex name n1 n2 n3 Nothing
-  [String name, n1, n2, n3, Object ov] -> mkVertex name n1 n2 n3 (Just (ovElements ov))
+  [String name, n1, n2, n3, Object ov] -> mkVertex name n1 n2 n3 (Just (ovNodes ov))
   _ -> Nothing
 newVertex _ = Nothing
 
@@ -165,7 +165,7 @@ metaMapFromObject :: Node -> MetaMap
 metaMapFromObject (Object ov) =
   let toKV (ObjectKey (String k, v)) = Just (k, v)
       toKV _ = Nothing
-   in M.fromList . mapMaybe toKV $ V.toList (ovElements ov)
+   in M.fromList . mapMaybe toKV $ V.toList (ovNodes ov)
 metaMapFromObject _ = M.empty
 
 toInternalComment :: Node -> Maybe InternalComment
@@ -347,5 +347,5 @@ getVertexForest brks np topNode =
 
 isValidVertexHeader :: Node -> Bool
 isValidVertexHeader (Array av) =
-  V.length (avElements av) == 4 && all isStringNode (avElements av)
+  V.length (avNodes av) == 4 && all isStringNode (avNodes av)
 isValidVertexHeader _ = False

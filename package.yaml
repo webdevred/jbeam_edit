@@ -42,6 +42,7 @@ default-extensions:
   - OverloadedStrings
   - ImportQualifiedPost
   - DerivingStrategies
+  - TupleSections
 
 ghc-options:
   - -Wall

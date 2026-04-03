@@ -26,7 +26,7 @@ possiblyBeam sectionMeta node
   | isCommentNode node || isObjectNode node = Right Nothing
   | otherwise = case node of
       Array av ->
-        Right (extractBeamFromArray sectionMeta (avElements av))
+        Right (extractBeamFromArray sectionMeta (avNodes av))
       _ -> Left node
 
 extractBeamFromArray :: MetaMap -> Vector Node -> Maybe Beam

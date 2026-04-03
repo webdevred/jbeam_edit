@@ -19,9 +19,11 @@ import JbeamEdit.Core.Node qualified as N (
   ArrayValue (..),
   Node (..),
   ObjectValue (..),
+  avNodes,
   expectArray,
   isCommentNode,
   maybeObjectKey,
+  ovNodes,
  )
 
 data NodeSelector
@@ -63,12 +65,12 @@ In case the selector matches nodes at a certain point in the tree.
 And queryNodes allows use to chain the Selectors as a NodePath and perform complex queries.
 -}
 select :: NodeSelector -> N.Node -> Maybe N.Node
-select (ArrayIndex i) (N.Array av) = getNthNonComment i (N.avElements av)
+select (ArrayIndex i) (N.Array av) = getNthNonComment i (N.avNodes av)
 select (ObjectPrefixKey k) (N.Object ov) =
   extractValInKey
-    =<< V.find (any (T.isPrefixOf k) . N.maybeObjectKey) (N.ovElements ov)
-select (ObjectKey k) (N.Object ov) = extractValInKey =<< V.find (elem k . N.maybeObjectKey) (N.ovElements ov)
-select (ObjectIndex i) (N.Object ov) = extractValInKey =<< getNthNonComment i (N.ovElements ov)
+    =<< V.find (any (T.isPrefixOf k) . N.maybeObjectKey) (N.ovNodes ov)
+select (ObjectKey k) (N.Object ov) = extractValInKey =<< V.find (elem k . N.maybeObjectKey) (N.ovNodes ov)
+select (ObjectIndex i) (N.Object ov) = extractValInKey =<< getNthNonComment i (N.ovNodes ov)
 select _ _ = Nothing
 
 queryNodes :: NodePath -> N.Node -> Either Text N.Node

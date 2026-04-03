@@ -175,14 +175,27 @@ nodeParser = skipWhiteSpace *> (anyNode <|> failingParser expLabels)
 ---
 --- selectors for objects, object keys and arrays
 ---
+
+collectElements :: JbeamParser Node -> JbeamParser [(Node, Bool)]
+collectElements p = go []
+  where
+    go acc = do
+      skipWhiteSpace
+      done <- MP.optional (MP.lookAhead (byteChar ']' <|> byteChar '}'))
+      case done of
+        Just _ -> pure (reverse acc)
+        Nothing -> do
+          n <- p
+          separatorParser
+          hadComma <- gets lastSeparatorHadComma
+          go ((n, hadComma) : acc)
+
 arrayParser :: JbeamParser Node
 arrayParser = do
   _ <- byteChar '['
-  elems <- MP.sepEndBy nodeParser separatorParser
-  trailingComma <- gets lastSeparatorHadComma
-  _ <- MP.optional separatorParser
+  elems <- collectElements nodeParser
   _ <- byteChar ']'
-  pure . Array $ ArrayValue (V.fromList elems) (trailingComma && not (null elems))
+  pure . Array $ ArrayValue (V.fromList elems)
 
 objectKeyParser :: JbeamParser Node
 objectKeyParser = do
@@ -191,21 +204,14 @@ objectKeyParser = do
   _ <- skipWhiteSpace
   _ <- byteChar ':'
   value <- nodeParser
-  let obj = ObjectKey (key, value)
-  c <- MP.lookAhead B.asciiChar
-  case toChar c of
-    '}' -> modify (\s -> s {lastSeparatorHadComma = False}) $> obj
-    _ -> separatorParser $> obj
+  pure $ ObjectKey (key, value)
 
 objectParser :: JbeamParser Node
 objectParser = do
   _ <- byteChar '{'
-  skipWhiteSpace
-  keys <- MP.many (commentParser <* separatorParser <|> objectKeyParser)
-  trailingComma <- gets lastSeparatorHadComma
-  _ <- MP.optional separatorParser
+  elems <- collectElements (commentParser <|> objectKeyParser)
   _ <- byteChar '}'
-  pure . Object $ ObjectValue (V.fromList keys) (trailingComma && not (null keys))
+  pure . Object $ ObjectValue (V.fromList elems)
 
 topNodeParser :: JbeamParser Node
 topNodeParser = nodeParser <* skipWhiteSpace <* MP.eof

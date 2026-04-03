@@ -29,8 +29,9 @@ import JbeamEdit.Core.Node (
   Node (..),
   NumberValue (..),
   ObjectValue (..),
+  avNodes,
+  commentIsAttachedToPreviousNode,
   expectArray,
-  extractPreviousAssocCmt,
   isCommentNode,
   isComplexNode,
   isObjectKeyNode,
@@ -94,19 +95,25 @@ singleCharIf a b = mwhen b (T.singleton a)
 singleCharIfNot :: Char -> Bool -> Text
 singleCharIfNot a b = singleCharIf a (not b)
 
+extractPreviousAssocCmtPair
+  :: [(Node, Bool)]
+  -> (Maybe InternalComment, [(Node, Bool)])
+extractPreviousAssocCmtPair ((Comment cmt, hc) : ns)
+  | commentIsAttachedToPreviousNode cmt = (Just cmt, ns)
+extractPreviousAssocCmtPair ns = (Nothing, ns)
+
 addDelimiters
   :: RuleSet
   -> Int
   -> Int
   -> NC.NodeCursor
   -> Bool
-  -> Bool
   -> FormattingState
   -> [Text]
-  -> [Node]
+  -> [(Node, Bool)]
   -> [Text]
-addDelimiters _ _ _ _ _ _ _ acc [] = acc
-addDelimiters rs index rowIdx c complexChildren containerTrailingComma state acc ns@(node : rest)
+addDelimiters _ _ _ _ _ _ acc [] = acc
+addDelimiters rs index rowIdx c complexChildren state acc ns@((node, nodeHadComma) : rest)
   | complexChildren && null acc =
       addDelimiters
         rs
@@ -114,7 +121,6 @@ addDelimiters rs index rowIdx c complexChildren containerTrailingComma state acc
         rowIdx
         c
         complexChildren
-        containerTrailingComma
         state
         ["\n"]
         ns
@@ -132,12 +138,11 @@ addDelimiters rs index rowIdx c complexChildren containerTrailingComma state acc
             rowIdx
             c
             complexChildren
-            containerTrailingComma
             state
             formatted
             rest
   | otherwise =
-      case extractPreviousAssocCmt rest of
+      case extractPreviousAssocCmtPair rest of
         (Just comment, rest') ->
           let baseTxt = applyCrumbAndFormat node index
               formatted = (baseTxt <> " " <> formatComment comment) : acc
@@ -147,7 +152,6 @@ addDelimiters rs index rowIdx c complexChildren containerTrailingComma state acc
                 nextRowIdx
                 c
                 complexChildren
-                containerTrailingComma
                 state
                 formatted
                 rest'
@@ -160,11 +164,12 @@ addDelimiters rs index rowIdx c complexChildren containerTrailingComma state acc
                 nextRowIdx
                 c
                 complexChildren
-                containerTrailingComma
                 state
                 new_acc
                 rest
   where
+    restNodes = map fst rest
+
     newlineBeforeComment = case node of
       Comment ic | not (cMultiline ic) ->
         case acc of
@@ -174,8 +179,8 @@ addDelimiters rs index rowIdx c complexChildren containerTrailingComma state acc
           _ ->
             singleCharIfNot
               '\n'
-              (["\n"] == acc || not (cHadNewlineBefore ic) && any isObjectKeyNode rest)
-      _ -> singleCharIfNot '\n' (any isObjectKeyNode rest || ["\n"] == acc)
+              (["\n"] == acc || not (cHadNewlineBefore ic) && any isObjectKeyNode restNodes)
+      _ -> singleCharIfNot '\n' (any isObjectKeyNode restNodes || ["\n"] == acc)
 
     nextRowIdx =
       rowIdx + case node of
@@ -226,8 +231,7 @@ addDelimiters rs index rowIdx c complexChildren containerTrailingComma state acc
               let (formatted, spaces) = splitTrailing comma (NC.applyCrumb c (formatWithCursor rs emptyState) idx n)
                in formatted <> singleCharIf ',' comma <> spaces
 
-    comma = notNull rest || (null rest && trailingComma)
-    trailingComma =
+    comma =
       let tcMode =
             NC.applyCrumb
               c
@@ -239,9 +243,9 @@ addDelimiters rs index rowIdx c complexChildren containerTrailingComma state acc
               index
               node
        in case tcMode of
-            TC.Preserve -> containerTrailingComma
+            TC.Preserve -> nodeHadComma
             TC.Force -> True
-            TC.None -> False
+            TC.None -> notNull rest
     space = notNull rest && not complexChildren
     newline = complexChildren
 
@@ -259,7 +263,7 @@ maxColumnLengthsWithCache rs cursor nodes
   | V.null nodes = (V.empty, V.empty, False)
   | otherwise =
       let (nodesToProcess, headerWasExtracted) = case V.uncons nodes of
-            Just (Array (ArrayValue firstRow _), rest) | all isStringNode firstRow -> (rest, True)
+            Just (Array (ArrayValue firstRow), rest) | all (isStringNode . fst) firstRow -> (rest, True)
             _ -> (nodes, False)
           (arrayRows, arrayIndices) = extractArrayRows nodesToProcess (fromEnum headerWasExtracted)
           formattedColumns = transposeAndFormat rs cursor arrayRows arrayIndices
@@ -299,7 +303,11 @@ transposeAndFormat rs cursor vvs arrayIndices
                           formatRow rowCursor _rowNode =
                             let formatCell = formatWithCursor rs emptyState
                              in NC.applyCrumb rowCursor formatCell colIdx (row V.! colIdx)
-                       in NC.applyCrumb cursor formatRow actualRowIdx (Array (ArrayValue row False))
+                       in NC.applyCrumb
+                            cursor
+                            formatRow
+                            actualRowIdx
+                            (Array (ArrayValue (V.map (,True) row)))
                     else ""
               )
               vvs
@@ -308,11 +316,11 @@ doFormatNode
   :: RuleSet
   -> NC.NodeCursor
   -> FormattingState
-  -> Bool
-  -> Vector Node
+  -> Vector (Node, Bool)
   -> Text
-doFormatNode rs cursor state containerTrailingComma nodes =
-  let prefixProps = findPropertiesForCursor PrefixMatch cursor rs
+doFormatNode rs cursor state elems =
+  let nodes = V.map fst elems
+      prefixProps = findPropertiesForCursor PrefixMatch cursor rs
       exactProps = findPropertiesForCursor ExactMatch cursor rs
 
       autoPadEnabled = lookupRule AutoPad exactProps == Just True
@@ -342,9 +350,9 @@ doFormatNode rs cursor state containerTrailingComma nodes =
         | autopadSubObjectsEnabled =
             V.foldl'
               ( \acc n -> case n of
-                  ObjectKey (_, Object (ObjectValue subNodes _)) ->
+                  ObjectKey (_, Object (ObjectValue subElems)) ->
                     V.foldl'
-                      ( \acc2 sn -> case sn of
+                      ( \acc2 (sn, _) -> case sn of
                           ObjectKey (sk, sv) ->
                             let kt = formatScalarNode False sk
                                 vw =
@@ -357,7 +365,7 @@ doFormatNode rs cursor state containerTrailingComma nodes =
                           _ -> acc2
                       )
                       acc
-                      subNodes
+                      subElems
                   _ -> acc
               )
               Map.empty
@@ -385,9 +393,9 @@ doFormatNode rs cursor state containerTrailingComma nodes =
 
       formatted =
         reverse
-          . addDelimiters rs 0 0 cursor complexChildren containerTrailingComma state' []
+          . addDelimiters rs 0 0 cursor complexChildren state' []
           . V.toList
-          $ nodes
+          $ elems
 
       indentationAmount = fromMaybe 2 (lookupRule Indent prefixProps)
    in if complexChildren
@@ -421,20 +429,20 @@ formatScalarNode _ n = error $ "Unhandled scalar node: " <> show n
 
 formatWithCursor
   :: RuleSet -> FormattingState -> NC.NodeCursor -> Node -> Text
-formatWithCursor rs state cursor (Array (ArrayValue a tc))
+formatWithCursor rs state cursor (Array (ArrayValue a))
   | V.null a = "[]"
   | otherwise =
       T.concat
         [ "["
-        , doFormatNode rs cursor state tc a
+        , doFormatNode rs cursor state a
         , "]"
         ]
-formatWithCursor rs state cursor (Object (ObjectValue o tc))
+formatWithCursor rs state cursor (Object (ObjectValue o))
   | V.null o = "{}"
   | otherwise =
       T.concat
         [ "{"
-        , doFormatNode rs cursor state tc o
+        , doFormatNode rs cursor state o
         , "}"
         ]
 formatWithCursor rs state cursor (ObjectKey (k, v)) =

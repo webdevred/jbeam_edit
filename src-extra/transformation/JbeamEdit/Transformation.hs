@@ -409,31 +409,33 @@ updateVerticesInNode (NP.NodePath Empty) g globals (Array av) =
   let globalsList = NE.toList globals
       initialMeta =
         M.unions (map metaMapFromObject globalsList)
-   in Array
-        av
-          { avElements = V.fromList globalsList <> vertexForestToNodeVector initialMeta g
-          }
+      newElems =
+        V.map
+          (,True)
+          (V.fromList globalsList <> vertexForestToNodeVector initialMeta g)
+   in Array av {avElements = newElems}
 updateVerticesInNode (NP.NodePath ((NP.ArrayIndex i) :<| qrest)) g globals (Array av) =
   let children = avElements av
-      updateInNode nodeToUpdate =
+      updateInNode (nodeToUpdate, hc) =
         children
-          // [(i, updateVerticesInNode (NP.NodePath qrest) g globals nodeToUpdate)]
+          // [(i, (updateVerticesInNode (NP.NodePath qrest) g globals nodeToUpdate, hc))]
    in Array av {avElements = maybe children updateInNode (children !? i)}
 updateVerticesInNode (NP.NodePath ((NP.ObjectIndex i) :<| qrest)) g globals (Object ov) =
   let children = ovElements ov
-      updateInNode child =
+      updateInNode (child, hc) =
         children
-          // [(i, updateVerticesInNode (NP.NodePath qrest) g globals child)]
+          // [(i, (updateVerticesInNode (NP.NodePath qrest) g globals child, hc))]
    in Object ov {ovElements = maybe children updateInNode (children !? i)}
 updateVerticesInNode (NP.NodePath (k@(NP.ObjectKey _) :<| qrest)) g globals (Object ov) =
   let children = ovElements ov
       updateInNode i =
-        children
-          // [(i, updateVerticesInNode (NP.NodePath qrest) g globals (children ! i))]
+        let (child, hc) = children ! i
+         in children
+              // [(i, (updateVerticesInNode (NP.NodePath qrest) g globals child, hc))]
    in Object
         ov
           { ovElements =
-              maybe children updateInNode $ V.findIndex (isObjectKeyEqual k) children
+              maybe children updateInNode $ V.findIndex (isObjectKeyEqual k . fst) children
           }
 updateVerticesInNode query g globals (ObjectKey (k, v)) =
   ObjectKey (k, updateVerticesInNode query g globals v)
@@ -443,14 +445,26 @@ isObjectKeyEqual :: NP.NodeSelector -> Node -> Bool
 isObjectKeyEqual (NP.ObjectKey a) (ObjectKey (String b, _)) = a == b
 isObjectKeyEqual _ _ = False
 
+updateNodeInPair :: (Node -> Node) -> (Node, Bool) -> (Node, Bool)
+updateNodeInPair f (n, hc) = (f n, hc)
+
 findAndUpdateTextInNode :: UpdateNamesMap -> NC.NodeCursor -> Node -> Node
 findAndUpdateTextInNode m cursor node =
   case node of
     Array av
       | NC.comparePathAndCursor verticesQuery cursor -> Array av
       | otherwise ->
-          Array av {avElements = V.imap applyBreadcrumbAndUpdateText (avElements av)}
-    Object ov -> Object ov {ovElements = V.imap applyBreadcrumbAndUpdateText (ovElements ov)}
+          Array
+            av
+              { avElements =
+                  V.imap (updateNodeInPair . applyBreadcrumbAndUpdateText) (avElements av)
+              }
+    Object ov ->
+      Object
+        ov
+          { ovElements =
+              V.imap (updateNodeInPair . applyBreadcrumbAndUpdateText) (ovElements ov)
+          }
     ObjectKey (key, value) ->
       ObjectKey
         (key, findAndUpdateTextInNode m cursor value)
