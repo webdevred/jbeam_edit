@@ -27,31 +27,68 @@
     (modify-syntax-entry ?/ ". 124b" st)
     (modify-syntax-entry ?\n "> b" st)
     (modify-syntax-entry ?* ". 23" st)
+    (modify-syntax-entry ?{ "(}" st)
+    (modify-syntax-entry ?} "){" st)
     st)
   "Syntax table for `jbfl-mode'.")
 
 (defvar jbfl-font-lock-keywords
   `(
-    ("\\b\\([A-Za-z0-9_]+\\)\\s-*:" 1 font-lock-keyword-face)
+    ("\\(\\.[*_a-zA-Z0-9]+\\|\\[[^]]+\\]\\)+"
+     . font-lock-function-name-face)
+
+    ("\\b\\([A-Za-z0-9_]+\\)\\s-*:" 1 font-lock-variable-name-face)
 
     (":\\s-*\\([^;]+\\);" 1 font-lock-string-face)
 
-    ("\\b[0-9]+\\b" . font-lock-constant-face)
+    ("\\b[0-9]+\\(?:\\.[0-9]+\\)?\\b" . font-lock-constant-face)
 
     ("\\b\\(true\\|false\\)\\b" . font-lock-constant-face)
 
-    ("\\(\\.[_a-zA-Z0-9*]+\\)+" . font-lock-function-name-face)
+    ("[{}\\[\\]]" . font-lock-builtin-face)
 
-    ("[{}]" . font-lock-builtin-face)
+    ("[:,;]" . font-lock-delimiter-face)
 
-    (";" . font-lock-builtin-face))
-  "Highlighting for `jbfl-mode`.")
+    ("//.*$" . font-lock-comment-face)
+    ("/\\*.*?\\*/" . font-lock-comment-face)
+    ))
+
+(defun jbfl-calc-indent ()
+  (save-excursion
+    (beginning-of-line)
+
+    (let ((depth (car (syntax-ppss))))
+
+      (when (looking-at-p "\\s-*}")
+        (setq depth (1- depth)))
+
+      (* depth tab-width))))
+
+(defun jbfl-indent-line ()
+  (interactive)
+  (let ((indent-level 0)
+        (pos (- (point-max) (point))))
+    (save-excursion
+      (beginning-of-line)
+
+      (when (looking-at-p "\\s-*}")
+        (setq indent-level (- (jbfl-calc-indent) tab-width)))
+
+      (unless (looking-at-p "\\s-*}")
+        (setq indent-level (jbfl-calc-indent)))
+
+      (indent-line-to (max indent-level 0)))
+
+    (when (> (- (point-max) pos) (point))
+      (goto-char (- (point-max) pos)))))
 
 (define-derived-mode jbfl-mode prog-mode "Jbfl"
   "Jbfl mode."
   :syntax-table jbfl-mode-syntax-table
   (setq-local font-lock-defaults '(jbfl-font-lock-keywords)
-              comment-start "//")
+              comment-start "//"
+              indent-line-function #'jbfl-indent-line
+              tab-width 4)
   (modify-syntax-entry ?: "." jbfl-mode-syntax-table))
 
 (when (featurep 'markdown-mode) (add-to-list 'markdown-code-lang-modes '("jbfl" . jbfl-mode)))
