@@ -46,10 +46,10 @@ import JbeamEdit.Formatting.Rules (
   RuleSet (..),
   applyPadLogic,
   findPropertiesForCursor,
+  lookupPropertyForCursor,
   lookupRule,
  )
 import JbeamEdit.Formatting.Rules.ComplexNewLine qualified as CNL
-import JbeamEdit.Formatting.Rules.TrailingComma (TrailingComma)
 import JbeamEdit.Formatting.Rules.TrailingComma qualified as TC
 import System.File.OsPath qualified as OS (writeFile)
 import System.OsPath (OsPath)
@@ -106,9 +106,18 @@ addDelimiters
   -> [Node]
   -> [Text]
 addDelimiters _ _ _ _ _ _ _ acc [] = acc
-addDelimiters rs index rowIdx c complexChildren hasTrailingComma state acc ns@(node : rest)
+addDelimiters rs index rowIdx c complexChildren containerTrailingComma state acc ns@(node : rest)
   | complexChildren && null acc =
-      addDelimiters rs index rowIdx c complexChildren hasTrailingComma state ["\n"] ns
+      addDelimiters
+        rs
+        index
+        rowIdx
+        c
+        complexChildren
+        containerTrailingComma
+        state
+        ["\n"]
+        ns
   | isCommentNode node =
       let formattedComment =
             formatWithCursor
@@ -123,7 +132,7 @@ addDelimiters rs index rowIdx c complexChildren hasTrailingComma state acc ns@(n
             rowIdx
             c
             complexChildren
-            hasTrailingComma
+            containerTrailingComma
             state
             formatted
             rest
@@ -138,7 +147,7 @@ addDelimiters rs index rowIdx c complexChildren hasTrailingComma state acc ns@(n
                 nextRowIdx
                 c
                 complexChildren
-                hasTrailingComma
+                containerTrailingComma
                 state
                 formatted
                 rest'
@@ -151,7 +160,7 @@ addDelimiters rs index rowIdx c complexChildren hasTrailingComma state acc ns@(n
                 nextRowIdx
                 c
                 complexChildren
-                hasTrailingComma
+                containerTrailingComma
                 state
                 new_acc
                 rest
@@ -217,7 +226,22 @@ addDelimiters rs index rowIdx c complexChildren hasTrailingComma state acc ns@(n
               let (formatted, spaces) = splitTrailing comma (NC.applyCrumb c (formatWithCursor rs emptyState) idx n)
                in formatted <> singleCharIf ',' comma <> spaces
 
-    comma = notNull rest || (null rest && hasTrailingComma)
+    comma = notNull rest || (null rest && trailingComma)
+    trailingComma =
+      let tcMode =
+            NC.applyCrumb
+              c
+              ( \childCursor _ ->
+                  fromMaybe
+                    TC.Preserve
+                    (lookupPropertyForCursor PrefixMatch TrailingComma rs childCursor)
+              )
+              index
+              node
+       in case tcMode of
+            TC.Preserve -> containerTrailingComma
+            TC.Force -> True
+            TC.None -> False
     space = notNull rest && not complexChildren
     newline = complexChildren
 
@@ -359,15 +383,9 @@ doFormatNode rs cursor state containerTrailingComma nodes =
               }
         | otherwise = state
 
-      tcMode = fromMaybe TC.Preserve (lookupRule TrailingComma prefixProps)
-      trailingComma = case tcMode of
-        TC.Preserve -> containerTrailingComma
-        TC.Force -> True
-        TC.None -> False
-
       formatted =
         reverse
-          . addDelimiters rs 0 0 cursor complexChildren trailingComma state' []
+          . addDelimiters rs 0 0 cursor complexChildren containerTrailingComma state' []
           . V.toList
           $ nodes
 
