@@ -2,7 +2,7 @@
   "cot_fender" : {
     "information" : {
       "authors" : "gittarrgy01",
-      "name"    : "Fenders",
+      "name"    : "Fenders"
     },
     "sounds" : {
       "impactMetal"   : "event:>Destruction>Props>fender_metal",
@@ -55,7 +55,7 @@
       {"nodeWeight" : 1.2},
       {"group" : ""},
       ["bfsl",  0.684,  -1.079, 0.507],
-      ["bfsr",  -0.623, -1.064, 0.507],
+      ["bfsr",  -0.623, -1.064, 0.507]
     ],
     "beams" : [
       ["id1:",  "id2:"],
@@ -272,7 +272,7 @@
       ["bfr8",  "mbr0"],
       ["bfr9",  "mbr1"],
       ["bfr10", "mbr2"],
-      {"breakGroup" : "", "breakGroupType" : "", "beamType" : "|NORMAL"},
+      {"breakGroup" : "", "breakGroupType" : "", "beamType" : "|NORMAL"}
     ],
     "triangles" : [
       ["id1:",  "id2:",  "id3:"],
@@ -293,14 +293,14 @@
       ["bfr10", "bfr6",  "bfr7"],
       ["bfr9",  "bfr6",  "bfr10"],
       ["bfr9",  "bfr8",  "bfr6"],
-      ["bfr5",  "bfr6",  "bfr8"],
+      ["bfr5",  "bfr6",  "bfr8"]
     ],
     "flexbodies" : [
       ["mesh", "[group]:", "nonFlexMaterials"],
       ["impala_fender_l", ["cot_fender_l"]],
       ["impala_fender_inter_l", ["cot_fender_l"]],
       ["impala_fender_r", ["cot_fender_r"]],
-      ["impala_fender_inter_r", ["cot_fender_r"]],
-    ],
+      ["impala_fender_inter_r", ["cot_fender_r"]]
+    ]
   },
 }

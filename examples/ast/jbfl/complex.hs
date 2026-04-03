@@ -1062,5 +1062,15 @@ RuleSet
                     )
                 ]
             )
+        ,
+            ( NodePattern
+                ( fromList [ AnyObjectKey ] )
+            , fromList
+                [
+                    ( SomeKey TrailingComma
+                    , SomeProperty TrailingComma None
+                    )
+                ]
+            )
         ]
     )
