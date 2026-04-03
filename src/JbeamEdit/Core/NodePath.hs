@@ -11,7 +11,7 @@ module JbeamEdit.Core.NodePath (
 import Data.Either.Extra (maybeToEither)
 import Data.Sequence (Seq (..))
 import Data.Text (Text)
-import Data.Text qualified as T (show)
+import Data.Text qualified as T (show,isPrefixOf)
 import Data.Vector (Vector)
 import Data.Vector qualified as V
 import GHC.IsList (IsList (..))
@@ -62,6 +62,9 @@ And queryNodes allows use to chain the Selectors as a NodePath and perform compl
 -}
 select :: NodeSelector -> N.Node -> Maybe N.Node
 select (ArrayIndex i) (N.Array ns) = getNthNonComment i ns
+select (ObjectPrefixKey k) (N.Object ov) =
+  extractValInKey
+    =<< V.find (any (T.isPrefixOf k) . N.maybeObjectKey) ov
 select (ObjectKey k) (N.Object ns) = extractValInKey =<< V.find (elem k . N.maybeObjectKey) ns
 select (ObjectIndex i) (N.Object a) = extractValInKey =<< getNthNonComment i a
 select _ _ = Nothing
