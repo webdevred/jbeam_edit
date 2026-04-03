@@ -10,6 +10,7 @@ import Data.Text.Encoding (encodeUtf8)
 import Data.Void (Void)
 import JbeamEdit.Core.NodePath qualified as NP (NodeSelector (..))
 import JbeamEdit.Formatting.Rules
+import JbeamEdit.Formatting.Rules.ComplexNewLine qualified as CNL
 import JbeamEdit.Parsing.Common.Helpers
 import JbeamEdit.Parsing.DSL
 import SpecHelper
@@ -40,11 +41,11 @@ enumProperties :: [(String, (SomeKey, SomeProperty))]
 enumProperties =
   [
     ( "ComplexNewLine : Force;"
-    , (SomeKey ComplexNewLine, SomeProperty ComplexNewLine Force)
+    , (SomeKey ComplexNewLine, SomeProperty ComplexNewLine CNL.Force)
     )
   ,
     ( "ComplexNewLine : None;"
-    , (SomeKey ComplexNewLine, SomeProperty ComplexNewLine None)
+    , (SomeKey ComplexNewLine, SomeProperty ComplexNewLine CNL.None)
     )
   ]
 
@@ -52,11 +53,11 @@ deprecatedProperties :: [(String, (SomeKey, SomeProperty))]
 deprecatedProperties =
   [
     ( "NoComplexNewLine : true;"
-    , (SomeKey ComplexNewLine, SomeProperty ComplexNewLine None)
+    , (SomeKey ComplexNewLine, SomeProperty ComplexNewLine CNL.None)
     )
   ,
     ( "ForceComplexNewLine : true;"
-    , (SomeKey ComplexNewLine, SomeProperty ComplexNewLine Force)
+    , (SomeKey ComplexNewLine, SomeProperty ComplexNewLine CNL.Force)
     )
   ]
 

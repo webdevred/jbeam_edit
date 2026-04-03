@@ -74,6 +74,8 @@ library
         JbeamEdit.Formatting
         JbeamEdit.Formatting.Config
         JbeamEdit.Formatting.Rules
+        JbeamEdit.Formatting.Rules.ComplexNewLine
+        JbeamEdit.Formatting.Rules.TrailingComma
         JbeamEdit.IOUtils
         JbeamEdit.Parsing.Common
         JbeamEdit.Parsing.Common.ErrorMessage

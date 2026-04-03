@@ -41,7 +41,6 @@ import JbeamEdit.Core.Node (
 import JbeamEdit.Core.NodeCursor (newCursor)
 import JbeamEdit.Core.NodeCursor qualified as NC
 import JbeamEdit.Formatting.Rules (
-  ComplexNewLineMode (..),
   MatchMode (..),
   PropertyKey (..),
   RuleSet (..),
@@ -49,6 +48,9 @@ import JbeamEdit.Formatting.Rules (
   findPropertiesForCursor,
   lookupRule,
  )
+import JbeamEdit.Formatting.Rules.ComplexNewLine qualified as CNL
+import JbeamEdit.Formatting.Rules.TrailingComma (TrailingComma)
+import JbeamEdit.Formatting.Rules.TrailingComma qualified as TC
 import System.File.OsPath qualified as OS (writeFile)
 import System.OsPath (OsPath)
 
@@ -294,9 +296,9 @@ doFormatNode rs cursor state containerTrailingComma nodes =
       autopadSubObjectsEnabled = lookupRule AutoPadSubObjects exactProps == Just True
 
       complexChildren =
-        lookupRule ComplexNewLine prefixProps == Just Force
+        lookupRule ComplexNewLine prefixProps == Just CNL.Force
           || any (liftA2 (||) isSinglelineComment isComplexNode) nodes
-            && lookupRule ComplexNewLine prefixProps /= Just None
+            && lookupRule ComplexNewLine prefixProps /= Just CNL.None
 
       (colWidths, formattedCache, headerWasExtracted) =
         maxColumnLengthsWithCache rs cursor nodes
@@ -357,8 +359,11 @@ doFormatNode rs cursor state containerTrailingComma nodes =
               }
         | otherwise = state
 
-      preserveTC = fromMaybe True (lookupRule PreserveTrailingCommas prefixProps)
-      trailingComma = containerTrailingComma && preserveTC
+      tcMode = fromMaybe TC.Preserve (lookupRule TrailingComma prefixProps)
+      trailingComma = case tcMode of
+        TC.Preserve -> containerTrailingComma
+        TC.Force -> True
+        TC.None -> False
 
       formatted =
         reverse

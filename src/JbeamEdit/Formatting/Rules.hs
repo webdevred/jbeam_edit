@@ -11,7 +11,8 @@ module JbeamEdit.Formatting.Rules (
   SomeKey (..),
   SomeProperty (..),
   PropertyKey (..),
-  ComplexNewLineMode (..),
+  module JbeamEdit.Formatting.Rules.ComplexNewLine,
+  module JbeamEdit.Formatting.Rules.TrailingComma,
   Rule,
   RuleSet (..),
   lookupKey,
@@ -40,6 +41,10 @@ import Data.Type.Equality ((:~:) (Refl))
 import JbeamEdit.Core.Node
 import JbeamEdit.Core.NodeCursor qualified as NC
 import JbeamEdit.Core.NodePath (NodeSelector (..))
+import JbeamEdit.Formatting.Rules.ComplexNewLine (ComplexNewLine)
+import JbeamEdit.Formatting.Rules.ComplexNewLine qualified as CNL
+import JbeamEdit.Formatting.Rules.TrailingComma (TrailingComma)
+import JbeamEdit.Formatting.Rules.TrailingComma qualified as TC
 import Text.Read qualified as TR
 
 data NodePatternSelector
@@ -72,19 +77,16 @@ instance Ord NodePattern where
       EQ -> compare a b
       c -> c
 
-data ComplexNewLineMode = Force | None
-  deriving stock (Eq, Ord, Read, Show)
-
 data PropertyKey a where
   AutoPad :: PropertyKey Bool
-  ComplexNewLine :: PropertyKey ComplexNewLineMode
+  ComplexNewLine :: PropertyKey ComplexNewLine
   AlignObjectKeys :: PropertyKey Bool
   AutoPadSubObjects :: PropertyKey Bool
   PreserveNumberFormat :: PropertyKey Bool
   PadAmount :: PropertyKey Int
   PadDecimals :: PropertyKey Int
   Indent :: PropertyKey Int
-  PreserveTrailingCommas :: PropertyKey Bool
+  TrailingComma :: PropertyKey TrailingComma
 
 data SomeKey
   = forall a.
@@ -118,7 +120,7 @@ eqKey AutoPadSubObjects AutoPadSubObjects = Just Refl
 eqKey PreserveNumberFormat PreserveNumberFormat = Just Refl
 eqKey PadDecimals PadDecimals = Just Refl
 eqKey Indent Indent = Just Refl
-eqKey PreserveTrailingCommas PreserveTrailingCommas = Just Refl
+eqKey TrailingComma TrailingComma = Just Refl
 eqKey _ _ = Nothing
 
 instance Ord SomeKey where
@@ -162,7 +164,7 @@ propertyName PreserveNumberFormat = "PreserveNumberFormat"
 propertyName PadAmount = "PadAmount"
 propertyName PadDecimals = "PadDecimals"
 propertyName Indent = "Indent"
-propertyName PreserveTrailingCommas = "PreserveTrailingCommas"
+propertyName TrailingComma = "TrailingComma"
 
 keyName :: SomeKey -> Text
 keyName (SomeKey key) = propertyName key
@@ -178,11 +180,10 @@ boolProperties =
     , AlignObjectKeys
     , AutoPadSubObjects
     , PreserveNumberFormat
-    , PreserveTrailingCommas
     ]
 
 enumProperties :: [SomeKey]
-enumProperties = [SomeKey ComplexNewLine]
+enumProperties = [SomeKey ComplexNewLine, SomeKey TrailingComma]
 
 intProperties :: [SomeKey]
 intProperties = map SomeKey [PadAmount, PadDecimals, Indent]
@@ -197,16 +198,16 @@ deprecatedAliases =
     ( "NoComplexNewLine"
     ,
       ( SomeKey ComplexNewLine
-      , SomeProperty ComplexNewLine None
-      , SomeProperty ComplexNewLine Force
+      , SomeProperty ComplexNewLine CNL.None
+      , SomeProperty ComplexNewLine CNL.Force
       )
     )
   ,
     ( "ForceComplexNewLine"
     ,
       ( SomeKey ComplexNewLine
-      , SomeProperty ComplexNewLine Force
-      , SomeProperty ComplexNewLine None
+      , SomeProperty ComplexNewLine CNL.Force
+      , SomeProperty ComplexNewLine CNL.None
       )
     )
   ]
@@ -247,7 +248,7 @@ applyPadLogic f rs n =
         | otherwise = f n
    in bool (T.justifyLeft padAmount ' ' decimalPaddedText) (f n) (isComplexNode n)
 
-complexNewLine :: RuleSet -> NC.NodeCursor -> Maybe ComplexNewLineMode
+complexNewLine :: RuleSet -> NC.NodeCursor -> Maybe ComplexNewLine
 complexNewLine rs cursor =
   let ps = findPropertiesForCursor PrefixMatch cursor rs
    in lookupProp ComplexNewLine ps
