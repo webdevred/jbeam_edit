@@ -302,5 +302,5 @@
       ["impala_fender_r", ["cot_fender_r"]],
       ["impala_fender_inter_r", ["cot_fender_r"]]
     ]
-  },
+  }
 }

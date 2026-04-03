@@ -392,5 +392,5 @@
       ["mesh", "[group]:", "nonFlexMaterials"],
       ["rails", ["chassis_rails"]]
     ]
-  },
+  }
 }
