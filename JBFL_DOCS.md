@@ -56,7 +56,8 @@ Typical use cases include:
 | `AutoPadSubObjects`   | Aligns values within sibling inline objects by treating matching sub-keys as columns. Useful for `glowMap`-style structures.                                             | Objects with inline sub-objects |
 | `ComplexNewLine`      | Controls multiline formatting for complex structures. `None` disables it (inline output). `Force` always enables it. Replaces the deprecated `NoComplexNewLine` and `ForceComplexNewLine` properties. | Any complex data structure      |
 | `PreserveNumberFormat` | Outputs numbers exactly as written in the source file instead of normalizing them. Useful for preserving intentional formatting like `+1` or `0.002` vs `2.0e-3`.       | Numeric values                  |
-| `Indent`              | Controls the amount of indentation. Defaults to 4 spaces.                                                                                                               | Any complex data structure      |
+| `Indent`              | Controls the amount of indentation. Defaults to 4 spaces.                                                                                                                | Any complex data structure      |
+| `TrailingComma`       | Controls trailing commas. `Preserve` keeps the source value (default). `Force` always adds one. `None` always removes them. Resolved at the child level, so `.*` covers root. | Arrays and objects              |
 
 ## How Matching Works
 
@@ -70,6 +71,8 @@ Typical use cases include:
 - `ComplexNewLine: Force` ensures that matched complex structures are always output in multiline format with indentation.
 - `ComplexNewLine: None` keeps structures inline even when they contain nested arrays or objects.
 - The deprecated `NoComplexNewLine: true` and `ForceComplexNewLine: true` are still accepted for backward compatibility.
+- `TrailingComma: None` strips trailing commas. `Force` always adds them. `Preserve` (default) keeps whatever the source file had.
+- `TrailingComma` is resolved at the child level, so `.* { TrailingComma: None; }` also strips the trailing comma in the root object.
 
 ## Detailed Rules Examples
 
