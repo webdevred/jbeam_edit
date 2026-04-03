@@ -32,15 +32,25 @@
 
 (defvar jbfl-font-lock-keywords
   `(
-    ("\\b\\([A-Za-z0-9_]+\\)\\s-*:" 1 font-lock-keyword-face)
+    ("\\(\\.[*_a-zA-Z0-9]+\\|\\[[^]]+\\]\\)+"
+     . font-lock-function-name-face)
+
+    ("\\b\\([A-Za-z0-9_]+\\)\\s-*:" 1 font-lock-variable-name-face)
 
     (":\\s-*\\([^;]+\\);" 1 font-lock-string-face)
 
-    ("\\b[0-9]+\\b" . font-lock-constant-face)
+    ("\\b[0-9]+\\(?:\\.[0-9]+\\)?\\b" . font-lock-constant-face)
 
     ("\\b\\(true\\|false\\)\\b" . font-lock-constant-face)
 
-    ("\\(\\.[_a-zA-Z0-9*]+\\)+" . font-lock-function-name-face)
+    ("[{}\\[\\]]" . font-lock-builtin-face)
+
+    ("[:,;]" . font-lock-delimiter-face)
+
+    ("//.*$" . font-lock-comment-face)
+    ("/\\*.*?\\*/" . font-lock-comment-face)
+    ))
+
 
     ("[{}]" . font-lock-builtin-face)
 
