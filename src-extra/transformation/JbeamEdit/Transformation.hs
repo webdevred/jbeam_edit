@@ -1,6 +1,7 @@
 module JbeamEdit.Transformation (findAndUpdateTextInNode, transform, updateOtherFiles, filterJbeamFiles) where
 
 import Control.Monad (foldM, when)
+import Data.Bifunctor (first)
 import Data.Bool (bool)
 import Data.Foldable.Extra (notNull)
 import Data.Function (on)
@@ -409,10 +410,12 @@ updateVerticesInNode (NP.NodePath Empty) g globals (Array av) =
   let globalsList = NE.toList globals
       initialMeta =
         M.unions (map metaMapFromObject globalsList)
-      newElems =
-        V.map
-          (,True)
-          (V.fromList globalsList <> vertexForestToNodeVector initialMeta g)
+      allNodes = V.fromList globalsList <> vertexForestToNodeVector initialMeta g
+      origTrailingComma = case V.unsnoc (avElements av) of
+        Just (_, (_, hc)) -> hc
+        Nothing -> False
+      lastIdx = V.length allNodes - 1
+      newElems = V.imap (\i n -> (n, i < lastIdx || origTrailingComma)) allNodes
    in Array av {avElements = newElems}
 updateVerticesInNode (NP.NodePath ((NP.ArrayIndex i) :<| qrest)) g globals (Array av) =
   let children = avElements av
@@ -445,9 +448,6 @@ isObjectKeyEqual :: NP.NodeSelector -> Node -> Bool
 isObjectKeyEqual (NP.ObjectKey a) (ObjectKey (String b, _)) = a == b
 isObjectKeyEqual _ _ = False
 
-updateNodeInPair :: (Node -> Node) -> (Node, Bool) -> (Node, Bool)
-updateNodeInPair f (n, hc) = (f n, hc)
-
 findAndUpdateTextInNode :: UpdateNamesMap -> NC.NodeCursor -> Node -> Node
 findAndUpdateTextInNode m cursor node =
   case node of
@@ -457,13 +457,13 @@ findAndUpdateTextInNode m cursor node =
           Array
             av
               { avElements =
-                  V.imap (updateNodeInPair . applyBreadcrumbAndUpdateText) (avElements av)
+                  V.imap (first . applyBreadcrumbAndUpdateText) (avElements av)
               }
     Object ov ->
       Object
         ov
           { ovElements =
-              V.imap (updateNodeInPair . applyBreadcrumbAndUpdateText) (ovElements ov)
+              V.imap (first . applyBreadcrumbAndUpdateText) (ovElements ov)
           }
     ObjectKey (key, value) ->
       ObjectKey

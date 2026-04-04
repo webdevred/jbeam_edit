@@ -347,5 +347,5 @@ getVertexForest brks np topNode =
 
 isValidVertexHeader :: Node -> Bool
 isValidVertexHeader (Array av) =
-  V.length (avNodes av) == 4 && all isStringNode (avNodes av)
+  let ns = avNodes av in V.length ns == 4 && all isStringNode ns
 isValidVertexHeader _ = False

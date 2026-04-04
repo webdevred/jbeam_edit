@@ -126,21 +126,20 @@ avNodes = V.map fst . avElements
 ovNodes :: ObjectValue -> Vector Node
 ovNodes = V.map fst . ovElements
 
+withCommas :: Vector Node -> Vector (Node, Bool)
+withCommas v =
+  let lastIdx = V.length v - 1
+   in V.imap (\i n -> (n, i < lastIdx)) v
+
 mkArray :: Vector Node -> Node
 mkArray v
   | V.null v = Array (ArrayValue V.empty)
-  | otherwise =
-      let (n, _) = V.last pairs
-          pairs = V.map (,True) v
-       in Array (ArrayValue (V.init pairs `V.snoc` (n, False)))
+  | otherwise = Array (ArrayValue (withCommas v))
 
 mkObject :: Vector Node -> Node
 mkObject v
   | V.null v = Object (ObjectValue V.empty)
-  | otherwise =
-      let (n, _) = V.last pairs
-          pairs = V.map (,True) v
-       in Object (ObjectValue (V.init pairs `V.snoc` (n, False)))
+  | otherwise = Object (ObjectValue (withCommas v))
 
 isObjectKeyNode :: Node -> Bool
 isObjectKeyNode (ObjectKey _) = True

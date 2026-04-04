@@ -29,7 +29,6 @@ import JbeamEdit.Core.Node (
   Node (..),
   NumberValue (..),
   ObjectValue (..),
-  avNodes,
   commentIsAttachedToPreviousNode,
   expectArray,
   isCommentNode,
