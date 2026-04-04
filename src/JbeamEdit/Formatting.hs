@@ -97,7 +97,7 @@ singleCharIfNot a b = singleCharIf a (not b)
 extractPreviousAssocCmtPair
   :: [(Node, Bool)]
   -> (Maybe InternalComment, [(Node, Bool)])
-extractPreviousAssocCmtPair ((Comment cmt, hc) : ns)
+extractPreviousAssocCmtPair ((Comment cmt, _) : ns)
   | commentIsAttachedToPreviousNode cmt = (Just cmt, ns)
 extractPreviousAssocCmtPair ns = (Nothing, ns)
 
