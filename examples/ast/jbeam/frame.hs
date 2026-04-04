@@ -3,69 +3,46 @@ Object
         { ovElements =
             [
                 ( ObjectKey
-                    ( String "chassis_rails"
-                    , Object
+                    ( String "chassis_rails", Object
                         ( ObjectValue
                             { ovElements =
                                 [
                                     ( ObjectKey
-                                        ( String "information"
-                                        , Object
+                                        ( String "information", Object
                                             ( ObjectValue
                                                 { ovElements =
                                                     [
                                                         ( ObjectKey
-                                                            ( String "authors"
-                                                            , String "gittarrgy01"
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ( String "authors", String "gittarrgy01"
+                                                            ), True
+                                                        ),
                                                         ( ObjectKey
-                                                            ( String "name"
-                                                            , String ""
-                                                            )
-                                                        , False
+                                                            ( String "name", String ""
+                                                            ), False
                                                         )
                                                     ]
                                                 }
                                             )
-                                        )
-                                    , True
-                                    )
-                                ,
+                                        ), True
+                                    ),
                                     ( ObjectKey
-                                        ( String "slotType"
-                                        , String "main"
-                                        )
-                                    , True
-                                    )
-                                ,
+                                        ( String "slotType", String "main"
+                                        ), True
+                                    ),
                                     ( Comment
                                         ( InternalComment
-                                            { cText = "\nThe purpose of this file is prove that moving metadata\nalong with vertices when moving vertices works as intended.\nSee issue for #69 explanation on the transformation part of the codebase.\n"
-                                            , cMultiline = True
-                                            , cAssociationDirection = NextNode
-                                            , cHadNewlineBefore = False
+                                            { cText = "\nThe purpose of this file is prove that moving metadata\nalong with vertices when moving vertices works as intended.\nSee issue for #69 explanation on the transformation part of the codebase.\n", cMultiline = True, cAssociationDirection = NextNode, cHadNewlineBefore = False
                                             }
-                                        )
-                                    , False
-                                    )
-                                ,
+                                        ), False
+                                    ),
                                     ( Comment
                                         ( InternalComment
-                                            { cText = "--Nodes--"
-                                            , cMultiline = False
-                                            , cAssociationDirection = NextNode
-                                            , cHadNewlineBefore = False
+                                            { cText = "--Nodes--", cMultiline = False, cAssociationDirection = NextNode, cHadNewlineBefore = False
                                             }
-                                        )
-                                    , False
-                                    )
-                                ,
+                                        ), False
+                                    ),
                                     ( ObjectKey
-                                        ( String "nodes"
-                                        , Array
+                                        ( String "nodes", Array
                                             ( ArrayValue
                                                 { avElements =
                                                     [
@@ -73,2312 +50,1613 @@ Object
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "id"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "posX"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "posY"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "posZ"
-                                                                        , False
+                                                                        ( String "id", True
+                                                                        ),
+                                                                        ( String "posX", True
+                                                                        ),
+                                                                        ( String "posY", True
+                                                                        ),
+                                                                        ( String "posZ", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Object
                                                             ( ObjectValue
                                                                 { ovElements =
                                                                     [
                                                                         ( ObjectKey
-                                                                            ( String "group"
-                                                                            , String "chassis_rails"
-                                                                            )
-                                                                        , False
+                                                                            ( String "group", String "chassis_rails"
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f0"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl_f0", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.523"
-                                                                                , nvValue = 0.523
+                                                                                { nvText = "0.523", nvValue = 0.523
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "-2.098"
-                                                                                , nvValue = -2.098
+                                                                                { nvText = "-2.098", nvValue = -2.098
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.319"
-                                                                                , nvValue = 0.319
+                                                                                { nvText = "0.319", nvValue = 0.319
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f1"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl_f1", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "-0.417"
-                                                                                , nvValue = -0.417
+                                                                                { nvText = "-0.417", nvValue = -0.417
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "-2.098"
-                                                                                , nvValue = -2.098
+                                                                                { nvText = "-2.098", nvValue = -2.098
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.319"
-                                                                                , nvValue = 0.319
+                                                                                { nvText = "0.319", nvValue = 0.319
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f2"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl_f2", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.053"
-                                                                                , nvValue = 5.3e-2
+                                                                                { nvText = "0.053", nvValue = 5.3e-2
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "-2.095"
-                                                                                , nvValue = -2.095
+                                                                                { nvText = "-2.095", nvValue = -2.095
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.319"
-                                                                                , nvValue = 0.319
+                                                                                { nvText = "0.319", nvValue = 0.319
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f3"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl_f3", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.523"
-                                                                                , nvValue = 0.523
+                                                                                { nvText = "0.523", nvValue = 0.523
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "-2.093"
-                                                                                , nvValue = -2.093
+                                                                                { nvText = "-2.093", nvValue = -2.093
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.268"
-                                                                                , nvValue = 0.268
+                                                                                { nvText = "0.268", nvValue = 0.268
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f4"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl_f4", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "-0.417"
-                                                                                , nvValue = -0.417
+                                                                                { nvText = "-0.417", nvValue = -0.417
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "-2.093"
-                                                                                , nvValue = -2.093
+                                                                                { nvText = "-2.093", nvValue = -2.093
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.268"
-                                                                                , nvValue = 0.268
+                                                                                { nvText = "0.268", nvValue = 0.268
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f5"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl_f5", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.053"
-                                                                                , nvValue = 5.3e-2
+                                                                                { nvText = "0.053", nvValue = 5.3e-2
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "-2.090"
-                                                                                , nvValue = -2.09
+                                                                                { nvText = "-2.090", nvValue = -2.09
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.269"
-                                                                                , nvValue = 0.269
+                                                                                { nvText = "0.269", nvValue = 0.269
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f6"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl_f6", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.531"
-                                                                                , nvValue = 0.531
+                                                                                { nvText = "0.531", nvValue = 0.531
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "-1.724"
-                                                                                , nvValue = -1.724
+                                                                                { nvText = "-1.724", nvValue = -1.724
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.341"
-                                                                                , nvValue = 0.341
+                                                                                { nvText = "0.341", nvValue = 0.341
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f7"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl_f7", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "-0.424"
-                                                                                , nvValue = -0.424
+                                                                                { nvText = "-0.424", nvValue = -0.424
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "-1.724"
-                                                                                , nvValue = -1.724
+                                                                                { nvText = "-1.724", nvValue = -1.724
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.341"
-                                                                                , nvValue = 0.341
+                                                                                { nvText = "0.341", nvValue = 0.341
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f8"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl_f8", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.531"
-                                                                                , nvValue = 0.531
+                                                                                { nvText = "0.531", nvValue = 0.531
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "-1.721"
-                                                                                , nvValue = -1.721
+                                                                                { nvText = "-1.721", nvValue = -1.721
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.289"
-                                                                                , nvValue = 0.289
+                                                                                { nvText = "0.289", nvValue = 0.289
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f9"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl_f9", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "-0.424"
-                                                                                , nvValue = -0.424
+                                                                                { nvText = "-0.424", nvValue = -0.424
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "-1.721"
-                                                                                , nvValue = -1.721
+                                                                                { nvText = "-1.721", nvValue = -1.721
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.289"
-                                                                                , nvValue = 0.289
+                                                                                { nvText = "0.289", nvValue = 0.289
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f10"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl_f10", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.547"
-                                                                                , nvValue = 0.547
+                                                                                { nvText = "0.547", nvValue = 0.547
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "-1.350"
-                                                                                , nvValue = -1.35
+                                                                                { nvText = "-1.350", nvValue = -1.35
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.310"
-                                                                                , nvValue = 0.31
+                                                                                { nvText = "0.310", nvValue = 0.31
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f11"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl_f11", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.547"
-                                                                                , nvValue = 0.547
+                                                                                { nvText = "0.547", nvValue = 0.547
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "-1.350"
-                                                                                , nvValue = -1.35
+                                                                                { nvText = "-1.350", nvValue = -1.35
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.364"
-                                                                                , nvValue = 0.364
+                                                                                { nvText = "0.364", nvValue = 0.364
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f12"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl_f12", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "-0.440"
-                                                                                , nvValue = -0.44
+                                                                                { nvText = "-0.440", nvValue = -0.44
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "-1.350"
-                                                                                , nvValue = -1.35
+                                                                                { nvText = "-1.350", nvValue = -1.35
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.310"
-                                                                                , nvValue = 0.31
+                                                                                { nvText = "0.310", nvValue = 0.31
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f13"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl_f13", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "-0.440"
-                                                                                , nvValue = -0.44
+                                                                                { nvText = "-0.440", nvValue = -0.44
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "-1.350"
-                                                                                , nvValue = -1.35
+                                                                                { nvText = "-1.350", nvValue = -1.35
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.364"
-                                                                                , nvValue = 0.364
+                                                                                { nvText = "0.364", nvValue = 0.364
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f14"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl_f14", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.053"
-                                                                                , nvValue = 5.3e-2
+                                                                                { nvText = "0.053", nvValue = 5.3e-2
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "-1.314"
-                                                                                , nvValue = -1.314
+                                                                                { nvText = "-1.314", nvValue = -1.314
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.382"
-                                                                                , nvValue = 0.382
+                                                                                { nvText = "0.382", nvValue = 0.382
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Comment
                                                             ( InternalComment
-                                                                { cText = "support for front"
-                                                                , cMultiline = False
-                                                                , cAssociationDirection = PreviousNode
-                                                                , cHadNewlineBefore = False
+                                                                { cText = "support for front", cMultiline = False, cAssociationDirection = PreviousNode, cHadNewlineBefore = False
                                                                 }
-                                                            )
-                                                        , False
-                                                        )
-                                                    ,
+                                                            ), False
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl15"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl15", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.790"
-                                                                                , nvValue = 0.79
+                                                                                { nvText = "0.790", nvValue = 0.79
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "-0.919"
-                                                                                , nvValue = -0.919
+                                                                                { nvText = "-0.919", nvValue = -0.919
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.182"
-                                                                                , nvValue = 0.182
+                                                                                { nvText = "0.182", nvValue = 0.182
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl16"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl16", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.790"
-                                                                                , nvValue = 0.79
+                                                                                { nvText = "0.790", nvValue = 0.79
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "-0.919"
-                                                                                , nvValue = -0.919
+                                                                                { nvText = "-0.919", nvValue = -0.919
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.233"
-                                                                                , nvValue = 0.233
+                                                                                { nvText = "0.233", nvValue = 0.233
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl17"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl17", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "-0.683"
-                                                                                , nvValue = -0.683
+                                                                                { nvText = "-0.683", nvValue = -0.683
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "-0.919"
-                                                                                , nvValue = -0.919
+                                                                                { nvText = "-0.919", nvValue = -0.919
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.182"
-                                                                                , nvValue = 0.182
+                                                                                { nvText = "0.182", nvValue = 0.182
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl18"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl18", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "-0.683"
-                                                                                , nvValue = -0.683
+                                                                                { nvText = "-0.683", nvValue = -0.683
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "-0.919"
-                                                                                , nvValue = -0.919
+                                                                                { nvText = "-0.919", nvValue = -0.919
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.233"
-                                                                                , nvValue = 0.233
+                                                                                { nvText = "0.233", nvValue = 0.233
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl19"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl19", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.053"
-                                                                                , nvValue = 5.3e-2
+                                                                                { nvText = "0.053", nvValue = 5.3e-2
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "-0.024"
-                                                                                , nvValue = -2.4e-2
+                                                                                { nvText = "-0.024", nvValue = -2.4e-2
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.578"
-                                                                                , nvValue = 0.578
+                                                                                { nvText = "0.578", nvValue = 0.578
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Comment
                                                             ( InternalComment
-                                                                { cText = "support"
-                                                                , cMultiline = False
-                                                                , cAssociationDirection = PreviousNode
-                                                                , cHadNewlineBefore = False
+                                                                { cText = "support", cMultiline = False, cAssociationDirection = PreviousNode, cHadNewlineBefore = False
                                                                 }
-                                                            )
-                                                        , False
-                                                        )
-                                                    ,
+                                                            ), False
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl20"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl20", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.837"
-                                                                                , nvValue = 0.837
+                                                                                { nvText = "0.837", nvValue = 0.837
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.002"
-                                                                                , nvValue = 2.0e-3
+                                                                                { nvText = "0.002", nvValue = 2.0e-3
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.182"
-                                                                                , nvValue = 0.182
+                                                                                { nvText = "0.182", nvValue = 0.182
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl21"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl21", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.837"
-                                                                                , nvValue = 0.837
+                                                                                { nvText = "0.837", nvValue = 0.837
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.002"
-                                                                                , nvValue = 2.0e-3
+                                                                                { nvText = "0.002", nvValue = 2.0e-3
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.233"
-                                                                                , nvValue = 0.233
+                                                                                { nvText = "0.233", nvValue = 0.233
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl22"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl22", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.415"
-                                                                                , nvValue = 0.415
+                                                                                { nvText = "0.415", nvValue = 0.415
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.002"
-                                                                                , nvValue = 2.0e-3
+                                                                                { nvText = "0.002", nvValue = 2.0e-3
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.182"
-                                                                                , nvValue = 0.182
+                                                                                { nvText = "0.182", nvValue = 0.182
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl23"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl23", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.415"
-                                                                                , nvValue = 0.415
+                                                                                { nvText = "0.415", nvValue = 0.415
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.002"
-                                                                                , nvValue = 2.0e-3
+                                                                                { nvText = "0.002", nvValue = 2.0e-3
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.233"
-                                                                                , nvValue = 0.233
+                                                                                { nvText = "0.233", nvValue = 0.233
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl24"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl24", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.053"
-                                                                                , nvValue = 5.3e-2
+                                                                                { nvText = "0.053", nvValue = 5.3e-2
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.002"
-                                                                                , nvValue = 2.0e-3
+                                                                                { nvText = "0.002", nvValue = 2.0e-3
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.182"
-                                                                                , nvValue = 0.182
+                                                                                { nvText = "0.182", nvValue = 0.182
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl25"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl25", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.053"
-                                                                                , nvValue = 5.3e-2
+                                                                                { nvText = "0.053", nvValue = 5.3e-2
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.002"
-                                                                                , nvValue = 2.0e-3
+                                                                                { nvText = "0.002", nvValue = 2.0e-3
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.233"
-                                                                                , nvValue = 0.233
+                                                                                { nvText = "0.233", nvValue = 0.233
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl26"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl26", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "-0.308"
-                                                                                , nvValue = -0.308
+                                                                                { nvText = "-0.308", nvValue = -0.308
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.002"
-                                                                                , nvValue = 2.0e-3
+                                                                                { nvText = "0.002", nvValue = 2.0e-3
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.182"
-                                                                                , nvValue = 0.182
+                                                                                { nvText = "0.182", nvValue = 0.182
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl27"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl27", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "-0.308"
-                                                                                , nvValue = -0.308
+                                                                                { nvText = "-0.308", nvValue = -0.308
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.002"
-                                                                                , nvValue = 2.0e-3
+                                                                                { nvText = "0.002", nvValue = 2.0e-3
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.233"
-                                                                                , nvValue = 0.233
+                                                                                { nvText = "0.233", nvValue = 0.233
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl28"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl28", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "-0.730"
-                                                                                , nvValue = -0.73
+                                                                                { nvText = "-0.730", nvValue = -0.73
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.002"
-                                                                                , nvValue = 2.0e-3
+                                                                                { nvText = "0.002", nvValue = 2.0e-3
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.182"
-                                                                                , nvValue = 0.182
+                                                                                { nvText = "0.182", nvValue = 0.182
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl29"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl29", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "-0.730"
-                                                                                , nvValue = -0.73
+                                                                                { nvText = "-0.730", nvValue = -0.73
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.002"
-                                                                                , nvValue = 2.0e-3
+                                                                                { nvText = "0.002", nvValue = 2.0e-3
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.233"
-                                                                                , nvValue = 0.233
+                                                                                { nvText = "0.233", nvValue = 0.233
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl30"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl30", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.822"
-                                                                                , nvValue = 0.822
+                                                                                { nvText = "0.822", nvValue = 0.822
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.791"
-                                                                                , nvValue = 0.791
+                                                                                { nvText = "0.791", nvValue = 0.791
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.182"
-                                                                                , nvValue = 0.182
+                                                                                { nvText = "0.182", nvValue = 0.182
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl31"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl31", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.822"
-                                                                                , nvValue = 0.822
+                                                                                { nvText = "0.822", nvValue = 0.822
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.791"
-                                                                                , nvValue = 0.791
+                                                                                { nvText = "0.791", nvValue = 0.791
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.233"
-                                                                                , nvValue = 0.233
+                                                                                { nvText = "0.233", nvValue = 0.233
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl32"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl32", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "-0.715"
-                                                                                , nvValue = -0.715
+                                                                                { nvText = "-0.715", nvValue = -0.715
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.791"
-                                                                                , nvValue = 0.791
+                                                                                { nvText = "0.791", nvValue = 0.791
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.182"
-                                                                                , nvValue = 0.182
+                                                                                { nvText = "0.182", nvValue = 0.182
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl33"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl33", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "-0.715"
-                                                                                , nvValue = -0.715
+                                                                                { nvText = "-0.715", nvValue = -0.715
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.791"
-                                                                                , nvValue = 0.791
+                                                                                { nvText = "0.791", nvValue = 0.791
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.233"
-                                                                                , nvValue = 0.233
+                                                                                { nvText = "0.233", nvValue = 0.233
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r34"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl_r34", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.651"
-                                                                                , nvValue = 0.651
+                                                                                { nvText = "0.651", nvValue = 0.651
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "1.121"
-                                                                                , nvValue = 1.121
+                                                                                { nvText = "1.121", nvValue = 1.121
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.628"
-                                                                                , nvValue = 0.628
+                                                                                { nvText = "0.628", nvValue = 0.628
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r35"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl_r35", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.053"
-                                                                                , nvValue = 5.3e-2
+                                                                                { nvText = "0.053", nvValue = 5.3e-2
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "1.121"
-                                                                                , nvValue = 1.121
+                                                                                { nvText = "1.121", nvValue = 1.121
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.628"
-                                                                                , nvValue = 0.628
+                                                                                { nvText = "0.628", nvValue = 0.628
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r36"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl_r36", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "-0.544"
-                                                                                , nvValue = -0.544
+                                                                                { nvText = "-0.544", nvValue = -0.544
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "1.121"
-                                                                                , nvValue = 1.121
+                                                                                { nvText = "1.121", nvValue = 1.121
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.628"
-                                                                                , nvValue = 0.628
+                                                                                { nvText = "0.628", nvValue = 0.628
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r37"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl_r37", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.651"
-                                                                                , nvValue = 0.651
+                                                                                { nvText = "0.651", nvValue = 0.651
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "1.152"
-                                                                                , nvValue = 1.152
+                                                                                { nvText = "1.152", nvValue = 1.152
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.565"
-                                                                                , nvValue = 0.565
+                                                                                { nvText = "0.565", nvValue = 0.565
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r38"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl_r38", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.053"
-                                                                                , nvValue = 5.3e-2
+                                                                                { nvText = "0.053", nvValue = 5.3e-2
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "1.152"
-                                                                                , nvValue = 1.152
+                                                                                { nvText = "1.152", nvValue = 1.152
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.565"
-                                                                                , nvValue = 0.565
+                                                                                { nvText = "0.565", nvValue = 0.565
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r39"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl_r39", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "-0.544"
-                                                                                , nvValue = -0.544
+                                                                                { nvText = "-0.544", nvValue = -0.544
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "1.152"
-                                                                                , nvValue = 1.152
+                                                                                { nvText = "1.152", nvValue = 1.152
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.565"
-                                                                                , nvValue = 0.565
+                                                                                { nvText = "0.565", nvValue = 0.565
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r40"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl_r40", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.602"
-                                                                                , nvValue = 0.602
+                                                                                { nvText = "0.602", nvValue = 0.602
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "1.514"
-                                                                                , nvValue = 1.514
+                                                                                { nvText = "1.514", nvValue = 1.514
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.566"
-                                                                                , nvValue = 0.566
+                                                                                { nvText = "0.566", nvValue = 0.566
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r41"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl_r41", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "-0.495"
-                                                                                , nvValue = -0.495
+                                                                                { nvText = "-0.495", nvValue = -0.495
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "1.514"
-                                                                                , nvValue = 1.514
+                                                                                { nvText = "1.514", nvValue = 1.514
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.566"
-                                                                                , nvValue = 0.566
+                                                                                { nvText = "0.566", nvValue = 0.566
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r42"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl_r42", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.602"
-                                                                                , nvValue = 0.602
+                                                                                { nvText = "0.602", nvValue = 0.602
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "1.532"
-                                                                                , nvValue = 1.532
+                                                                                { nvText = "1.532", nvValue = 1.532
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.623"
-                                                                                , nvValue = 0.623
+                                                                                { nvText = "0.623", nvValue = 0.623
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r43"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl_r43", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "-0.495"
-                                                                                , nvValue = -0.495
+                                                                                { nvText = "-0.495", nvValue = -0.495
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "1.532"
-                                                                                , nvValue = 1.532
+                                                                                { nvText = "1.532", nvValue = 1.532
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.623"
-                                                                                , nvValue = 0.623
+                                                                                { nvText = "0.623", nvValue = 0.623
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r44"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl_r44", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.553"
-                                                                                , nvValue = 0.553
+                                                                                { nvText = "0.553", nvValue = 0.553
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "1.654"
-                                                                                , nvValue = 1.654
+                                                                                { nvText = "1.654", nvValue = 1.654
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.359"
-                                                                                , nvValue = 0.359
+                                                                                { nvText = "0.359", nvValue = 0.359
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r45"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl_r45", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "-0.446"
-                                                                                , nvValue = -0.446
+                                                                                { nvText = "-0.446", nvValue = -0.446
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "1.654"
-                                                                                , nvValue = 1.654
+                                                                                { nvText = "1.654", nvValue = 1.654
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.359"
-                                                                                , nvValue = 0.359
+                                                                                { nvText = "0.359", nvValue = 0.359
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r46"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl_r46", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.553"
-                                                                                , nvValue = 0.553
+                                                                                { nvText = "0.553", nvValue = 0.553
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "1.679"
-                                                                                , nvValue = 1.679
+                                                                                { nvText = "1.679", nvValue = 1.679
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.448"
-                                                                                , nvValue = 0.448
+                                                                                { nvText = "0.448", nvValue = 0.448
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r47"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl_r47", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "-0.446"
-                                                                                , nvValue = -0.446
+                                                                                { nvText = "-0.446", nvValue = -0.446
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "1.679"
-                                                                                , nvValue = 1.679
+                                                                                { nvText = "1.679", nvValue = 1.679
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.448"
-                                                                                , nvValue = 0.448
+                                                                                { nvText = "0.448", nvValue = 0.448
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r48"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl_r48", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.053"
-                                                                                , nvValue = 5.3e-2
+                                                                                { nvText = "0.053", nvValue = 5.3e-2
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "1.710"
-                                                                                , nvValue = 1.71
+                                                                                { nvText = "1.710", nvValue = 1.71
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.565"
-                                                                                , nvValue = 0.565
+                                                                                { nvText = "0.565", nvValue = 0.565
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Comment
                                                             ( InternalComment
-                                                                { cText = "support for rear"
-                                                                , cMultiline = False
-                                                                , cAssociationDirection = PreviousNode
-                                                                , cHadNewlineBefore = False
+                                                                { cText = "support for rear", cMultiline = False, cAssociationDirection = PreviousNode, cHadNewlineBefore = False
                                                                 }
-                                                            )
-                                                        , False
-                                                        )
-                                                    ,
+                                                            ), False
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r49"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl_r49", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.558"
-                                                                                , nvValue = 0.558
+                                                                                { nvText = "0.558", nvValue = 0.558
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "2.284"
-                                                                                , nvValue = 2.284
+                                                                                { nvText = "2.284", nvValue = 2.284
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.364"
-                                                                                , nvValue = 0.364
+                                                                                { nvText = "0.364", nvValue = 0.364
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r50"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl_r50", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.558"
-                                                                                , nvValue = 0.558
+                                                                                { nvText = "0.558", nvValue = 0.558
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "2.284"
-                                                                                , nvValue = 2.284
+                                                                                { nvText = "2.284", nvValue = 2.284
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.447"
-                                                                                , nvValue = 0.447
+                                                                                { nvText = "0.447", nvValue = 0.447
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r51"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl_r51", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.053"
-                                                                                , nvValue = 5.3e-2
+                                                                                { nvText = "0.053", nvValue = 5.3e-2
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "2.284"
-                                                                                , nvValue = 2.284
+                                                                                { nvText = "2.284", nvValue = 2.284
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.370"
-                                                                                , nvValue = 0.37
+                                                                                { nvText = "0.370", nvValue = 0.37
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r52"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl_r52", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.053"
-                                                                                , nvValue = 5.3e-2
+                                                                                { nvText = "0.053", nvValue = 5.3e-2
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "2.284"
-                                                                                , nvValue = 2.284
+                                                                                { nvText = "2.284", nvValue = 2.284
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.441"
-                                                                                , nvValue = 0.441
+                                                                                { nvText = "0.441", nvValue = 0.441
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r53"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl_r53", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "-0.451"
-                                                                                , nvValue = -0.451
+                                                                                { nvText = "-0.451", nvValue = -0.451
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "2.284"
-                                                                                , nvValue = 2.284
+                                                                                { nvText = "2.284", nvValue = 2.284
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.364"
-                                                                                , nvValue = 0.364
+                                                                                { nvText = "0.364", nvValue = 0.364
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r54"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rl_r54", True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "-0.451"
-                                                                                , nvValue = -0.451
+                                                                                { nvText = "-0.451", nvValue = -0.451
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "2.284"
-                                                                                , nvValue = 2.284
+                                                                                { nvText = "2.284", nvValue = 2.284
                                                                                 }
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( Number
                                                                             ( NumberValue
-                                                                                { nvText = "0.447"
-                                                                                , nvValue = 0.447
+                                                                                { nvText = "0.447", nvValue = 0.447
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Object
                                                             ( ObjectValue
                                                                 { ovElements =
                                                                     [
                                                                         ( ObjectKey
-                                                                            ( String "group"
-                                                                            , String ""
-                                                                            )
-                                                                        , False
+                                                                            ( String "group", String ""
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , False
+                                                            ), False
                                                         )
                                                     ]
                                                 }
                                             )
-                                        )
-                                    , True
-                                    )
-                                ,
+                                        ), True
+                                    ),
                                     ( Comment
                                         ( InternalComment
-                                            { cText = "--Beams--"
-                                            , cMultiline = False
-                                            , cAssociationDirection = NextNode
-                                            , cHadNewlineBefore = False
+                                            { cText = "--Beams--", cMultiline = False, cAssociationDirection = NextNode, cHadNewlineBefore = False
                                             }
-                                        )
-                                    , False
-                                    )
-                                ,
+                                        ), False
+                                    ),
                                     ( ObjectKey
-                                        ( String "beams"
-                                        , Array
+                                        ( String "beams", Array
                                             ( ArrayValue
                                                 { avElements =
                                                     [
@@ -2386,3928 +1664,2761 @@ Object
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "id1:"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "id2:"
-                                                                        , False
+                                                                        ( String "id1:", True
+                                                                        ),
+                                                                        ( String "id2:", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Comment
                                                             ( InternalComment
-                                                                { cText = "Structural beams"
-                                                                , cMultiline = False
-                                                                , cAssociationDirection = NextNode
-                                                                , cHadNewlineBefore = True
+                                                                { cText = "Structural beams", cMultiline = False, cAssociationDirection = NextNode, cHadNewlineBefore = True
                                                                 }
-                                                            )
-                                                        , False
-                                                        )
-                                                    ,
+                                                            ), False
+                                                        ),
                                                         ( Object
                                                             ( ObjectValue
                                                                 { ovElements =
                                                                     [
                                                                         ( ObjectKey
-                                                                            ( String "beamStrength"
-                                                                            , String "FLT_MAX"
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ( String "beamStrength", String "FLT_MAX"
+                                                                            ), True
+                                                                        ),
                                                                         ( ObjectKey
-                                                                            ( String "beamSpring"
-                                                                            , String "3800000"
-                                                                            )
-                                                                        , False
+                                                                            ( String "beamSpring", String "3800000"
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Object
                                                             ( ObjectValue
                                                                 { ovElements =
                                                                     [
                                                                         ( ObjectKey
-                                                                            ( String "beamDamp"
-                                                                            , Number
+                                                                            ( String "beamDamp", Number
                                                                                 ( NumberValue
-                                                                                    { nvText = "130"
-                                                                                    , nvValue = 130.0
+                                                                                    { nvText = "130", nvValue = 130.0
                                                                                     }
                                                                                 )
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( ObjectKey
-                                                                            ( String "deformLimit"
-                                                                            , Number
+                                                                            ( String "deformLimit", Number
                                                                                 ( NumberValue
-                                                                                    { nvText = "1.1"
-                                                                                    , nvValue = 1.1
+                                                                                    { nvText = "1.1", nvValue = 1.1
                                                                                     }
                                                                                 )
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Comment
                                                             ( InternalComment
-                                                                { cText = "Front end"
-                                                                , cMultiline = False
-                                                                , cAssociationDirection = NextNode
-                                                                , cHadNewlineBefore = True
+                                                                { cText = "Front end", cMultiline = False, cAssociationDirection = NextNode, cHadNewlineBefore = True
                                                                 }
-                                                            )
-                                                        , False
-                                                        )
-                                                    ,
+                                                            ), False
+                                                        ),
                                                         ( Object
                                                             ( ObjectValue
                                                                 { ovElements =
                                                                     [
                                                                         ( ObjectKey
-                                                                            ( String "beamDeform"
-                                                                            , Number
+                                                                            ( String "beamDeform", Number
                                                                                 ( NumberValue
-                                                                                    { nvText = "20600"
-                                                                                    , nvValue = 20600.0
+                                                                                    { nvText = "20600", nvValue = 20600.0
                                                                                     }
                                                                                 )
-                                                                            )
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                            ), True
+                                                                        ),
                                                                         ( ObjectKey
-                                                                            ( String "deformLimit"
-                                                                            , Number
+                                                                            ( String "deformLimit", Number
                                                                                 ( NumberValue
-                                                                                    { nvText = "1.1"
-                                                                                    , nvValue = 1.1
+                                                                                    { nvText = "1.1", nvValue = 1.1
                                                                                     }
                                                                                 )
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f3"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f5"
-                                                                        , False
+                                                                        ( String "rl_f3", True
+                                                                        ),
+                                                                        ( String "rl_f5", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f0"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f3"
-                                                                        , False
+                                                                        ( String "rl_f0", True
+                                                                        ),
+                                                                        ( String "rl_f3", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f8"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f3"
-                                                                        , False
+                                                                        ( String "rl_f8", True
+                                                                        ),
+                                                                        ( String "rl_f3", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl15"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f10"
-                                                                        , False
+                                                                        ( String "rl15", True
+                                                                        ),
+                                                                        ( String "rl_f10", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f8"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f6"
-                                                                        , False
+                                                                        ( String "rl_f8", True
+                                                                        ),
+                                                                        ( String "rl_f6", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f11"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f10"
-                                                                        , False
+                                                                        ( String "rl_f11", True
+                                                                        ),
+                                                                        ( String "rl_f10", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f10"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f8"
-                                                                        , False
+                                                                        ( String "rl_f10", True
+                                                                        ),
+                                                                        ( String "rl_f8", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f9"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f7"
-                                                                        , False
+                                                                        ( String "rl_f9", True
+                                                                        ),
+                                                                        ( String "rl_f7", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl17"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f12"
-                                                                        , False
+                                                                        ( String "rl17", True
+                                                                        ),
+                                                                        ( String "rl_f12", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f6"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f11"
-                                                                        , False
+                                                                        ( String "rl_f6", True
+                                                                        ),
+                                                                        ( String "rl_f11", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f11"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl16"
-                                                                        , False
+                                                                        ( String "rl_f11", True
+                                                                        ),
+                                                                        ( String "rl16", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f13"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl18"
-                                                                        , False
+                                                                        ( String "rl_f13", True
+                                                                        ),
+                                                                        ( String "rl18", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f13"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f12"
-                                                                        , False
+                                                                        ( String "rl_f13", True
+                                                                        ),
+                                                                        ( String "rl_f12", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f1"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f4"
-                                                                        , False
+                                                                        ( String "rl_f1", True
+                                                                        ),
+                                                                        ( String "rl_f4", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f2"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f1"
-                                                                        , False
+                                                                        ( String "rl_f2", True
+                                                                        ),
+                                                                        ( String "rl_f1", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f2"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f5"
-                                                                        , False
+                                                                        ( String "rl_f2", True
+                                                                        ),
+                                                                        ( String "rl_f5", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f12"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f9"
-                                                                        , False
+                                                                        ( String "rl_f12", True
+                                                                        ),
+                                                                        ( String "rl_f9", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f7"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f13"
-                                                                        , False
+                                                                        ( String "rl_f7", True
+                                                                        ),
+                                                                        ( String "rl_f13", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f0"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f6"
-                                                                        , False
+                                                                        ( String "rl_f0", True
+                                                                        ),
+                                                                        ( String "rl_f6", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f9"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f4"
-                                                                        , False
+                                                                        ( String "rl_f9", True
+                                                                        ),
+                                                                        ( String "rl_f4", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f2"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f0"
-                                                                        , False
+                                                                        ( String "rl_f2", True
+                                                                        ),
+                                                                        ( String "rl_f0", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f4"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f5"
-                                                                        , False
+                                                                        ( String "rl_f4", True
+                                                                        ),
+                                                                        ( String "rl_f5", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f1"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f7"
-                                                                        , False
+                                                                        ( String "rl_f1", True
+                                                                        ),
+                                                                        ( String "rl_f7", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Comment
                                                             ( InternalComment
-                                                                { cText = "Middle"
-                                                                , cMultiline = False
-                                                                , cAssociationDirection = NextNode
-                                                                , cHadNewlineBefore = True
+                                                                { cText = "Middle", cMultiline = False, cAssociationDirection = NextNode, cHadNewlineBefore = True
                                                                 }
-                                                            )
-                                                        , False
-                                                        )
-                                                    ,
+                                                            ), False
+                                                        ),
                                                         ( Object
                                                             ( ObjectValue
                                                                 { ovElements =
                                                                     [
                                                                         ( ObjectKey
-                                                                            ( String "beamDeform"
-                                                                            , Number
+                                                                            ( String "beamDeform", Number
                                                                                 ( NumberValue
-                                                                                    { nvText = "27000"
-                                                                                    , nvValue = 27000.0
+                                                                                    { nvText = "27000", nvValue = 27000.0
                                                                                     }
                                                                                 )
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl16"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl15"
-                                                                        , False
+                                                                        ( String "rl16", True
+                                                                        ),
+                                                                        ( String "rl15", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl20"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl30"
-                                                                        , False
+                                                                        ( String "rl20", True
+                                                                        ),
+                                                                        ( String "rl30", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl16"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl23"
-                                                                        , False
+                                                                        ( String "rl16", True
+                                                                        ),
+                                                                        ( String "rl23", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl18"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl17"
-                                                                        , False
+                                                                        ( String "rl18", True
+                                                                        ),
+                                                                        ( String "rl17", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl17"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl28"
-                                                                        , False
+                                                                        ( String "rl17", True
+                                                                        ),
+                                                                        ( String "rl28", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl26"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl17"
-                                                                        , False
+                                                                        ( String "rl26", True
+                                                                        ),
+                                                                        ( String "rl17", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl18"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl27"
-                                                                        , False
+                                                                        ( String "rl18", True
+                                                                        ),
+                                                                        ( String "rl27", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl26"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl24"
-                                                                        , False
+                                                                        ( String "rl26", True
+                                                                        ),
+                                                                        ( String "rl24", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl25"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl24"
-                                                                        , False
+                                                                        ( String "rl25", True
+                                                                        ),
+                                                                        ( String "rl24", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl25"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl27"
-                                                                        , False
+                                                                        ( String "rl25", True
+                                                                        ),
+                                                                        ( String "rl27", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl21"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl16"
-                                                                        , False
+                                                                        ( String "rl21", True
+                                                                        ),
+                                                                        ( String "rl16", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl22"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl15"
-                                                                        , False
+                                                                        ( String "rl22", True
+                                                                        ),
+                                                                        ( String "rl15", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl15"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl20"
-                                                                        , False
+                                                                        ( String "rl15", True
+                                                                        ),
+                                                                        ( String "rl20", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl29"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl27"
-                                                                        , False
+                                                                        ( String "rl29", True
+                                                                        ),
+                                                                        ( String "rl27", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl28"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl32"
-                                                                        , False
+                                                                        ( String "rl28", True
+                                                                        ),
+                                                                        ( String "rl32", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl29"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl18"
-                                                                        , False
+                                                                        ( String "rl29", True
+                                                                        ),
+                                                                        ( String "rl18", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl22"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl24"
-                                                                        , False
+                                                                        ( String "rl22", True
+                                                                        ),
+                                                                        ( String "rl24", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl31"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl21"
-                                                                        , False
+                                                                        ( String "rl31", True
+                                                                        ),
+                                                                        ( String "rl21", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl28"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl29"
-                                                                        , False
+                                                                        ( String "rl28", True
+                                                                        ),
+                                                                        ( String "rl29", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl32"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl33"
-                                                                        , False
+                                                                        ( String "rl32", True
+                                                                        ),
+                                                                        ( String "rl33", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl30"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl31"
-                                                                        , False
+                                                                        ( String "rl30", True
+                                                                        ),
+                                                                        ( String "rl31", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl33"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl29"
-                                                                        , False
+                                                                        ( String "rl33", True
+                                                                        ),
+                                                                        ( String "rl29", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl30"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl22"
-                                                                        , False
+                                                                        ( String "rl30", True
+                                                                        ),
+                                                                        ( String "rl22", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl25"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl23"
-                                                                        , False
+                                                                        ( String "rl25", True
+                                                                        ),
+                                                                        ( String "rl23", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl32"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl26"
-                                                                        , False
+                                                                        ( String "rl32", True
+                                                                        ),
+                                                                        ( String "rl26", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl20"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl21"
-                                                                        , False
+                                                                        ( String "rl20", True
+                                                                        ),
+                                                                        ( String "rl21", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl31"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl23"
-                                                                        , False
+                                                                        ( String "rl31", True
+                                                                        ),
+                                                                        ( String "rl23", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl20"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl22"
-                                                                        , False
+                                                                        ( String "rl20", True
+                                                                        ),
+                                                                        ( String "rl22", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl21"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl23"
-                                                                        , False
+                                                                        ( String "rl21", True
+                                                                        ),
+                                                                        ( String "rl23", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl33"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl27"
-                                                                        , False
+                                                                        ( String "rl33", True
+                                                                        ),
+                                                                        ( String "rl27", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl23"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl22"
-                                                                        , False
+                                                                        ( String "rl23", True
+                                                                        ),
+                                                                        ( String "rl22", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl28"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl26"
-                                                                        , False
+                                                                        ( String "rl28", True
+                                                                        ),
+                                                                        ( String "rl26", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl27"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl26"
-                                                                        , False
+                                                                        ( String "rl27", True
+                                                                        ),
+                                                                        ( String "rl26", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Comment
                                                             ( InternalComment
-                                                                { cText = "Rear end"
-                                                                , cMultiline = False
-                                                                , cAssociationDirection = NextNode
-                                                                , cHadNewlineBefore = True
+                                                                { cText = "Rear end", cMultiline = False, cAssociationDirection = NextNode, cHadNewlineBefore = True
                                                                 }
-                                                            )
-                                                        , False
-                                                        )
-                                                    ,
+                                                            ), False
+                                                        ),
                                                         ( Object
                                                             ( ObjectValue
                                                                 { ovElements =
                                                                     [
                                                                         ( ObjectKey
-                                                                            ( String "beamDeform"
-                                                                            , Number
+                                                                            ( String "beamDeform", Number
                                                                                 ( NumberValue
-                                                                                    { nvText = "22000"
-                                                                                    , nvValue = 22000.0
+                                                                                    { nvText = "22000", nvValue = 22000.0
                                                                                     }
                                                                                 )
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r37"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r34"
-                                                                        , False
+                                                                        ( String "rl_r37", True
+                                                                        ),
+                                                                        ( String "rl_r34", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r39"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r41"
-                                                                        , False
+                                                                        ( String "rl_r39", True
+                                                                        ),
+                                                                        ( String "rl_r41", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r44"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r46"
-                                                                        , False
+                                                                        ( String "rl_r44", True
+                                                                        ),
+                                                                        ( String "rl_r46", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl33"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r36"
-                                                                        , False
+                                                                        ( String "rl33", True
+                                                                        ),
+                                                                        ( String "rl_r36", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r46"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r42"
-                                                                        , False
+                                                                        ( String "rl_r46", True
+                                                                        ),
+                                                                        ( String "rl_r42", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl31"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r34"
-                                                                        , False
+                                                                        ( String "rl31", True
+                                                                        ),
+                                                                        ( String "rl_r34", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r37"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl30"
-                                                                        , False
+                                                                        ( String "rl_r37", True
+                                                                        ),
+                                                                        ( String "rl30", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r49"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r51"
-                                                                        , False
+                                                                        ( String "rl_r49", True
+                                                                        ),
+                                                                        ( String "rl_r51", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r52"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r50"
-                                                                        , False
+                                                                        ( String "rl_r52", True
+                                                                        ),
+                                                                        ( String "rl_r50", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r50"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r46"
-                                                                        , False
+                                                                        ( String "rl_r50", True
+                                                                        ),
+                                                                        ( String "rl_r46", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r49"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r50"
-                                                                        , False
+                                                                        ( String "rl_r49", True
+                                                                        ),
+                                                                        ( String "rl_r50", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r42"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r34"
-                                                                        , False
+                                                                        ( String "rl_r42", True
+                                                                        ),
+                                                                        ( String "rl_r34", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r40"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r44"
-                                                                        , False
+                                                                        ( String "rl_r40", True
+                                                                        ),
+                                                                        ( String "rl_r44", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r40"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r42"
-                                                                        , False
+                                                                        ( String "rl_r40", True
+                                                                        ),
+                                                                        ( String "rl_r42", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r41"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r45"
-                                                                        , False
+                                                                        ( String "rl_r41", True
+                                                                        ),
+                                                                        ( String "rl_r45", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r39"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r36"
-                                                                        , False
+                                                                        ( String "rl_r39", True
+                                                                        ),
+                                                                        ( String "rl_r36", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r36"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r35"
-                                                                        , False
+                                                                        ( String "rl_r36", True
+                                                                        ),
+                                                                        ( String "rl_r35", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r38"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r35"
-                                                                        , False
+                                                                        ( String "rl_r38", True
+                                                                        ),
+                                                                        ( String "rl_r35", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r53"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r54"
-                                                                        , False
+                                                                        ( String "rl_r53", True
+                                                                        ),
+                                                                        ( String "rl_r54", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r52"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r54"
-                                                                        , False
+                                                                        ( String "rl_r52", True
+                                                                        ),
+                                                                        ( String "rl_r54", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r51"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r52"
-                                                                        , False
+                                                                        ( String "rl_r51", True
+                                                                        ),
+                                                                        ( String "rl_r52", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r45"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r53"
-                                                                        , False
+                                                                        ( String "rl_r45", True
+                                                                        ),
+                                                                        ( String "rl_r53", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r54"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r47"
-                                                                        , False
+                                                                        ( String "rl_r54", True
+                                                                        ),
+                                                                        ( String "rl_r47", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r43"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r36"
-                                                                        , False
+                                                                        ( String "rl_r43", True
+                                                                        ),
+                                                                        ( String "rl_r36", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r53"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r51"
-                                                                        , False
+                                                                        ( String "rl_r53", True
+                                                                        ),
+                                                                        ( String "rl_r51", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r34"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r35"
-                                                                        , False
+                                                                        ( String "rl_r34", True
+                                                                        ),
+                                                                        ( String "rl_r35", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r38"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r37"
-                                                                        , False
+                                                                        ( String "rl_r38", True
+                                                                        ),
+                                                                        ( String "rl_r37", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r45"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r47"
-                                                                        , False
+                                                                        ( String "rl_r45", True
+                                                                        ),
+                                                                        ( String "rl_r47", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r41"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r43"
-                                                                        , False
+                                                                        ( String "rl_r41", True
+                                                                        ),
+                                                                        ( String "rl_r43", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r38"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r39"
-                                                                        , False
+                                                                        ( String "rl_r38", True
+                                                                        ),
+                                                                        ( String "rl_r39", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r39"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl32"
-                                                                        , False
+                                                                        ( String "rl_r39", True
+                                                                        ),
+                                                                        ( String "rl32", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r47"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r43"
-                                                                        , False
+                                                                        ( String "rl_r47", True
+                                                                        ),
+                                                                        ( String "rl_r43", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r44"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r49"
-                                                                        , False
+                                                                        ( String "rl_r44", True
+                                                                        ),
+                                                                        ( String "rl_r49", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r37"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r40"
-                                                                        , False
+                                                                        ( String "rl_r37", True
+                                                                        ),
+                                                                        ( String "rl_r40", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Comment
                                                             ( InternalComment
-                                                                { cText = "Crossing beams"
-                                                                , cMultiline = False
-                                                                , cAssociationDirection = NextNode
-                                                                , cHadNewlineBefore = True
+                                                                { cText = "Crossing beams", cMultiline = False, cAssociationDirection = NextNode, cHadNewlineBefore = True
                                                                 }
-                                                            )
-                                                        , False
-                                                        )
-                                                    ,
+                                                            ), False
+                                                        ),
                                                         ( Comment
                                                             ( InternalComment
-                                                                { cText = "Front end"
-                                                                , cMultiline = False
-                                                                , cAssociationDirection = NextNode
-                                                                , cHadNewlineBefore = True
+                                                                { cText = "Front end", cMultiline = False, cAssociationDirection = NextNode, cHadNewlineBefore = True
                                                                 }
-                                                            )
-                                                        , False
-                                                        )
-                                                    ,
+                                                            ), False
+                                                        ),
                                                         ( Object
                                                             ( ObjectValue
                                                                 { ovElements =
                                                                     [
                                                                         ( ObjectKey
-                                                                            ( String "beamDeform"
-                                                                            , Number
+                                                                            ( String "beamDeform", Number
                                                                                 ( NumberValue
-                                                                                    { nvText = "16000"
-                                                                                    , nvValue = 16000.0
+                                                                                    { nvText = "16000", nvValue = 16000.0
                                                                                     }
                                                                                 )
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f4"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f2"
-                                                                        , False
+                                                                        ( String "rl_f4", True
+                                                                        ),
+                                                                        ( String "rl_f2", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f0"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f8"
-                                                                        , False
+                                                                        ( String "rl_f0", True
+                                                                        ),
+                                                                        ( String "rl_f8", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl16"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f10"
-                                                                        , False
+                                                                        ( String "rl16", True
+                                                                        ),
+                                                                        ( String "rl_f10", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl15"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f11"
-                                                                        , False
+                                                                        ( String "rl15", True
+                                                                        ),
+                                                                        ( String "rl_f11", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f10"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f6"
-                                                                        , False
+                                                                        ( String "rl_f10", True
+                                                                        ),
+                                                                        ( String "rl_f6", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f11"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f8"
-                                                                        , False
+                                                                        ( String "rl_f11", True
+                                                                        ),
+                                                                        ( String "rl_f8", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f1"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f5"
-                                                                        , False
+                                                                        ( String "rl_f1", True
+                                                                        ),
+                                                                        ( String "rl_f5", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f4"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f7"
-                                                                        , False
+                                                                        ( String "rl_f4", True
+                                                                        ),
+                                                                        ( String "rl_f7", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f1"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f9"
-                                                                        , False
+                                                                        ( String "rl_f1", True
+                                                                        ),
+                                                                        ( String "rl_f9", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f12"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f7"
-                                                                        , False
+                                                                        ( String "rl_f12", True
+                                                                        ),
+                                                                        ( String "rl_f7", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f3"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f6"
-                                                                        , False
+                                                                        ( String "rl_f3", True
+                                                                        ),
+                                                                        ( String "rl_f6", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f0"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f5"
-                                                                        , False
+                                                                        ( String "rl_f0", True
+                                                                        ),
+                                                                        ( String "rl_f5", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f3"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f2"
-                                                                        , False
+                                                                        ( String "rl_f3", True
+                                                                        ),
+                                                                        ( String "rl_f2", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f13"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f9"
-                                                                        , False
+                                                                        ( String "rl_f13", True
+                                                                        ),
+                                                                        ( String "rl_f9", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl17"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f13"
-                                                                        , False
+                                                                        ( String "rl17", True
+                                                                        ),
+                                                                        ( String "rl_f13", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl18"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f12"
-                                                                        , False
+                                                                        ( String "rl18", True
+                                                                        ),
+                                                                        ( String "rl_f12", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Comment
                                                             ( InternalComment
-                                                                { cText = "Middle"
-                                                                , cMultiline = False
-                                                                , cAssociationDirection = NextNode
-                                                                , cHadNewlineBefore = True
+                                                                { cText = "Middle", cMultiline = False, cAssociationDirection = NextNode, cHadNewlineBefore = True
                                                                 }
-                                                            )
-                                                        , False
-                                                        )
-                                                    ,
+                                                            ), False
+                                                        ),
                                                         ( Object
                                                             ( ObjectValue
                                                                 { ovElements =
                                                                     [
                                                                         ( ObjectKey
-                                                                            ( String "beamDeform"
-                                                                            , Number
+                                                                            ( String "beamDeform", Number
                                                                                 ( NumberValue
-                                                                                    { nvText = "6500"
-                                                                                    , nvValue = 6500.0
+                                                                                    { nvText = "6500", nvValue = 6500.0
                                                                                     }
                                                                                 )
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl16"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl20"
-                                                                        , False
+                                                                        ( String "rl16", True
+                                                                        ),
+                                                                        ( String "rl20", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl15"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl23"
-                                                                        , False
+                                                                        ( String "rl15", True
+                                                                        ),
+                                                                        ( String "rl23", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl18"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl28"
-                                                                        , False
+                                                                        ( String "rl18", True
+                                                                        ),
+                                                                        ( String "rl28", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl18"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl26"
-                                                                        , False
+                                                                        ( String "rl18", True
+                                                                        ),
+                                                                        ( String "rl26", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl17"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl27"
-                                                                        , False
+                                                                        ( String "rl17", True
+                                                                        ),
+                                                                        ( String "rl27", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl27"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl24"
-                                                                        , False
+                                                                        ( String "rl27", True
+                                                                        ),
+                                                                        ( String "rl24", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl26"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl25"
-                                                                        , False
+                                                                        ( String "rl26", True
+                                                                        ),
+                                                                        ( String "rl25", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl31"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl20"
-                                                                        , False
+                                                                        ( String "rl31", True
+                                                                        ),
+                                                                        ( String "rl20", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl15"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl21"
-                                                                        , False
+                                                                        ( String "rl15", True
+                                                                        ),
+                                                                        ( String "rl21", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl16"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl22"
-                                                                        , False
+                                                                        ( String "rl16", True
+                                                                        ),
+                                                                        ( String "rl22", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl32"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl29"
-                                                                        , False
+                                                                        ( String "rl32", True
+                                                                        ),
+                                                                        ( String "rl29", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl30"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl21"
-                                                                        , False
+                                                                        ( String "rl30", True
+                                                                        ),
+                                                                        ( String "rl21", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl23"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl24"
-                                                                        , False
+                                                                        ( String "rl23", True
+                                                                        ),
+                                                                        ( String "rl24", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl32"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl27"
-                                                                        , False
+                                                                        ( String "rl32", True
+                                                                        ),
+                                                                        ( String "rl27", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl17"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl29"
-                                                                        , False
+                                                                        ( String "rl17", True
+                                                                        ),
+                                                                        ( String "rl29", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl33"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl28"
-                                                                        , False
+                                                                        ( String "rl33", True
+                                                                        ),
+                                                                        ( String "rl28", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl29"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl26"
-                                                                        , False
+                                                                        ( String "rl29", True
+                                                                        ),
+                                                                        ( String "rl26", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl30"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl23"
-                                                                        , False
+                                                                        ( String "rl30", True
+                                                                        ),
+                                                                        ( String "rl23", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl33"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl26"
-                                                                        , False
+                                                                        ( String "rl33", True
+                                                                        ),
+                                                                        ( String "rl26", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl22"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl25"
-                                                                        , False
+                                                                        ( String "rl22", True
+                                                                        ),
+                                                                        ( String "rl25", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl20"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl23"
-                                                                        , False
+                                                                        ( String "rl20", True
+                                                                        ),
+                                                                        ( String "rl23", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl28"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl27"
-                                                                        , False
+                                                                        ( String "rl28", True
+                                                                        ),
+                                                                        ( String "rl27", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl31"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl22"
-                                                                        , False
+                                                                        ( String "rl31", True
+                                                                        ),
+                                                                        ( String "rl22", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl21"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl22"
-                                                                        , False
+                                                                        ( String "rl21", True
+                                                                        ),
+                                                                        ( String "rl22", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Comment
                                                             ( InternalComment
-                                                                { cText = "Rear end"
-                                                                , cMultiline = False
-                                                                , cAssociationDirection = NextNode
-                                                                , cHadNewlineBefore = True
+                                                                { cText = "Rear end", cMultiline = False, cAssociationDirection = NextNode, cHadNewlineBefore = True
                                                                 }
-                                                            )
-                                                        , False
-                                                        )
-                                                    ,
+                                                            ), False
+                                                        ),
                                                         ( Object
                                                             ( ObjectValue
                                                                 { ovElements =
                                                                     [
                                                                         ( ObjectKey
-                                                                            ( String "beamDeform"
-                                                                            , Number
+                                                                            ( String "beamDeform", Number
                                                                                 ( NumberValue
-                                                                                    { nvText = "16000"
-                                                                                    , nvValue = 16000.0
+                                                                                    { nvText = "16000", nvValue = 16000.0
                                                                                     }
                                                                                 )
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r54"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r45"
-                                                                        , False
+                                                                        ( String "rl_r54", True
+                                                                        ),
+                                                                        ( String "rl_r45", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl32"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r36"
-                                                                        , False
+                                                                        ( String "rl32", True
+                                                                        ),
+                                                                        ( String "rl_r36", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r36"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r41"
-                                                                        , False
+                                                                        ( String "rl_r36", True
+                                                                        ),
+                                                                        ( String "rl_r41", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r50"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r51"
-                                                                        , False
+                                                                        ( String "rl_r50", True
+                                                                        ),
+                                                                        ( String "rl_r51", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl31"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r37"
-                                                                        , False
+                                                                        ( String "rl31", True
+                                                                        ),
+                                                                        ( String "rl_r37", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl30"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r34"
-                                                                        , False
+                                                                        ( String "rl30", True
+                                                                        ),
+                                                                        ( String "rl_r34", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r46"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r40"
-                                                                        , False
+                                                                        ( String "rl_r46", True
+                                                                        ),
+                                                                        ( String "rl_r40", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r53"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r47"
-                                                                        , False
+                                                                        ( String "rl_r53", True
+                                                                        ),
+                                                                        ( String "rl_r47", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r50"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r44"
-                                                                        , False
+                                                                        ( String "rl_r50", True
+                                                                        ),
+                                                                        ( String "rl_r44", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r49"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r46"
-                                                                        , False
+                                                                        ( String "rl_r49", True
+                                                                        ),
+                                                                        ( String "rl_r46", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r37"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r42"
-                                                                        , False
+                                                                        ( String "rl_r37", True
+                                                                        ),
+                                                                        ( String "rl_r42", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r34"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r40"
-                                                                        , False
+                                                                        ( String "rl_r34", True
+                                                                        ),
+                                                                        ( String "rl_r40", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r34"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r38"
-                                                                        , False
+                                                                        ( String "rl_r34", True
+                                                                        ),
+                                                                        ( String "rl_r38", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl33"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r39"
-                                                                        , False
+                                                                        ( String "rl33", True
+                                                                        ),
+                                                                        ( String "rl_r39", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r39"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r35"
-                                                                        , False
+                                                                        ( String "rl_r39", True
+                                                                        ),
+                                                                        ( String "rl_r35", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r36"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r38"
-                                                                        , False
+                                                                        ( String "rl_r36", True
+                                                                        ),
+                                                                        ( String "rl_r38", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r53"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r52"
-                                                                        , False
+                                                                        ( String "rl_r53", True
+                                                                        ),
+                                                                        ( String "rl_r52", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r54"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r51"
-                                                                        , False
+                                                                        ( String "rl_r54", True
+                                                                        ),
+                                                                        ( String "rl_r51", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r45"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r43"
-                                                                        , False
+                                                                        ( String "rl_r45", True
+                                                                        ),
+                                                                        ( String "rl_r43", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r47"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r41"
-                                                                        , False
+                                                                        ( String "rl_r47", True
+                                                                        ),
+                                                                        ( String "rl_r41", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r39"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r43"
-                                                                        , False
+                                                                        ( String "rl_r39", True
+                                                                        ),
+                                                                        ( String "rl_r43", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r37"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r35"
-                                                                        , False
+                                                                        ( String "rl_r37", True
+                                                                        ),
+                                                                        ( String "rl_r35", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r49"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r52"
-                                                                        , False
+                                                                        ( String "rl_r49", True
+                                                                        ),
+                                                                        ( String "rl_r52", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r44"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r42"
-                                                                        , False
+                                                                        ( String "rl_r44", True
+                                                                        ),
+                                                                        ( String "rl_r42", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Comment
                                                             ( InternalComment
-                                                                { cText = "Support beams"
-                                                                , cMultiline = False
-                                                                , cAssociationDirection = NextNode
-                                                                , cHadNewlineBefore = True
+                                                                { cText = "Support beams", cMultiline = False, cAssociationDirection = NextNode, cHadNewlineBefore = True
                                                                 }
-                                                            )
-                                                        , False
-                                                        )
-                                                    ,
+                                                            ), False
+                                                        ),
                                                         ( Comment
                                                             ( InternalComment
-                                                                { cText = "Front end"
-                                                                , cMultiline = False
-                                                                , cAssociationDirection = NextNode
-                                                                , cHadNewlineBefore = True
+                                                                { cText = "Front end", cMultiline = False, cAssociationDirection = NextNode, cHadNewlineBefore = True
                                                                 }
-                                                            )
-                                                        , False
-                                                        )
-                                                    ,
+                                                            ), False
+                                                        ),
                                                         ( Object
                                                             ( ObjectValue
                                                                 { ovElements =
                                                                     [
                                                                         ( ObjectKey
-                                                                            ( String "beamDeform"
-                                                                            , Number
+                                                                            ( String "beamDeform", Number
                                                                                 ( NumberValue
-                                                                                    { nvText = "19000"
-                                                                                    , nvValue = 19000.0
+                                                                                    { nvText = "19000", nvValue = 19000.0
                                                                                     }
                                                                                 )
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f8"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f14"
-                                                                        , False
+                                                                        ( String "rl_f8", True
+                                                                        ),
+                                                                        ( String "rl_f14", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f9"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f14"
-                                                                        , False
+                                                                        ( String "rl_f9", True
+                                                                        ),
+                                                                        ( String "rl_f14", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f3"
-                                                                        , False
+                                                                        ( String "rl_f", True
+                                                                        ),
+                                                                        ( String "rl_f3", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f10"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f14"
-                                                                        , False
+                                                                        ( String "rl_f10", True
+                                                                        ),
+                                                                        ( String "rl_f14", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f14"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f13"
-                                                                        , False
+                                                                        ( String "rl_f14", True
+                                                                        ),
+                                                                        ( String "rl_f13", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f1"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f14"
-                                                                        , False
+                                                                        ( String "rl_f1", True
+                                                                        ),
+                                                                        ( String "rl_f14", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f0"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f14"
-                                                                        , False
+                                                                        ( String "rl_f0", True
+                                                                        ),
+                                                                        ( String "rl_f14", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f12"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f14"
-                                                                        , False
+                                                                        ( String "rl_f12", True
+                                                                        ),
+                                                                        ( String "rl_f14", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f5"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f14"
-                                                                        , False
+                                                                        ( String "rl_f5", True
+                                                                        ),
+                                                                        ( String "rl_f14", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f14"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f4"
-                                                                        , False
+                                                                        ( String "rl_f14", True
+                                                                        ),
+                                                                        ( String "rl_f4", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f14"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f6"
-                                                                        , False
+                                                                        ( String "rl_f14", True
+                                                                        ),
+                                                                        ( String "rl_f6", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f14"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f7"
-                                                                        , False
+                                                                        ( String "rl_f14", True
+                                                                        ),
+                                                                        ( String "rl_f7", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f14"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f2"
-                                                                        , False
+                                                                        ( String "rl_f14", True
+                                                                        ),
+                                                                        ( String "rl_f2", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f14"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f11"
-                                                                        , False
+                                                                        ( String "rl_f14", True
+                                                                        ),
+                                                                        ( String "rl_f11", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Comment
                                                             ( InternalComment
-                                                                { cText = "Middle"
-                                                                , cMultiline = False
-                                                                , cAssociationDirection = NextNode
-                                                                , cHadNewlineBefore = True
+                                                                { cText = "Middle", cMultiline = False, cAssociationDirection = NextNode, cHadNewlineBefore = True
                                                                 }
-                                                            )
-                                                        , False
-                                                        )
-                                                    ,
+                                                            ), False
+                                                        ),
                                                         ( Object
                                                             ( ObjectValue
                                                                 { ovElements =
                                                                     [
                                                                         ( ObjectKey
-                                                                            ( String "beamDeform"
-                                                                            , Number
+                                                                            ( String "beamDeform", Number
                                                                                 ( NumberValue
-                                                                                    { nvText = "11000"
-                                                                                    , nvValue = 11000.0
+                                                                                    { nvText = "11000", nvValue = 11000.0
                                                                                     }
                                                                                 )
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl27"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl19"
-                                                                        , False
+                                                                        ( String "rl27", True
+                                                                        ),
+                                                                        ( String "rl19", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl26"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl19"
-                                                                        , False
+                                                                        ( String "rl26", True
+                                                                        ),
+                                                                        ( String "rl19", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl24"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl19"
-                                                                        , False
+                                                                        ( String "rl24", True
+                                                                        ),
+                                                                        ( String "rl19", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl23"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl19"
-                                                                        , False
+                                                                        ( String "rl23", True
+                                                                        ),
+                                                                        ( String "rl19", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl20"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl19"
-                                                                        , False
+                                                                        ( String "rl20", True
+                                                                        ),
+                                                                        ( String "rl19", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl19"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl16"
-                                                                        , False
+                                                                        ( String "rl19", True
+                                                                        ),
+                                                                        ( String "rl16", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl19"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl15"
-                                                                        , False
+                                                                        ( String "rl19", True
+                                                                        ),
+                                                                        ( String "rl15", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl31"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl19"
-                                                                        , False
+                                                                        ( String "rl31", True
+                                                                        ),
+                                                                        ( String "rl19", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl33"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl19"
-                                                                        , False
+                                                                        ( String "rl33", True
+                                                                        ),
+                                                                        ( String "rl19", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl28"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl19"
-                                                                        , False
+                                                                        ( String "rl28", True
+                                                                        ),
+                                                                        ( String "rl19", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl19"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl25"
-                                                                        , False
+                                                                        ( String "rl19", True
+                                                                        ),
+                                                                        ( String "rl25", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl21"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl19"
-                                                                        , False
+                                                                        ( String "rl21", True
+                                                                        ),
+                                                                        ( String "rl19", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl22"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl19"
-                                                                        , False
+                                                                        ( String "rl22", True
+                                                                        ),
+                                                                        ( String "rl19", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl19"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl32"
-                                                                        , False
+                                                                        ( String "rl19", True
+                                                                        ),
+                                                                        ( String "rl32", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl29"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl19"
-                                                                        , False
+                                                                        ( String "rl29", True
+                                                                        ),
+                                                                        ( String "rl19", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl19"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl18"
-                                                                        , False
+                                                                        ( String "rl19", True
+                                                                        ),
+                                                                        ( String "rl18", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl19"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl17"
-                                                                        , False
+                                                                        ( String "rl19", True
+                                                                        ),
+                                                                        ( String "rl17", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl19"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl30"
-                                                                        , False
+                                                                        ( String "rl19", True
+                                                                        ),
+                                                                        ( String "rl30", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Comment
                                                             ( InternalComment
-                                                                { cText = "Rear end"
-                                                                , cMultiline = False
-                                                                , cAssociationDirection = NextNode
-                                                                , cHadNewlineBefore = True
+                                                                { cText = "Rear end", cMultiline = False, cAssociationDirection = NextNode, cHadNewlineBefore = True
                                                                 }
-                                                            )
-                                                        , False
-                                                        )
-                                                    ,
+                                                            ), False
+                                                        ),
                                                         ( Object
                                                             ( ObjectValue
                                                                 { ovElements =
                                                                     [
                                                                         ( ObjectKey
-                                                                            ( String "beamDeform"
-                                                                            , Number
+                                                                            ( String "beamDeform", Number
                                                                                 ( NumberValue
-                                                                                    { nvText = "19000"
-                                                                                    , nvValue = 19000.0
+                                                                                    { nvText = "19000", nvValue = 19000.0
                                                                                     }
                                                                                 )
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r48"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r51"
-                                                                        , False
+                                                                        ( String "rl_r48", True
+                                                                        ),
+                                                                        ( String "rl_r51", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r48"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r54"
-                                                                        , False
+                                                                        ( String "rl_r48", True
+                                                                        ),
+                                                                        ( String "rl_r54", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r45"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r48"
-                                                                        , False
+                                                                        ( String "rl_r45", True
+                                                                        ),
+                                                                        ( String "rl_r48", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r48"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r50"
-                                                                        , False
+                                                                        ( String "rl_r48", True
+                                                                        ),
+                                                                        ( String "rl_r50", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r48"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r42"
-                                                                        , False
+                                                                        ( String "rl_r48", True
+                                                                        ),
+                                                                        ( String "rl_r42", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r48"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r47"
-                                                                        , False
+                                                                        ( String "rl_r48", True
+                                                                        ),
+                                                                        ( String "rl_r47", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r49"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r48"
-                                                                        , False
+                                                                        ( String "rl_r49", True
+                                                                        ),
+                                                                        ( String "rl_r48", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r35"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r48"
-                                                                        , False
+                                                                        ( String "rl_r35", True
+                                                                        ),
+                                                                        ( String "rl_r48", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r48"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r43"
-                                                                        , False
+                                                                        ( String "rl_r48", True
+                                                                        ),
+                                                                        ( String "rl_r43", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r44"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r48"
-                                                                        , False
+                                                                        ( String "rl_r44", True
+                                                                        ),
+                                                                        ( String "rl_r48", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r53"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r48"
-                                                                        , False
+                                                                        ( String "rl_r53", True
+                                                                        ),
+                                                                        ( String "rl_r48", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r52"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r48"
-                                                                        , False
+                                                                        ( String "rl_r52", True
+                                                                        ),
+                                                                        ( String "rl_r48", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r40"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r48"
-                                                                        , False
+                                                                        ( String "rl_r40", True
+                                                                        ),
+                                                                        ( String "rl_r48", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r48"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r38"
-                                                                        , False
+                                                                        ( String "rl_r48", True
+                                                                        ),
+                                                                        ( String "rl_r38", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r41"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r48"
-                                                                        , False
+                                                                        ( String "rl_r41", True
+                                                                        ),
+                                                                        ( String "rl_r48", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r4"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r46"
-                                                                        , False
+                                                                        ( String "rl_r4", True
+                                                                        ),
+                                                                        ( String "rl_r46", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Comment
                                                             ( InternalComment
-                                                                { cText = "Front crush"
-                                                                , cMultiline = False
-                                                                , cAssociationDirection = NextNode
-                                                                , cHadNewlineBefore = True
+                                                                { cText = "Front crush", cMultiline = False, cAssociationDirection = NextNode, cHadNewlineBefore = True
                                                                 }
-                                                            )
-                                                        , False
-                                                        )
-                                                    ,
+                                                            ), False
+                                                        ),
                                                         ( Object
                                                             ( ObjectValue
                                                                 { ovElements =
                                                                     [
                                                                         ( ObjectKey
-                                                                            ( String "beamDeform"
-                                                                            , Number
+                                                                            ( String "beamDeform", Number
                                                                                 ( NumberValue
-                                                                                    { nvText = "8500"
-                                                                                    , nvValue = 8500.0
+                                                                                    { nvText = "8500", nvValue = 8500.0
                                                                                     }
                                                                                 )
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl17"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f9"
-                                                                        , False
+                                                                        ( String "rl17", True
+                                                                        ),
+                                                                        ( String "rl_f9", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl15"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f8"
-                                                                        , False
+                                                                        ( String "rl15", True
+                                                                        ),
+                                                                        ( String "rl_f8", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , False
+                                                            ), False
                                                         )
                                                     ]
                                                 }
                                             )
-                                        )
-                                    , True
-                                    )
-                                ,
+                                        ), True
+                                    ),
                                     ( Comment
                                         ( InternalComment
-                                            { cText = "--Collision Triangles--"
-                                            , cMultiline = False
-                                            , cAssociationDirection = NextNode
-                                            , cHadNewlineBefore = False
+                                            { cText = "--Collision Triangles--", cMultiline = False, cAssociationDirection = NextNode, cHadNewlineBefore = False
                                             }
-                                        )
-                                    , False
-                                    )
-                                ,
+                                        ), False
+                                    ),
                                     ( ObjectKey
-                                        ( String "triangles"
-                                        , Array
+                                        ( String "triangles", Array
                                             ( ArrayValue
                                                 { avElements =
                                                     [
@@ -6315,1376 +4426,919 @@ Object
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "id1:"
-                                                                        , True
+                                                                        ( String "id1:", True
+                                                                        ),
+                                                                        ( String "id2:", True
+                                                                        ),
+                                                                        ( String "id3:", False
                                                                         )
-                                                                    ,
-                                                                        ( String "id2:"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "id3:"
-                                                                        , False
-                                                                        )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f5"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f3"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f2"
-                                                                        , False
+                                                                        ( String "rl_f5", True
+                                                                        ),
+                                                                        ( String "rl_f3", True
+                                                                        ),
+                                                                        ( String "rl_f2", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f0"
-                                                                        , True
+                                                                        ( String "rl_f0", True
+                                                                        ),
+                                                                        ( String "rl_f2", True
+                                                                        ),
+                                                                        ( String "rl_f3", False
                                                                         )
-                                                                    ,
-                                                                        ( String "rl_f2"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f3"
-                                                                        , False
-                                                                        )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f5"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f2"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f4"
-                                                                        , False
+                                                                        ( String "rl_f5", True
+                                                                        ),
+                                                                        ( String "rl_f2", True
+                                                                        ),
+                                                                        ( String "rl_f4", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f1"
-                                                                        , True
+                                                                        ( String "rl_f1", True
+                                                                        ),
+                                                                        ( String "rl_f4", True
+                                                                        ),
+                                                                        ( String "rl_f2", False
                                                                         )
-                                                                    ,
-                                                                        ( String "rl_f4"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f2"
-                                                                        , False
-                                                                        )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f4"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f1"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f7"
-                                                                        , False
+                                                                        ( String "rl_f4", True
+                                                                        ),
+                                                                        ( String "rl_f1", True
+                                                                        ),
+                                                                        ( String "rl_f7", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f4"
-                                                                        , True
+                                                                        ( String "rl_f4", True
+                                                                        ),
+                                                                        ( String "rl_f7", True
+                                                                        ),
+                                                                        ( String "rl_f9", False
                                                                         )
-                                                                    ,
-                                                                        ( String "rl_f7"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f9"
-                                                                        , False
-                                                                        )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f7"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f13"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f9"
-                                                                        , False
+                                                                        ( String "rl_f7", True
+                                                                        ),
+                                                                        ( String "rl_f13", True
+                                                                        ),
+                                                                        ( String "rl_f9", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f12"
-                                                                        , True
+                                                                        ( String "rl_f12", True
+                                                                        ),
+                                                                        ( String "rl_f9", True
+                                                                        ),
+                                                                        ( String "rl_f13", False
                                                                         )
-                                                                    ,
-                                                                        ( String "rl_f9"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f13"
-                                                                        , False
-                                                                        )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f12"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f13"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl18"
-                                                                        , False
+                                                                        ( String "rl_f12", True
+                                                                        ),
+                                                                        ( String "rl_f13", True
+                                                                        ),
+                                                                        ( String "rl18", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl18"
-                                                                        , True
+                                                                        ( String "rl18", True
+                                                                        ),
+                                                                        ( String "rl17", True
+                                                                        ),
+                                                                        ( String "rl_f12", False
                                                                         )
-                                                                    ,
-                                                                        ( String "rl17"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f12"
-                                                                        , False
-                                                                        )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f3"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f6"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f0"
-                                                                        , False
+                                                                        ( String "rl_f3", True
+                                                                        ),
+                                                                        ( String "rl_f6", True
+                                                                        ),
+                                                                        ( String "rl_f0", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f3"
-                                                                        , True
+                                                                        ( String "rl_f3", True
+                                                                        ),
+                                                                        ( String "rl_f8", True
+                                                                        ),
+                                                                        ( String "rl_f6", False
                                                                         )
-                                                                    ,
-                                                                        ( String "rl_f8"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f6"
-                                                                        , False
-                                                                        )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f10"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f11"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f8"
-                                                                        , False
+                                                                        ( String "rl_f10", True
+                                                                        ),
+                                                                        ( String "rl_f11", True
+                                                                        ),
+                                                                        ( String "rl_f8", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f6"
-                                                                        , True
+                                                                        ( String "rl_f6", True
+                                                                        ),
+                                                                        ( String "rl_f8", True
+                                                                        ),
+                                                                        ( String "rl_f11", False
                                                                         )
-                                                                    ,
-                                                                        ( String "rl_f8"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f11"
-                                                                        , False
-                                                                        )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_f10"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl16"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_f11"
-                                                                        , False
+                                                                        ( String "rl_f10", True
+                                                                        ),
+                                                                        ( String "rl16", True
+                                                                        ),
+                                                                        ( String "rl_f11", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl16"
-                                                                        , True
+                                                                        ( String "rl16", True
+                                                                        ),
+                                                                        ( String "rl_f10", True
+                                                                        ),
+                                                                        ( String "rl15", False
                                                                         )
-                                                                    ,
-                                                                        ( String "rl_f10"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl15"
-                                                                        , False
-                                                                        )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl15"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl20"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl16"
-                                                                        , False
+                                                                        ( String "rl15", True
+                                                                        ),
+                                                                        ( String "rl20", True
+                                                                        ),
+                                                                        ( String "rl16", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl21"
-                                                                        , True
+                                                                        ( String "rl21", True
+                                                                        ),
+                                                                        ( String "rl16", True
+                                                                        ),
+                                                                        ( String "rl20", False
                                                                         )
-                                                                    ,
-                                                                        ( String "rl16"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl20"
-                                                                        , False
-                                                                        )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl30"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl21"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl20"
-                                                                        , False
+                                                                        ( String "rl30", True
+                                                                        ),
+                                                                        ( String "rl21", True
+                                                                        ),
+                                                                        ( String "rl20", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl31"
-                                                                        , True
+                                                                        ( String "rl31", True
+                                                                        ),
+                                                                        ( String "rl21", True
+                                                                        ),
+                                                                        ( String "rl30", False
                                                                         )
-                                                                    ,
-                                                                        ( String "rl21"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl30"
-                                                                        , False
-                                                                        )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl17"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl18"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl28"
-                                                                        , False
+                                                                        ( String "rl17", True
+                                                                        ),
+                                                                        ( String "rl18", True
+                                                                        ),
+                                                                        ( String "rl28", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl29"
-                                                                        , True
+                                                                        ( String "rl29", True
+                                                                        ),
+                                                                        ( String "rl28", True
+                                                                        ),
+                                                                        ( String "rl18", False
                                                                         )
-                                                                    ,
-                                                                        ( String "rl28"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl18"
-                                                                        , False
-                                                                        )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl32"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl28"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl29"
-                                                                        , False
+                                                                        ( String "rl32", True
+                                                                        ),
+                                                                        ( String "rl28", True
+                                                                        ),
+                                                                        ( String "rl29", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl33"
-                                                                        , True
+                                                                        ( String "rl33", True
+                                                                        ),
+                                                                        ( String "rl32", True
+                                                                        ),
+                                                                        ( String "rl29", False
                                                                         )
-                                                                    ,
-                                                                        ( String "rl32"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl29"
-                                                                        , False
-                                                                        )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl32"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl33"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r39"
-                                                                        , False
+                                                                        ( String "rl32", True
+                                                                        ),
+                                                                        ( String "rl33", True
+                                                                        ),
+                                                                        ( String "rl_r39", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r39"
-                                                                        , True
+                                                                        ( String "rl_r39", True
+                                                                        ),
+                                                                        ( String "rl33", True
+                                                                        ),
+                                                                        ( String "rl_r36", False
                                                                         )
-                                                                    ,
-                                                                        ( String "rl33"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r36"
-                                                                        , False
-                                                                        )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r36"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r41"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r39"
-                                                                        , False
+                                                                        ( String "rl_r36", True
+                                                                        ),
+                                                                        ( String "rl_r41", True
+                                                                        ),
+                                                                        ( String "rl_r39", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r43"
-                                                                        , True
+                                                                        ( String "rl_r43", True
+                                                                        ),
+                                                                        ( String "rl_r41", True
+                                                                        ),
+                                                                        ( String "rl_r36", False
                                                                         )
-                                                                    ,
-                                                                        ( String "rl_r41"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r36"
-                                                                        , False
-                                                                        )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r45"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r41"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r43"
-                                                                        , False
+                                                                        ( String "rl_r45", True
+                                                                        ),
+                                                                        ( String "rl_r41", True
+                                                                        ),
+                                                                        ( String "rl_r43", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r47"
-                                                                        , True
+                                                                        ( String "rl_r47", True
+                                                                        ),
+                                                                        ( String "rl_r45", True
+                                                                        ),
+                                                                        ( String "rl_r43", False
                                                                         )
-                                                                    ,
-                                                                        ( String "rl_r45"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r43"
-                                                                        , False
-                                                                        )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r53"
-                                                                        , True
+                                                                        ( String "rl_r53", True
+                                                                        ),
+                                                                        ( String "rl_r45", True
+                                                                        ),
+                                                                        ( String "rl_r47", False
                                                                         )
-                                                                    ,
-                                                                        ( String "rl_r45"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r47"
-                                                                        , False
-                                                                        )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r54"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r53"
-                                                                        , True
+                                                                        ( String "rl_r54", True
+                                                                        ),
+                                                                        ( String "rl_r53", True
+                                                                        ),
+                                                                        ( String "rl_r47", False
                                                                         )
-                                                                    ,
-                                                                        ( String "rl_r47"
-                                                                        , False
-                                                                        )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r54"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r51"
-                                                                        , True
+                                                                        ( String "rl_r54", True
+                                                                        ),
+                                                                        ( String "rl_r51", True
+                                                                        ),
+                                                                        ( String "rl_r53", False
                                                                         )
-                                                                    ,
-                                                                        ( String "rl_r53"
-                                                                        , False
-                                                                        )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r51"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r54"
-                                                                        , True
+                                                                        ( String "rl_r51", True
+                                                                        ),
+                                                                        ( String "rl_r54", True
+                                                                        ),
+                                                                        ( String "rl_r52", False
                                                                         )
-                                                                    ,
-                                                                        ( String "rl_r52"
-                                                                        , False
-                                                                        )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r52"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r50"
-                                                                        , True
+                                                                        ( String "rl_r52", True
+                                                                        ),
+                                                                        ( String "rl_r50", True
+                                                                        ),
+                                                                        ( String "rl_r51", False
                                                                         )
-                                                                    ,
-                                                                        ( String "rl_r51"
-                                                                        , False
-                                                                        )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r50"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r49"
-                                                                        , True
+                                                                        ( String "rl_r50", True
+                                                                        ),
+                                                                        ( String "rl_r49", True
+                                                                        ),
+                                                                        ( String "rl_r51", False
                                                                         )
-                                                                    ,
-                                                                        ( String "rl_r51"
-                                                                        , False
-                                                                        )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r46"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r44"
-                                                                        , True
+                                                                        ( String "rl_r46", True
+                                                                        ),
+                                                                        ( String "rl_r44", True
+                                                                        ),
+                                                                        ( String "rl_r49", False
                                                                         )
-                                                                    ,
-                                                                        ( String "rl_r49"
-                                                                        , False
-                                                                        )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r50"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r46"
-                                                                        , True
+                                                                        ( String "rl_r50", True
+                                                                        ),
+                                                                        ( String "rl_r46", True
+                                                                        ),
+                                                                        ( String "rl_r49", False
                                                                         )
-                                                                    ,
-                                                                        ( String "rl_r49"
-                                                                        , False
-                                                                        )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r46"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r42"
-                                                                        , True
+                                                                        ( String "rl_r46", True
+                                                                        ),
+                                                                        ( String "rl_r42", True
+                                                                        ),
+                                                                        ( String "rl_r44", False
                                                                         )
-                                                                    ,
-                                                                        ( String "rl_r44"
-                                                                        , False
-                                                                        )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r44"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r42"
-                                                                        , True
+                                                                        ( String "rl_r44", True
+                                                                        ),
+                                                                        ( String "rl_r42", True
+                                                                        ),
+                                                                        ( String "rl_r40", False
                                                                         )
-                                                                    ,
-                                                                        ( String "rl_r40"
-                                                                        , False
-                                                                        )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r34"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r37"
-                                                                        , True
+                                                                        ( String "rl_r34", True
+                                                                        ),
+                                                                        ( String "rl_r37", True
+                                                                        ),
+                                                                        ( String "rl_r40", False
                                                                         )
-                                                                    ,
-                                                                        ( String "rl_r40"
-                                                                        , False
-                                                                        )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r42"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r34"
-                                                                        , True
+                                                                        ( String "rl_r42", True
+                                                                        ),
+                                                                        ( String "rl_r34", True
+                                                                        ),
+                                                                        ( String "rl_r40", False
                                                                         )
-                                                                    ,
-                                                                        ( String "rl_r40"
-                                                                        , False
-                                                                        )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r34"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r35"
-                                                                        , True
+                                                                        ( String "rl_r34", True
+                                                                        ),
+                                                                        ( String "rl_r35", True
+                                                                        ),
+                                                                        ( String "rl_r37", False
                                                                         )
-                                                                    ,
-                                                                        ( String "rl_r37"
-                                                                        , False
-                                                                        )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r35"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r38"
-                                                                        , True
+                                                                        ( String "rl_r35", True
+                                                                        ),
+                                                                        ( String "rl_r38", True
+                                                                        ),
+                                                                        ( String "rl_r37", False
                                                                         )
-                                                                    ,
-                                                                        ( String "rl_r37"
-                                                                        , False
-                                                                        )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r35"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r39"
-                                                                        , True
+                                                                        ( String "rl_r35", True
+                                                                        ),
+                                                                        ( String "rl_r39", True
+                                                                        ),
+                                                                        ( String "rl_r38", False
                                                                         )
-                                                                    ,
-                                                                        ( String "rl_r38"
-                                                                        , False
-                                                                        )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r39"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r35"
-                                                                        , True
+                                                                        ( String "rl_r39", True
+                                                                        ),
+                                                                        ( String "rl_r35", True
+                                                                        ),
+                                                                        ( String "rl_r36", False
                                                                         )
-                                                                    ,
-                                                                        ( String "rl_r36"
-                                                                        , False
-                                                                        )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl30"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r37"
-                                                                        , True
+                                                                        ( String "rl30", True
+                                                                        ),
+                                                                        ( String "rl_r37", True
+                                                                        ),
+                                                                        ( String "rl31", False
                                                                         )
-                                                                    ,
-                                                                        ( String "rl31"
-                                                                        , False
-                                                                        )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl_r37"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl_r34"
-                                                                        , True
+                                                                        ( String "rl_r37", True
+                                                                        ),
+                                                                        ( String "rl_r34", True
+                                                                        ),
+                                                                        ( String "rl31", False
                                                                         )
-                                                                    ,
-                                                                        ( String "rl31"
-                                                                        , False
-                                                                        )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl16"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl15"
-                                                                        , True
+                                                                        ( String "rl16", True
+                                                                        ),
+                                                                        ( String "rl15", True
+                                                                        ),
+                                                                        ( String "rl22", False
                                                                         )
-                                                                    ,
-                                                                        ( String "rl22"
-                                                                        , False
-                                                                        )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl16"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl22"
-                                                                        , True
+                                                                        ( String "rl16", True
+                                                                        ),
+                                                                        ( String "rl22", True
+                                                                        ),
+                                                                        ( String "rl23", False
                                                                         )
-                                                                    ,
-                                                                        ( String "rl23"
-                                                                        , False
-                                                                        )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl23"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl22"
-                                                                        , True
+                                                                        ( String "rl23", True
+                                                                        ),
+                                                                        ( String "rl22", True
+                                                                        ),
+                                                                        ( String "rl21", False
                                                                         )
-                                                                    ,
-                                                                        ( String "rl21"
-                                                                        , False
-                                                                        )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl21"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl22"
-                                                                        , True
+                                                                        ( String "rl21", True
+                                                                        ),
+                                                                        ( String "rl22", True
+                                                                        ),
+                                                                        ( String "rl20", False
                                                                         )
-                                                                    ,
-                                                                        ( String "rl20"
-                                                                        , False
-                                                                        )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl27"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl29"
-                                                                        , True
+                                                                        ( String "rl27", True
+                                                                        ),
+                                                                        ( String "rl29", True
+                                                                        ),
+                                                                        ( String "rl26", False
                                                                         )
-                                                                    ,
-                                                                        ( String "rl26"
-                                                                        , False
-                                                                        )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl29"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl28"
-                                                                        , True
+                                                                        ( String "rl29", True
+                                                                        ),
+                                                                        ( String "rl28", True
+                                                                        ),
+                                                                        ( String "rl26", False
                                                                         )
-                                                                    ,
-                                                                        ( String "rl26"
-                                                                        , False
-                                                                        )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl18"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl26"
-                                                                        , True
+                                                                        ( String "rl18", True
+                                                                        ),
+                                                                        ( String "rl26", True
+                                                                        ),
+                                                                        ( String "rl17", False
                                                                         )
-                                                                    ,
-                                                                        ( String "rl17"
-                                                                        , False
-                                                                        )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl27"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl26"
-                                                                        , True
+                                                                        ( String "rl27", True
+                                                                        ),
+                                                                        ( String "rl26", True
+                                                                        ),
+                                                                        ( String "rl18", False
                                                                         )
-                                                                    ,
-                                                                        ( String "rl18"
-                                                                        , False
-                                                                        )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl24"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl22"
-                                                                        , True
+                                                                        ( String "rl24", True
+                                                                        ),
+                                                                        ( String "rl22", True
+                                                                        ),
+                                                                        ( String "rl23", False
                                                                         )
-                                                                    ,
-                                                                        ( String "rl23"
-                                                                        , False
-                                                                        )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl27"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl26"
-                                                                        , True
+                                                                        ( String "rl27", True
+                                                                        ),
+                                                                        ( String "rl26", True
+                                                                        ),
+                                                                        ( String "rl24", False
                                                                         )
-                                                                    ,
-                                                                        ( String "rl24"
-                                                                        , False
-                                                                        )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl24"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl25"
-                                                                        , True
+                                                                        ( String "rl24", True
+                                                                        ),
+                                                                        ( String "rl25", True
+                                                                        ),
+                                                                        ( String "rl27", False
                                                                         )
-                                                                    ,
-                                                                        ( String "rl27"
-                                                                        , False
-                                                                        )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl24"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl23"
-                                                                        , True
+                                                                        ( String "rl24", True
+                                                                        ),
+                                                                        ( String "rl23", True
+                                                                        ),
+                                                                        ( String "rl25", False
                                                                         )
-                                                                    ,
-                                                                        ( String "rl25"
-                                                                        , False
-                                                                        )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl30"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl23"
-                                                                        , True
+                                                                        ( String "rl30", True
+                                                                        ),
+                                                                        ( String "rl23", True
+                                                                        ),
+                                                                        ( String "rl22", False
                                                                         )
-                                                                    ,
-                                                                        ( String "rl22"
-                                                                        , False
-                                                                        )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl30"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl31"
-                                                                        , True
+                                                                        ( String "rl30", True
+                                                                        ),
+                                                                        ( String "rl31", True
+                                                                        ),
+                                                                        ( String "rl23", False
                                                                         )
-                                                                    ,
-                                                                        ( String "rl23"
-                                                                        , False
-                                                                        )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl26"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl27"
-                                                                        , True
+                                                                        ( String "rl26", True
+                                                                        ),
+                                                                        ( String "rl27", True
+                                                                        ),
+                                                                        ( String "rl32", False
                                                                         )
-                                                                    ,
-                                                                        ( String "rl32"
-                                                                        , False
-                                                                        )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rl33"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl32"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "rl27"
-                                                                        , False
+                                                                        ( String "rl33", True
+                                                                        ),
+                                                                        ( String "rl32", True
+                                                                        ),
+                                                                        ( String "rl27", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , False
+                                                            ), False
                                                         )
                                                     ]
                                                 }
                                             )
-                                        )
-                                    , True
-                                    )
-                                ,
+                                        ), True
+                                    ),
                                     ( ObjectKey
-                                        ( String "flexbodies"
-                                        , Array
+                                        ( String "flexbodies", Array
                                             ( ArrayValue
                                                 { avElements =
                                                     [
@@ -7692,753 +5346,521 @@ Object
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "mesh"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "[group]:"
-                                                                        , True
-                                                                        )
-                                                                    ,
-                                                                        ( String "nonFlexMaterials"
-                                                                        , False
+                                                                        ( String "mesh", True
+                                                                        ),
+                                                                        ( String "[group]:", True
+                                                                        ),
+                                                                        ( String "nonFlexMaterials", False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Array
                                                             ( ArrayValue
                                                                 { avElements =
                                                                     [
-                                                                        ( String "rails"
-                                                                        , True
-                                                                        )
-                                                                    ,
+                                                                        ( String "rails", True
+                                                                        ),
                                                                         ( Array
                                                                             ( ArrayValue
                                                                                 { avElements =
                                                                                     [
-                                                                                        ( String "chassis_rails"
-                                                                                        , False
+                                                                                        ( String "chassis_rails", False
                                                                                         )
                                                                                     ]
                                                                                 }
-                                                                            )
-                                                                        , False
+                                                                            ), False
                                                                         )
                                                                     ]
                                                                 }
-                                                            )
-                                                        , False
+                                                            ), False
                                                         )
                                                     ]
                                                 }
                                             )
-                                        )
-                                    , True
-                                    )
-                                ,
+                                        ), True
+                                    ),
                                     ( ObjectKey
-                                        ( String "glowMap"
-                                        , Object
+                                        ( String "glowMap", Object
                                             ( ObjectValue
                                                 { ovElements =
                                                     [
                                                         ( Comment
                                                             ( InternalComment
-                                                                { cText = "main lights"
-                                                                , cMultiline = False
-                                                                , cAssociationDirection = NextNode
-                                                                , cHadNewlineBefore = False
+                                                                { cText = "main lights", cMultiline = False, cAssociationDirection = NextNode, cHadNewlineBefore = False
                                                                 }
-                                                            )
-                                                        , False
-                                                        )
-                                                    ,
+                                                            ), False
+                                                        ),
                                                         ( ObjectKey
-                                                            ( String "chassis_headlight_L"
-                                                            , Object
+                                                            ( String "chassis_headlight_L", Object
                                                                 ( ObjectValue
                                                                     { ovElements =
                                                                         [
                                                                             ( ObjectKey
-                                                                                ( String "simpleFunction"
-                                                                                , String "lowhighbeam_filament"
-                                                                                )
-                                                                            , True
-                                                                            )
-                                                                        ,
+                                                                                ( String "simpleFunction", String "lowhighbeam_filament"
+                                                                                ), True
+                                                                            ),
                                                                             ( ObjectKey
-                                                                                ( String "off"
-                                                                                , String "chassis_headlight"
-                                                                                )
-                                                                            , True
-                                                                            )
-                                                                        ,
+                                                                                ( String "off", String "chassis_headlight"
+                                                                                ), True
+                                                                            ),
                                                                             ( ObjectKey
-                                                                                ( String "on"
-                                                                                , String "chassis_headlight_on"
-                                                                                )
-                                                                            , True
-                                                                            )
-                                                                        ,
+                                                                                ( String "on", String "chassis_headlight_on"
+                                                                                ), True
+                                                                            ),
                                                                             ( ObjectKey
-                                                                                ( String "materialEmissiveScaling"
-                                                                                , Object
+                                                                                ( String "materialEmissiveScaling", Object
                                                                                     ( ObjectValue
                                                                                         { ovElements =
                                                                                             [
                                                                                                 ( ObjectKey
-                                                                                                    ( String "on_max"
-                                                                                                    , Number
+                                                                                                    ( String "on_max", Number
                                                                                                         ( NumberValue
-                                                                                                            { nvText = "1"
-                                                                                                            , nvValue = 1.0
+                                                                                                            { nvText = "1", nvValue = 1.0
                                                                                                             }
                                                                                                         )
-                                                                                                    )
-                                                                                                , False
+                                                                                                    ), False
                                                                                                 )
                                                                                             ]
                                                                                         }
                                                                                     )
-                                                                                )
-                                                                            , False
+                                                                                ), False
                                                                             )
                                                                         ]
                                                                     }
                                                                 )
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( ObjectKey
-                                                            ( String "chassis_headlight_R"
-                                                            , Object
+                                                            ( String "chassis_headlight_R", Object
                                                                 ( ObjectValue
                                                                     { ovElements =
                                                                         [
                                                                             ( ObjectKey
-                                                                                ( String "simpleFunction"
-                                                                                , String "lowhighbeam_filament"
-                                                                                )
-                                                                            , True
-                                                                            )
-                                                                        ,
+                                                                                ( String "simpleFunction", String "lowhighbeam_filament"
+                                                                                ), True
+                                                                            ),
                                                                             ( ObjectKey
-                                                                                ( String "off"
-                                                                                , String "chassis_headlight"
-                                                                                )
-                                                                            , True
-                                                                            )
-                                                                        ,
+                                                                                ( String "off", String "chassis_headlight"
+                                                                                ), True
+                                                                            ),
                                                                             ( ObjectKey
-                                                                                ( String "on"
-                                                                                , String "chassis_headlight_on"
-                                                                                )
-                                                                            , True
-                                                                            )
-                                                                        ,
+                                                                                ( String "on", String "chassis_headlight_on"
+                                                                                ), True
+                                                                            ),
                                                                             ( ObjectKey
-                                                                                ( String "materialEmissiveScaling"
-                                                                                , Object
+                                                                                ( String "materialEmissiveScaling", Object
                                                                                     ( ObjectValue
                                                                                         { ovElements =
                                                                                             [
                                                                                                 ( ObjectKey
-                                                                                                    ( String "on_max"
-                                                                                                    , Number
+                                                                                                    ( String "on_max", Number
                                                                                                         ( NumberValue
-                                                                                                            { nvText = "1"
-                                                                                                            , nvValue = 1.0
+                                                                                                            { nvText = "1", nvValue = 1.0
                                                                                                             }
                                                                                                         )
-                                                                                                    )
-                                                                                                , False
+                                                                                                    ), False
                                                                                                 )
                                                                                             ]
                                                                                         }
                                                                                     )
-                                                                                )
-                                                                            , False
+                                                                                ), False
                                                                             )
                                                                         ]
                                                                     }
                                                                 )
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( ObjectKey
-                                                            ( String "chassis_signal_L"
-                                                            , Object
+                                                            ( String "chassis_signal_L", Object
                                                                 ( ObjectValue
                                                                     { ovElements =
                                                                         [
                                                                             ( ObjectKey
-                                                                                ( String "simpleFunction"
-                                                                                , String "signal_L_filament"
-                                                                                )
-                                                                            , True
-                                                                            )
-                                                                        ,
+                                                                                ( String "simpleFunction", String "signal_L_filament"
+                                                                                ), True
+                                                                            ),
                                                                             ( ObjectKey
-                                                                                ( String "off"
-                                                                                , String "chassis_signal_amber"
-                                                                                )
-                                                                            , True
-                                                                            )
-                                                                        ,
+                                                                                ( String "off", String "chassis_signal_amber"
+                                                                                ), True
+                                                                            ),
                                                                             ( ObjectKey
-                                                                                ( String "on"
-                                                                                , String "chassis_signal_amber_on"
-                                                                                )
-                                                                            , True
-                                                                            )
-                                                                        ,
+                                                                                ( String "on", String "chassis_signal_amber_on"
+                                                                                ), True
+                                                                            ),
                                                                             ( ObjectKey
-                                                                                ( String "materialEmissiveScaling"
-                                                                                , Object
+                                                                                ( String "materialEmissiveScaling", Object
                                                                                     ( ObjectValue
                                                                                         { ovElements =
                                                                                             [
                                                                                                 ( ObjectKey
-                                                                                                    ( String "on_max"
-                                                                                                    , Number
+                                                                                                    ( String "on_max", Number
                                                                                                         ( NumberValue
-                                                                                                            { nvText = "1"
-                                                                                                            , nvValue = 1.0
+                                                                                                            { nvText = "1", nvValue = 1.0
                                                                                                             }
                                                                                                         )
-                                                                                                    )
-                                                                                                , False
+                                                                                                    ), False
                                                                                                 )
                                                                                             ]
                                                                                         }
                                                                                     )
-                                                                                )
-                                                                            , False
+                                                                                ), False
                                                                             )
                                                                         ]
                                                                     }
                                                                 )
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( ObjectKey
-                                                            ( String "chassis_signal_R"
-                                                            , Object
+                                                            ( String "chassis_signal_R", Object
                                                                 ( ObjectValue
                                                                     { ovElements =
                                                                         [
                                                                             ( ObjectKey
-                                                                                ( String "simpleFunction"
-                                                                                , String "signal_R_filament"
-                                                                                )
-                                                                            , True
-                                                                            )
-                                                                        ,
+                                                                                ( String "simpleFunction", String "signal_R_filament"
+                                                                                ), True
+                                                                            ),
                                                                             ( ObjectKey
-                                                                                ( String "off"
-                                                                                , String "chassis_signal_amber"
-                                                                                )
-                                                                            , True
-                                                                            )
-                                                                        ,
+                                                                                ( String "off", String "chassis_signal_amber"
+                                                                                ), True
+                                                                            ),
                                                                             ( ObjectKey
-                                                                                ( String "on"
-                                                                                , String "chassis_signal_amber_on"
-                                                                                )
-                                                                            , True
-                                                                            )
-                                                                        ,
+                                                                                ( String "on", String "chassis_signal_amber_on"
+                                                                                ), True
+                                                                            ),
                                                                             ( ObjectKey
-                                                                                ( String "materialEmissiveScaling"
-                                                                                , Object
+                                                                                ( String "materialEmissiveScaling", Object
                                                                                     ( ObjectValue
                                                                                         { ovElements =
                                                                                             [
                                                                                                 ( ObjectKey
-                                                                                                    ( String "on_max"
-                                                                                                    , Number
+                                                                                                    ( String "on_max", Number
                                                                                                         ( NumberValue
-                                                                                                            { nvText = "1"
-                                                                                                            , nvValue = 1.0
+                                                                                                            { nvText = "1", nvValue = 1.0
                                                                                                             }
                                                                                                         )
-                                                                                                    )
-                                                                                                , False
+                                                                                                    ), False
                                                                                                 )
                                                                                             ]
                                                                                         }
                                                                                     )
-                                                                                )
-                                                                            , False
+                                                                                ), False
                                                                             )
                                                                         ]
                                                                     }
                                                                 )
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( ObjectKey
-                                                            ( String "chassis_reverselight"
-                                                            , Object
+                                                            ( String "chassis_reverselight", Object
                                                                 ( ObjectValue
                                                                     { ovElements =
                                                                         [
                                                                             ( ObjectKey
-                                                                                ( String "simpleFunction"
-                                                                                , String "reverselight_filament"
-                                                                                )
-                                                                            , True
-                                                                            )
-                                                                        ,
+                                                                                ( String "simpleFunction", String "reverselight_filament"
+                                                                                ), True
+                                                                            ),
                                                                             ( ObjectKey
-                                                                                ( String "off"
-                                                                                , String "chassis_reverselight"
-                                                                                )
-                                                                            , True
-                                                                            )
-                                                                        ,
+                                                                                ( String "off", String "chassis_reverselight"
+                                                                                ), True
+                                                                            ),
                                                                             ( ObjectKey
-                                                                                ( String "on"
-                                                                                , String "chassis_reverselight_on"
-                                                                                )
-                                                                            , True
-                                                                            )
-                                                                        ,
+                                                                                ( String "on", String "chassis_reverselight_on"
+                                                                                ), True
+                                                                            ),
                                                                             ( ObjectKey
-                                                                                ( String "materialEmissiveScaling"
-                                                                                , Object
+                                                                                ( String "materialEmissiveScaling", Object
                                                                                     ( ObjectValue
                                                                                         { ovElements =
                                                                                             [
                                                                                                 ( ObjectKey
-                                                                                                    ( String "on_max"
-                                                                                                    , Number
+                                                                                                    ( String "on_max", Number
                                                                                                         ( NumberValue
-                                                                                                            { nvText = "1"
-                                                                                                            , nvValue = 1.0
+                                                                                                            { nvText = "1", nvValue = 1.0
                                                                                                             }
                                                                                                         )
-                                                                                                    )
-                                                                                                , False
+                                                                                                    ), False
                                                                                                 )
                                                                                             ]
                                                                                         }
                                                                                     )
-                                                                                )
-                                                                            , False
+                                                                                ), False
                                                                             )
                                                                         ]
                                                                     }
                                                                 )
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( ObjectKey
-                                                            ( String "chassis_brakelight_L"
-                                                            , Object
+                                                            ( String "chassis_brakelight_L", Object
                                                                 ( ObjectValue
                                                                     { ovElements =
                                                                         [
                                                                             ( ObjectKey
-                                                                                ( String "simpleFunction"
-                                                                                , String "brakelight_filament"
-                                                                                )
-                                                                            , True
-                                                                            )
-                                                                        ,
+                                                                                ( String "simpleFunction", String "brakelight_filament"
+                                                                                ), True
+                                                                            ),
                                                                             ( ObjectKey
-                                                                                ( String "off"
-                                                                                , String "chassis_taillight"
-                                                                                )
-                                                                            , True
-                                                                            )
-                                                                        ,
+                                                                                ( String "off", String "chassis_taillight"
+                                                                                ), True
+                                                                            ),
                                                                             ( ObjectKey
-                                                                                ( String "on"
-                                                                                , String "chassis_taillight_on"
-                                                                                )
-                                                                            , True
-                                                                            )
-                                                                        ,
+                                                                                ( String "on", String "chassis_taillight_on"
+                                                                                ), True
+                                                                            ),
                                                                             ( ObjectKey
-                                                                                ( String "materialEmissiveScaling"
-                                                                                , Object
+                                                                                ( String "materialEmissiveScaling", Object
                                                                                     ( ObjectValue
                                                                                         { ovElements =
                                                                                             [
                                                                                                 ( ObjectKey
-                                                                                                    ( String "on_max"
-                                                                                                    , Number
+                                                                                                    ( String "on_max", Number
                                                                                                         ( NumberValue
-                                                                                                            { nvText = "1"
-                                                                                                            , nvValue = 1.0
+                                                                                                            { nvText = "1", nvValue = 1.0
                                                                                                             }
                                                                                                         )
-                                                                                                    )
-                                                                                                , False
+                                                                                                    ), False
                                                                                                 )
                                                                                             ]
                                                                                         }
                                                                                     )
-                                                                                )
-                                                                            , False
+                                                                                ), False
                                                                             )
                                                                         ]
                                                                     }
                                                                 )
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( ObjectKey
-                                                            ( String "chassis_brakelight_R"
-                                                            , Object
+                                                            ( String "chassis_brakelight_R", Object
                                                                 ( ObjectValue
                                                                     { ovElements =
                                                                         [
                                                                             ( ObjectKey
-                                                                                ( String "simpleFunction"
-                                                                                , String "brakelight_filament"
-                                                                                )
-                                                                            , True
-                                                                            )
-                                                                        ,
+                                                                                ( String "simpleFunction", String "brakelight_filament"
+                                                                                ), True
+                                                                            ),
                                                                             ( ObjectKey
-                                                                                ( String "off"
-                                                                                , String "chassis_taillight"
-                                                                                )
-                                                                            , True
-                                                                            )
-                                                                        ,
+                                                                                ( String "off", String "chassis_taillight"
+                                                                                ), True
+                                                                            ),
                                                                             ( ObjectKey
-                                                                                ( String "on"
-                                                                                , String "chassis_taillight_on"
-                                                                                )
-                                                                            , True
-                                                                            )
-                                                                        ,
+                                                                                ( String "on", String "chassis_taillight_on"
+                                                                                ), True
+                                                                            ),
                                                                             ( ObjectKey
-                                                                                ( String "materialEmissiveScaling"
-                                                                                , Object
+                                                                                ( String "materialEmissiveScaling", Object
                                                                                     ( ObjectValue
                                                                                         { ovElements =
                                                                                             [
                                                                                                 ( ObjectKey
-                                                                                                    ( String "on_max"
-                                                                                                    , Number
+                                                                                                    ( String "on_max", Number
                                                                                                         ( NumberValue
-                                                                                                            { nvText = "1"
-                                                                                                            , nvValue = 1.0
+                                                                                                            { nvText = "1", nvValue = 1.0
                                                                                                             }
                                                                                                         )
-                                                                                                    )
-                                                                                                , False
+                                                                                                    ), False
                                                                                                 )
                                                                                             ]
                                                                                         }
                                                                                     )
-                                                                                )
-                                                                            , False
+                                                                                ), False
                                                                             )
                                                                         ]
                                                                     }
                                                                 )
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Comment
                                                             ( InternalComment
-                                                                { cText = "gauge lights"
-                                                                , cMultiline = False
-                                                                , cAssociationDirection = NextNode
-                                                                , cHadNewlineBefore = False
+                                                                { cText = "gauge lights", cMultiline = False, cAssociationDirection = NextNode, cHadNewlineBefore = False
                                                                 }
-                                                            )
-                                                        , False
-                                                        )
-                                                    ,
+                                                            ), False
+                                                        ),
                                                         ( Comment
                                                             ( InternalComment
-                                                                { cText = "(turn signals, battery, parking brake, highbeam)"
-                                                                , cMultiline = False
-                                                                , cAssociationDirection = NextNode
-                                                                , cHadNewlineBefore = True
+                                                                { cText = "(turn signals, battery, parking brake, highbeam)", cMultiline = False, cAssociationDirection = NextNode, cHadNewlineBefore = True
                                                                 }
-                                                            )
-                                                        , False
-                                                        )
-                                                    ,
+                                                            ), False
+                                                        ),
                                                         ( ObjectKey
-                                                            ( String "chassis_gaugelight_highbeam"
-                                                            , Object
+                                                            ( String "chassis_gaugelight_highbeam", Object
                                                                 ( ObjectValue
                                                                     { ovElements =
                                                                         [
                                                                             ( ObjectKey
-                                                                                ( String "simpleFunction"
-                                                                                , String "highbeam"
-                                                                                )
-                                                                            , True
-                                                                            )
-                                                                        ,
+                                                                                ( String "simpleFunction", String "highbeam"
+                                                                                ), True
+                                                                            ),
                                                                             ( ObjectKey
-                                                                                ( String "off"
-                                                                                , String "chassis_gauges"
-                                                                                )
-                                                                            , True
-                                                                            )
-                                                                        ,
+                                                                                ( String "off", String "chassis_gauges"
+                                                                                ), True
+                                                                            ),
                                                                             ( ObjectKey
-                                                                                ( String "on"
-                                                                                , String "chassis_gauges_on"
-                                                                                )
-                                                                            , False
+                                                                                ( String "on", String "chassis_gauges_on"
+                                                                                ), False
                                                                             )
                                                                         ]
                                                                     }
                                                                 )
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( ObjectKey
-                                                            ( String "chassis_gaugelight_signal_L"
-                                                            , Object
+                                                            ( String "chassis_gaugelight_signal_L", Object
                                                                 ( ObjectValue
                                                                     { ovElements =
                                                                         [
                                                                             ( ObjectKey
-                                                                                ( String "simpleFunction"
-                                                                                , String "signal_L"
-                                                                                )
-                                                                            , True
-                                                                            )
-                                                                        ,
+                                                                                ( String "simpleFunction", String "signal_L"
+                                                                                ), True
+                                                                            ),
                                                                             ( ObjectKey
-                                                                                ( String "off"
-                                                                                , String "chassis_gauges"
-                                                                                )
-                                                                            , True
-                                                                            )
-                                                                        ,
+                                                                                ( String "off", String "chassis_gauges"
+                                                                                ), True
+                                                                            ),
                                                                             ( ObjectKey
-                                                                                ( String "on"
-                                                                                , String "chassis_gauges_on"
-                                                                                )
-                                                                            , False
+                                                                                ( String "on", String "chassis_gauges_on"
+                                                                                ), False
                                                                             )
                                                                         ]
                                                                     }
                                                                 )
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( ObjectKey
-                                                            ( String "chassis_gaugelight_signal_R"
-                                                            , Object
+                                                            ( String "chassis_gaugelight_signal_R", Object
                                                                 ( ObjectValue
                                                                     { ovElements =
                                                                         [
                                                                             ( ObjectKey
-                                                                                ( String "simpleFunction"
-                                                                                , String "signal_R"
-                                                                                )
-                                                                            , True
-                                                                            )
-                                                                        ,
+                                                                                ( String "simpleFunction", String "signal_R"
+                                                                                ), True
+                                                                            ),
                                                                             ( ObjectKey
-                                                                                ( String "off"
-                                                                                , String "chassis_gauges"
-                                                                                )
-                                                                            , True
-                                                                            )
-                                                                        ,
+                                                                                ( String "off", String "chassis_gauges"
+                                                                                ), True
+                                                                            ),
                                                                             ( ObjectKey
-                                                                                ( String "on"
-                                                                                , String "chassis_gauges_on"
-                                                                                )
-                                                                            , False
+                                                                                ( String "on", String "chassis_gauges_on"
+                                                                                ), False
                                                                             )
                                                                         ]
                                                                     }
                                                                 )
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( ObjectKey
-                                                            ( String "chassis_gaugelight_battery"
-                                                            , Object
+                                                            ( String "chassis_gaugelight_battery", Object
                                                                 ( ObjectValue
                                                                     { ovElements =
                                                                         [
                                                                             ( ObjectKey
-                                                                                ( String "simpleFunction"
-                                                                                , String "battery"
-                                                                                )
-                                                                            , True
-                                                                            )
-                                                                        ,
+                                                                                ( String "simpleFunction", String "battery"
+                                                                                ), True
+                                                                            ),
                                                                             ( ObjectKey
-                                                                                ( String "off"
-                                                                                , String "chassis_gauges"
-                                                                                )
-                                                                            , True
-                                                                            )
-                                                                        ,
+                                                                                ( String "off", String "chassis_gauges"
+                                                                                ), True
+                                                                            ),
                                                                             ( ObjectKey
-                                                                                ( String "on"
-                                                                                , String "chassis_gauges_on"
-                                                                                )
-                                                                            , False
+                                                                                ( String "on", String "chassis_gauges_on"
+                                                                                ), False
                                                                             )
                                                                         ]
                                                                     }
                                                                 )
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( ObjectKey
-                                                            ( String "chassis_gaugelight_parkbrake"
-                                                            , Object
+                                                            ( String "chassis_gaugelight_parkbrake", Object
                                                                 ( ObjectValue
                                                                     { ovElements =
                                                                         [
                                                                             ( ObjectKey
-                                                                                ( String "simpleFunction"
-                                                                                , String "parkingbrakelight"
-                                                                                )
-                                                                            , True
-                                                                            )
-                                                                        ,
+                                                                                ( String "simpleFunction", String "parkingbrakelight"
+                                                                                ), True
+                                                                            ),
                                                                             ( ObjectKey
-                                                                                ( String "off"
-                                                                                , String "chassis_gauges"
-                                                                                )
-                                                                            , True
-                                                                            )
-                                                                        ,
+                                                                                ( String "off", String "chassis_gauges"
+                                                                                ), True
+                                                                            ),
                                                                             ( ObjectKey
-                                                                                ( String "on"
-                                                                                , String "chassis_gauges_on"
-                                                                                )
-                                                                            , False
+                                                                                ( String "on", String "chassis_gauges_on"
+                                                                                ), False
                                                                             )
                                                                         ]
                                                                     }
                                                                 )
-                                                            )
-                                                        , True
-                                                        )
-                                                    ,
+                                                            ), True
+                                                        ),
                                                         ( Comment
                                                             ( InternalComment
-                                                                { cText = "multi-condition warning light"
-                                                                , cMultiline = False
-                                                                , cAssociationDirection = NextNode
-                                                                , cHadNewlineBefore = True
+                                                                { cText = "multi-condition warning light", cMultiline = False, cAssociationDirection = NextNode, cHadNewlineBefore = True
                                                                 }
-                                                            )
-                                                        , False
-                                                        )
-                                                    ,
+                                                            ), False
+                                                        ),
                                                         ( ObjectKey
-                                                            ( String "chassis_gaugelight_warning"
-                                                            , Object
+                                                            ( String "chassis_gaugelight_warning", Object
                                                                 ( ObjectValue
                                                                     { ovElements =
                                                                         [
                                                                             ( ObjectKey
-                                                                                ( String "simpleFunction"
-                                                                                , Object
+                                                                                ( String "simpleFunction", Object
                                                                                     ( ObjectValue
                                                                                         { ovElements =
                                                                                             [
                                                                                                 ( ObjectKey
-                                                                                                    ( String "checkengine"
-                                                                                                    , Number
+                                                                                                    ( String "checkengine", Number
                                                                                                         ( NumberValue
-                                                                                                            { nvText = "1"
-                                                                                                            , nvValue = 1.0
+                                                                                                            { nvText = "1", nvValue = 1.0
                                                                                                             }
                                                                                                         )
-                                                                                                    )
-                                                                                                , True
-                                                                                                )
-                                                                                            ,
+                                                                                                    ), True
+                                                                                                ),
                                                                                                 ( ObjectKey
-                                                                                                    ( String "battery"
-                                                                                                    , Number
+                                                                                                    ( String "battery", Number
                                                                                                         ( NumberValue
-                                                                                                            { nvText = "1"
-                                                                                                            , nvValue = 1.0
+                                                                                                            { nvText = "1", nvValue = 1.0
                                                                                                             }
                                                                                                         )
-                                                                                                    )
-                                                                                                , True
-                                                                                                )
-                                                                                            ,
+                                                                                                    ), True
+                                                                                                ),
                                                                                                 ( ObjectKey
-                                                                                                    ( String "lowpressure"
-                                                                                                    , Number
+                                                                                                    ( String "lowpressure", Number
                                                                                                         ( NumberValue
-                                                                                                            { nvText = "1"
-                                                                                                            , nvValue = 1.0
+                                                                                                            { nvText = "1", nvValue = 1.0
                                                                                                             }
                                                                                                         )
-                                                                                                    )
-                                                                                                , False
+                                                                                                    ), False
                                                                                                 )
                                                                                             ]
                                                                                         }
                                                                                     )
-                                                                                )
-                                                                            , True
-                                                                            )
-                                                                        ,
+                                                                                ), True
+                                                                            ),
                                                                             ( ObjectKey
-                                                                                ( String "off"
-                                                                                , String "chassis_gauges"
-                                                                                )
-                                                                            , True
-                                                                            )
-                                                                        ,
+                                                                                ( String "off", String "chassis_gauges"
+                                                                                ), True
+                                                                            ),
                                                                             ( ObjectKey
-                                                                                ( String "on"
-                                                                                , String "chassis_gauges_on"
-                                                                                )
-                                                                            , False
+                                                                                ( String "on", String "chassis_gauges_on"
+                                                                                ), False
                                                                             )
                                                                         ]
                                                                     }
                                                                 )
-                                                            )
-                                                        , False
+                                                            ), False
                                                         )
                                                     ]
                                                 }
                                             )
-                                        )
-                                    , False
+                                        ), False
                                     )
                                 ]
                             }
                         )
-                    )
-                , False
+                    ), False
                 )
             ]
         }
