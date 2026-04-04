@@ -39,7 +39,7 @@ arraySpec :: [(String, Node)]
 arraySpec =
   [
     ( "[1, 2, 3]"
-    , Array
+    , mkArray
         ( fromList
             [ Number (mkNumberValue "1" 1)
             , Number (mkNumberValue "2" 2)
@@ -53,7 +53,7 @@ objectSpec :: [(String, Node)]
 objectSpec =
   [
     ( "{\"test\" : 1, \"test2\" : 2}"
-    , Object
+    , mkObject
         ( fromList
             [ ObjectKey (String "test", Number (mkNumberValue "1" 1))
             , ObjectKey (String "test2", Number (mkNumberValue "2" 2))

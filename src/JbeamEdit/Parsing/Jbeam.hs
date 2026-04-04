@@ -15,7 +15,7 @@ import Data.ByteString qualified as BS
 import Data.ByteString.Lazy qualified as LBS
 import Data.Char (isSpace)
 import Data.Functor (($>))
-import Data.Maybe (isNothing)
+import Data.Maybe (isJust, isNothing)
 import Data.Monoid.Extra (mwhen)
 import Data.Scientific (Scientific)
 import Data.Text (Text)
@@ -24,10 +24,12 @@ import Data.Text.Encoding (decodeUtf8Lenient)
 import Data.Vector qualified as V (fromList)
 import Data.Void (Void)
 import JbeamEdit.Core.Node (
+  ArrayValue (..),
   AssociationDirection (..),
   InternalComment (..),
   Node (..),
   NumberValue (..),
+  ObjectValue (..),
   mkNumberValue,
  )
 import JbeamEdit.Parsing.Common
@@ -40,6 +42,7 @@ import Text.Megaparsec.Char qualified as C
 data ParseState = ParseState
   { lastNodeEndedWithNewline :: Bool
   , lastSeparatorHadBlankLine :: Bool
+  , lastSeparatorHadComma :: Bool
   }
 
 type JbeamParser a = Parser (State ParseState) a
@@ -61,6 +64,7 @@ separatorParser = do
         s
           { lastNodeEndedWithNewline = hasNewline
           , lastSeparatorHadBlankLine = totalNewlines >= 2
+          , lastSeparatorHadComma = isJust comma
           }
     )
 
@@ -171,13 +175,27 @@ nodeParser = skipWhiteSpace *> (anyNode <|> failingParser expLabels)
 ---
 --- selectors for objects, object keys and arrays
 ---
+
+collectElements :: JbeamParser Node -> JbeamParser [(Node, Bool)]
+collectElements p = go []
+  where
+    go acc = do
+      skipWhiteSpace
+      done <- MP.optional (MP.lookAhead (byteChar ']' <|> byteChar '}'))
+      case done of
+        Just _ -> pure (reverse acc)
+        Nothing -> do
+          n <- p
+          separatorParser
+          hadComma <- gets lastSeparatorHadComma
+          go ((n, hadComma) : acc)
+
 arrayParser :: JbeamParser Node
 arrayParser = do
   _ <- byteChar '['
-  elems <- MP.sepEndBy nodeParser separatorParser
-  _ <- MP.optional separatorParser
+  elems <- collectElements nodeParser
   _ <- byteChar ']'
-  pure . Array . V.fromList $ elems
+  pure . Array $ ArrayValue (V.fromList elems)
 
 objectKeyParser :: JbeamParser Node
 objectKeyParser = do
@@ -186,20 +204,14 @@ objectKeyParser = do
   _ <- skipWhiteSpace
   _ <- byteChar ':'
   value <- nodeParser
-  let obj = ObjectKey (key, value)
-  c <- MP.lookAhead B.asciiChar
-  case toChar c of
-    '}' -> pure obj
-    _ -> separatorParser $> obj
+  pure $ ObjectKey (key, value)
 
 objectParser :: JbeamParser Node
 objectParser = do
   _ <- byteChar '{'
-  skipWhiteSpace
-  keys <- MP.many (commentParser <* separatorParser <|> objectKeyParser)
-  _ <- MP.optional separatorParser
+  elems <- collectElements (commentParser <|> objectKeyParser)
   _ <- byteChar '}'
-  pure . Object . V.fromList $ keys
+  pure . Object $ ObjectValue (V.fromList elems)
 
 topNodeParser :: JbeamParser Node
 topNodeParser = nodeParser <* skipWhiteSpace <* MP.eof
@@ -210,7 +222,11 @@ parseNodesState
   -> Either (MP.ParseErrorBundle LBS.ByteString Void) a
 parseNodesState parser input =
   let initialState =
-        ParseState {lastNodeEndedWithNewline = True, lastSeparatorHadBlankLine = False}
+        ParseState
+          { lastNodeEndedWithNewline = True
+          , lastSeparatorHadBlankLine = False
+          , lastSeparatorHadComma = False
+          }
    in evalState (MP.runParserT parser "<input>" input) initialState
 
 parseNodes :: LBS.ByteString -> Either Text Node

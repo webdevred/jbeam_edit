@@ -356,4 +356,7 @@ RuleSet
       ( NodePattern
         ( fromList
           [ AnyObjectKey, Selector ( ObjectKey "triangles" ) ] ), fromList
-        [ ( SomeKey AutoPad, SomeProperty AutoPad True ) ] ) ] )
+        [ ( SomeKey AutoPad, SomeProperty AutoPad True ) ] ),
+      ( NodePattern
+        ( fromList [ AnyObjectKey ] ), fromList
+        [ ( SomeKey TrailingComma, SomeProperty TrailingComma None ) ] ) ] )
