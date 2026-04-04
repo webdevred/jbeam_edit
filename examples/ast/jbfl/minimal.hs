@@ -3,808 +3,489 @@ RuleSet
         [
             ( NodePattern
                 ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "beams" )
-                    , AnyArrayIndex
-                    , AnyArrayIndex
-                    , AnyObjectKey
+                    [ AnyObjectKey, Selector
+                        ( ObjectKey "beams" ), AnyArrayIndex, AnyArrayIndex, AnyObjectKey
                     ]
-                )
-            , fromList
+                ), fromList
                 [
-                    ( SomeKey ComplexNewLine
-                    , SomeProperty ComplexNewLine None
-                    )
-                ,
-                    ( SomeKey PreserveNumberFormat
-                    , SomeProperty PreserveNumberFormat True
+                    ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None
+                    ),
+                    ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True
                     )
                 ]
-            )
-        ,
+            ),
             ( NodePattern
                 ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "components" )
-                    , Selector
-                        ( ObjectKey "electrics" )
-                    , Selector
-                        ( ObjectKey "smoothers" )
-                    , AnyArrayIndex
+                    [ AnyObjectKey, Selector
+                        ( ObjectKey "components" ), Selector
+                        ( ObjectKey "electrics" ), Selector
+                        ( ObjectKey "smoothers" ), AnyArrayIndex
                     ]
-                )
-            , fromList
+                ), fromList
                 [
-                    ( SomeKey ComplexNewLine
-                    , SomeProperty ComplexNewLine None
-                    )
-                ,
-                    ( SomeKey PreserveNumberFormat
-                    , SomeProperty PreserveNumberFormat True
+                    ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None
+                    ),
+                    ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True
                     )
                 ]
-            )
-        ,
+            ),
             ( NodePattern
                 ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "flexbodies" )
-                    , AnyArrayIndex
-                    , AnyArrayIndex
-                    , AnyObjectKey
+                    [ AnyObjectKey, Selector
+                        ( ObjectKey "flexbodies" ), AnyArrayIndex, AnyArrayIndex, AnyObjectKey
                     ]
-                )
-            , fromList
+                ), fromList
                 [
-                    ( SomeKey ComplexNewLine
-                    , SomeProperty ComplexNewLine None
-                    )
-                ,
-                    ( SomeKey PreserveNumberFormat
-                    , SomeProperty PreserveNumberFormat True
+                    ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None
+                    ),
+                    ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True
                     )
                 ]
-            )
-        ,
+            ),
             ( NodePattern
                 ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "nodes" )
-                    , AnyArrayIndex
-                    , AnyArrayIndex
-                    , AnyObjectKey
+                    [ AnyObjectKey, Selector
+                        ( ObjectKey "nodes" ), AnyArrayIndex, AnyArrayIndex, AnyObjectKey
                     ]
-                )
-            , fromList
+                ), fromList
                 [
-                    ( SomeKey ComplexNewLine
-                    , SomeProperty ComplexNewLine None
-                    )
-                ,
-                    ( SomeKey PreserveNumberFormat
-                    , SomeProperty PreserveNumberFormat True
+                    ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None
+                    ),
+                    ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True
                     )
                 ]
-            )
-        ,
+            ),
             ( NodePattern
                 ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "props" )
-                    , AnyArrayIndex
-                    , AnyArrayIndex
-                    , AnyObjectKey
+                    [ AnyObjectKey, Selector
+                        ( ObjectKey "props" ), AnyArrayIndex, AnyArrayIndex, AnyObjectKey
                     ]
-                )
-            , fromList
+                ), fromList
                 [
-                    ( SomeKey ComplexNewLine
-                    , SomeProperty ComplexNewLine None
-                    )
-                ,
-                    ( SomeKey PreserveNumberFormat
-                    , SomeProperty PreserveNumberFormat True
+                    ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None
+                    ),
+                    ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True
                     )
                 ]
-            )
-        ,
+            ),
             ( NodePattern
                 ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "slots" )
-                    , AnyArrayIndex
-                    , AnyArrayIndex
-                    , AnyObjectKey
+                    [ AnyObjectKey, Selector
+                        ( ObjectKey "slots" ), AnyArrayIndex, AnyArrayIndex, AnyObjectKey
                     ]
-                )
-            , fromList
+                ), fromList
                 [
-                    ( SomeKey ComplexNewLine
-                    , SomeProperty ComplexNewLine None
-                    )
-                ,
-                    ( SomeKey PreserveNumberFormat
-                    , SomeProperty PreserveNumberFormat True
+                    ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None
+                    ),
+                    ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True
                     )
                 ]
-            )
-        ,
+            ),
             ( NodePattern
                 ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "slots2" )
-                    , AnyArrayIndex
-                    , AnyArrayIndex
-                    , AnyObjectKey
+                    [ AnyObjectKey, Selector
+                        ( ObjectKey "slots2" ), AnyArrayIndex, AnyArrayIndex, AnyObjectKey
                     ]
-                )
-            , fromList
+                ), fromList
                 [
-                    ( SomeKey ComplexNewLine
-                    , SomeProperty ComplexNewLine None
-                    )
-                ,
-                    ( SomeKey PreserveNumberFormat
-                    , SomeProperty PreserveNumberFormat True
+                    ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None
+                    ),
+                    ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True
                     )
                 ]
-            )
-        ,
+            ),
             ( NodePattern
                 ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "beams" )
-                    , AnyArrayIndex
-                    , AnyObjectKey
+                    [ AnyObjectKey, Selector
+                        ( ObjectKey "beams" ), AnyArrayIndex, AnyObjectKey
                     ]
-                )
-            , fromList
+                ), fromList
                 [
-                    ( SomeKey ComplexNewLine
-                    , SomeProperty ComplexNewLine None
-                    )
-                ,
-                    ( SomeKey PreserveNumberFormat
-                    , SomeProperty PreserveNumberFormat True
+                    ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None
+                    ),
+                    ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True
                     )
                 ]
-            )
-        ,
+            ),
             ( NodePattern
                 ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "flexbodies" )
-                    , AnyArrayIndex
-                    , AnyObjectKey
+                    [ AnyObjectKey, Selector
+                        ( ObjectKey "flexbodies" ), AnyArrayIndex, AnyObjectKey
                     ]
-                )
-            , fromList
+                ), fromList
                 [
-                    ( SomeKey ComplexNewLine
-                    , SomeProperty ComplexNewLine None
-                    )
-                ,
-                    ( SomeKey PreserveNumberFormat
-                    , SomeProperty PreserveNumberFormat True
+                    ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None
+                    ),
+                    ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True
                     )
                 ]
-            )
-        ,
+            ),
             ( NodePattern
                 ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "mainEngine" )
-                    , Selector
-                        ( ObjectKey "burnEfficiency" )
-                    , AnyArrayIndex
+                    [ AnyObjectKey, Selector
+                        ( ObjectKey "mainEngine" ), Selector
+                        ( ObjectKey "burnEfficiency" ), AnyArrayIndex
                     ]
-                )
-            , fromList
+                ), fromList
                 [
-                    ( SomeKey ComplexNewLine
-                    , SomeProperty ComplexNewLine None
-                    )
-                ,
-                    ( SomeKey PreserveNumberFormat
-                    , SomeProperty PreserveNumberFormat True
+                    ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None
+                    ),
+                    ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True
                     )
                 ]
-            )
-        ,
+            ),
             ( NodePattern
                 ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "mainEngine" )
-                    , Selector
-                        ( ObjectKey "torque" )
-                    , AnyArrayIndex
+                    [ AnyObjectKey, Selector
+                        ( ObjectKey "mainEngine" ), Selector
+                        ( ObjectKey "torque" ), AnyArrayIndex
                     ]
-                )
-            , fromList
+                ), fromList
                 [
-                    ( SomeKey ComplexNewLine
-                    , SomeProperty ComplexNewLine None
-                    )
-                ,
-                    ( SomeKey PreserveNumberFormat
-                    , SomeProperty PreserveNumberFormat True
+                    ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None
+                    ),
+                    ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True
                     )
                 ]
-            )
-        ,
+            ),
             ( NodePattern
                 ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "mainEngine" )
-                    , Selector
-                        ( ObjectKey "torqueModIntake" )
-                    , AnyArrayIndex
+                    [ AnyObjectKey, Selector
+                        ( ObjectKey "mainEngine" ), Selector
+                        ( ObjectKey "torqueModIntake" ), AnyArrayIndex
                     ]
-                )
-            , fromList
+                ), fromList
                 [
-                    ( SomeKey ComplexNewLine
-                    , SomeProperty ComplexNewLine None
-                    )
-                ,
-                    ( SomeKey PreserveNumberFormat
-                    , SomeProperty PreserveNumberFormat True
+                    ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None
+                    ),
+                    ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True
                     )
                 ]
-            )
-        ,
+            ),
             ( NodePattern
                 ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "mainEngine" )
-                    , Selector
-                        ( ObjectKey "torqueModMult" )
-                    , AnyArrayIndex
+                    [ AnyObjectKey, Selector
+                        ( ObjectKey "mainEngine" ), Selector
+                        ( ObjectKey "torqueModMult" ), AnyArrayIndex
                     ]
-                )
-            , fromList
+                ), fromList
                 [
-                    ( SomeKey ComplexNewLine
-                    , SomeProperty ComplexNewLine None
-                    )
-                ,
-                    ( SomeKey PreserveNumberFormat
-                    , SomeProperty PreserveNumberFormat True
+                    ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None
+                    ),
+                    ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True
                     )
                 ]
-            )
-        ,
+            ),
             ( NodePattern
                 ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "nodes" )
-                    , AnyArrayIndex
-                    , AnyObjectKey
+                    [ AnyObjectKey, Selector
+                        ( ObjectKey "nodes" ), AnyArrayIndex, AnyObjectKey
                     ]
-                )
-            , fromList
+                ), fromList
                 [
-                    ( SomeKey ComplexNewLine
-                    , SomeProperty ComplexNewLine None
-                    )
-                ,
-                    ( SomeKey PreserveNumberFormat
-                    , SomeProperty PreserveNumberFormat True
+                    ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None
+                    ),
+                    ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True
                     )
                 ]
-            )
-        ,
+            ),
             ( NodePattern
                 ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "nodes" )
-                    , AnyArrayIndex
-                    , AnyArrayIndex
+                    [ AnyObjectKey, Selector
+                        ( ObjectKey "nodes" ), AnyArrayIndex, AnyArrayIndex
                     ]
-                )
-            , fromList
+                ), fromList
+                [ ( SomeKey PadDecimals, SomeProperty PadDecimals 3 ) ]
+            ),
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey, Selector
+                        ( ObjectKey "props" ), AnyArrayIndex, AnyObjectKey
+                    ]
+                ), fromList
                 [
-                    ( SomeKey PadDecimals
-                    , SomeProperty PadDecimals 3
+                    ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None
+                    ),
+                    ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True
                     )
                 ]
-            )
-        ,
+            ),
             ( NodePattern
                 ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "props" )
-                    , AnyArrayIndex
-                    , AnyObjectKey
+                    [ AnyObjectKey, Selector
+                        ( ObjectKey "slots" ), AnyArrayIndex, AnyObjectKey
                     ]
-                )
-            , fromList
+                ), fromList
                 [
-                    ( SomeKey ComplexNewLine
-                    , SomeProperty ComplexNewLine None
-                    )
-                ,
-                    ( SomeKey PreserveNumberFormat
-                    , SomeProperty PreserveNumberFormat True
+                    ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None
+                    ),
+                    ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True
                     )
                 ]
-            )
-        ,
+            ),
             ( NodePattern
                 ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "slots" )
-                    , AnyArrayIndex
-                    , AnyObjectKey
+                    [ AnyObjectKey, Selector
+                        ( ObjectKey "slots2" ), AnyArrayIndex, AnyObjectKey
                     ]
-                )
-            , fromList
+                ), fromList
                 [
-                    ( SomeKey ComplexNewLine
-                    , SomeProperty ComplexNewLine None
-                    )
-                ,
-                    ( SomeKey PreserveNumberFormat
-                    , SomeProperty PreserveNumberFormat True
+                    ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None
+                    ),
+                    ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True
                     )
                 ]
-            )
-        ,
+            ),
             ( NodePattern
                 ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "slots2" )
-                    , AnyArrayIndex
-                    , AnyObjectKey
+                    [ AnyObjectKey, Selector
+                        ( ObjectKey "beams" ), AnyArrayIndex
                     ]
-                )
-            , fromList
+                ), fromList
                 [
-                    ( SomeKey ComplexNewLine
-                    , SomeProperty ComplexNewLine None
-                    )
-                ,
-                    ( SomeKey PreserveNumberFormat
-                    , SomeProperty PreserveNumberFormat True
+                    ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None
+                    ),
+                    ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True
                     )
                 ]
-            )
-        ,
+            ),
             ( NodePattern
                 ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "beams" )
-                    , AnyArrayIndex
+                    [ AnyObjectKey, Selector
+                        ( ObjectKey "controller" ), AnyArrayIndex
                     ]
-                )
-            , fromList
+                ), fromList
                 [
-                    ( SomeKey ComplexNewLine
-                    , SomeProperty ComplexNewLine None
-                    )
-                ,
-                    ( SomeKey PreserveNumberFormat
-                    , SomeProperty PreserveNumberFormat True
+                    ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None
+                    ),
+                    ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True
                     )
                 ]
-            )
-        ,
+            ),
             ( NodePattern
                 ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "controller" )
-                    , AnyArrayIndex
+                    [ AnyObjectKey, Selector
+                        ( ObjectKey "flexbodies" ), AnyArrayIndex
                     ]
-                )
-            , fromList
+                ), fromList
                 [
-                    ( SomeKey ComplexNewLine
-                    , SomeProperty ComplexNewLine None
-                    )
-                ,
-                    ( SomeKey PreserveNumberFormat
-                    , SomeProperty PreserveNumberFormat True
+                    ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None
+                    ),
+                    ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True
                     )
                 ]
-            )
-        ,
+            ),
             ( NodePattern
                 ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "flexbodies" )
-                    , AnyArrayIndex
+                    [ AnyObjectKey, Selector
+                        ( ObjectKey "glowMap" ), AnyObjectKey
                     ]
-                )
-            , fromList
+                ), fromList
                 [
-                    ( SomeKey ComplexNewLine
-                    , SomeProperty ComplexNewLine None
-                    )
-                ,
-                    ( SomeKey PreserveNumberFormat
-                    , SomeProperty PreserveNumberFormat True
+                    ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None
+                    ),
+                    ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True
                     )
                 ]
-            )
-        ,
+            ),
             ( NodePattern
                 ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "glowMap" )
-                    , AnyObjectKey
+                    [ AnyObjectKey, Selector
+                        ( ObjectKey "nodes" ), AnyArrayIndex
                     ]
-                )
-            , fromList
+                ), fromList
+                [ ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None ) ]
+            ),
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey, Selector
+                        ( ObjectKey "powertrain" ), AnyArrayIndex
+                    ]
+                ), fromList
                 [
-                    ( SomeKey ComplexNewLine
-                    , SomeProperty ComplexNewLine None
-                    )
-                ,
-                    ( SomeKey PreserveNumberFormat
-                    , SomeProperty PreserveNumberFormat True
+                    ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None
+                    ),
+                    ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True
                     )
                 ]
-            )
-        ,
+            ),
             ( NodePattern
                 ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "nodes" )
-                    , AnyArrayIndex
+                    [ AnyObjectKey, Selector
+                        ( ObjectKey "props" ), AnyArrayIndex
                     ]
-                )
-            , fromList
+                ), fromList
                 [
-                    ( SomeKey ComplexNewLine
-                    , SomeProperty ComplexNewLine None
+                    ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None
+                    ),
+                    ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True
                     )
                 ]
-            )
-        ,
+            ),
             ( NodePattern
                 ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "powertrain" )
-                    , AnyArrayIndex
+                    [ AnyObjectKey, Selector
+                        ( ObjectKey "rails" ), AnyObjectKey
                     ]
-                )
-            , fromList
+                ), fromList
                 [
-                    ( SomeKey ComplexNewLine
-                    , SomeProperty ComplexNewLine None
-                    )
-                ,
-                    ( SomeKey PreserveNumberFormat
-                    , SomeProperty PreserveNumberFormat True
+                    ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None
+                    ),
+                    ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True
                     )
                 ]
-            )
-        ,
+            ),
             ( NodePattern
                 ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "props" )
-                    , AnyArrayIndex
+                    [ AnyObjectKey, Selector
+                        ( ObjectKey "slots" ), AnyArrayIndex
                     ]
-                )
-            , fromList
+                ), fromList
                 [
-                    ( SomeKey ComplexNewLine
-                    , SomeProperty ComplexNewLine None
-                    )
-                ,
-                    ( SomeKey PreserveNumberFormat
-                    , SomeProperty PreserveNumberFormat True
+                    ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None
+                    ),
+                    ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True
                     )
                 ]
-            )
-        ,
+            ),
             ( NodePattern
                 ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "rails" )
-                    , AnyObjectKey
+                    [ AnyObjectKey, Selector
+                        ( ObjectKey "slots2" ), AnyArrayIndex
                     ]
-                )
-            , fromList
+                ), fromList
                 [
-                    ( SomeKey ComplexNewLine
-                    , SomeProperty ComplexNewLine None
-                    )
-                ,
-                    ( SomeKey PreserveNumberFormat
-                    , SomeProperty PreserveNumberFormat True
+                    ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None
+                    ),
+                    ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True
                     )
                 ]
-            )
-        ,
+            ),
             ( NodePattern
                 ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "slots" )
-                    , AnyArrayIndex
+                    [ AnyObjectKey, Selector
+                        ( ObjectKey "triangles" ), AnyArrayIndex
                     ]
-                )
-            , fromList
+                ), fromList
                 [
-                    ( SomeKey ComplexNewLine
-                    , SomeProperty ComplexNewLine None
-                    )
-                ,
-                    ( SomeKey PreserveNumberFormat
-                    , SomeProperty PreserveNumberFormat True
+                    ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None
+                    ),
+                    ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True
                     )
                 ]
-            )
-        ,
+            ),
             ( NodePattern
                 ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "slots2" )
-                    , AnyArrayIndex
+                    [ AnyObjectKey, Selector
+                        ( ObjectKey "variables" ), AnyArrayIndex
                     ]
-                )
-            , fromList
+                ), fromList
                 [
-                    ( SomeKey ComplexNewLine
-                    , SomeProperty ComplexNewLine None
-                    )
-                ,
-                    ( SomeKey PreserveNumberFormat
-                    , SomeProperty PreserveNumberFormat True
+                    ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None
+                    ),
+                    ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True
                     )
                 ]
-            )
-        ,
+            ),
             ( NodePattern
                 ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "triangles" )
-                    , AnyArrayIndex
-                    ]
-                )
-            , fromList
+                    [ AnyObjectKey, Selector ( ObjectKey "beams" ) ]
+                ), fromList
+                [ ( SomeKey AutoPad, SomeProperty AutoPad True ) ]
+            ),
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey, Selector ( ObjectKey "glowMap" ) ]
+                ), fromList
                 [
-                    ( SomeKey ComplexNewLine
-                    , SomeProperty ComplexNewLine None
-                    )
-                ,
-                    ( SomeKey PreserveNumberFormat
-                    , SomeProperty PreserveNumberFormat True
+                    ( SomeKey AlignObjectKeys, SomeProperty AlignObjectKeys True
+                    ),
+                    ( SomeKey AutoPadSubObjects, SomeProperty AutoPadSubObjects True
                     )
                 ]
-            )
-        ,
+            ),
             ( NodePattern
                 ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "variables" )
-                    , AnyArrayIndex
-                    ]
-                )
-            , fromList
+                    [ AnyObjectKey, Selector ( ObjectKey "information" ) ]
+                ), fromList
                 [
-                    ( SomeKey ComplexNewLine
-                    , SomeProperty ComplexNewLine None
-                    )
-                ,
-                    ( SomeKey PreserveNumberFormat
-                    , SomeProperty PreserveNumberFormat True
+                    ( SomeKey AlignObjectKeys, SomeProperty AlignObjectKeys True
+                    ),
+                    ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine Force
+                    ),
+                    ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True
                     )
                 ]
-            )
-        ,
+            ),
             ( NodePattern
                 ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "beams" )
-                    ]
-                )
-            , fromList
+                    [ AnyObjectKey, Selector ( ObjectKey "mainEngine" ) ]
+                ), fromList
                 [
-                    ( SomeKey AutoPad
-                    , SomeProperty AutoPad True
+                    ( SomeKey AlignObjectKeys, SomeProperty AlignObjectKeys True
+                    ),
+                    ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine Force
+                    ),
+                    ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True
                     )
                 ]
-            )
-        ,
+            ),
             ( NodePattern
                 ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "glowMap" )
-                    ]
-                )
-            , fromList
+                    [ AnyObjectKey, Selector ( ObjectKey "nodes" ) ]
+                ), fromList
                 [
-                    ( SomeKey AlignObjectKeys
-                    , SomeProperty AlignObjectKeys True
-                    )
-                ,
-                    ( SomeKey AutoPadSubObjects
-                    , SomeProperty AutoPadSubObjects True
+                    ( SomeKey AlignObjectKeys, SomeProperty AlignObjectKeys True
+                    ),
+                    ( SomeKey AutoPad, SomeProperty AutoPad True )
+                ]
+            ),
+            ( NodePattern
+                ( fromList
+                    [ AnyObjectKey, Selector ( ObjectKey "soundConfig" ) ]
+                ), fromList
+                [
+                    ( SomeKey AlignObjectKeys, SomeProperty AlignObjectKeys True
+                    ),
+                    ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine Force
+                    ),
+                    ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True
                     )
                 ]
-            )
-        ,
+            ),
             ( NodePattern
                 ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "information" )
-                    ]
-                )
-            , fromList
-                [
-                    ( SomeKey AlignObjectKeys
-                    , SomeProperty AlignObjectKeys True
-                    )
-                ,
-                    ( SomeKey ComplexNewLine
-                    , SomeProperty ComplexNewLine Force
-                    )
-                ,
-                    ( SomeKey PreserveNumberFormat
-                    , SomeProperty PreserveNumberFormat True
-                    )
-                ]
-            )
-        ,
-            ( NodePattern
-                ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "mainEngine" )
-                    ]
-                )
-            , fromList
-                [
-                    ( SomeKey AlignObjectKeys
-                    , SomeProperty AlignObjectKeys True
-                    )
-                ,
-                    ( SomeKey ComplexNewLine
-                    , SomeProperty ComplexNewLine Force
-                    )
-                ,
-                    ( SomeKey PreserveNumberFormat
-                    , SomeProperty PreserveNumberFormat True
-                    )
-                ]
-            )
-        ,
-            ( NodePattern
-                ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "nodes" )
-                    ]
-                )
-            , fromList
-                [
-                    ( SomeKey AlignObjectKeys
-                    , SomeProperty AlignObjectKeys True
-                    )
-                ,
-                    ( SomeKey AutoPad
-                    , SomeProperty AutoPad True
-                    )
-                ]
-            )
-        ,
-            ( NodePattern
-                ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "soundConfig" )
-                    ]
-                )
-            , fromList
-                [
-                    ( SomeKey AlignObjectKeys
-                    , SomeProperty AlignObjectKeys True
-                    )
-                ,
-                    ( SomeKey ComplexNewLine
-                    , SomeProperty ComplexNewLine Force
-                    )
-                ,
-                    ( SomeKey PreserveNumberFormat
-                    , SomeProperty PreserveNumberFormat True
-                    )
-                ]
-            )
-        ,
-            ( NodePattern
-                ( fromList
-                    [ AnyObjectKey
-                    , Selector
+                    [ AnyObjectKey, Selector
                         ( ObjectKey "soundConfigExhaust" )
                     ]
-                )
-            , fromList
+                ), fromList
                 [
-                    ( SomeKey AlignObjectKeys
-                    , SomeProperty AlignObjectKeys True
-                    )
-                ,
-                    ( SomeKey ComplexNewLine
-                    , SomeProperty ComplexNewLine Force
-                    )
-                ,
-                    ( SomeKey PreserveNumberFormat
-                    , SomeProperty PreserveNumberFormat True
+                    ( SomeKey AlignObjectKeys, SomeProperty AlignObjectKeys True
+                    ),
+                    ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine Force
+                    ),
+                    ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True
                     )
                 ]
-            )
-        ,
+            ),
             ( NodePattern
                 ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "sounds" )
-                    ]
-                )
-            , fromList
+                    [ AnyObjectKey, Selector ( ObjectKey "sounds" ) ]
+                ), fromList
                 [
-                    ( SomeKey AlignObjectKeys
-                    , SomeProperty AlignObjectKeys True
-                    )
-                ,
-                    ( SomeKey ComplexNewLine
-                    , SomeProperty ComplexNewLine Force
-                    )
-                ,
-                    ( SomeKey PreserveNumberFormat
-                    , SomeProperty PreserveNumberFormat True
+                    ( SomeKey AlignObjectKeys, SomeProperty AlignObjectKeys True
+                    ),
+                    ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine Force
+                    ),
+                    ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True
                     )
                 ]
-            )
-        ,
+            ),
             ( NodePattern
                 ( fromList
-                    [ AnyObjectKey
-                    , Selector
-                        ( ObjectKey "triangles" )
-                    ]
-                )
-            , fromList
-                [
-                    ( SomeKey AutoPad
-                    , SomeProperty AutoPad True
-                    )
-                ]
+                    [ AnyObjectKey, Selector ( ObjectKey "triangles" ) ]
+                ), fromList
+                [ ( SomeKey AutoPad, SomeProperty AutoPad True ) ]
             )
         ]
     )
