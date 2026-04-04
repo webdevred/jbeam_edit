@@ -21,11 +21,15 @@ import Data.Map qualified as M (fromList, fromListWith, union)
 import Data.Sequence qualified as Seq (fromList)
 import Data.Set qualified as S (fromList)
 import Data.Text (Text)
-import Data.Text qualified as T (unpack)
+import Data.Text qualified as T (init, isSuffixOf, unpack)
 import Data.Text.Encoding (decodeUtf8')
 import Data.Word (Word8)
 import JbeamEdit.Core.NodePath
 import JbeamEdit.Formatting.Rules
+import JbeamEdit.Formatting.Rules.ComplexNewLine (ComplexNewLine)
+import JbeamEdit.Formatting.Rules.ComplexNewLine qualified as CNL
+import JbeamEdit.Formatting.Rules.TrailingComma (TrailingComma)
+import JbeamEdit.Formatting.Rules.TrailingComma qualified as TC
 import JbeamEdit.Parsing.Common
 import Text.Megaparsec ((<?>))
 import Text.Megaparsec qualified as MP
@@ -41,7 +45,8 @@ type JbflParser a = Parser Identity a
 objectKeyParser :: JbflParser NodePatternSelector
 objectKeyParser = byteChar '.' *> key
   where
-    key = parseWord8s (Selector . ObjectKey) (MP.some . MP.satisfy $ p)
+    key = parseWord8s (Selector . t) (MP.some . MP.satisfy $ p)
+    t k = if T.isSuffixOf "*" k then ObjectPrefixKey (T.init k) else ObjectKey k
     p = charBoth (not . isSpace) (`notElem` [',', '[', '.']) . toChar
 
 objectIndexParser :: JbflParser NodePatternSelector
@@ -92,19 +97,28 @@ propertyParser (SomeKey key) = do
 
 parseValueForKey :: PropertyKey a -> JbflParser a
 parseValueForKey AutoPad = parseBool <?> "bool"
-parseValueForKey ComplexNewLine = parseComplexNewLineMode <?> "Force or None"
+parseValueForKey ComplexNewLine = parseComplexNewLine <?> "Force or None"
 parseValueForKey AlignObjectKeys = parseBool <?> "bool"
 parseValueForKey AutoPadSubObjects = parseBool <?> "bool"
 parseValueForKey PreserveNumberFormat = parseBool <?> "bool"
 parseValueForKey PadAmount = L.decimal <?> "integer"
 parseValueForKey PadDecimals = L.decimal <?> "integer"
 parseValueForKey Indent = L.decimal <?> "integer"
+parseValueForKey TrailingComma = parseTrailingCommaMode <?> "Preserve, Force or None"
 
-parseComplexNewLineMode :: JbflParser ComplexNewLineMode
-parseComplexNewLineMode =
+parseComplexNewLine :: JbflParser ComplexNewLine
+parseComplexNewLine =
   tryParsers
-    [ B.string "Force" $> Force
-    , B.string "None" $> None
+    [ B.string "Force" $> CNL.Force
+    , B.string "None" $> CNL.None
+    ]
+
+parseTrailingCommaMode :: JbflParser TrailingComma
+parseTrailingCommaMode =
+  tryParsers
+    [ B.string "Preserve" $> TC.Preserve
+    , B.string "Force" $> TC.Force
+    , B.string "None" $> TC.None
     ]
 
 skipComment :: JbflParser ()

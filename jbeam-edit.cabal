@@ -1,6 +1,6 @@
 cabal-version:      2.2
 
--- This file has been generated from package.yaml by hpack version 0.38.0.
+--- This file has been generated from package.yaml by hpack version 0.38.0.
 --
 -- see: https://github.com/sol/hpack
 
@@ -74,6 +74,8 @@ library
         JbeamEdit.Formatting
         JbeamEdit.Formatting.Config
         JbeamEdit.Formatting.Rules
+        JbeamEdit.Formatting.Rules.ComplexNewLine
+        JbeamEdit.Formatting.Rules.TrailingComma
         JbeamEdit.IOUtils
         JbeamEdit.Parsing.Common
         JbeamEdit.Parsing.Common.ErrorMessage
@@ -87,6 +89,7 @@ library
     default-language:   GHC2021
     default-extensions:
         OverloadedStrings ImportQualifiedPost DerivingStrategies
+        TupleSections
 
     ghc-options:
         -Wall -Wcompat -Widentities -Wincomplete-record-updates
@@ -139,6 +142,7 @@ library jbeam-edit-transformation
     default-language:   GHC2021
     default-extensions:
         OverloadedStrings ImportQualifiedPost DerivingStrategies
+        TupleSections
 
     ghc-options:
         -Wall -Wcompat -Widentities -Wincomplete-record-updates
@@ -185,8 +189,8 @@ library jbeam-language-server
     autogen-modules:    Paths_jbeam_edit
     default-language:   GHC2021
     default-extensions:
-        OverloadedStrings ImportQualifiedPost DerivingStrategies DataKinds
-        PolyKinds
+        OverloadedStrings ImportQualifiedPost DerivingStrategies
+        TupleSections DataKinds PolyKinds
 
     ghc-options:
         -Wall -Wcompat -Widentities -Wincomplete-record-updates
@@ -230,7 +234,8 @@ executable jbeam-edit
     autogen-modules:    Paths_jbeam_edit
     default-language:   GHC2021
     default-extensions:
-        OverloadedStrings ImportQualifiedPost DerivingStrategies CPP
+        OverloadedStrings ImportQualifiedPost DerivingStrategies
+        TupleSections CPP
 
     ghc-options:
         -Wall -Wcompat -Widentities -Wincomplete-record-updates
@@ -268,6 +273,7 @@ executable jbeam-edit-dump-ast
     default-language:   GHC2021
     default-extensions:
         OverloadedStrings ImportQualifiedPost DerivingStrategies
+        TupleSections
 
     ghc-options:
         -Wall -Wcompat -Widentities -Wincomplete-record-updates
@@ -312,6 +318,7 @@ executable jbeam-lsp-server
     default-language:   GHC2021
     default-extensions:
         OverloadedStrings ImportQualifiedPost DerivingStrategies
+        TupleSections
 
     ghc-options:
         -Wall -Wcompat -Widentities -Wincomplete-record-updates
@@ -363,6 +370,7 @@ test-suite jbeam-edit-test
     default-language:   GHC2021
     default-extensions:
         OverloadedStrings ImportQualifiedPost DerivingStrategies
+        TupleSections
 
     ghc-options:
         -Wall -Wcompat -Widentities -Wincomplete-record-updates
@@ -403,6 +411,7 @@ test-suite jbeam-edit-transformation-test
     default-language:   GHC2021
     default-extensions:
         OverloadedStrings ImportQualifiedPost DerivingStrategies
+        TupleSections
 
     ghc-options:
         -Wall -Wcompat -Widentities -Wincomplete-record-updates
@@ -452,6 +461,7 @@ test-suite jbeam-language-server-test
     default-language:   GHC2021
     default-extensions:
         OverloadedStrings ImportQualifiedPost DerivingStrategies
+        TupleSections
 
     ghc-options:
         -Wall -Wcompat -Widentities -Wincomplete-record-updates
@@ -497,6 +507,7 @@ benchmark jbeam-edit-bench
     default-language:   GHC2021
     default-extensions:
         OverloadedStrings ImportQualifiedPost DerivingStrategies
+        TupleSections
 
     ghc-options:
         -Wall -Wcompat -Widentities -Wincomplete-record-updates

@@ -2,7 +2,7 @@
     "chassis_rails" : {
         "information" : {
             "authors" : "gittarrgy01",
-            "name"    : ""
+            "name"    : "",
         },
         "slotType" : "main",
         /* The purpose of this file is prove that moving metadata along with vertices when
@@ -72,7 +72,7 @@
             ["rl52", 0.053,  2.284,  0.441],
             ["rl53", -0.451, 2.284,  0.364],
             ["rl54", -0.451, 2.284,  0.447],
-            {"group" : ""}
+            {"group" : ""},
         ],
         // --Beams--
         "beams" : [
@@ -318,7 +318,7 @@
             // Front crush
             {"beamDeform" : 8500},
             ["rl17", "rl9"],
-            ["rl15", "rl8"]
+            ["rl15", "rl8"],
         ],
         // --Collision Triangles--
         "triangles" : [
@@ -386,11 +386,11 @@
             ["rl30", "rl23", "rl22"],
             ["rl30", "rl31", "rl23"],
             ["rl26", "rl27", "rl32"],
-            ["rl33", "rl32", "rl27"]
+            ["rl33", "rl32", "rl27"],
         ],
         "flexbodies" : [
             ["mesh", "[group]:", "nonFlexMaterials"],
-            ["rails", ["chassis_rails"]]
-        ]
-    }
+            ["rails", ["chassis_rails"]],
+        ],
+    },
 }

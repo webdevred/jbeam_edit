@@ -1,5 +1,6 @@
 .* {
     Indent : 2;
+    TrailingComma : None;
 }
 
 /* Default formatting for all numeric node values */

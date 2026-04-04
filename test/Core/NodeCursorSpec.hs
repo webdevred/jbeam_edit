@@ -23,6 +23,14 @@ spec = do
       compareSB (NP.ArrayIndex 3) (ArrayIndex 3) `shouldBe` True
       compareSB (NP.ArrayIndex 4) (ArrayIndex 3) `shouldBe` False
 
+    it "matches ObjectPrefixKey correctly" $ do
+      compareSB (NP.ObjectPrefixKey "deform") (ObjectIndexAndKey 0 "deformGroups")
+        `shouldBe` True
+      compareSB (NP.ObjectPrefixKey "deform") (ObjectIndexAndKey 0 "deform")
+        `shouldBe` True
+      compareSB (NP.ObjectPrefixKey "deform") (ObjectIndexAndKey 0 "other")
+        `shouldBe` False
+
     it "does not match mismatched cases" $
       compareSB (NP.ArrayIndex 1) (ObjectIndexAndKey 1 "x") `shouldBe` False
 

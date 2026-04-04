@@ -32,7 +32,7 @@ jobs:
         with:
           fail-on: warning
       - name: Run fourmolu
-        uses: haskell-actions/run-fourmolu@v11
+        uses: haskell-actions/run-fourmolu@v12
         with:
           pattern: |
             **/*.hs

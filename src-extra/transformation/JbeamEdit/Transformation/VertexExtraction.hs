@@ -23,6 +23,7 @@ import Data.Set (Set)
 import Data.Set qualified as S
 import Data.Text (Text)
 import Data.Text qualified as T
+import Data.Vector (Vector)
 import Data.Vector qualified as V
 import GHC.IsList
 import JbeamEdit.Core.Node
@@ -40,13 +41,14 @@ nodeScientific (Number nv) = Just (numberValueToScientific nv)
 nodeScientific _ = Nothing
 
 newVertex :: Node -> Maybe Vertex
-newVertex (Array ns) = case V.toList ns of
+newVertex (Array av) = case V.toList (avNodes av) of
   [String name, n1, n2, n3] -> mkVertex name n1 n2 n3 Nothing
-  [String name, n1, n2, n3, Object m] -> mkVertex name n1 n2 n3 (Just m)
+  [String name, n1, n2, n3, Object ov] -> mkVertex name n1 n2 n3 (Just (ovNodes ov))
   _ -> Nothing
 newVertex _ = Nothing
 
-mkVertex :: Text -> Node -> Node -> Node -> Maybe Object -> Maybe Vertex
+mkVertex
+  :: Text -> Node -> Node -> Node -> Maybe (Vector Node) -> Maybe Vertex
 mkVertex name n1 n2 n3 meta = do
   x <- nodeScientific n1
   y <- nodeScientific n2
@@ -160,10 +162,10 @@ isSupportVertex v =
     Just (_, c) -> not (isDigit c)
 
 metaMapFromObject :: Node -> MetaMap
-metaMapFromObject (Object objKeys) =
+metaMapFromObject (Object ov) =
   let toKV (ObjectKey (String k, v)) = Just (k, v)
       toKV _ = Nothing
-   in M.fromList . mapMaybe toKV $ V.toList objKeys
+   in M.fromList . mapMaybe toKV $ V.toList (ovNodes ov)
 metaMapFromObject _ = M.empty
 
 toInternalComment :: Node -> Maybe InternalComment
@@ -265,7 +267,7 @@ nodesListToTree brks nodes =
 objectKeysToObjects :: Map Text Node -> [Node]
 objectKeysToObjects =
   M.foldMapWithKey
-    (curry $ pure . Object . V.singleton . ObjectKey . first String)
+    (curry $ pure . mkObject . V.singleton . ObjectKey . first String)
 
 concatAnnotatedVertices
   :: OMap VertexTreeKey VertexTree
@@ -344,6 +346,6 @@ getVertexForest brks np topNode =
             _ -> Left "missing vertex header"
 
 isValidVertexHeader :: Node -> Bool
-isValidVertexHeader (Array header) =
-  V.length header == 4 && all isStringNode header
+isValidVertexHeader (Array av) =
+  let ns = avNodes av in V.length ns == 4 && all isStringNode ns
 isValidVertexHeader _ = False
