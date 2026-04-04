@@ -13,7 +13,9 @@
 }
 
 .*.nodes, .*.beams,
-.*.triangles {
+.*.triangles, .*.slots,
+.*.slots2, .*.props,
+.*.slidenodes, .*.torsionbars {
    AutoPad : true;
 }
 
@@ -28,7 +30,20 @@
 .*.mainEngine.burnEfficiency[*],
 .*.mainEngine.torqueModIntake[*],
 .*.mainEngine.torqueModMult[*],
-.*.powertrain[*], .*.flexbodies[*] {
+.*.mainEngine.torqueCompressionBrake[*],
+.*.powertrain[*], .*.flexbodies[*],
+.*.gearbox.*, .*.clutch.*,
+.*.turbocharger.*,
+.*.vehicleController.*,
+.*.radiator.*, .*.waterDamage.*,
+.*.engineBlock.*,
+.*.pressureWheels[*],
+.*.slidenodes[*], .*.torsionbars[*],
+.*.mainEngine.deformGroups*,
+.*.driveModes.defaultSettings[*],
+.*.driveModes.modes.*.settings[*],
+.*.mirrors[*], .*.soundscape[*],
+.*.camerasInternal[*] {
     PreserveNumberFormat : true;
     ComplexNewLine : None;
 }
@@ -43,7 +58,20 @@
 .*.slots2[*].*, .*.slots2[*][*].*,
 .*.props[*].*, .*.props[*][*].*,
 .*.flexbodies[*].*,
-.*.flexbodies[*][*].* {
+.*.flexbodies[*][*].*,
+.*.driveModes.defaultSettings[*].*,
+.*.driveModes.defaultSettings[*][*].*,
+.*.driveModes.modes.*.settings[*].*,
+.*.driveModes.modes.*.settings[*][*].*,
+.*.mirrors[*].*, .*.mirrors[*][*].*,
+.*.soundscape[*].*,
+.*.soundscape[*][*].*,
+.*.camerasInternal[*].*,
+.*.camerasInternal[*][*].*,
+.*.slidenodes[*].*,
+.*.torsionbars[*].*,
+.*.pressureWheels[*].*,
+.*.powertrain[*].* {
     PreserveNumberFormat : true;
     ComplexNewLine : None;
 }
@@ -55,7 +83,14 @@
 
 .*.mainEngine, .*.sounds,
 .*.soundConfig, .*.soundConfigExhaust,
-.*.information,
+.*.information, .*.gearbox,
+.*.clutch, .*.turbocharger,
+.*.vehicleController, .*.radiator,
+.*.waterDamage, .*.engineBlock,
+.*.gauges, .*.gauges.configuration,
+.*.gauges.displayData,
+.*.differential_R, .*.differential_F,
+.*.differential_C,
 .*.glowMap.dumptruck_gaugelight_warning,
 .*.glowMap.chassis_gaugelight_warning {
     ComplexNewLine: Force;
