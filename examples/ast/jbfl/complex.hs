@@ -359,4 +359,6 @@ RuleSet
         [ ( SomeKey AutoPad, SomeProperty AutoPad True ) ] ),
       ( NodePattern
         ( fromList [ AnyObjectKey ] ), fromList
-        [ ( SomeKey TrailingComma, SomeProperty TrailingComma None ) ] ) ] )
+        [
+          ( SomeKey Indent, SomeProperty Indent 2 ),
+          ( SomeKey TrailingComma, SomeProperty TrailingComma None ) ] ) ] )

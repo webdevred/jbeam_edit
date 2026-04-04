@@ -396,7 +396,7 @@ doFormatNode rs cursor state elems =
           . V.toList
           $ elems
 
-      indentationAmount = fromMaybe 2 (lookupRule Indent prefixProps)
+      indentationAmount = fromMaybe 4 (lookupRule Indent prefixProps)
    in if complexChildren
         then
           T.unlines
