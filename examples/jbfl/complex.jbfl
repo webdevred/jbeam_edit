@@ -1,3 +1,8 @@
+.* {
+    Indent : 2;
+    TrailingComma : None;
+}
+
 /* Default formatting for all numeric node values */
 .*.nodes[*][*] {
     PadDecimals: 3;  // Show 3 decimal places for uniformity

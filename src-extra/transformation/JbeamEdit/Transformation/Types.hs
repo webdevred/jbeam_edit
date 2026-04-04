@@ -19,6 +19,7 @@ import Data.Map (Map)
 import Data.Scientific (Scientific)
 import Data.Text (Text)
 import Data.Text qualified as T
+import Data.Vector (Vector)
 import Data.Yaml.Aeson (
   FromJSON (..),
   withText,
@@ -55,7 +56,7 @@ data VertexTree = VertexTree
 data Vertex = Vertex
   { vName :: Text
   , vX, vY, vZ :: Scientific
-  , vMeta :: Maybe Object
+  , vMeta :: Maybe (Vector Node)
   }
   deriving (Eq, Show)
 

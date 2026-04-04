@@ -11,15 +11,19 @@ module JbeamEdit.Core.NodePath (
 import Data.Either.Extra (maybeToEither)
 import Data.Sequence (Seq (..))
 import Data.Text (Text)
-import Data.Text qualified as T (show,isPrefixOf)
+import Data.Text qualified as T (isPrefixOf, show)
 import Data.Vector (Vector)
 import Data.Vector qualified as V
 import GHC.IsList (IsList (..))
 import JbeamEdit.Core.Node qualified as N (
+  ArrayValue (..),
   Node (..),
+  ObjectValue (..),
+  avNodes,
   expectArray,
   isCommentNode,
   maybeObjectKey,
+  ovNodes,
  )
 
 data NodeSelector

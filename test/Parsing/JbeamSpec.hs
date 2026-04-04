@@ -78,18 +78,26 @@ singlelineCommentSpec =
   ,
     ( "[\"test\", \"test\" // cool comment \n ]"
     , Array
-        ( fromList
-            [ String "test"
-            , String "test"
-            , Comment
-                ( InternalComment
-                    { cText = "cool comment"
-                    , cMultiline = False
-                    , cAssociationDirection = PreviousNode
-                    , cHadNewlineBefore = False
-                    }
-                )
-            ]
+        ( ArrayValue
+            ( fromList
+                [ (String "test", True)
+                ,
+                  ( String "test"
+                  , False
+                  )
+                ,
+                  ( Comment
+                      ( InternalComment
+                          { cText = "cool comment"
+                          , cMultiline = False
+                          , cAssociationDirection = PreviousNode
+                          , cHadNewlineBefore = False
+                          }
+                      )
+                  , False
+                  )
+                ]
+            )
         )
     )
   ]
@@ -99,21 +107,25 @@ arraySpec =
   [
     ( "[1,2,3]"
     , Array
-        ( fromList
-            [ Number (mkNumberValue "1" 1)
-            , Number (mkNumberValue "2" 2)
-            , Number (mkNumberValue "3" 3)
-            ]
+        ( ArrayValue
+            ( fromList
+                [ (Number (mkNumberValue "1" 1), True)
+                , (Number (mkNumberValue "2" 2), True)
+                , (Number (mkNumberValue "3" 3), False)
+                ]
+            )
         )
     )
   ,
     ( "[1\n 2\n 3]"
     , Array
-        ( fromList
-            [ Number (mkNumberValue "1" 1)
-            , Number (mkNumberValue "2" 2)
-            , Number (mkNumberValue "3" 3)
-            ]
+        ( ArrayValue
+            ( fromList
+                [ (Number (mkNumberValue "1" 1), False)
+                , (Number (mkNumberValue "2" 2), False)
+                , (Number (mkNumberValue "3" 3), False)
+                ]
+            )
         )
     )
   ]
@@ -122,40 +134,46 @@ objectSpec :: [(String, Node)]
 objectSpec =
   [
     ( "{}"
-    , Object
+    , mkObject
         (fromList [])
     )
   ,
     ( "{ }"
-    , Object
+    , mkObject
         (fromList [])
     )
   ,
     ( "{\n//test\n\"test\" : 1, \"test2\" : 2}"
     , Object
-        ( fromList
-            [ Comment (InternalComment "test" False NextNode False)
-            , ObjectKey (String "test", Number (mkNumberValue "1" 1))
-            , ObjectKey (String "test2", Number (mkNumberValue "2" 2))
-            ]
+        ( ObjectValue
+            ( fromList
+                [ (Comment (InternalComment "test" False NextNode False), False)
+                , (ObjectKey (String "test", Number (mkNumberValue "1" 1)), True)
+                , (ObjectKey (String "test2", Number (mkNumberValue "2" 2)), False)
+                ]
+            )
         )
     )
   ,
     ( "{\"test\" : 1, \"test2\" : 2}"
     , Object
-        ( fromList
-            [ ObjectKey (String "test", Number (mkNumberValue "1" 1))
-            , ObjectKey (String "test2", Number (mkNumberValue "2" 2))
-            ]
+        ( ObjectValue
+            ( fromList
+                [ (ObjectKey (String "test", Number (mkNumberValue "1" 1)), True)
+                , (ObjectKey (String "test2", Number (mkNumberValue "2" 2)), False)
+                ]
+            )
         )
     )
   ,
     ( "{\"test\" : 1\n \"test2\" : 2}"
     , Object
-        ( fromList
-            [ ObjectKey (String "test", Number (mkNumberValue "1" 1))
-            , ObjectKey (String "test2", Number (mkNumberValue "2" 2))
-            ]
+        ( ObjectValue
+            ( fromList
+                [ (ObjectKey (String "test", Number (mkNumberValue "1" 1)), False)
+                , (ObjectKey (String "test2", Number (mkNumberValue "2" 2)), False)
+                ]
+            )
         )
     )
   ]
@@ -214,7 +232,7 @@ invalidTopNodeSpec = do
   describe desc . works $
     parseNodes input
       `shouldBe` Left
-        "got: '{', expecting '}', comma, comment, string or white space somewhere close to {\"collision\" : true}, on line 9"
+        "got: '{\"', expecting ']', '}', comment, string or white space somewhere close to {\"collision\" : true}, on line 9"
 
 spec :: Spec
 spec = do

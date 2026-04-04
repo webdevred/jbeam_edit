@@ -21,6 +21,9 @@ import System.OsPath qualified as OS (unsafeEncodeUtf, (</>))
 import Text.Pretty.Simple (
   StringOutputStyle (..),
   defaultOutputOptionsNoColor,
+  outputOptionsCompact,
+  outputOptionsCompactParens,
+  outputOptionsIndentAmount,
   outputOptionsStringStyle,
   pStringOpt,
  )
@@ -101,7 +104,12 @@ saveAstDump :: Show a => String -> a -> IO ()
 saveAstDump outFile contents =
   let formatted =
         pStringOpt
-          defaultOutputOptionsNoColor {outputOptionsStringStyle = Literal}
+          defaultOutputOptionsNoColor
+            { outputOptionsStringStyle = Literal
+            , outputOptionsCompact = True
+            , outputOptionsCompactParens = True
+            , outputOptionsIndentAmount = 2
+            }
           (show contents ++ "\n")
    in saveDump outFile (LT.unpack formatted)
 
