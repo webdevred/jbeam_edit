@@ -22,6 +22,8 @@ import Text.Pretty.Simple (
   StringOutputStyle (..),
   defaultOutputOptionsNoColor,
   outputOptionsCompact,
+  outputOptionsCompactParens,
+  outputOptionsIndentAmount,
   outputOptionsStringStyle,
   pStringOpt,
  )
@@ -105,6 +107,8 @@ saveAstDump outFile contents =
           defaultOutputOptionsNoColor
             { outputOptionsStringStyle = Literal
             , outputOptionsCompact = True
+            , outputOptionsCompactParens = True
+            , outputOptionsIndentAmount = 2
             }
           (show contents ++ "\n")
    in saveDump outFile (LT.unpack formatted)
