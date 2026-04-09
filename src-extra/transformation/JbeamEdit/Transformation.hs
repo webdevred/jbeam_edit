@@ -140,19 +140,8 @@ mergeOMap1Trees
 mergeOMap1Trees new existing =
   foldl' go existing (OMap1.assocs new)
   where
-    go acc (k, VertexTree newCmts newVerts) =
-      case OMap1.lookup k acc of
-        Nothing ->
-          fromList (OMap1.assocs acc <> [(k, VertexTree newCmts newVerts)])
-        Just (VertexTree existCmts existVerts) ->
-          fromList $
-            map
-              ( \(k', v') ->
-                  if k' == k
-                    then (k', VertexTree existCmts (existVerts <> newVerts))
-                    else (k', v')
-              )
-              (OMap1.assocs acc)
+    merge (VertexTree _ newVerts) (VertexTree ec ev) = VertexTree ec (ev <> newVerts)
+    go acc (k, v) = OMap1.insertWith merge k v acc
 
 groupAnnotatedVertices
   :: XGroupBreakpoints
