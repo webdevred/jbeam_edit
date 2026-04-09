@@ -130,8 +130,29 @@ addVertexTreeToForest newNames tf grouped forest forestAcc t =
               . addPrefixComments t
               . fmap (sortVertices t newNames tf)
               $ groupByPrefix origTree groupsForT
-       in Right (M.insert t tree forestAcc)
+       in Right (M.insertWith mergeOMap1Trees t tree forestAcc)
     Nothing -> Right forestAcc
+
+mergeOMap1Trees
+  :: OMap1 VertexTreeKey VertexTree
+  -> OMap1 VertexTreeKey VertexTree
+  -> OMap1 VertexTreeKey VertexTree
+mergeOMap1Trees new existing =
+  foldl' go existing (OMap1.assocs new)
+  where
+    go acc (k, VertexTree newCmts newVerts) =
+      case OMap1.lookup k acc of
+        Nothing ->
+          fromList (OMap1.assocs acc <> [(k, VertexTree newCmts newVerts)])
+        Just (VertexTree existCmts existVerts) ->
+          fromList $
+            map
+              ( \(k', v') ->
+                  if k' == k
+                    then (k', VertexTree existCmts (existVerts <> newVerts))
+                    else (k', v')
+              )
+              (OMap1.assocs acc)
 
 groupAnnotatedVertices
   :: XGroupBreakpoints
@@ -218,22 +239,19 @@ moveVerticesInVertexForest topNode newNames tfCfg vertexTrees =
           vertexTrees
       brks = xGroupBreakpoints tfCfg
    in case mapM (groupAnnotatedVertices brks) allVertices of
-        Right movableVertices' -> do
+        Right movableVertices' ->
           let groupedVertices = M.fromListWith (++) movableVertices'
-          (badBeamNodes, conns) <-
-            vertexConns (maxSupportCoordinates tfCfg) topNode groupedVertices
-          let (supportForest, nonSupportVertices) =
-                moveSupportVertices
-                  newNames
-                  tfCfg
-                  conns
-                  groupedVertices
-          newForest <-
-            foldM
-              (addVertexTreeToForest newNames tfCfg nonSupportVertices vertexTrees)
-              supportForest
-              treesOrder
-          Right (badBeamNodes, newForest)
+           in do
+                (badBeamNodes, conns) <-
+                  vertexConns (maxSupportCoordinates tfCfg) topNode groupedVertices
+                let (supportForest, nonSupportVertices) =
+                      moveSupportVertices newNames tfCfg conns groupedVertices
+                newForest <-
+                  foldM
+                    (addVertexTreeToForest newNames tfCfg nonSupportVertices vertexTrees)
+                    supportForest
+                    treesOrder
+                Right (badBeamNodes, newForest)
         Left err -> Left err
 
 getVertexNamesInForest
