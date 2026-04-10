@@ -179,7 +179,7 @@ moveSupportVertices newNames tfCfg connMap vsPerType =
         ]
 
       brks = xGroupBreakpoints tfCfg
-      thr = zSortingThreshold tfCfg
+      thr = ySortingThreshold tfCfg
 
       assignSupportNames = assignNames newNames brks SupportTree
 
@@ -342,8 +342,8 @@ compareAV thr treeType vertex1 vertex2 =
       y2 = vY . aVertex $ vertex2
       compareZ = comparing (vZ . aVertex) vertex1 vertex2
       compareY =
-        let zDiff = abs $ y1 - y2
-         in bool EQ (compare y1 y2) (zDiff > thr)
+        let yDiff = abs $ y1 - y2
+         in bool EQ (compare y1 y2) (yDiff > thr)
       compareX = on compare (vX . aVertex) vertex1 vertex2
    in mconcat
         [ supportNameCompare
@@ -404,7 +404,7 @@ sortVertices
   -> VertexTree
   -> VertexTree
 sortVertices treeType newNames tfCfg (VertexTree comments vertices) =
-  let thr = zSortingThreshold tfCfg
+  let thr = ySortingThreshold tfCfg
       brks = xGroupBreakpoints tfCfg
       sortedGroups = NE.sortBy (compareAV thr treeType) vertices
 

@@ -1,4 +1,4 @@
-z-sorting-threshold: 0.05
+y-sorting-threshold: 0.05
 support-threshold: 96
 max-support-coordinates: 3
 

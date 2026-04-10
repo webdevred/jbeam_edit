@@ -64,7 +64,7 @@ defaultBreakpoints =
     ]
 
 data TransformationConfig = TransformationConfig
-  { zSortingThreshold :: Scientific
+  { ySortingThreshold :: Scientific
   , xGroupBreakpoints :: XGroupBreakpoints
   , supportThreshold :: Double
   , maxSupportCoordinates :: Natural
@@ -137,7 +137,7 @@ parseSupportThreshold o = do
 instance FromJSON TransformationConfig where
   parseJSON = withObject "TransformationConfig" $ \o ->
     TransformationConfig
-      <$> o .:? "z-sorting-threshold" .!= defaultSortingThreshold
+      <$> o .:? "y-sorting-threshold" .!= defaultSortingThreshold
       <*> o .:? "x-group-breakpoints" .!= defaultBreakpoints
       <*> parseSupportThreshold o
       <*> o .:? "max-support-coordinates" .!= defaultMaxSupportCoordinates
