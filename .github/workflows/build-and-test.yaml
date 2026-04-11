@@ -114,11 +114,11 @@ jobs:
     steps:
       - name: Extract the tested GHC versions
         id: set-matrix
-        uses: kleidukos/get-tested@v0.1.9.1
+        uses: kleidukos/get-tested@v0.1.10.0-rc1
         with:
           cabal-file: jbeam-edit.cabal
           ubuntu-version: 24.04
-          version: 0.1.9.1
+          version: 0.1.10.0-rc1
   build-with-cabal:
     if: github.event.pull_request.draft != true
     name: Build and test with Cabal (GHC ${{ matrix.ghc }})
