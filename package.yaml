@@ -151,7 +151,7 @@ executables:
     when:
       condition: (flag(dump-ast) && flag(transformation))
       then:
-        dependencies: [pretty-simple>=3.3, jbeam-edit-transformation]
+        dependencies: [pretty-simple >= 4, jbeam-edit-transformation]
       else:
         buildable: false
     source-dirs: tools/dump_ast
