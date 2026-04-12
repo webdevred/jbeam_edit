@@ -4,7 +4,7 @@ set -euo pipefail
 
 CABAL_FILE="${CABAL_FILE:?Environment variable CABAL_FILE is required}"
 
-readarray -t EXP_FLAGS < <(awk -f ./.github/script_helpers/extract_flags.awk "$CABAL_FILE")
+readarray -t EXP_FLAGS < <(awk -v extra_keywords="dev-only" -f ./.github/script_helpers/extract_flags.awk "$CABAL_FILE")
 
 echo "extracting experimental flags and setting them to true."
 echo "if this fails, please verify all flags in package.yaml are set to true/false in stack.yaml"
