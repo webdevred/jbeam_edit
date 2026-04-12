@@ -17,154 +17,53 @@ You are running the **jbeam-transform-check** skill. Follow these steps exactly.
 
 ---
 
-## Step 1 — Session setup (ask the user)
+## Step 1 — Parse arguments
 
-Ask the following in a single message. Wait for answers before proceeding.
+Parse the skill arguments:
+- Any non-flag word is the vehicle filter (e.g. `autobello`, `covet`, `pickup`). Empty means sample broadly (3-5 vehicles).
+- `--cross-file` flag sets CROSS_FILE=true. Default: false.
 
-1. **Filter** (optional): Which vehicle(s) to look at? Examples: `autobello`, `covet`, `pickup`. Leave blank to sample broadly.
-2. **Config**: Which transformation config to use? Options: `default` (built-in defaults) or path to a `.jbfl`-style config file. Default: `default`.
-3. **Cross-file check**: Should I also look for related files (other `.jbeam` files in the same vehicle) that may contain beam references to renamed nodes? (yes / no)
+Store as:
+- `FILTER` -- the filter string (may be empty)
+- `CROSS_FILE` -- true or false
 
-Store answers as `FILTER`, `CONFIG`, `CROSS_FILE`.
-
----
-
-## Step 2 — Find BeamNG vehicles directory
-
-```bash
-source tools/extract-and-format-jbeam/lib/beamng.sh && beamng_find_vehicles_dir
-```
-
-If empty, stop.
+Always use the default transformation config (built-in defaults, no `.jbeam-edit.yaml`).
 
 ---
 
-## Step 3 — Find candidate files
-
-For each zip matching FILTER (or a broad sample of 3–5 vehicles if no filter):
+## Step 2 — Run transform-run.sh
 
 ```bash
-source tools/extract-and-format-jbeam/lib/beamng.sh
-beamng_list_jbeam_files "$VEHICLES_DIR/<zip>"
+bash tools/extract-and-format-jbeam/transform-run.sh [--cross-file] [transform-check-files.txt] [FILTER]
 ```
 
-**Select only structural files** — apply this filter heuristic:
+- Pass `--cross-file` if CROSS_FILE is true.
+- Pass FILTER as the second positional argument if set.
+- The script prints `TRANSFORM_DIR=<path>` on the first line — capture it.
+- It extracts files, runs `--transform` on each, runs `--validate-beams`, and prints a summary table.
 
-| Include | Reason |
-|---------|--------|
-| `*_frame*.jbeam` | Primary target — vertex trees, beams |
-| `*_body*.jbeam` | Contains nodes/beams structural data |
-| `*_suspension*.jbeam` | Suspension nodes and beams |
-| `*_chassis*.jbeam` | Chassis structure |
-
-| Exclude | Reason |
-|---------|--------|
-| `*_engine*.jbeam` | No positional nodes |
-| `*_gauges*.jbeam` | Props/flexbodies only |
-| `*_interior*.jbeam` | Props/flexbodies only |
-| `*_lights*.jbeam`, `*_headlights*.jbeam` | Props only |
-| `*_gearbox*.jbeam`, `*_transmission*.jbeam` | No positional nodes |
-| `*_fueltank*.jbeam`, `*_bumper*.jbeam` | Usually very small, low signal |
-
-**Verification step**: For each candidate, extract it and grep for `"posX"` to confirm it has a positional node header. Discard files that don't have it.
-
-**Selection rules:**
-- Aim for 4–8 files total.
-- Prefer variety across vehicles.
-- Prefer files under 60 KB.
-- Print selection as a table: filename, zip, size, has-posX confirmed.
+Read the summary table and `$TRANSFORM_DIR/*.err` files for per-file warnings.
 
 ---
 
-## Step 4 — Extract files
+## Step 3 — Validate output
+
+For each file that transformed successfully, read the diff to understand what changed:
 
 ```bash
-TRANSFORM_DIR="$(mktemp -d /tmp/jbeam-transform-XXXXXX)"
+diff "$TRANSFORM_DIR/<file>.orig" "$TRANSFORM_DIR/<file>"
 ```
 
-For each selected file:
-```bash
-source tools/extract-and-format-jbeam/lib/beamng.sh
-beamng_extract_file "$VEHICLES_DIR/<zip>" "<inner_path>" "$TRANSFORM_DIR/<filename>"
-cp "$TRANSFORM_DIR/<filename>" "$TRANSFORM_DIR/<filename>.orig"
-```
+If CROSS_FILE: check for missed references by grepping other files in `TRANSFORM_DIR` for old node names.
 
-If CROSS_FILE is true, also extract other `.jbeam` files from the same vehicle zip into the same directory, so beam references can be validated across files.
+**Interpreting beam validation results:**
+
+- Unknown vertices from files not in the directory (e.g. engine nodes `e1`, wheel nodes `fw1`) are expected when only structural files were extracted. Only flag unknowns where the node should exist in an extracted file.
+- Duplicate beams are worth noting but may be intentional in BeamNG.
 
 ---
 
-## Step 5 — Run transformation
-
-For each structural file:
-
-```bash
-cabal run jbeam-edit --project-file=cabal.project.dev -- --transform "$TRANSFORM_DIR/<file>" 2>&1
-```
-
-If a config file is specified: pass it as appropriate (check CLI help with `cabal run jbeam-edit -- --help`).
-
-Capture:
-- Exit code (0 = success, non-zero = failure)
-- stderr output (error messages, warnings)
-- Whether the output file was written
-
----
-
-## Step 6 — Validate output
-
-For each file that transformed successfully:
-
-1. **Parse check**: Run jbeam-edit again on the output (without `--transform`) to confirm it still parses:
-   ```bash
-   cabal run jbeam-edit --project-file=cabal.project.dev -- "$TRANSFORM_DIR/<file>" 2>&1
-   ```
-
-2. **Diff**:
-   ```bash
-   diff "$TRANSFORM_DIR/<file>.orig" "$TRANSFORM_DIR/<file>"
-   ```
-
-3. **Rename count**: Count how many node names changed (lines in diff with node id patterns).
-
-4. **Reference check** (if CROSS_FILE): Search other files in `TRANSFORM_DIR` for old node names that should have been updated:
-   ```bash
-   grep -l "<old_node_name>" "$TRANSFORM_DIR"/*.jbeam
-   ```
-   If any old names survive in other files, that is a missed reference — flag it.
-
----
-
-## Step 6b — Beam validation
-
-After all transformations (and cross-file updates if CROSS_FILE) are complete, run beam validation on the entire `TRANSFORM_DIR`. This checks two things: that all beam node references point to defined vertices, and that there are no duplicate beams (same node pair with identical metadata).
-
-```bash
-cd "$TRANSFORM_DIR" && cabal run jbeam-edit --project-file=cabal.project.dev -- --validate-beams 2>&1
-```
-
-To validate a specific file only:
-```bash
-cd "$TRANSFORM_DIR" && cabal run jbeam-edit --project-file=cabal.project.dev -- --validate-beams "<file>" 2>&1
-```
-
-Capture stderr output. Beam validation reports two kinds of issues:
-
-| Issue                   | Meaning                                                                     |
-|-------------------------|-----------------------------------------------------------------------------|
-| Unknown vertex          | A beam references a node not defined in any `.jbeam` file in the directory  |
-| Duplicate beam          | Same node pair with identical metadata appears more than once               |
-
-**Interpreting results:**
-
-- Unknown vertices referencing nodes from files **not in the directory** (e.g. engine nodes `e1`, wheel nodes `fw1`) are expected when only structural files were extracted. Only flag unknown vertices where the node should exist in an extracted file.
-- Duplicate beams are worth reporting but may be intentional in BeamNG (same pair under different metadata sections is normal - only truly identical metadata duplicates are flagged).
-- If CROSS_FILE is true and all vehicle files were extracted, there should be very few unknown vertices.
-
-Record per-file: number of unknown vertex warnings, number of duplicate beam warnings.
-
----
-
-## Step 7 — Investigate warnings before classifying
+## Step 4 — Investigate warnings before classifying
 
 Before classifying any file as having a problem, investigate every warning or unexpected output from stderr. Do not assume a warning indicates a bug without reading the code that produces it.
 
@@ -175,7 +74,7 @@ For each warning or unexpected message:
 
 **Do not report a finding about transformation code unless you have traced the full code path and can point to the specific line where the problem originates.**
 
-## Step 7b — Classify results
+## Step 4b — Classify results
 
 For each file, assign one of these outcomes:
 
@@ -192,7 +91,7 @@ For each file, assign one of these outcomes:
 
 ---
 
-## Step 8 — Write TRANSFORMATION-TODO.md
+## Step 5 — Write TRANSFORMATION-TODO.md
 
 Edit `TRANSFORMATION-TODO.md` in the repo root **in place**. Do not append new session blocks — replace the existing content to reflect the current state. The file has this structure:
 
@@ -213,10 +112,10 @@ Edit `TRANSFORMATION-TODO.md` in the repo root **in place**. Do not append new s
 
 ## Priorities
 
-### 1st -- <title>
+### 1. <title>
 <description>
 
-### 2nd -- <title>
+### 2. <title>
 ...
 
 ---
@@ -235,7 +134,7 @@ Rules for editing:
 
 ---
 
-## Step 9 — Report to user
+## Step 6 — Report to user
 
 Print a concise summary:
 - Files tested, breakdown by outcome

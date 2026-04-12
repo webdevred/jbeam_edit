@@ -1,7 +1,7 @@
 ---
 name: jbeam-tune
 description: Extract JBeam files from BeamNG, format with jbeam-edit, diff and propose JBFL improvements
-argument-hint: "[vehicle-filter]"
+argument-hint: "[vehicle-filter] [--proposals]"
 allowed-tools: Bash, Glob, Grep, Read, Write, Edit
 ---
 
@@ -13,110 +13,71 @@ You are running the **jbeam-tune** skill. Follow these steps exactly.
 
 **File lists**: `tools/extract-and-format-jbeam/tune-files.txt` contains the files to test (one `<filename> <zip>` per line). You may add new files to this list when you find interesting candidates. You may remove a file if it behaves well and its patterns are already covered by existing test fixtures. Never edit `tools/extract-and-format-jbeam/demo-files.txt` unless the user explicitly asks.
 
----
+**Arguments**: Parse the skill arguments:
+- Any non-flag word is the vehicle filter (e.g. `autobello`, `covet`). Empty means all vehicles.
+- `--proposals` flag means PROPOSALS=true. Without it, PROPOSALS=false.
 
-## Step 1 -- Session setup (ask the user)
-
-Ask the user the following two questions **in a single message**. Wait for their answers before proceeding.
-
-1. **Filter** (optional): Which vehicle(s) to look at? Examples: `autobello`, `covet`, `barstow`. Leave blank to sample across all vehicles.
-2. **Proposals**: Should I suggest JBFL setting changes and new properties based on the diffs? (yes / no)
-
-Store their answers as:
+Store as:
 - `FILTER` -- the filter string (may be empty)
 - `PROPOSALS` -- true or false
 
 ---
 
-## Step 2 -- Find BeamNG vehicles directory
+## Step 1 -- List candidates (if picking new files)
 
-Run:
+If you need to find new files to add to `tune-files.txt`, run:
 ```bash
-source tools/extract-and-format-jbeam/lib/beamng.sh && beamng_find_vehicles_dir
+bash tools/extract-and-format-jbeam/tune-list-candidates.sh [filter]
 ```
 
-If the result is empty, tell the user and stop.
+This outputs TSV: `filename <TAB> zip <TAB> size_bytes`, sorted by size.
 
----
-
-## Step 3 -- Enumerate candidate files
-
-Run:
-```bash
-source tools/extract-and-format-jbeam/lib/beamng.sh
-VEHICLES_DIR="<result from step 2>"
-ls "$VEHICLES_DIR"/*.zip
-```
-
-For each zip matching FILTER (or all zips if FILTER is empty):
-- Run `beamng_list_jbeam_files "$VEHICLES_DIR/<zip>"` to list its .jbeam files.
-
-**Filtering -- pick files that likely have new patterns.** To decide which files are interesting:
-
-1. Read `examples/jbfl/minimal.jbfl` to see which section names are already covered by JBFL rules.
-2. Read TODO.md to see which files have already been tested.
-3. Extract a small sample of candidate files and scan their section names (top-level keys that map to arrays or objects). Compare against the covered set from step 1.
-4. Prioritize files that contain sections *not* covered by any JBFL pattern.
-
-**Selection rules:**
-- Aim for 5-10 files total.
+**Selection rules** (when picking new files to add):
+- Aim for 5-10 files total in tune-files.txt.
 - Prefer variety: different section types, different vehicles.
-- Prefer smaller files (under ~30 KB) for faster iteration. Skip files over 80 KB unless they're the only representative of a pattern.
+- Prefer smaller files (under ~30 KB). Skip files over 80 KB unless they're the only representative of a pattern.
 - Do not pick files whose base name already matches a file in `examples/jbeam/`.
-- Prefer files from vehicles not already in TODO.md's files-tested table.
+- Read `examples/jbfl/minimal.jbfl` to see which section names are covered. Prioritize files with uncovered sections.
+- Read TODO.md to see which files have already been tested. Prefer files from vehicles not already there.
 
-Print your selection to the user as a table: filename, zip, size, reason for selection.
+Print your selection as a table: filename, zip, size, reason. Then add them to `tune-files.txt`.
+
+If `tune-files.txt` already has good coverage for the filter, skip this step and go directly to Step 2.
 
 ---
 
-## Step 4 -- Extract files
+## Step 2 -- Extract, format, and diff
 
-Create a temp directory:
+Run the tune script:
 ```bash
-TUNE_DIR="$(mktemp -d /tmp/jbeam-tune-XXXXXX)"
+bash tools/extract-and-format-jbeam/tune-run.sh [file-list] [filter]
 ```
 
-For each selected file, run:
-```bash
-source tools/extract-and-format-jbeam/lib/beamng.sh
-beamng_extract_file "$VEHICLES_DIR/<zip>" "<inner_path>" "$TUNE_DIR/<filename>"
-```
+Defaults: file-list = `tools/extract-and-format-jbeam/tune-files.txt`, filter = empty.
+
+The script:
+1. Finds the BeamNG vehicles directory
+2. Extracts each file from its zip
+3. Formats with `jbeam-edit --rules-path examples/jbfl/minimal.jbfl`
+4. Produces unified diffs
+
+Output: prints a summary table and the path to `TUNE_DIR` containing `*.orig`, `*.diff`, and `summary.tsv`.
+
+If the script fails to find BeamNG, tell the user and stop.
 
 ---
 
-## Step 5 -- Format with jbeam-edit and diff
+## Step 3 -- Analyse diffs
 
-Always use the source `examples/jbfl/minimal.jbfl` as the JBFL config via `--rules-path`, not the user's installed `~/.config/jbeam_edit/rules.jbfl` (which may be stale).
+Read the diffs from `$TUNE_DIR/*.diff`. For each file, classify the diff hunks:
 
-For each extracted file:
-
-1. Copy original: `cp "$TUNE_DIR/<file>" "$TUNE_DIR/<file>.orig"`
-2. Run formatter:
-   ```bash
-   cabal run jbeam-edit --project-file=cabal.project.dev -- \
-     --rules-path examples/jbfl/minimal.jbfl "$TUNE_DIR/<file>" 2>&1
-   ```
-   If jbeam-edit fails on a file, note the error and continue.
-3. Diff:
-   ```bash
-   diff "$TUNE_DIR/<file>.orig" "$TUNE_DIR/<file>"
-   ```
-
-Collect all diffs.
-
----
-
-## Step 6 -- Analyse diffs
-
-For each file, classify the diff hunks into categories:
-
-| Category      | Description                                             |
-|---------------|---------------------------------------------------------|
-| `whitespace`  | Only indentation / spacing changed -- expected, fine    |
-| `number-format` | Number alignment / decimal padding                    |
-| `newline`     | Extra or missing blank lines                            |
-| `structure`   | Structural reordering or content change -- investigate  |
-| `parse-error` | jbeam-edit failed to parse the file                     |
+| Category        | Description                                          |
+|-----------------|------------------------------------------------------|
+| `whitespace`    | Only indentation / spacing changed -- expected, fine |
+| `number-format` | Number alignment / decimal padding                   |
+| `newline`       | Extra or missing blank lines                         |
+| `structure`     | Structural reordering or content change -- investigate |
+| `parse-error`   | jbeam-edit failed to parse the file                  |
 
 Summarise: how many lines changed per file, which categories appear.
 
@@ -134,9 +95,9 @@ Commit the regenerated AST files together with the JBFL/JBeam changes.
 
 ---
 
-## Step 7 -- Update TODO.md
+## Step 4 -- Update TODO.md
 
-Edit `TODO.md` in the repo root **in place**. Do not append new session blocks -- replace the existing content to reflect the current state. The file has this structure:
+Edit `TODO.md` in the repo root **in place**. Do not append new session blocks -- replace the existing content to reflect the current state. Make sure to always have points in the priorities list, if you are unable create a five point priority list clearly tell the user. Any point which has been fixed in this branch or in any open PR should be moved to DONE. The file has this structure:
 
 ```markdown
 # jbeam-tune -- last run <date>
@@ -149,7 +110,7 @@ Edit `TODO.md` in the repo root **in place**. Do not append new session blocks -
 
 ## Observations
 
-<Only observations that are still true. Remove anything that has been fixed.>
+<Only observations that are still true. Remove anything that has been fixed, either in this branch or in open PRs.>
 
 ---
 
@@ -197,7 +158,7 @@ For properties that exist in `JBFL_DOCS.md`, propose JBFL rule changes directly.
 
 ---
 
-## Step 8 -- Report to user
+## Step 5 -- Report to user
 
 Print a concise summary to stdout:
 - Files tested (list)
