@@ -62,6 +62,11 @@ jobs:
             stack-${{ matrix.os }}-${{ steps.extract.outputs.resolver }}-
       - name: Set up GHC with Stack
         run: stack setup
+      - name: Validate GHC version matches tested-with
+        shell: bash
+        run: bash ./.github/scripts/check_stack_ghc_version.sh
+        env:
+          CABAL_FILE: jbeam-edit.cabal
       - name: Build project
         run: stack build --fast --hpack-force --lock-file=error-on-write
       - name: Check that .cabal file has not changed except hpack comment
