@@ -33,12 +33,17 @@ Always use the default transformation config (built-in defaults, no `.jbeam-edit
 
 ## Step 2 — Run transform-run.sh
 
+The arguments are positional: file-list first, filter second. `--cross-file` may appear anywhere.
+
+Without filter:
 ```bash
-bash tools/extract-and-format-jbeam/transform-run.sh [--cross-file] [transform-check-files.txt] [FILTER]
+bash tools/extract-and-format-jbeam/transform-run.sh [--cross-file]
 ```
 
-- Pass `--cross-file` if CROSS_FILE is true.
-- Pass FILTER as the second positional argument if set.
+With filter (file-list must be passed explicitly):
+```bash
+bash tools/extract-and-format-jbeam/transform-run.sh [--cross-file] tools/extract-and-format-jbeam/transform-check-files.txt FILTER
+```
 - The script prints `TRANSFORM_DIR=<path>` on the first line — capture it.
 - It extracts files, runs `--transform` on each, runs `--validate-beams`, and prints a summary table.
 

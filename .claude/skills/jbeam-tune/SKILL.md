@@ -48,12 +48,17 @@ If `tune-files.txt` already has good coverage for the filter, skip this step and
 
 ## Step 2 -- Extract, format, and diff
 
-Run the tune script:
+Run the tune script. The arguments are positional: file-list first, filter second.
+
+Without filter:
 ```bash
-bash tools/extract-and-format-jbeam/tune-run.sh [file-list] [filter]
+bash tools/extract-and-format-jbeam/tune-run.sh
 ```
 
-Defaults: file-list = `tools/extract-and-format-jbeam/tune-files.txt`, filter = empty.
+With filter (file-list must be passed explicitly):
+```bash
+bash tools/extract-and-format-jbeam/tune-run.sh tools/extract-and-format-jbeam/tune-files.txt FILTER
+```
 
 The script:
 1. Finds the BeamNG vehicles directory
