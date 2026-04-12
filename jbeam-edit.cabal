@@ -171,7 +171,7 @@ library jbeam-edit-transformation
         build-depends:
             extra,
             file-io,
-            ordered-containers,
+            ordered-containers >=0.2,
             transformers,
             yaml
 

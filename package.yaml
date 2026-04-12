@@ -89,7 +89,7 @@ internal-libraries:
           - file-io
           - extra
           - transformers
-          - ordered-containers
+          - ordered-containers >= 0.2
       else:
         buildable: false
     source-dirs: src-extra/transformation
