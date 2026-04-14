@@ -98,7 +98,7 @@ jobs:
           startsWith(matrix.os, 'ubuntu-') &&
           github.event_name == 'push' &&
           github.ref == 'refs/heads/master'
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v5
         with:
           path: coverage
       - name: Deploy to GitHub Pages
