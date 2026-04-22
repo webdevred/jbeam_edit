@@ -12,8 +12,9 @@ if [[ -z "$CABAL_FILE" || ! -f "$CABAL_FILE" ]]; then
   exit 1
 fi
 
+echo "output from get-tested: $MATRIX"
 MATRIX_JSON=$(sed -E 's/^matrix=//' <<<"$MATRIX")
-
+MATRIX_JSON=$(jq '{include: map({ghc: .})}' <<<"$MATRIX_JSON")
 readarray -t EXP_FLAGS < <(awk -f ./.github/script_helpers/extract_flags.awk "$CABAL_FILE")
 
 ORIGINAL=$(jq --arg label "stable" '.include[0] += {label: $label}' <<<"$MATRIX_JSON")
@@ -25,8 +26,7 @@ if [[ ${#EXP_FLAGS[@]} -eq 0 ]]; then
 else
   EXP_FLAGS_STRING=$(printf '+%s ' "${EXP_FLAGS[@]}")
   EXPERIMENTAL=$(jq --arg flags "$EXP_FLAGS_STRING" --arg label "experimental" \
-    '.include[0] += {ghc: .include[0].ghc, flags: $flags, label: $label}' <<<"$MATRIX_JSON")
-
+    '.include[0] += {flags: $flags, label: $label}' <<<"$ORIGINAL")
   UPDATED=$(jq --argjson exp_include "$(jq '.include' <<<"$EXPERIMENTAL")" \
     '.include += $exp_include' <<<"$ORIGINAL")
 fi
