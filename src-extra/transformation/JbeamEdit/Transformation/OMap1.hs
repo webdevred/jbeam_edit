@@ -7,6 +7,7 @@ module JbeamEdit.Transformation.OMap1 (
   lookup,
   assocs,
   consOMap,
+  insertWith,
   singleton,
   head,
   snoc,
@@ -73,6 +74,16 @@ uncons (OMap1 (firstK, firstV) rest) =
   case OMap.elemAt rest 0 of
     Just newFirst@(newFirstK, _) -> (firstK, firstV, newFirst OMap.<| OMap.delete newFirstK rest)
     Nothing -> (firstK, firstV, OMap.empty)
+
+insertWith :: Ord k => (v -> v -> v) -> k -> v -> OMap1 k v -> OMap1 k v
+insertWith f k v omap =
+  case lookup k omap of
+    Nothing -> fromList (assocs omap <> [(k, v)])
+    Just existing ->
+      fromList $
+        map
+          (\(k', v') -> if k' == k then (k', f v existing) else (k', v'))
+          (assocs omap)
 
 snoc :: Ord k => k -> v -> OMap1 k v -> OMap1 k v
 snoc newLastK newLastV (OMap1 oldFirst rest)
