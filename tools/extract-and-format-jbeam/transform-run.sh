@@ -59,7 +59,7 @@ if [[ -z "$VEHICLES_DIR" ]]; then
     exit 1
 fi
 
-TRANSFORM_DIR="$(mktemp -d /tmp/jbeam-transform-XXXXXX)"
+TRANSFORM_DIR="$(mktemp -d /tmp/jbeam-edit-transform-XXXXXX)"
 echo "TRANSFORM_DIR=$TRANSFORM_DIR"
 
 node_names() {

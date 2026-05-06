@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(source tools/lib/beamng.sh)",
+      "Bash(beamng_list_jbeam_files *)",
+      "Bash(beamng_extract_file * /tmp/jbeam-edit-*)",
+      "Bash(bash tools/extract-and-format-jbeam/tune-run.sh *)",
+      "Read(/tmp/jbeam-edit-*/**)"
+    ]
+  }
+}

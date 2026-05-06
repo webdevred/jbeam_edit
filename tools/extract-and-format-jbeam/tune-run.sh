@@ -78,7 +78,7 @@ if [[ -z "$VEHICLES_DIR" ]]; then
     exit 1
 fi
 
-TUNE_DIR="$(mktemp -d /tmp/jbeam-tune-XXXXXX)"
+TUNE_DIR="$(mktemp -d /tmp/jbeam-edit-tune-XXXXXX)"
 echo "TUNE_DIR=$TUNE_DIR"
 
 extracted=0
