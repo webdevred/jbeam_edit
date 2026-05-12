@@ -144,7 +144,7 @@ jobs:
           CABAL_FILE: jbeam-edit.cabal
         run: bash ./.github/scripts/gen_iss_constants.sh
       - name: Build Inno Setup Installer
-        uses: Minionguyjpro/Inno-Setup-Action@v1.2.7
+        uses: Minionguyjpro/Inno-Setup-Action@v1.2.8
         with:
           path: installer/setup.iss
           options: /O+
