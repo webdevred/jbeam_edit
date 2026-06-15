@@ -25,10 +25,10 @@ description: >-
   and can automatically rename nodes and update references. Custom formatting rules
   are supported via JBFL (JBeam Formatting Language). See the README for usage instructions
   and examples: https://github.com/webdevred/jbeam-edit#readme
-tested-with: [GHC == 9.6.6, GHC == 9.10.3]
+tested-with: [GHC == 9.10.3, GHC == 9.14.1]
 
 dependencies:
-  - base >= 4.18 && < 4.22
+  - base >= 4.20
   - bytestring
   - vector >= 0.13
   - text >= 2.1.2
