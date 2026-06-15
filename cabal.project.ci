@@ -8,3 +8,4 @@ package jbeam-edit
   ghc-options:
     -Werror
     -Wwarn=unused-imports
+    -Wwarn=redundant-constraints
