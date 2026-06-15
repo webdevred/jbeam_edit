@@ -161,8 +161,6 @@ jobs:
         shell: bash
         run:
           cabal configure --project-file cabal.project.ci --prefer-oldest
-      - run: sed -i 's/ +lsp-server//' cabal.project.ci
-        if: matrix.ghc == '9.6.6'
       - name: Freeze and check dependencies
         env:
           CABAL_PROJECT: cabal.project.ci
