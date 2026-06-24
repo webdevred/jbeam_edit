@@ -146,14 +146,10 @@ getVertexTreePrefix vt = maybe SupportKey PrefixKey (getVertexPrefix . anVertexN
 
 insertTreeInMap
   :: VertexTree -> OMap1 VertexTreeKey VertexTree -> OMap1 VertexTreeKey VertexTree
-insertTreeInMap (VertexTree newComments newVertexGroups) =
+insertTreeInMap (VertexTree newComments newVertexGroups) omap =
   let vType = getVertexTreePrefix newVertexGroups
-      vertexTree =
-        VertexTree
-          { tComments = newComments
-          , tAnnotatedVertices = newVertexGroups
-          }
-   in OMap1.snoc vType vertexTree
+      merge _ (VertexTree ec ev) = VertexTree ec (ev <> newVertexGroups)
+   in OMap1.insertWith merge vType (VertexTree newComments newVertexGroups) omap
 
 isSupportVertex :: Vertex -> Bool
 isSupportVertex v =
