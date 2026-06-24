@@ -41,7 +41,7 @@ jobs:
               ~\AppData\Local\Programs\stack\x86_64-windows
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Extract resolver
         id: extract
         shell: bash
@@ -133,7 +133,7 @@ jobs:
       matrix: ${{ fromJSON(needs.generate-matrix.outputs.matrix) }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Get Cabal version
         run: |
           cabal_version=$(apt-cache show cabal-install | awk '/^Version:/ { split($2, a, "-"); print a[1] }')

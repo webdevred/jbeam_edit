@@ -25,7 +25,7 @@ jobs:
       contains(github.event.pull_request.labels.*.name, 'latest-ghc')
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Get latest supported GHC version
         id: get-ghc
         uses: webdevred/get-supported-ghc@v0.0.15
