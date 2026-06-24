@@ -105,7 +105,7 @@ library
         extra >=1.7.13,
         file-io,
         filepath >=1.5.1.0,
-        megaparsec,
+        megaparsec <9.8,
         mtl,
         scientific,
         text >=2.1.2,
@@ -400,7 +400,7 @@ test-suite jbeam-edit-test
     if True
         build-depends:
             hspec-megaparsec,
-            megaparsec
+            megaparsec <9.8
 
 test-suite jbeam-edit-transformation-test
     type:               exitcode-stdio-1.0
