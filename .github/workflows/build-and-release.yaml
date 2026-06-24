@@ -28,10 +28,10 @@ jobs:
     steps:
       - name: Extract the tested GHC versions
         id: get-latest-version
-        uses: Kleidukos/get-tested@31055ac4c402ea72a6410d5e035ed591473e1736
+        uses: Kleidukos/get-tested@v0.1.10.0-rc3
         with:
           cabal-file: jbeam-edit.cabal
-          version: 0.1.10.0-rc2
+          version: 0.1.10.0-rc3
           newest: true
           versions-only: true
       - uses: actions/checkout@v7
