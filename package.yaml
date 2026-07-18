@@ -56,7 +56,7 @@ ghc-options:
   - -Wredundant-constraints
 
 when:
-  - condition: '! flag(lsp-server) && ! flag(transformation) && ! flag(dump-ast)'
+  - condition: '! flag(transformation) && ! flag(dump-ast)'
     dependencies: [containers >= 0.8]
   - condition: os(windows)
     ghc-options: -optc-Os -optl-static
@@ -68,10 +68,6 @@ flags:
     default: false
   transformation:
     description: Enable transformation (experimental)
-    manual: true
-    default: false
-  lsp-server:
-    description: Enable LSP server (experimental)
     manual: true
     default: false
   windows-example-paths:
@@ -94,16 +90,6 @@ internal-libraries:
         buildable: false
     source-dirs: src-extra/transformation
     dependencies: [jbeam-edit]
-  jbeam-language-server:
-    default-extensions: [DataKinds, PolyKinds]
-    when:
-      condition: flag(lsp-server)
-      then:
-        dependencies: [lsp >= 2.7, co-log-core,aeson]
-      else:
-        buildable: false
-    source-dirs: src-extra/language-server
-    dependencies: [jbeam-edit]
 
 library:
   ghc-options: [-Wunused-packages]
@@ -118,9 +104,6 @@ library:
     - condition: os(windows)
       cpp-options: -DENABLE_WINDOWS_NEWLINES
 
-_jbeam-lsp-common: &jbeam-lsp-common
-  main: Main.hs
-  dependencies: [jbeam-edit]
 _jbeam-options: &jbeam-options
   main: Main.hs
   ghc-options: [-threaded, -rtsopts, -with-rtsopts=-N]
@@ -135,17 +118,6 @@ executables:
       - condition: flag(transformation)
         dependencies: [jbeam-edit-transformation]
         cpp-options: -DENABLE_TRANSFORMATION
-  jbeam-lsp-server:
-    source-dirs: exe/jbeam-lsp-server
-    when:
-      condition: flag(lsp-server)
-      then:
-        dependencies: [jbeam-language-server]
-      else:
-        buildable: false
-    <<:
-      - *jbeam-options
-      - *jbeam-lsp-common
   jbeam-edit-dump-ast:
     <<: *jbeam-options
     when:
@@ -183,16 +155,6 @@ tests:
     when:
       - condition: true
         dependencies: [megaparsec < 9.8, hspec-megaparsec]
-  jbeam-language-server-test:
-    <<: *jbeam-test-common
-    source-dirs: test-extra/language-server
-    when:
-      - condition: flag(lsp-server)
-        then:
-          build-tools: jbeam-edit:jbeam-lsp-server
-          dependencies: [jbeam-language-server, lsp-test, lsp >= 2.7]
-        else:
-          buildable: false
   jbeam-edit-transformation-test:
     <<: *jbeam-test-common
     main: Spec.hs

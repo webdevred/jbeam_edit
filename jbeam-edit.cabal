@@ -49,11 +49,6 @@ flag dump-ast
     default:     False
     manual:      True
 
-flag lsp-server
-    description: Enable LSP server (experimental)
-    default:     False
-    manual:      True
-
 flag transformation
     description: Enable transformation (experimental)
     default:     False
@@ -111,7 +106,7 @@ library
         text >=2.1.2,
         vector >=0.13
 
-    if ((!flag(lsp-server) && !flag(transformation)) && !flag(dump-ast))
+    if (!flag(transformation) && !flag(dump-ast))
         build-depends: containers >=0.8
 
     if os(windows)
@@ -161,7 +156,7 @@ library jbeam-edit-transformation
         text >=2.1.2,
         vector >=0.13
 
-    if ((!flag(lsp-server) && !flag(transformation)) && !flag(dump-ast))
+    if (!flag(transformation) && !flag(dump-ast))
         build-depends: containers >=0.8
 
     if os(windows)
@@ -174,52 +169,6 @@ library jbeam-edit-transformation
             ordered-containers >=0.2.4,
             transformers,
             yaml
-
-    else
-        buildable: False
-
-library jbeam-language-server
-    exposed-modules:
-        JbeamEdit.LSP.Handlers.Formatting
-        JbeamEdit.LSP.Server
-        JbeamEdit.LSP.Services.DocumentStore
-
-    hs-source-dirs:     src-extra/language-server
-    other-modules:      Paths_jbeam_edit
-    autogen-modules:    Paths_jbeam_edit
-    default-language:   GHC2021
-    default-extensions:
-        OverloadedStrings ImportQualifiedPost DerivingStrategies
-        TupleSections DataKinds PolyKinds
-
-    ghc-options:
-        -Wall -Wcompat -Widentities -Wincomplete-record-updates
-        -Wincomplete-uni-patterns -Wmissing-export-lists
-        -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
-
-    build-depends:
-        base >=4.20,
-        bytestring,
-        containers,
-        directory >=1.3.8.0,
-        filepath >=1.5.1.0,
-        jbeam-edit,
-        mtl,
-        scientific,
-        text >=2.1.2,
-        vector >=0.13
-
-    if ((!flag(lsp-server) && !flag(transformation)) && !flag(dump-ast))
-        build-depends: containers >=0.8
-
-    if os(windows)
-        ghc-options: -optc-Os -optl-static
-
-    if flag(lsp-server)
-        build-depends:
-            aeson,
-            co-log-core,
-            lsp >=2.7
 
     else
         buildable: False
@@ -255,7 +204,7 @@ executable jbeam-edit
         text >=2.1.2,
         vector >=0.13
 
-    if ((!flag(lsp-server) && !flag(transformation)) && !flag(dump-ast))
+    if (!flag(transformation) && !flag(dump-ast))
         build-depends: containers >=0.8
 
     if os(windows)
@@ -293,7 +242,7 @@ executable jbeam-edit-dump-ast
         text >=2.1.2,
         vector >=0.13
 
-    if ((!flag(lsp-server) && !flag(transformation)) && !flag(dump-ast))
+    if (!flag(transformation) && !flag(dump-ast))
         build-depends: containers >=0.8
 
     if os(windows)
@@ -303,49 +252,6 @@ executable jbeam-edit-dump-ast
         build-depends:
             jbeam-edit-transformation,
             pretty-simple >=4
-
-    else
-        buildable: False
-
-executable jbeam-lsp-server
-    main-is:            Main.hs
-    hs-source-dirs:     exe/jbeam-lsp-server
-    other-modules:
-        CommandLineOptions
-        Paths_jbeam_edit
-
-    autogen-modules:    Paths_jbeam_edit
-    default-language:   GHC2021
-    default-extensions:
-        OverloadedStrings ImportQualifiedPost DerivingStrategies
-        TupleSections
-
-    ghc-options:
-        -Wall -Wcompat -Widentities -Wincomplete-record-updates
-        -Wincomplete-uni-patterns -Wmissing-export-lists
-        -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
-        -threaded -rtsopts -with-rtsopts=-N
-
-    build-depends:
-        base >=4.20,
-        bytestring,
-        containers,
-        directory >=1.3.8.0,
-        filepath >=1.5.1.0,
-        jbeam-edit,
-        mtl,
-        scientific,
-        text >=2.1.2,
-        vector >=0.13
-
-    if ((!flag(lsp-server) && !flag(transformation)) && !flag(dump-ast))
-        build-depends: containers >=0.8
-
-    if os(windows)
-        ghc-options: -optc-Os -optl-static
-
-    if flag(lsp-server)
-        build-depends: jbeam-language-server
 
     else
         buildable: False
@@ -391,7 +297,7 @@ test-suite jbeam-edit-test
         text >=2.1.2,
         vector >=0.13
 
-    if ((!flag(lsp-server) && !flag(transformation)) && !flag(dump-ast))
+    if (!flag(transformation) && !flag(dump-ast))
         build-depends: containers >=0.8
 
     if os(windows)
@@ -432,7 +338,7 @@ test-suite jbeam-edit-transformation-test
         text >=2.1.2,
         vector >=0.13
 
-    if ((!flag(lsp-server) && !flag(transformation)) && !flag(dump-ast))
+    if (!flag(transformation) && !flag(dump-ast))
         build-depends: containers >=0.8
 
     if os(windows)
@@ -443,57 +349,6 @@ test-suite jbeam-edit-transformation-test
 
     if flag(transformation)
         build-depends: jbeam-edit-transformation
-
-    else
-        buildable: False
-
-test-suite jbeam-language-server-test
-    type:               exitcode-stdio-1.0
-    main-is:            Spec.hs
-    build-tool-depends: hspec-discover:hspec-discover
-    hs-source-dirs:     test-extra/language-server
-    other-modules:
-        DocumentStoreSpec
-        WorkspaceLspSpec
-        Paths_jbeam_edit
-
-    autogen-modules:    Paths_jbeam_edit
-    default-language:   GHC2021
-    default-extensions:
-        OverloadedStrings ImportQualifiedPost DerivingStrategies
-        TupleSections
-
-    ghc-options:
-        -Wall -Wcompat -Widentities -Wincomplete-record-updates
-        -Wincomplete-uni-patterns -Wmissing-export-lists
-        -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
-        -threaded -rtsopts -with-rtsopts=-N
-
-    build-depends:
-        base >=4.20,
-        bytestring,
-        containers,
-        directory >=1.3.8.0,
-        filepath >=1.5.1.0,
-        hspec,
-        jbeam-edit,
-        mtl,
-        scientific,
-        text >=2.1.2,
-        vector >=0.13
-
-    if ((!flag(lsp-server) && !flag(transformation)) && !flag(dump-ast))
-        build-depends: containers >=0.8
-
-    if os(windows)
-        ghc-options: -optc-Os -optl-static
-
-    if flag(lsp-server)
-        build-tool-depends: jbeam-edit:jbeam-lsp-server
-        build-depends:
-            jbeam-language-server,
-            lsp >=2.7,
-            lsp-test
 
     else
         buildable: False
@@ -527,7 +382,7 @@ benchmark jbeam-edit-bench
         text >=2.1.2,
         vector >=0.13
 
-    if ((!flag(lsp-server) && !flag(transformation)) && !flag(dump-ast))
+    if (!flag(transformation) && !flag(dump-ast))
         build-depends: containers >=0.8
 
     if os(windows)
