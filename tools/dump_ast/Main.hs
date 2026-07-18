@@ -39,7 +39,6 @@ main = do
       astDir = examplesDir </> "ast"
       jbeamAstDir = astDir </> "jbeam"
       jbflAstDir = astDir </> "jbfl"
-      lspDir = "test-extra" </> "language-server" </> "data"
       formattedDir = examplesDir </> "formatted_jbeam"
       transformedDir = examplesDir </> "transformed_jbeam"
    in do
@@ -48,11 +47,6 @@ main = do
         jbflFiles <- filter (isSuffixOf ".jbfl") <$> getDirectoryContents' jbflInputDir
         jbeamASTs <- mapM (dumpJbeamAST jbeamInputDir jbeamAstDir) jbeamFiles
         jbflASTs <- mapM (dumpJbflAST jbflInputDir jbflAstDir) jbflFiles
-        dumpFormattedJbeam'
-          jbflInputDir
-          lspDir
-          (lspDir </> "custom-minimal.jbfl")
-          (jbeamAstDir </> "fender.jbeam")
         mapM_
           (dumpFormattedJbeam formattedDir)
           [ (jbeamAST, jbflAST)
@@ -79,18 +73,6 @@ main = do
               transformedDir
           )
           jbeamFiles
-
-dumpFormattedJbeam' :: FilePath -> FilePath -> FilePath -> FilePath -> IO ()
-dumpFormattedJbeam' jbflDir outDir ruleFile jbeamFile = do
-  jbeam <- read <$> IO.readFile (dropExtension jbeamFile ++ ".hs")
-  (Right rs) <- parseDSL <$> LBS.readFile ruleFile
-  (Right rs') <- parseDSL <$> LBS.readFile (jbflDir </> "minimal.jbfl")
-  let outFilename = takeBaseName jbeamFile ++ "-" ++ takeBaseName ruleFile ++ "-jbfl.jbeam"
-   in dump outFilename (T.unpack $ formatNode (rs <> rs') jbeam)
-  where
-    dump filename contents =
-      let outFile = outDir </> filename
-       in saveDump outFile contents
 
 getDirectoryContents' :: FilePath -> IO [String]
 getDirectoryContents' path = filter (not . isPrefixOf ".#") <$> getDirectoryContents path
