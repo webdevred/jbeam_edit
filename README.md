@@ -139,7 +139,6 @@ For sample `.jbeam` files and JBFL rule files, see the [Examples Directory READM
 
 ## Planned Features / TODO
 
-- Language Server Protocol (LSP) support
 - Update specific ranges of vertices
 - Expanded tests and example files
 - Improved documentation
