@@ -94,7 +94,7 @@ Object
                               ( ArrayValue
                                 { avElements =
                                   [
-                                    ( String "bfl0", True ),
+                                    ( String "bfl_f", True ),
                                     ( Number
                                       ( NumberValue
                                         { nvText = "0.959", nvValue = 0.959 } ), True ),
@@ -257,7 +257,7 @@ Object
                               ( ArrayValue
                                 { avElements =
                                   [
-                                    ( String "bfr0", True ),
+                                    ( String "bfr_f", True ),
                                     ( Number
                                       ( NumberValue
                                         { nvText = "-0.906", nvValue = -0.906 } ), True ),
