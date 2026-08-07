@@ -95,7 +95,7 @@ library:
   ghc-options: [-Wunused-packages]
   source-dirs: src
   generated-other-modules: Paths_jbeam_edit
-  dependencies: [extra >= 1.7.13, megaparsec < 9.8, file-io]
+  dependencies: [extra >= 1.7.13, megaparsec, file-io]
   when:
     - condition: flag(transformation)
       cpp-options: -DENABLE_TRANSFORMATION
@@ -154,7 +154,7 @@ tests:
     source-dirs: test
     when:
       - condition: true
-        dependencies: [megaparsec < 9.8, hspec-megaparsec]
+        dependencies: [megaparsec, hspec-megaparsec]
   jbeam-edit-transformation-test:
     <<: *jbeam-test-common
     main: Spec.hs
