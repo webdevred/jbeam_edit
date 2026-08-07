@@ -7,6 +7,7 @@ module JbeamEdit.Parsing.Jbeam (
   parseNodesState,
 ) where
 
+import Control.Applicative (asum)
 import Control.Monad.State (State, evalState)
 import Control.Monad.State.Class
 import Data.Bifunctor (first)
@@ -164,13 +165,13 @@ scalarParser =
     , nullParser
     ]
   where
-    tryScalarParsers = MP.try . tryParsers . map MP.hidden
+    tryScalarParsers = asum . map MP.hidden
 
 nodeParser :: JbeamParser Node
 nodeParser = skipWhiteSpace *> (anyNode <|> failingParser expLabels)
   where
     expLabels = ["a valid scalar", "object", "array"]
-    anyNode = MP.try (tryParsers [arrayParser, objectParser, scalarParser])
+    anyNode = asum [arrayParser, objectParser, scalarParser]
 
 ---
 --- selectors for objects, object keys and arrays
