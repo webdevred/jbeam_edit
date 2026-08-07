@@ -43,8 +43,6 @@ extractBeamFromArray sectionMeta vec
               effectiveMeta = M.union inlineMeta sectionMeta
            in Just (Beam (mkBeamPair n1 n2) effectiveMeta)
   where
-    maybeString (String t) = Just t
-    maybeString _ = Nothing
     maybeObject n@(Object _) = Just n
     maybeObject _ = Nothing
 

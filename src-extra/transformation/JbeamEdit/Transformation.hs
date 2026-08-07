@@ -38,6 +38,7 @@ import JbeamEdit.Transformation.OMap1 qualified as OMap1
 import JbeamEdit.Transformation.Types
 import JbeamEdit.Transformation.VertexExtraction
 import System.OsPath
+import Data.Maybe (fromJust)
 
 prefixForType :: VertexTreeType -> Text
 prefixForType LeftTree = "l"
@@ -158,19 +159,24 @@ updateSupportVertexName vType (AnnotatedVertex c v m) = AnnotatedVertex c (v {vN
     name = vName v
     newName = dropIndex name <> prefixForType vType
 
+-- | Vertices whose name appears in the given set (e.g. names referenced by
+-- "triangles") are never eligible to become support vertices, regardless of
+-- their connection count / threshold.
 moveSupportVertices
-  :: UpdateNamesMap
+  :: Set Text
+  -> UpdateNamesMap
   -> TransformationConfig
   -> VertexConnMap
   -> M.Map VertexTreeType [AnnotatedVertex]
   -> (VertexForest, M.Map VertexTreeType [AnnotatedVertex])
-moveSupportVertices newNames tfCfg connMap vsPerType =
+moveSupportVertices protectedNames newNames tfCfg connMap vsPerType =
   let supportVertices :: [(VertexTreeType, AnnotatedVertex)]
       supportVertices =
         [ (vType, av)
         | (vType, vs) <- M.toList vsPerType
         , av <- vs
         , let name = vName (aVertex av)
+        , name `S.notMember` protectedNames
         , let vertexCount = length vs
               thrCount =
                 max 1 (round $ supportThreshold tfCfg / 100 * fromIntegral vertexCount)
@@ -216,12 +222,13 @@ notElemByVertexName
 notElemByVertexName vertex = S.notMember (anVertexName vertex)
 
 moveVerticesInVertexForest
-  :: Node
+  :: Set Text
+  -> Node
   -> UpdateNamesMap
   -> TransformationConfig
   -> VertexForest
   -> Either Text ([Node], VertexForest)
-moveVerticesInVertexForest topNode newNames tfCfg vertexTrees =
+moveVerticesInVertexForest triangleVertexNames topNode newNames tfCfg vertexTrees =
   let allVertices =
         concatMap
           (concatMap (NE.toList . tAnnotatedVertices . snd) . toList)
@@ -234,7 +241,7 @@ moveVerticesInVertexForest topNode newNames tfCfg vertexTrees =
                 (badBeamNodes, conns) <-
                   vertexConns (maxSupportCoordinates tfCfg) topNode groupedVertices
                 let (supportForest, nonSupportVertices) =
-                      moveSupportVertices newNames tfCfg conns groupedVertices
+                      moveSupportVertices triangleVertexNames newNames tfCfg conns groupedVertices
                 newForest <-
                   foldM
                     (addVertexTreeToForest newNames tfCfg nonSupportVertices vertexTrees)
@@ -500,6 +507,31 @@ updateOtherFiles formattingConfig updatedNames filepath = do
             (formatNodeAndWrite formattingConfig filepath node')
     Left err -> putErrorLine err
 
+trianglesQuery :: NP.NodePath
+trianglesQuery = fromList [NP.ObjectIndex 0, NP.ObjectKey "triangles"]
+
+extractTexts :: Node -> Maybe (Set Text)
+extractTexts node = do
+  outer <- expectArray node
+  texts <- mapM extractTriple (V.toList outer)
+  pure . S.fromList $ concatMap (\(a, b, c) -> [a, b, c]) texts
+  where
+    extractTriple n = do
+      inner <- expectArray n
+      case V.toList inner of
+        [a, b, c] -> (,,) <$> maybeString a <*> maybeString b <*> maybeString c
+        _ -> Nothing
+
+-- | Names of all vertices referenced by any triangle in the "triangles"
+-- section. Returns an empty set (not an error) if the section is absent;
+-- fails only if the section exists but is malformed.
+getTriangleVertexNames :: Node -> Either Text (Set Text)
+getTriangleVertexNames topNode =
+  case NP.queryNodes trianglesQuery topNode of
+    Left _ -> Right S.empty
+    Right node ->
+      maybe (Left "triangles node malformed: expected array of [String,String,String] triples") Right (extractTexts node)
+
 transform
   :: UpdateNamesMap
   -> TransformationConfig
@@ -509,10 +541,11 @@ transform newNames tfCfg topNode =
   getVertexForest (xGroupBreakpoints tfCfg) verticesQuery topNode
     >>= getNamesAndUpdateTree
   where
-    getNamesAndUpdateTree (badNodes, globals, vertexForest) =
+    getNamesAndUpdateTree (badNodes, globals, vertexForest) = do
+      triangleVertexNames <- getTriangleVertexNames topNode
       let vertexNames = getVertexNamesInForest vertexForest
-       in moveVerticesInVertexForest topNode newNames tfCfg vertexForest
-            >>= getUpdatedNamesAndUpdateGlobally badNodes globals vertexNames
+      moveVerticesInVertexForest triangleVertexNames topNode newNames tfCfg vertexForest
+        >>= getUpdatedNamesAndUpdateGlobally badNodes globals vertexNames
     getUpdatedNamesAndUpdateGlobally badVertexNodes globals oldVertexNames (badBeamNodes, updatedVertexForest) =
       let updatedVertexNames = getVertexNamesInForest updatedVertexForest
           updateMap = M.fromList $ on zip M.elems oldVertexNames updatedVertexNames

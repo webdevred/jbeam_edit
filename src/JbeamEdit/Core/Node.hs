@@ -6,6 +6,7 @@ module JbeamEdit.Core.Node (
   isNumberNode,
   isStringNode,
   maybeObjectKey,
+  maybeString,
   isSinglelineComment,
   commentIsAttachedToPreviousNode,
   isComplexNode,
@@ -178,6 +179,10 @@ expectArray _ = Nothing
 expectObject :: Node -> Maybe (Vector Node)
 expectObject (Object ov) = Just (ovNodes ov)
 expectObject _ = Nothing
+
+maybeString :: Node -> Maybe Text
+maybeString (String t) = Just t
+maybeString _ = Nothing
 
 possiblyChildren :: Node -> Maybe (Vector Node)
 possiblyChildren n = expectArray n <|> expectObject n
