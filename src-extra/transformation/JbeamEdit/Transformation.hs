@@ -38,7 +38,6 @@ import JbeamEdit.Transformation.OMap1 qualified as OMap1
 import JbeamEdit.Transformation.Types
 import JbeamEdit.Transformation.VertexExtraction
 import System.OsPath
-import Data.Maybe (fromJust)
 
 prefixForType :: VertexTreeType -> Text
 prefixForType LeftTree = "l"

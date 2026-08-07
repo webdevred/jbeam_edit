@@ -43,12 +43,12 @@ import Data.Vector qualified as V
 newtype ArrayValue = ArrayValue
   { avElements :: Vector (Node, Bool)
   }
-  deriving (Eq, Ord, Read, Show)
+  deriving stock (Eq, Ord, Read, Show)
 
 newtype ObjectValue = ObjectValue
   { ovElements :: Vector (Node, Bool)
   }
-  deriving (Eq, Ord, Read, Show)
+  deriving stock (Eq, Ord, Read, Show)
 
 type ObjectKey = (Node, Node)
 
