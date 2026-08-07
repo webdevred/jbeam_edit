@@ -158,9 +158,10 @@ updateSupportVertexName vType (AnnotatedVertex c v m) = AnnotatedVertex c (v {vN
     name = vName v
     newName = dropIndex name <> prefixForType vType
 
--- | Vertices whose name appears in the given set (e.g. names referenced by
--- "triangles") are never eligible to become support vertices, regardless of
--- their connection count / threshold.
+{- | Vertices whose name appears in the given set (e.g. names referenced by
+"triangles") are never eligible to become support vertices, regardless of
+their connection count / threshold.
+-}
 moveSupportVertices
   :: Set Text
   -> UpdateNamesMap
@@ -521,15 +522,21 @@ extractTexts node = do
         [a, b, c] -> (,,) <$> maybeString a <*> maybeString b <*> maybeString c
         _ -> Nothing
 
--- | Names of all vertices referenced by any triangle in the "triangles"
--- section. Returns an empty set (not an error) if the section is absent;
--- fails only if the section exists but is malformed.
+{- | Names of all vertices referenced by any triangle in the "triangles"
+section. Returns an empty set (not an error) if the section is absent;
+fails only if the section exists but is malformed.
+-}
 getTriangleVertexNames :: Node -> Either Text (Set Text)
 getTriangleVertexNames topNode =
   case NP.queryNodes trianglesQuery topNode of
     Left _ -> Right S.empty
     Right node ->
-      maybe (Left "triangles node malformed: expected array of [String,String,String] triples") Right (extractTexts node)
+      maybe
+        ( Left
+            "triangles node malformed: expected array of [String,String,String] triples"
+        )
+        Right
+        (extractTexts node)
 
 transform
   :: UpdateNamesMap
@@ -543,7 +550,12 @@ transform newNames tfCfg topNode =
     getNamesAndUpdateTree (badNodes, globals, vertexForest) = do
       triangleVertexNames <- getTriangleVertexNames topNode
       let vertexNames = getVertexNamesInForest vertexForest
-      moveVerticesInVertexForest triangleVertexNames topNode newNames tfCfg vertexForest
+      moveVerticesInVertexForest
+        triangleVertexNames
+        topNode
+        newNames
+        tfCfg
+        vertexForest
         >>= getUpdatedNamesAndUpdateGlobally badNodes globals vertexNames
     getUpdatedNamesAndUpdateGlobally badVertexNodes globals oldVertexNames (badBeamNodes, updatedVertexForest) =
       let updatedVertexNames = getVertexNamesInForest updatedVertexForest
