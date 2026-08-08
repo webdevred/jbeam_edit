@@ -10,9 +10,8 @@ module JbeamEdit.Formatting (
   emptyState,
 ) where
 
-import System.IO
 import Data.Bool (bool)
-import Data.ByteString.Lazy qualified as LBS (fromStrict,hPutStr)
+import Data.ByteString.Lazy qualified as LBS (fromStrict, hPutStr)
 import Data.Char (isSpace)
 import Data.Foldable.Extra (notNull)
 import Data.Map.Strict (Map)
@@ -53,6 +52,7 @@ import JbeamEdit.Formatting.Rules (
 import JbeamEdit.Formatting.Rules.ComplexNewLine qualified as CNL
 import JbeamEdit.Formatting.Rules.TrailingComma qualified as TC
 import System.File.OsPath qualified as OS
+import System.IO
 import System.OsPath (OsPath)
 
 data FormattingState = FormattingState
@@ -477,8 +477,8 @@ formatNodeAndWrite
 formatNodeAndWrite newline rs outFile node = do
   handle <- OS.openFile outFile WriteMode
   hSetNewlineMode handle (NewlineMode LF newline)
-  LBS.hPutStr handle .
-    LBS.fromStrict
+  LBS.hPutStr handle
+    . LBS.fromStrict
     . encodeUtf8
     . replaceNewlines
     $ formatNode rs node

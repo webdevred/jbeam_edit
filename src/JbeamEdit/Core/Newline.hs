@@ -9,6 +9,6 @@ detectNewline content =
   case LBS8.elemIndex '\r' content of
     Nothing -> LF
     Just idx ->
-      case LBS.uncons (LBS.drop (idx+1) content) of
+      case LBS.uncons (LBS.drop (idx + 1) content) of
         Just (10, _) -> CRLF -- '\n'
         _ -> detectNewline (LBS.drop (idx + 1) content)
