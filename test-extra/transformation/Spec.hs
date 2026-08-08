@@ -85,6 +85,24 @@ beamValidationSpec = do
     it "has no duplicate beams" $
       findDuplicateBeams internalBeams `shouldBe` []
 
+{- | Real jbeam files commonly interleave per-triangle metadata objects
+(e.g. `{"groundModel": "metal"}`) among triangle rows. That is normal,
+not malformed input. `getTriangleVertexNames` used to fail the whole
+`transform` call on the first such row instead of skipping it.
+-}
+trianglesWithMetadataFixture :: FilePath
+trianglesWithMetadataFixture = "examples/regression_jbeam/triangles-with-metadata-repro.jbeam"
+
+triangleMetadataSpec :: Spec
+triangleMetadataSpec =
+  describe "triangles with inline metadata rows"
+    . it "does not fail transform"
+    $ do
+      topNode <- parseJbeamFile trianglesWithMetadataFixture
+      case transform M.empty newTransformationConfig topNode of
+        Left err -> expectationFailure ("transform failed: " ++ T.unpack err)
+        Right _ -> pure ()
+
 main :: IO ()
 main = hspec $ do
   let exampleConfigPath = unsafeEncodeUtf "examples/jbeam-edit.yaml"
@@ -102,3 +120,4 @@ main = hspec $ do
   mapM_ (testInputFile "cfg-default" newTransformationConfig) inputFiles
   mapM_ (testInputFile "cfg-example" tfConfig) inputFiles
   beamValidationSpec
+  triangleMetadataSpec

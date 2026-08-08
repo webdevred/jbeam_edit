@@ -10,7 +10,7 @@ import Data.List.NonEmpty (NonEmpty)
 import Data.List.NonEmpty qualified as NE
 import Data.Map (Map)
 import Data.Map qualified as M
-import Data.Maybe (fromMaybe)
+import Data.Maybe (fromMaybe, mapMaybe)
 import Data.Monoid.Extra (mwhen)
 import Data.Ord (Down (Down), comparing)
 import Data.Scientific (Scientific)
@@ -510,11 +510,21 @@ updateOtherFiles formattingConfig updatedNames filepath = do
 trianglesQuery :: NP.NodePath
 trianglesQuery = fromList [NP.ObjectIndex 0, NP.ObjectKey "triangles"]
 
-extractTexts :: Node -> Maybe (Set Text)
-extractTexts node = do
-  outer <- expectArray node
-  texts <- mapM extractTriple (V.toList outer)
-  pure . S.fromList $ concatMap (\(a, b, c) -> [a, b, c]) texts
+{- | Vertex names referenced by the triangle rows in a "triangles" array.
+Comment and metadata (object) rows are skipped rather than treated as
+errors, because per-triangle metadata objects (e.g. `{"groundModel": "metal"}`)
+are normal in real jbeam files, the same tolerance BeamExtraction.possiblyBeam
+has for "beams". Any other row that isn't a [String, String, String]
+triple (the header row included, harmlessly) is likewise skipped rather
+than failing the whole section.
+-}
+extractTriangleVertexNames :: Vector Node -> Set Text
+extractTriangleVertexNames =
+  S.fromList
+    . concatMap (\(a, b, c) -> [a, b, c])
+    . mapMaybe extractTriple
+    . V.toList
+    . V.filter (\n -> not (isCommentNode n) && not (isObjectNode n))
   where
     extractTriple n = do
       inner <- expectArray n
@@ -524,19 +534,13 @@ extractTexts node = do
 
 {- | Names of all vertices referenced by any triangle in the "triangles"
 section. Returns an empty set (not an error) if the section is absent;
-fails only if the section exists but is malformed.
+fails only if the section exists but its value isn't an array at all.
 -}
 getTriangleVertexNames :: Node -> Either Text (Set Text)
 getTriangleVertexNames topNode =
   case NP.queryNodes trianglesQuery topNode of
     Left _ -> Right S.empty
-    Right node ->
-      maybe
-        ( Left
-            "triangles node malformed: expected array of [String,String,String] triples"
-        )
-        Right
-        (extractTexts node)
+    Right node -> extractTriangleVertexNames <$> NP.expectArray trianglesQuery node
 
 transform
   :: UpdateNamesMap

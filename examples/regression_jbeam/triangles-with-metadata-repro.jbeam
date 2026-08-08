@@ -1,0 +1,23 @@
+{
+"testpart":{
+    "nodes":[
+        ["id", "posX", "posY", "posZ"],
+        // Synthetic regression-test fixture, not vetted by the jbeam
+        // maintainer and not intended as a demo/example.
+        ["n0", 1.0, -1.0, 0.0],
+        ["n1", 1.0, 0.0, 0.0],
+        ["n2", 1.0, 1.0, 0.0],
+    ],
+    "beams":[
+        ["id1:", "id2:"],
+        ["n0", "n1"],
+        ["n1", "n2"],
+    ],
+    "triangles":[
+        ["id1:", "id2:", "id3:"],
+        {"groundModel": "metal"},
+        {"dragCoef": 30},
+        ["n0", "n1", "n2"],
+    ],
+},
+}
