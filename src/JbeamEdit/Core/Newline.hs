@@ -10,5 +10,5 @@ detectNewline content =
     Nothing -> LF
     Just idx ->
       case LBS.index content (idx + 1) of
-        10 -> CRLF  -- '\n'
-        _  -> detectNewline (LBS.drop (idx + 1) content)
+        10 -> CRLF -- '\n'
+        _ -> detectNewline (LBS.drop (idx + 1) content)
