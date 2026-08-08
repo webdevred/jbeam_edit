@@ -29,7 +29,6 @@ import JbeamEdit.Core.Node (
   AssociationDirection (..),
   InternalComment (..),
   Node (..),
-  NumberValue (..),
   ObjectValue (..),
   mkNumberValue,
  )
