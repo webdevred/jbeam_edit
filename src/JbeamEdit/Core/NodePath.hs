@@ -16,9 +16,7 @@ import Data.Vector (Vector)
 import Data.Vector qualified as V
 import GHC.IsList (IsList (..))
 import JbeamEdit.Core.Node qualified as N (
-  ArrayValue (..),
   Node (..),
-  ObjectValue (..),
   avNodes,
   expectArray,
   isCommentNode,
