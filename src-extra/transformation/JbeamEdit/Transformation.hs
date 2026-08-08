@@ -5,7 +5,7 @@ import Data.Bifunctor (first)
 import Data.Bool (bool)
 import Data.Foldable.Extra (notNull)
 import Data.Function (on)
-import Data.List (partition)
+import Data.List (foldl', partition)
 import Data.List.NonEmpty (NonEmpty)
 import Data.List.NonEmpty qualified as NE
 import Data.Map (Map)
