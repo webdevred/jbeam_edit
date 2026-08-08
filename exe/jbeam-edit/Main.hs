@@ -5,6 +5,7 @@ module Main (
 import CommandLineOptions
 import Control.Monad (when)
 import Data.Text (Text)
+import JbeamEdit.Core.Newline
 import JbeamEdit.Core.Node (Node)
 import JbeamEdit.Formatting (RuleSet, formatNodeAndWrite)
 import JbeamEdit.Formatting.Config
@@ -49,8 +50,11 @@ editFile opts = do
     Just filename -> do
       createBackupFile filename opts
       contents <- tryReadFile [] filename
-      case contents >>= parseNodes of
-        Right ns -> processNodes (detectNewline contents) opts filename ns formattingConfig
+      case contents of
+        Right contents' ->
+          case parseNodes contents' of
+            Right ns -> processNodes (detectNewline contents') opts filename ns formattingConfig
+            Left err -> putErrorLine err
         Left err -> putErrorLine err
     Nothing -> putErrorLine "missing arg filename"
 
