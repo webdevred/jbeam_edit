@@ -2,7 +2,6 @@
 
 module JbeamEdit.Formatting.Config (localRuleFile, readFormattingConfig, copyToConfigDir, ConfigType (..)) where
 
-import Control.Monad.Extra (unlessM)
 import Data.Foldable (traverse_)
 import Data.Text qualified as T
 import GHC.IO.Exception (IOErrorType (NoSuchThing))
