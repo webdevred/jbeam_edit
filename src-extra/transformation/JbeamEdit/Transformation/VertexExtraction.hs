@@ -117,13 +117,13 @@ breakVertices vertexPrefix allVertexNames ns = go [] ns allVertexNames
                   Right
                     ( vertexNames
                     , reverse (maybeConsComment [node] assocPriorCmt)
-                    , metaBefore ++ rest
+                    , reverse metaBefore ++ rest
                     )
                 else
                   Right
                     ( vertexNames
                     , reverse (maybeConsComment currentTree assocPriorCmt)
-                    , metaBefore ++ (node : rest)
+                    , reverse metaBefore ++ (node : rest)
                     )
       | otherwise = go (node : acc) rest vertexNames
       where
