@@ -2,14 +2,18 @@
 # tools/extract-and-format-jbeam/transform-run.sh
 #
 # Extracts JBeam structural files from BeamNG vehicle zips, runs --transform
-# on each, validates beam references, and prints a summary.
+# on each twice, validates beam references, and prints a summary.
 #
-# Output in TRANSFORM_DIR:
-#   <file>.orig     -- original extracted file
-#   <file>          -- transformed file (or original if transformation failed)
-#   <file>.diff     -- unified diff (empty if no changes)
-#   <file>.err      -- stderr from transformation (only if non-empty)
-#   beams.err       -- stderr from --validate-beams
+# Every file gets its own directory under TRANSFORM_DIR/<vehicle>/<file>/,
+# because --transform also rewrites references in the other .jbeam files next
+# to it. Each of those directories holds:
+#   <file>.orig             -- original extracted file
+#   <file>                  -- transformed file (or original if it failed)
+#   <file>.diff             -- unified diff (empty if no changes)
+#   <file>.once             -- output of the first pass, kept for comparison
+#   <file>.second-pass.diff -- what a second --transform changed, if anything
+#   <file>.err              -- stderr from transformation (only if non-empty)
+#   beams.err               -- stderr from --validate-beams
 #
 # Usage: bash tools/extract-and-format-jbeam/transform-run.sh [options] [file-list] [filter]
 #
@@ -68,6 +72,11 @@ fi
 TRANSFORM_DIR="$(mktemp -d /tmp/jbeam-edit-transform-XXXXXX)"
 echo "TRANSFORM_DIR=$TRANSFORM_DIR"
 
+# The tool runs from a work directory, so point it back at the repo for the
+# default ruleset it ships as a data file. Without this it falls back to no
+# formatting rules at all and blames a parse error for it.
+export jbeam_edit_datadir="$REPO_ROOT"
+
 node_names() {
   # Extract node names from a jbeam file: first string in arrays with 4 elements
   # where elements 2-4 look like numbers. Prints one name per line.
@@ -93,6 +102,7 @@ count_renames() {
 extracted=0
 transformed=0
 errors=0
+unstable=0
 declare -a rows
 
 while read -r file zip; do
@@ -113,8 +123,15 @@ while read -r file zip; do
     continue
   fi
 
-  beamng_extract_file "$zip_path" "$inner_path" "$TRANSFORM_DIR/$file"
-  cp "$TRANSFORM_DIR/$file" "$TRANSFORM_DIR/$file.orig"
+  # Each file gets its own directory. --transform also rewrites vehicle
+  # references in every other .jbeam next to the file, so files sharing a
+  # working directory rewrite each other and the measurements come out
+  # against the wrong baseline.
+  work_dir="$TRANSFORM_DIR/${zip%.zip}/${file%.jbeam}"
+  mkdir -p "$work_dir"
+
+  beamng_extract_file "$zip_path" "$inner_path" "$work_dir/$file"
+  cp "$work_dir/$file" "$work_dir/$file.orig"
   extracted=$((extracted + 1))
 
   if $CROSS_FILE; then
@@ -122,64 +139,88 @@ while read -r file zip; do
     while IFS= read -r other_inner; do
       other_file="$(basename "$other_inner")"
       [[ "$other_file" == "$file" ]] && continue
-      [[ -f "$TRANSFORM_DIR/$other_file" ]] && continue
-      beamng_extract_file "$zip_path" "$other_inner" "$TRANSFORM_DIR/$other_file"
+      [[ -f "$work_dir/$other_file" ]] && continue
+      beamng_extract_file "$zip_path" "$other_inner" "$work_dir/$other_file"
     done < <(beamng_list_jbeam_files "$zip_path")
   fi
 
-  stderr_file="$TRANSFORM_DIR/$file.err"
+  stderr_file="$work_dir/$file.err"
   if cabal run jbeam-edit --project-file=cabal.project.dev -- \
-    --transform "$TRANSFORM_DIR/$file" \
+    --transform "$work_dir/$file" \
     >/dev/null 2>"$stderr_file"; then
-    rm -f "$TRANSFORM_DIR/${file%.jbeam}.bak.jbeam"
+    rm -f "$work_dir/${file%.jbeam}.bak.jbeam"
     transformed=$((transformed + 1))
     outcome="success"
   else
-    cp "$TRANSFORM_DIR/$file.orig" "$TRANSFORM_DIR/$file"
+    cp "$work_dir/$file.orig" "$work_dir/$file"
     outcome="error"
     errors=$((errors + 1))
   fi
   [[ ! -s "$stderr_file" ]] && rm -f "$stderr_file"
 
-  diff -u "$TRANSFORM_DIR/$file.orig" "$TRANSFORM_DIR/$file" \
-    >"$TRANSFORM_DIR/$file.diff" || true
+  diff -u "$work_dir/$file.orig" "$work_dir/$file" \
+    >"$work_dir/$file.diff" || true
 
-  renames="$(count_renames "$TRANSFORM_DIR/$file.orig" "$TRANSFORM_DIR/$file")"
+  renames="$(count_renames "$work_dir/$file.orig" "$work_dir/$file")"
+
+  # Transforming an already transformed file must not change it again. One
+  # pass tells you almost nothing: names that grow, comments that swap places
+  # and metadata that drifts all look like success until the second run.
+  fixed_point="n/a"
+  if [[ "$outcome" == "success" ]]; then
+    cp "$work_dir/$file" "$work_dir/$file.once"
+    if cabal run jbeam-edit --project-file=cabal.project.dev -- \
+      --transform "$work_dir/$file" \
+      >/dev/null 2>>"$stderr_file"; then
+      rm -f "$work_dir/${file%.jbeam}.bak.jbeam"
+      if diff -u "$work_dir/$file.once" "$work_dir/$file" \
+        >"$work_dir/$file.second-pass.diff"; then
+        fixed_point="yes"
+        rm -f "$work_dir/$file.second-pass.diff"
+      else
+        fixed_point="NO"
+        unstable=$((unstable + 1))
+      fi
+    else
+      fixed_point="error"
+      unstable=$((unstable + 1))
+    fi
+    cp "$work_dir/$file.once" "$work_dir/$file"
+  fi
 
   warnings=0
   [[ -f "$stderr_file" ]] && warnings="$(wc -l <"$stderr_file")"
 
-  rows+=("$file	$zip	$outcome	$renames	$warnings")
+  rows+=("$file	$zip	$outcome	$renames	$warnings	$fixed_point")
 done <"$FILE_LIST"
 
-# Beam validation
+# Beam validation, per vehicle so files from different vehicles cannot resolve
+# each other's references.
 echo ""
-echo "Running --validate-beams on $TRANSFORM_DIR ..."
-beams_err="$TRANSFORM_DIR/beams.err"
-(cd "$TRANSFORM_DIR" && cabal run jbeam-edit \
-  --project-file="$REPO_ROOT/cabal.project.dev" -- \
-  --validate-beams 2>"$beams_err") || true
-
+echo "Running --validate-beams per vehicle in $TRANSFORM_DIR ..."
 unknown_verts=0
 dup_beams=0
-if [[ -f "$beams_err" ]]; then
-  unknown_verts="$(grep -c 'unknown vertex' "$beams_err" || true)"
-  dup_beams="$(grep -c 'duplicate beam' "$beams_err" || true)"
-  unknown_verts="${unknown_verts:-0}"
-  dup_beams="${dup_beams:-0}"
-fi
+while IFS= read -r dir; do
+  beams_err="$dir/beams.err"
+  (cd "$dir" && cabal run jbeam-edit \
+    --project-file="$REPO_ROOT/cabal.project.dev" -- \
+    --validate-beams 2>"$beams_err") || true
+  [[ -f "$beams_err" ]] || continue
+  unknown_verts=$((unknown_verts + $(grep -c 'unknown vertex' "$beams_err" || true)))
+  dup_beams=$((dup_beams + $(grep -c 'duplicate beam' "$beams_err" || true)))
+done < <(find "$TRANSFORM_DIR" -mindepth 2 -maxdepth 2 -type d)
 
 echo ""
 echo "--- Summary ---"
-echo "extracted: $extracted, transformed: $transformed, errors: $errors"
+echo "extracted: $extracted, transformed: $transformed, errors: $errors, not a fixed point: $unstable"
 echo ""
-printf '%-40s %-20s %-10s %7s %8s\n' \
-  "FILE" "ZIP" "OUTCOME" "RENAMED" "WARNINGS"
-printf '%-40s %-20s %-10s %7s %8s\n' \
-  "----" "---" "-------" "-------" "--------"
+printf '%-40s %-20s %-10s %7s %8s %11s\n' \
+  "FILE" "ZIP" "OUTCOME" "RENAMED" "WARNINGS" "FIXED POINT"
+printf '%-40s %-20s %-10s %7s %8s %11s\n' \
+  "----" "---" "-------" "-------" "--------" "-----------"
 for row in "${rows[@]}"; do
-  IFS=$'\t' read -r f z out ren warn <<<"$row"
-  printf '%-40s %-20s %-10s %7s %8s\n' "$f" "$z" "$out" "$ren" "$warn"
+  IFS=$'\t' read -r f z out ren warn fixed <<<"$row"
+  printf '%-40s %-20s %-10s %7s %8s %11s\n' "$f" "$z" "$out" "$ren" "$warn" "$fixed"
 done
 echo ""
 echo "Beam validation: unknown vertices=$unknown_verts, duplicate beams=$dup_beams"
