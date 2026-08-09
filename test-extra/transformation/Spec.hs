@@ -4,6 +4,7 @@ module Spec (
 
 import Data.List (isPrefixOf, isSuffixOf)
 import Data.Map qualified as M
+import Data.Set (Set)
 import Data.Set qualified as S
 import Data.Text (Text)
 import Data.Text qualified as T
@@ -108,6 +109,46 @@ vertexPositionsInOrder topNode =
       , Just (Number yNum) <- [inner V.!? 2]
       ]
 
+{- | Every vertex coordinate in a top node's "nodes" section. Positions
+survive renaming, so they identify a vertex across a transform.
+-}
+vertexCoordinates :: Node -> Set (Double, Double, Double)
+vertexCoordinates topNode =
+  case NP.queryNodes nodesQuery topNode >>= NP.expectArray nodesQuery of
+    Left _ -> S.empty
+    Right rows ->
+      S.fromList
+        [ (realToFrac (nvValue x), realToFrac (nvValue y), realToFrac (nvValue z))
+        | row <- V.toList rows
+        , Just inner <- [expectArray row]
+        , Just (String name) <- [inner V.!? 0]
+        , name /= "id"
+        , Just (Number x) <- [inner V.!? 1]
+        , Just (Number y) <- [inner V.!? 2]
+        , Just (Number z) <- [inner V.!? 3]
+        ]
+
+{- | Names ending in a letter rather than a digit all map to the same
+SupportKey, so an insert that replaced instead of merged used to drop
+every group but the last.
+-}
+letterEndingNodesFixture :: FilePath
+letterEndingNodesFixture =
+  "examples/regression_jbeam/letter-ending-nodes-repro.jbeam"
+
+letterEndingNodesSpec :: Spec
+letterEndingNodesSpec =
+  describe "letter-ending node names"
+    . it "keeps every vertex through a transform"
+    $ do
+      topNode <- parseJbeamFile letterEndingNodesFixture
+      let expected = vertexCoordinates topNode
+      expected `shouldNotBe` S.empty
+      case transform M.empty newTransformationConfig topNode of
+        Left err -> expectationFailure ("transform failed: " ++ T.unpack err)
+        Right (_, _, _, resultNode) ->
+          vertexCoordinates resultNode `shouldBe` expected
+
 {- | Three small hubs (nl0, nl10, nl20; front/mid/rear), each beamed to
 three of its own ordinary leaf nodes (see issue #215). At
 support-threshold 20 with 12 nodes in the group, thrCount =
@@ -160,3 +201,4 @@ main = hspec $ do
   mapM_ (testInputFile "cfg-example" tfConfig) inputFiles
   beamValidationSpec
   supportRenameIdempotencySpec
+  letterEndingNodesSpec
