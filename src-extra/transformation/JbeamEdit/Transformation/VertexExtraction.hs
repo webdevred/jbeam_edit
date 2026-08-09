@@ -148,7 +148,8 @@ insertTreeInMap
   :: VertexTree -> OMap1 VertexTreeKey VertexTree -> OMap1 VertexTreeKey VertexTree
 insertTreeInMap (VertexTree newComments newVertexGroups) omap =
   let vType = getVertexTreePrefix newVertexGroups
-      merge _ (VertexTree ec ev) = VertexTree ec (ev <> newVertexGroups)
+      merge (VertexTree nc _) (VertexTree ec ev) =
+        VertexTree (if null ec then nc else ec) (ev <> newVertexGroups)
    in OMap1.insertWith merge vType (VertexTree newComments newVertexGroups) omap
 
 isSupportVertex :: Vertex -> Bool

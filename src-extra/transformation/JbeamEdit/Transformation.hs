@@ -110,6 +110,19 @@ groupByPrefix origTree =
     . NE.map (prefixForVertexKey origTree)
     . NE.groupWith1 (dropIndex . vName . aVertex)
 
+{- | Like 'groupByPrefix', but support vertices always share a single
+SupportKey bucket instead of being split by name prefix.
+-}
+groupForType
+  :: VertexTreeType
+  -> Maybe (OMap1 VertexTreeKey VertexTree)
+  -> NonEmpty AnnotatedVertex
+  -> OMap1 VertexTreeKey VertexTree
+groupForType SupportTree origTree vs =
+  let topComments = concatMap tComments (OMap1.lookup SupportKey =<< origTree)
+   in OMap1.singleton (SupportKey, VertexTree topComments vs)
+groupForType _ origTree vs = groupByPrefix origTree vs
+
 commentsExists :: Maybe (OMap1 VertexTreeKey VertexTree) -> Bool
 commentsExists = any (notNull . tComments . OMap1.head)
 
@@ -129,7 +142,7 @@ addVertexTreeToForest newNames tf grouped forest forestAcc t =
             addSideComment t (commentsExists origTree)
               . addPrefixComments t
               . fmap (sortVertices t newNames tf)
-              $ groupByPrefix origTree groupsForT
+              $ groupForType t origTree groupsForT
        in Right (M.insertWith mergeOMap1Trees t tree forestAcc)
     Nothing -> Right forestAcc
 
@@ -140,7 +153,8 @@ mergeOMap1Trees
 mergeOMap1Trees new existing =
   foldl' go existing (OMap1.assocs new)
   where
-    merge (VertexTree _ newVerts) (VertexTree ec ev) = VertexTree ec (ev <> newVerts)
+    merge (VertexTree nc newVerts) (VertexTree ec ev) =
+      VertexTree (bool nc ec (notNull ec)) (ev <> newVerts)
     go acc (k, v) = OMap1.insertWith merge k v acc
 
 groupAnnotatedVertices

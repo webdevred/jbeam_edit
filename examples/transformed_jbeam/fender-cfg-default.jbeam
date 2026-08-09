@@ -49,15 +49,13 @@
             {"selfCollision" : false},
             ["bfsl",   0.684,  -1.079, 0.507],
             ["bfsr",   -0.623, -1.064, 0.507],
-
-            // Support nodes
-            {"group" : "cot_fender_r"},
-            ["bfr_sr", -0.906, -1.737, 0.578],
             {"collision" : true},
             {"group" : "cot_fender_l"},
             {"nodeWeight" : 0.65},
             {"selfCollision" : true},
             ["bfl_sl", 0.959,  -1.762, 0.576],
+            {"group" : "cot_fender_r"},
+            ["bfr_sr", -0.906, -1.737, 0.578],
         ],
         "beams" : [
             ["id1:", "id2:"],
