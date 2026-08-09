@@ -163,15 +163,6 @@ groupAnnotatedVertices
   -> Either Text (VertexTreeType, [AnnotatedVertex])
 groupAnnotatedVertices brks g = (,[g]) <$> determineGroup' brks (aVertex g)
 
-updateSupportVertexName
-  :: VertexTreeType
-  -> AnnotatedVertex
-  -> AnnotatedVertex
-updateSupportVertexName vType (AnnotatedVertex c v m) = AnnotatedVertex c (v {vName = newName}) m
-  where
-    name = vName v
-    newName = dropIndex name <> prefixForType vType
-
 moveSupportVertices
   :: UpdateNamesMap
   -> TransformationConfig
@@ -179,10 +170,10 @@ moveSupportVertices
   -> M.Map VertexTreeType [AnnotatedVertex]
   -> (VertexForest, M.Map VertexTreeType [AnnotatedVertex])
 moveSupportVertices newNames tfCfg connMap vsPerType =
-  let supportVertices :: [(VertexTreeType, AnnotatedVertex)]
+  let supportVertices :: [AnnotatedVertex]
       supportVertices =
-        [ (vType, av)
-        | (vType, vs) <- M.toList vsPerType
+        [ av
+        | vs <- M.elems vsPerType
         , av <- vs
         , let name = vName (aVertex av)
         , let vertexCount = length vs
@@ -209,16 +200,13 @@ moveSupportVertices newNames tfCfg connMap vsPerType =
                   , VertexTree
                       [sideComment SupportTree]
                       ( snd
-                          . mapAccumL
-                            assignSupportNames
-                            M.empty
-                          . NE.sortBy (compareAV thr SupportTree)
-                          $ NE.map (uncurry updateSupportVertexName) vs
+                          . mapAccumL assignSupportNames M.empty
+                          $ NE.sortBy (compareAV thr SupportTree) vs
                       )
                   )
               )
 
-      supportVertexNames = foldr (S.insert . anVertexName . snd) S.empty supportVertices
+      supportVertexNames = foldr (S.insert . anVertexName) S.empty supportVertices
 
       remainingVertices :: M.Map VertexTreeType [AnnotatedVertex]
       remainingVertices =
@@ -372,6 +360,26 @@ renameVertexId treeType idx vertexPrefix =
   let idx' = mwhen (treeType /= SupportTree || idx /= 0) (intToText idx)
    in vertexPrefix <> idx'
 
+sideLetters :: String
+sideLetters = ['l', 'm', 'r']
+
+{- | Strip a trailing side letter and a trailing @s@ from a prefix. Feeding an
+already renamed support vertex back in then lands on the same name: @rl_fsm@
+strips to @rl_f@ and is built back up to @rl_fsm@.
+-}
+dropSupportSuffix :: Text -> Text
+dropSupportSuffix prefix =
+  bool
+    withoutSide
+    (T.init withoutSide)
+    (T.length withoutSide >= 2 && T.last withoutSide == 's')
+  where
+    withoutSide =
+      bool
+        prefix
+        (T.init prefix)
+        (T.length prefix > 2 && T.last prefix `elem` sideLetters)
+
 assignNames
   :: UpdateNamesMap
   -> XGroupBreakpoints
@@ -385,26 +393,18 @@ assignNames newNames brks treeType prefixMap av =
       prefix = dropIndex (vName v)
       typeSpecific = either (const "") prefixForType (determineGroup brks v)
       (prefix', lastChar) = fromMaybe (error "unreachable") (T.unsnoc prefix)
-      isLmr = lastChar `elem` ['l', 'm', 'r']
-      supportPrefixChar = T.singleton 's' <> bool typeSpecific (T.singleton lastChar) isLmr
+      isLmr = lastChar `elem` sideLetters
       cleanPrefix
-        | treeType /= SupportTree
-            && T.length prefix >= 3
+        | treeType == SupportTree =
+            updatedPrefix (dropSupportSuffix prefix) <> T.singleton 's' <> typeSpecific
+        | T.length prefix >= 3
             && T.last prefix' == 's' =
             updatedPrefix (T.init prefix') <> typeSpecific
-        | treeType /= SupportTree
-            && T.length prefix >= 3
+        | T.length prefix >= 3
             && isLmr =
             updatedPrefix prefix' <> typeSpecific
-        | treeType /= SupportTree =
-            updatedPrefix prefix <> typeSpecific
-        | T.length prefix' >= 3
-            && T.last prefix' == 's' =
-            updatedPrefix (T.init prefix') <> T.singleton 's' <> typeSpecific
-        | T.length prefix' < 2 =
-            updatedPrefix prefix <> supportPrefixChar
         | otherwise =
-            updatedPrefix prefix' <> supportPrefixChar
+            updatedPrefix prefix <> typeSpecific
       lastIdx = M.findWithDefault 0 cleanPrefix prefixMap
       newName = renameVertexId treeType lastIdx cleanPrefix
       newVertex = v {vName = newName}

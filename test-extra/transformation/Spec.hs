@@ -5,8 +5,12 @@ module Spec (
 import Data.List (isPrefixOf, isSuffixOf)
 import Data.Map qualified as M
 import Data.Set qualified as S
+import Data.Text (Text)
 import Data.Text qualified as T
-import JbeamEdit.Core.Node (Node)
+import Data.Vector qualified as V
+import GHC.IsList (fromList)
+import JbeamEdit.Core.Node (Node (..), NumberValue (..), expectArray)
+import JbeamEdit.Core.NodePath qualified as NP
 import JbeamEdit.Formatting
 import JbeamEdit.IOUtils (tryReadFile)
 import JbeamEdit.Parsing.Jbeam (parseNodes)
@@ -85,6 +89,59 @@ beamValidationSpec = do
     it "has no duplicate beams" $
       findDuplicateBeams internalBeams `shouldBe` []
 
+nodesQuery :: NP.NodePath
+nodesQuery = fromList [NP.ObjectIndex 0, NP.ObjectKey "nodes"]
+
+{- | (name, Y position) for every vertex in a top node's "nodes" section,
+in file order.
+-}
+vertexPositionsInOrder :: Node -> [(Text, Double)]
+vertexPositionsInOrder topNode =
+  case NP.queryNodes nodesQuery topNode >>= NP.expectArray nodesQuery of
+    Left _ -> []
+    Right rows ->
+      [ (name, realToFrac (nvValue yNum))
+      | row <- V.toList rows
+      , Just inner <- [expectArray row]
+      , Just (String name) <- [inner V.!? 0]
+      , name /= "id"
+      , Just (Number yNum) <- [inner V.!? 2]
+      ]
+
+{- | Three small hubs (nl0, nl10, nl20; front/mid/rear), each beamed to
+three of its own ordinary leaf nodes (see issue #215). At
+support-threshold 20 with 12 nodes in the group, thrCount =
+round(0.2*12) = 2: each hub (3 connections) clears it and becomes a
+support vertex, each leaf (1 connection) doesn't. This mirrors the
+support-hub shape seen in real body files (three support nodes sharing
+one prefix group) at a size small enough to reason about by hand: after
+the first transform, the mid/rear hubs get a trailing index (e.g. nlsl1,
+nlsl2) while the front one doesn't (nlsl), and that index is exactly
+what trips up the second pass. Y positions are spaced well outside the
+(default 0.05) y-sorting-threshold so this test stays isolated from the
+separate y-sorting-threshold banding bug (issue #214).
+-}
+supportRenameIdempotencyFixture :: FilePath
+supportRenameIdempotencyFixture =
+  "examples/regression_jbeam/support-rename-idempotency-repro.jbeam"
+
+supportRenameIdempotencySpec :: Spec
+supportRenameIdempotencySpec =
+  describe "support vertex renaming"
+    . it "is a fixed point: transforming the output again renames nothing further"
+    $ do
+      let cfg = newTransformationConfig {supportThreshold = 20}
+      topNode <- parseJbeamFile supportRenameIdempotencyFixture
+      case transform M.empty cfg topNode of
+        Left err -> expectationFailure ("first transform failed: " ++ T.unpack err)
+        Right (_, _, _, onceNode) ->
+          case transform M.empty cfg onceNode of
+            Left err -> expectationFailure ("second transform failed: " ++ T.unpack err)
+            Right (_, _, _, twiceNode) -> do
+              let once = vertexPositionsInOrder onceNode
+              once `shouldNotBe` []
+              vertexPositionsInOrder twiceNode `shouldBe` once
+
 main :: IO ()
 main = hspec $ do
   let exampleConfigPath = unsafeEncodeUtf "examples/jbeam-edit.yaml"
@@ -102,3 +159,4 @@ main = hspec $ do
   mapM_ (testInputFile "cfg-default" newTransformationConfig) inputFiles
   mapM_ (testInputFile "cfg-example" tfConfig) inputFiles
   beamValidationSpec
+  supportRenameIdempotencySpec
