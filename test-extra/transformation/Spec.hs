@@ -2,7 +2,7 @@ module Spec (
   main,
 ) where
 
-import Data.List (isPrefixOf, isSuffixOf)
+import Data.List (isInfixOf, isPrefixOf, isSuffixOf)
 import Data.Map qualified as M
 import Data.Set (Set)
 import Data.Set qualified as S
@@ -49,6 +49,31 @@ topNodeSpec rs cfName tfConfig inFilename outFilename = do
           (_, _, _, node) <- transform M.empty tfConfig (read input)
           Right (formatNode rs node)
   describe desc . it "works" $ transformAndFormat `shouldBe` Right (T.pack output)
+
+{- | Transforming an already transformed file must produce the same text
+again. Unlike 'supportRenameIdempotencySpec' this compares the whole
+formatted output, so it also covers comments, metadata and beam references.
+-}
+fixedPointSpec
+  :: RuleSet -> String -> TransformationConfig -> FilePath -> Spec
+fixedPointSpec rs cfName tfConfig outFilename = do
+  output <- runIO $ readFile outFilename
+  let desc =
+        "with "
+          ++ cfName
+          ++ ": transforming "
+          ++ outFilename
+          ++ " again should leave it unchanged"
+      check = do
+        node <- parseJbeamFile outFilename
+        case transform M.empty tfConfig node of
+          Left err -> expectationFailure ("transform failed: " ++ T.unpack err)
+          Right (_, _, _, again) -> formatNode rs again `shouldBe` T.pack output
+  describe desc . it "works" $
+    if "suspension" `isInfixOf` outFilename
+      then
+        pendingWith "metadata is not carried across vertex tree boundaries, issue #221"
+      else check
 
 parseJbeamFile :: FilePath -> IO Node
 parseJbeamFile path = do
@@ -197,8 +222,12 @@ main = hspec $ do
           ++ cfName
           ++ ".jbeam"
       testInputFile cfName tfConfig' inFile = topNodeSpec (read rs) cfName tfConfig' inFile (outputFile cfName inFile)
+      testFixedPoint cfName tfConfig' inFile =
+        fixedPointSpec (read rs) cfName tfConfig' (outputFile cfName inFile)
   mapM_ (testInputFile "cfg-default" newTransformationConfig) inputFiles
   mapM_ (testInputFile "cfg-example" tfConfig) inputFiles
+  mapM_ (testFixedPoint "cfg-default" newTransformationConfig) inputFiles
+  mapM_ (testFixedPoint "cfg-example" tfConfig) inputFiles
   beamValidationSpec
   supportRenameIdempotencySpec
   letterEndingNodesSpec
