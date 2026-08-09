@@ -187,6 +187,7 @@ moveSupportVertices newNames tfCfg connMap vsPerType =
       thr = ySortingThreshold tfCfg
 
       assignSupportNames = assignNames newNames brks SupportTree
+      supportKey = vertexPrefix newNames brks SupportTree
 
       vertexForest :: VertexForest
       vertexForest =
@@ -201,7 +202,7 @@ moveSupportVertices newNames tfCfg connMap vsPerType =
                       [sideComment SupportTree]
                       ( snd
                           . mapAccumL assignSupportNames M.empty
-                          $ NE.sortBy (compareAV thr SupportTree) vs
+                          $ NE.sortBy (compareAV supportKey thr SupportTree) vs
                       )
                   )
               )
@@ -333,12 +334,17 @@ treesOrder :: [VertexTreeType]
 treesOrder = [LeftTree, MiddleTree, RightTree, SupportTree]
 
 compareAV
-  :: Scientific -> VertexTreeType -> AnnotatedVertex -> AnnotatedVertex -> Ordering
-compareAV thr treeType vertex1 vertex2 =
+  :: (Vertex -> Text)
+  -> Scientific
+  -> VertexTreeType
+  -> AnnotatedVertex
+  -> AnnotatedVertex
+  -> Ordering
+compareAV supportKey thr treeType vertex1 vertex2 =
   let supportNameCompare =
         bool
           EQ
-          (on compare (dropIndex . vName . aVertex) vertex1 vertex2)
+          (on compare (supportKey . aVertex) vertex1 vertex2)
           (treeType == SupportTree)
       y1 = vY . aVertex $ vertex1
       y2 = vY . aVertex $ vertex2
@@ -356,9 +362,9 @@ compareAV thr treeType vertex1 vertex2 =
         ]
 
 renameVertexId :: VertexTreeType -> Int -> Text -> Text
-renameVertexId treeType idx vertexPrefix =
+renameVertexId treeType idx prefix =
   let idx' = mwhen (treeType /= SupportTree || idx /= 0) (intToText idx)
-   in vertexPrefix <> idx'
+   in prefix <> idx'
 
 sideLetters :: String
 sideLetters = ['l', 'm', 'r']
@@ -380,6 +386,30 @@ dropSupportSuffix prefix =
         (T.init prefix)
         (T.length prefix > 2 && T.last prefix `elem` sideLetters)
 
+{- | The name a vertex gets, before the running index is appended. Support
+prefixes are a fixed point of this, which is what lets it double as a sort
+key that survives a transform.
+-}
+vertexPrefix
+  :: UpdateNamesMap -> XGroupBreakpoints -> VertexTreeType -> Vertex -> Text
+vertexPrefix newNames brks treeType v
+  | treeType == SupportTree =
+      updatedPrefix (dropSupportSuffix prefix) <> T.singleton 's' <> typeSpecific
+  | T.length prefix >= 3
+      && T.last prefix' == 's' =
+      updatedPrefix (T.init prefix') <> typeSpecific
+  | T.length prefix >= 3
+      && isLmr =
+      updatedPrefix prefix' <> typeSpecific
+  | otherwise =
+      updatedPrefix prefix <> typeSpecific
+  where
+    updatedPrefix cleanPrefix = M.findWithDefault cleanPrefix cleanPrefix newNames
+    prefix = dropIndex (vName v)
+    typeSpecific = either (const "") prefixForType (determineGroup brks v)
+    (prefix', lastChar) = fromMaybe (error "unreachable") (T.unsnoc prefix)
+    isLmr = lastChar `elem` sideLetters
+
 assignNames
   :: UpdateNamesMap
   -> XGroupBreakpoints
@@ -389,25 +419,9 @@ assignNames
   -> (Map Text Int, AnnotatedVertex)
 assignNames newNames brks treeType prefixMap av =
   let v = aVertex av
-      updatedPrefix cleanPrefix' = M.findWithDefault cleanPrefix' cleanPrefix' newNames
-      prefix = dropIndex (vName v)
-      typeSpecific = either (const "") prefixForType (determineGroup brks v)
-      (prefix', lastChar) = fromMaybe (error "unreachable") (T.unsnoc prefix)
-      isLmr = lastChar `elem` sideLetters
-      cleanPrefix
-        | treeType == SupportTree =
-            updatedPrefix (dropSupportSuffix prefix) <> T.singleton 's' <> typeSpecific
-        | T.length prefix >= 3
-            && T.last prefix' == 's' =
-            updatedPrefix (T.init prefix') <> typeSpecific
-        | T.length prefix >= 3
-            && isLmr =
-            updatedPrefix prefix' <> typeSpecific
-        | otherwise =
-            updatedPrefix prefix <> typeSpecific
+      cleanPrefix = vertexPrefix newNames brks treeType v
       lastIdx = M.findWithDefault 0 cleanPrefix prefixMap
-      newName = renameVertexId treeType lastIdx cleanPrefix
-      newVertex = v {vName = newName}
+      newVertex = v {vName = renameVertexId treeType lastIdx cleanPrefix}
       prefixMap' = M.insert cleanPrefix (lastIdx + 1) prefixMap
    in (prefixMap', av {aVertex = newVertex})
 
@@ -420,7 +434,10 @@ sortVertices
 sortVertices treeType newNames tfCfg (VertexTree comments vertices) =
   let thr = ySortingThreshold tfCfg
       brks = xGroupBreakpoints tfCfg
-      sortedGroups = NE.sortBy (compareAV thr treeType) vertices
+      sortedGroups =
+        NE.sortBy
+          (compareAV (vertexPrefix newNames brks treeType) thr treeType)
+          vertices
 
       renamedGroups = snd $ mapAccumL (assignNames newNames brks treeType) M.empty sortedGroups
    in VertexTree comments renamedGroups
