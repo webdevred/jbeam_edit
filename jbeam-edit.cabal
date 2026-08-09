@@ -1,4 +1,4 @@
-cabal-version: 2.2
+cabal-version:      2.2
 
 -- This file has been generated from package.yaml by hpack version 0.38.3.
 --
@@ -11,19 +11,21 @@ license-file:       LICENSE
 copyright:          2025 webdevred
 maintainer:         example@example.com
 author:             webdevred
-tested-with:
-    GHC == 9.8.4,
-    GHC == 9.10.3,
-    GHC == 9.14.1
+tested-with:        ghc ==9.8.4 ghc ==9.10.3 ghc ==9.14.1
 homepage:           https://github.com/webdevred/jbeam-edit#readme
 bug-reports:        https://github.com/webdevred/jbeam-edit/issues
-synopsis:           A fast and reliable command-line tool for parsing, formatting, and editing JBeam files, supporting consistent node renaming, reference updating, and JBFL-based formatting.
-description:        jbeam-edit is a Haskell-based CLI utility for BeamNG JBeam files. It parses complete JBeam structures, preserves comments and whitespace, formats files consistently, and can automatically rename nodes and update references. Custom formatting rules are supported via JBFL (JBeam Formatting Language). See the README for usage instructions and examples: https://github.com/webdevred/jbeam-edit#readme
+synopsis:
+    A fast and reliable command-line tool for parsing, formatting, and editing JBeam files, supporting consistent node renaming, reference updating, and JBFL-based formatting.
+
+description:
+    jbeam-edit is a Haskell-based CLI utility for BeamNG JBeam files. It parses complete JBeam structures, preserves comments and whitespace, formats files consistently, and can automatically rename nodes and update references. Custom formatting rules are supported via JBFL (JBeam Formatting Language). See the README for usage instructions and examples: https://github.com/webdevred/jbeam-edit#readme
+
 category:           Command Line, Jbeam, Beamng
 build-type:         Simple
 data-files:
     examples/jbfl/complex.jbfl
     examples/jbfl/minimal.jbfl
+
 extra-source-files:
     README.md
     JBFL_DOCS.md
@@ -39,23 +41,25 @@ extra-source-files:
     examples/formatted_jbeam/suspension-minimal-jbfl.jbeam
 
 source-repository head
-    type: git
+    type:     git
     location: https://github.com/webdevred/jbeam-edit
 
 flag dump-ast
     description: Enable building the dump-ast executable (dev-only)
-    default: False
-    manual: True
+    default:     False
+    manual:      True
 
 flag transformation
     description: Enable transformation (experimental)
-    default: False
-    manual: True
+    default:     False
+    manual:      True
 
 flag windows-example-paths
-    description: Use executable-relative example paths (for Windows release builds)
-    default: False
-    manual: True
+    description:
+        Use executable-relative example paths (for Windows release builds)
+
+    default:     False
+    manual:      True
 
 library
     exposed-modules:
@@ -74,28 +78,21 @@ library
         JbeamEdit.Parsing.Common.Helpers
         JbeamEdit.Parsing.DSL
         JbeamEdit.Parsing.Jbeam
-    hs-source-dirs:
-        src
-    other-modules:
-        Paths_jbeam_edit
-    autogen-modules:
-        Paths_jbeam_edit
-    default-language: GHC2021
-    if ! flag(transformation) && ! flag(dump-ast)
-        build-depends:
-            containers >=0.8
-    if os(windows)
-        ghc-options: -optc-Os -optl-static
-    if flag(transformation)
-        cpp-options: -DENABLE_TRANSFORMATION
-    if os(windows) && flag(windows-example-paths)
-        cpp-options: -DWINDOWS_EXAMPLE_PATHS
+
+    hs-source-dirs:     src
+    other-modules:      Paths_jbeam_edit
+    autogen-modules:    Paths_jbeam_edit
+    default-language:   GHC2021
     default-extensions:
-        OverloadedStrings
-        ImportQualifiedPost
-        DerivingStrategies
+        OverloadedStrings ImportQualifiedPost DerivingStrategies
         TupleSections
-    ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -Wunused-packages
+
+    ghc-options:
+        -Wall -Wcompat -Widentities -Wincomplete-record-updates
+        -Wincomplete-uni-patterns -Wmissing-export-lists
+        -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
+        -Wunused-packages
+
     build-depends:
         base >=4.19,
         bytestring,
@@ -110,6 +107,18 @@ library
         text >=2.1.2,
         vector >=0.13
 
+    if (!flag(transformation) && !flag(dump-ast))
+        build-depends: containers >=0.8
+
+    if os(windows)
+        ghc-options: -optc-Os -optl-static
+
+    if flag(transformation)
+        cpp-options: -DENABLE_TRANSFORMATION
+
+    if (os(windows) && flag(windows-example-paths))
+        cpp-options: -DWINDOWS_EXAMPLE_PATHS
+
 library jbeam-edit-transformation
     exposed-modules:
         JbeamEdit.Transformation
@@ -119,18 +128,38 @@ library jbeam-edit-transformation
         JbeamEdit.Transformation.OMap1
         JbeamEdit.Transformation.Types
         JbeamEdit.Transformation.VertexExtraction
-    hs-source-dirs:
-        src-extra/transformation
-    other-modules:
-        Paths_jbeam_edit
-    autogen-modules:
-        Paths_jbeam_edit
-    default-language: GHC2021
-    if ! flag(transformation) && ! flag(dump-ast)
-        build-depends:
-            containers >=0.8
+
+    hs-source-dirs:     src-extra/transformation
+    other-modules:      Paths_jbeam_edit
+    autogen-modules:    Paths_jbeam_edit
+    default-language:   GHC2021
+    default-extensions:
+        OverloadedStrings ImportQualifiedPost DerivingStrategies
+        TupleSections
+
+    ghc-options:
+        -Wall -Wcompat -Widentities -Wincomplete-record-updates
+        -Wincomplete-uni-patterns -Wmissing-export-lists
+        -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
+
+    build-depends:
+        base >=4.19,
+        bytestring,
+        containers,
+        directory >=1.3.8.0,
+        filepath >=1.5.1.0,
+        jbeam-edit,
+        mtl,
+        scientific,
+        text >=2.1.2,
+        vector >=0.13
+
+    if (!flag(transformation) && !flag(dump-ast))
+        build-depends: containers >=0.8
+
     if os(windows)
         ghc-options: -optc-Os -optl-static
+
     if flag(transformation)
         build-depends:
             extra,
@@ -138,52 +167,29 @@ library jbeam-edit-transformation
             ordered-containers >=0.2.4,
             transformers,
             yaml
+
     else
         buildable: False
-    default-extensions:
-        OverloadedStrings
-        ImportQualifiedPost
-        DerivingStrategies
-        TupleSections
-    ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
-    build-depends:
-        base >=4.19,
-        bytestring,
-        containers,
-        directory >=1.3.8.0,
-        filepath >=1.5.1.0,
-        jbeam-edit,
-        mtl,
-        scientific,
-        text >=2.1.2,
-        vector >=0.13
 
 executable jbeam-edit
-    main-is: Main.hs
-    hs-source-dirs:
-        exe/jbeam-edit
+    main-is:            Main.hs
+    hs-source-dirs:     exe/jbeam-edit
     other-modules:
         CommandLineOptions
         Paths_jbeam_edit
-    autogen-modules:
-        Paths_jbeam_edit
-    default-language: GHC2021
-    if ! flag(transformation) && ! flag(dump-ast)
-        build-depends:
-            containers >=0.8
-    if os(windows)
-        ghc-options: -optc-Os -optl-static
-    if flag(transformation)
-        cpp-options: -DENABLE_TRANSFORMATION
-        build-depends:
-            jbeam-edit-transformation
+
+    autogen-modules:    Paths_jbeam_edit
+    default-language:   GHC2021
     default-extensions:
-        OverloadedStrings
-        ImportQualifiedPost
-        DerivingStrategies
-        TupleSections
-        CPP
-    ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
+        OverloadedStrings ImportQualifiedPost DerivingStrategies
+        TupleSections CPP
+
+    ghc-options:
+        -Wall -Wcompat -Widentities -Wincomplete-record-updates
+        -Wincomplete-uni-patterns -Wmissing-export-lists
+        -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
+        -threaded -rtsopts -with-rtsopts=-N
+
     build-depends:
         base >=4.19,
         bytestring,
@@ -196,51 +202,63 @@ executable jbeam-edit
         text >=2.1.2,
         vector >=0.13
 
-executable jbeam-edit-dump-ast
-    main-is: Main.hs
-    hs-source-dirs:
-        tools/dump_ast
-    other-modules:
-        Paths_jbeam_edit
-    autogen-modules:
-        Paths_jbeam_edit
-    default-language: GHC2021
-    if ! flag(transformation) && ! flag(dump-ast)
-        build-depends:
-            containers >=0.8
+    if (!flag(transformation) && !flag(dump-ast))
+        build-depends: containers >=0.8
+
     if os(windows)
         ghc-options: -optc-Os -optl-static
+
+    if flag(transformation)
+        cpp-options:   -DENABLE_TRANSFORMATION
+        build-depends: jbeam-edit-transformation
+
+executable jbeam-edit-dump-ast
+    main-is:            Main.hs
+    hs-source-dirs:     tools/dump_ast
+    other-modules:      Paths_jbeam_edit
+    autogen-modules:    Paths_jbeam_edit
+    default-language:   GHC2021
+    default-extensions:
+        OverloadedStrings ImportQualifiedPost DerivingStrategies
+        TupleSections
+
+    ghc-options:
+        -Wall -Wcompat -Widentities -Wincomplete-record-updates
+        -Wincomplete-uni-patterns -Wmissing-export-lists
+        -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
+        -threaded -rtsopts -with-rtsopts=-N
+
+    build-depends:
+        base >=4.19,
+        bytestring,
+        containers,
+        directory >=1.3.8.0,
+        filepath >=1.5.1.0,
+        jbeam-edit,
+        mtl,
+        scientific,
+        text >=2.1.2,
+        vector >=0.13
+
+    if (!flag(transformation) && !flag(dump-ast))
+        build-depends: containers >=0.8
+
+    if os(windows)
+        ghc-options: -optc-Os -optl-static
+
     if (flag(dump-ast) && flag(transformation))
         build-depends:
             jbeam-edit-transformation,
             pretty-simple >=4
+
     else
         buildable: False
-    default-extensions:
-        OverloadedStrings
-        ImportQualifiedPost
-        DerivingStrategies
-        TupleSections
-    ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
-    build-depends:
-        base >=4.19,
-        bytestring,
-        containers,
-        directory >=1.3.8.0,
-        filepath >=1.5.1.0,
-        jbeam-edit,
-        mtl,
-        scientific,
-        text >=2.1.2,
-        vector >=0.13
 
 test-suite jbeam-edit-test
-    type: exitcode-stdio-1.0
-    main-is: Spec.hs
-    build-tool-depends:
-        hspec-discover:hspec-discover
-    hs-source-dirs:
-        test
+    type:               exitcode-stdio-1.0
+    main-is:            Spec.hs
+    build-tool-depends: hspec-discover:hspec-discover
+    hs-source-dirs:     test
     other-modules:
         Core.NewlineSpec
         Core.NodeCursorSpec
@@ -252,65 +270,60 @@ test-suite jbeam-edit-test
         Parsing.JbeamSpec
         SpecHelper
         Paths_jbeam_edit
-    autogen-modules:
-        Paths_jbeam_edit
-    default-language: GHC2021
-    if ! flag(transformation) && ! flag(dump-ast)
-        build-depends:
-            containers >=0.8
+
+    autogen-modules:    Paths_jbeam_edit
+    default-language:   GHC2021
+    default-extensions:
+        OverloadedStrings ImportQualifiedPost DerivingStrategies
+        TupleSections
+
+    ghc-options:
+        -Wall -Wcompat -Widentities -Wincomplete-record-updates
+        -Wincomplete-uni-patterns -Wmissing-export-lists
+        -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
+        -threaded -rtsopts -with-rtsopts=-N
+
+    build-depends:
+        base >=4.19,
+        bytestring,
+        containers,
+        directory >=1.3.8.0,
+        filepath >=1.5.1.0,
+        hspec,
+        jbeam-edit,
+        mtl,
+        scientific,
+        text >=2.1.2,
+        vector >=0.13
+
+    if (!flag(transformation) && !flag(dump-ast))
+        build-depends: containers >=0.8
+
     if os(windows)
         ghc-options: -optc-Os -optl-static
-    if true
+
+    if True
         build-depends:
             hspec-megaparsec,
             megaparsec
-    default-extensions:
-        OverloadedStrings
-        ImportQualifiedPost
-        DerivingStrategies
-        TupleSections
-    ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
-    build-depends:
-        base >=4.19,
-        bytestring,
-        containers,
-        directory >=1.3.8.0,
-        filepath >=1.5.1.0,
-        hspec,
-        jbeam-edit,
-        mtl,
-        scientific,
-        text >=2.1.2,
-        vector >=0.13
 
 test-suite jbeam-edit-transformation-test
-    type: exitcode-stdio-1.0
-    main-is: Spec.hs
-    hs-source-dirs:
-        test-extra/transformation
-    other-modules:
-        Paths_jbeam_edit
-    autogen-modules:
-        Paths_jbeam_edit
-    default-language: GHC2021
-    if ! flag(transformation) && ! flag(dump-ast)
-        build-depends:
-            containers >=0.8
-    if os(windows)
-        ghc-options: -optc-Os -optl-static
-    if true
-        ghc-options: -main-is Spec
-    if flag(transformation)
-        build-depends:
-            jbeam-edit-transformation
-    else
-        buildable: False
+    type:               exitcode-stdio-1.0
+    main-is:            Spec.hs
+    hs-source-dirs:     test-extra/transformation
+    other-modules:      Paths_jbeam_edit
+    autogen-modules:    Paths_jbeam_edit
+    default-language:   GHC2021
     default-extensions:
-        OverloadedStrings
-        ImportQualifiedPost
-        DerivingStrategies
+        OverloadedStrings ImportQualifiedPost DerivingStrategies
         TupleSections
-    ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
+
+    ghc-options:
+        -Wall -Wcompat -Widentities -Wincomplete-record-updates
+        -Wincomplete-uni-patterns -Wmissing-export-lists
+        -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
+        -threaded -rtsopts -with-rtsopts=-N
+
     build-depends:
         base >=4.19,
         bytestring,
@@ -324,33 +337,38 @@ test-suite jbeam-edit-transformation-test
         text >=2.1.2,
         vector >=0.13
 
-benchmark jbeam-edit-bench
-    type: exitcode-stdio-1.0
-    main-is: Main.hs
-    hs-source-dirs:
-        tools/bench
-    other-modules:
-        Paths_jbeam_edit
-    autogen-modules:
-        Paths_jbeam_edit
-    default-language: GHC2021
-    if ! flag(transformation) && ! flag(dump-ast)
-        build-depends:
-            containers >=0.8
+    if (!flag(transformation) && !flag(dump-ast))
+        build-depends: containers >=0.8
+
     if os(windows)
         ghc-options: -optc-Os -optl-static
+
+    if True
+        ghc-options: -main-is Spec
+
     if flag(transformation)
-        build-depends:
-            criterion,
-            jbeam-edit-transformation
+        build-depends: jbeam-edit-transformation
+
     else
         buildable: False
+
+benchmark jbeam-edit-bench
+    type:               exitcode-stdio-1.0
+    main-is:            Main.hs
+    hs-source-dirs:     tools/bench
+    other-modules:      Paths_jbeam_edit
+    autogen-modules:    Paths_jbeam_edit
+    default-language:   GHC2021
     default-extensions:
-        OverloadedStrings
-        ImportQualifiedPost
-        DerivingStrategies
+        OverloadedStrings ImportQualifiedPost DerivingStrategies
         TupleSections
-    ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
+
+    ghc-options:
+        -Wall -Wcompat -Widentities -Wincomplete-record-updates
+        -Wincomplete-uni-patterns -Wmissing-export-lists
+        -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
+        -threaded -rtsopts -with-rtsopts=-N
+
     build-depends:
         base,
         bytestring,
@@ -362,3 +380,17 @@ benchmark jbeam-edit-bench
         scientific,
         text >=2.1.2,
         vector >=0.13
+
+    if (!flag(transformation) && !flag(dump-ast))
+        build-depends: containers >=0.8
+
+    if os(windows)
+        ghc-options: -optc-Os -optl-static
+
+    if flag(transformation)
+        build-depends:
+            criterion,
+            jbeam-edit-transformation
+
+    else
+        buildable: False
