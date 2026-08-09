@@ -2,12 +2,14 @@ module Spec (
   main,
 ) where
 
+import Data.ByteString.Lazy qualified as LBS
 import Data.List (isInfixOf, isPrefixOf, isSuffixOf)
 import Data.Map qualified as M
 import Data.Set (Set)
 import Data.Set qualified as S
 import Data.Text (Text)
 import Data.Text qualified as T
+import Data.Text.Encoding (encodeUtf8)
 import Data.Vector qualified as V
 import GHC.IsList (fromList)
 import JbeamEdit.Core.Node (Node (..), NumberValue (..), expectArray)
@@ -64,11 +66,21 @@ fixedPointSpec rs cfName tfConfig outFilename = do
           ++ ": transforming "
           ++ outFilename
           ++ " again should leave it unchanged"
-      check = do
-        node <- parseJbeamFile outFilename
-        case transform M.empty tfConfig node of
-          Left err -> expectationFailure ("transform failed: " ++ T.unpack err)
-          Right (_, _, _, again) -> formatNode rs again `shouldBe` T.pack output
+      -- Parse the same text the result is compared against, rather than
+      -- reading the file a second time, and drop the carriage returns a
+      -- Windows checkout leaves behind. formatNode always emits LF, so
+      -- the line endings the file happens to carry are not part of what
+      -- this spec is asserting.
+      expected = T.replace "\r\n" "\n" (T.pack output)
+      check =
+        case parseNodes (LBS.fromStrict (encodeUtf8 expected)) of
+          Left err ->
+            expectationFailure
+              ("failed to parse " ++ outFilename ++ ": " ++ T.unpack err)
+          Right node ->
+            case transform M.empty tfConfig node of
+              Left err -> expectationFailure ("transform failed: " ++ T.unpack err)
+              Right (_, _, _, again) -> formatNode rs again `shouldBe` expected
   describe desc . it "works" $
     if "suspension" `isInfixOf` outFilename
       then
