@@ -198,3 +198,8 @@ jobs:
         run: cabal build --project-file cabal.project.ci all
       - name: Run tests (GHC ${{ steps.setup-ghc.outputs.ghc-version }})
         run: cabal test --project-file cabal.project.ci
+      - name: Check that formatting preserves line endings
+        shell: bash
+        run: |
+          bash ./.github/scripts/check_newline_preservation.sh \
+            "$(cabal list-bin --project-file cabal.project.ci jbeam-edit)"

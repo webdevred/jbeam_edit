@@ -16,10 +16,6 @@ import System.Environment (getArgs)
 import System.IO (Newline)
 import System.OsPath
 
-#ifdef ENABLE_WINDOWS_NEWLINES
-import Data.Text qualified as T
-#endif
-
 #ifdef ENABLE_TRANSFORMATION
 import JbeamEdit.Transformation
 import JbeamEdit.Transformation.Config

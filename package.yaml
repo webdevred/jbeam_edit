@@ -101,8 +101,6 @@ library:
       cpp-options: -DENABLE_TRANSFORMATION
     - condition: os(windows) && flag(windows-example-paths)
       cpp-options: -DWINDOWS_EXAMPLE_PATHS
-    - condition: os(windows)
-      cpp-options: -DENABLE_WINDOWS_NEWLINES
 
 _jbeam-options: &jbeam-options
   main: Main.hs
