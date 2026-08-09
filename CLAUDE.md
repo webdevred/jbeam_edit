@@ -168,10 +168,15 @@ This reformats all files in one pass. You may run this when needed, but **do not
 After editing `package.yaml`, regenerate the `.cabal` file:
 
 ```bash
-hpack
+stack build --hpack-force
 ```
 
-CI enforces this via `check_cabal_file.sh`.
+**Do not run `hpack` directly.** CI regenerates the file through Stack, which
+bundles its own hpack. A locally installed hpack of a different version
+reformats the whole file, and `check_cabal_file.sh` then rejects it even though
+nothing meaningful changed. If Stack is not available, edit the `.cabal` file by
+hand to match what the `package.yaml` change implies, and keep the diff to those
+lines.
 
 ## Git Commits
 

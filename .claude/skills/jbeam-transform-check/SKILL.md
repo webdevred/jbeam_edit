@@ -45,9 +45,13 @@ With filter (file-list must be passed explicitly):
 bash tools/extract-and-format-jbeam/transform-run.sh [--cross-file] tools/extract-and-format-jbeam/transform-check-files.txt FILTER
 ```
 - The script prints `TRANSFORM_DIR=<path>` on the first line — capture it.
-- It extracts files, runs `--transform` on each, runs `--validate-beams`, and prints a summary table.
+- It extracts files, runs `--transform` on each twice, runs `--validate-beams` per vehicle, and prints a summary table.
 
-Read the summary table and `$TRANSFORM_DIR/*.err` files for per-file warnings.
+Every file gets its own directory, `$TRANSFORM_DIR/<vehicle>/<file>/`, because `--transform` also rewrites references in the other `.jbeam` files beside it.
+
+Read the summary table and the `*.err` files in those directories for per-file warnings.
+
+**The FIXED POINT column is the one to read first.** A file that transforms cleanly on the first pass can still be wrong: names that grow, comments that swap places and metadata that drifts all report `success` and only show up on the second run. Anything marked `NO` has a `<file>.second-pass.diff` next to it showing exactly what moved.
 
 ---
 
@@ -56,7 +60,7 @@ Read the summary table and `$TRANSFORM_DIR/*.err` files for per-file warnings.
 For each file that transformed successfully, read the diff to understand what changed:
 
 ```bash
-diff "$TRANSFORM_DIR/<file>.orig" "$TRANSFORM_DIR/<file>"
+diff "$TRANSFORM_DIR/<vehicle>/<name>/<file>.orig" "$TRANSFORM_DIR/<vehicle>/<name>/<file>"
 ```
 
 If CROSS_FILE: check for missed references by grepping other files in `TRANSFORM_DIR` for old node names.
