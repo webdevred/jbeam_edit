@@ -98,7 +98,8 @@ associationDirection st = bool PreviousNode NextNode (lastNodeEndedWithNewline s
 
 commentStripSpace :: Text -> Text
 commentStripSpace initialText =
-  let initialNewline = mwhen (T.isPrefixOf "\n" initialText) "\n"
+  let startsWithNewline text = T.isPrefixOf "\n" text || T.isPrefixOf "\rg\n" text
+      initialNewline = mwhen (startsWithNewline initialText) "\n"
       trimTrailingSpaces = T.dropWhileEnd (charBoth (/= '\n') isSpace)
       endingNewline = mwhen (T.isSuffixOf "\n" $ trimTrailingSpaces initialText) "\n"
       go = T.intercalate "\n" . filter (not . T.all isSpace) . map T.strip . T.lines
