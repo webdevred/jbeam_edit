@@ -5,7 +5,7 @@ import Data.Bifunctor (first)
 import Data.Bool (bool)
 import Data.Foldable.Extra (notNull)
 import Data.Function (on)
-import Data.List (partition)
+import Data.List (foldl', partition)
 import Data.List.NonEmpty (NonEmpty)
 import Data.List.NonEmpty qualified as NE
 import Data.Map (Map)
@@ -24,6 +24,7 @@ import Data.Traversable (mapAccumL)
 import Data.Vector (Vector, (!), (!?), (//))
 import Data.Vector qualified as V
 import GHC.IsList
+import JbeamEdit.Core.Newline
 import JbeamEdit.Core.Node
 import JbeamEdit.Core.NodeCursor (newCursor)
 import JbeamEdit.Core.NodeCursor qualified as NC
@@ -492,12 +493,15 @@ filterJbeamFiles excludedFilenames = filter go
 updateOtherFiles :: RuleSet -> UpdateNamesMap -> OsPath -> IO ()
 updateOtherFiles formattingConfig updatedNames filepath = do
   contents <- tryReadFile [] filepath
-  case contents >>= parseNodes of
-    Right node ->
-      let node' = findAndUpdateTextInNode updatedNames newCursor node
-       in when
-            (node /= node')
-            (formatNodeAndWrite formattingConfig filepath node')
+  case contents of
+    Right contents' ->
+      case parseNodes contents' of
+        Right node ->
+          let node' = findAndUpdateTextInNode updatedNames newCursor node
+           in when
+                (node /= node')
+                (formatNodeAndWrite (detectNewline contents') formattingConfig filepath node')
+        Left err -> putErrorLine err
     Left err -> putErrorLine err
 
 transform
