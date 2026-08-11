@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE RankNTypes #-}
@@ -283,7 +284,12 @@ sameBy matchMode f = go
        in res && go ps bs
     go ps bs = Seq.null ps && (Seq.null bs || PrefixMatch == matchMode)
 
--- TODO: when possible upgrade to containers 0.8 and migrate to M.filterKeys
+#if MIN_VERSION_containers(0, 8, 0)
+findPropertiesForCursor :: MatchMode -> NC.NodeCursor -> RuleSet -> Rule
+findPropertiesForCursor matchMode cursor (RuleSet rs) =
+  fold (M.filterKeys (compareCursorAndPattern matchMode cursor) rs)
+#else
 findPropertiesForCursor :: MatchMode -> NC.NodeCursor -> RuleSet -> Rule
 findPropertiesForCursor matchMode cursor (RuleSet rs) =
   fold (M.filterWithKey (const . compareCursorAndPattern matchMode cursor) rs)
+#endif
