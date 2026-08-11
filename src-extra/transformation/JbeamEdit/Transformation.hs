@@ -179,7 +179,6 @@ moveSupportVertices newNames tfCfg connMap vsPerType =
         ]
 
       brks = xGroupBreakpoints tfCfg
-      thr = ySortingThreshold tfCfg
 
       assignSupportNames = assignNames newNames brks SupportTree
 
@@ -194,12 +193,12 @@ moveSupportVertices newNames tfCfg connMap vsPerType =
                   ( SupportKey
                   , VertexTree
                       [sideComment SupportTree]
-                      ( snd
-                          . mapAccumL
-                            assignSupportNames
-                            M.empty
-                          . NE.sortBy (compareAV thr SupportTree)
-                          $ NE.map (uncurry updateSupportVertexName) vs
+                      ( let renamedVertices = NE.map (uncurry updateSupportVertexName) vs
+                            sorted = NE.sortBy (on compare $ vY . aVertex) renamedVertices
+                            (_, bandIndices) = mapAccumL (indexBand tfCfg) (0, 0) sorted
+                            bandSortedVertices = NE.map snd $ NE.sortBy (compareAV SupportTree) bandIndices
+                            (_, renamedVertices') = mapAccumL assignSupportNames M.empty bandSortedVertices
+                         in renamedVertices'
                       )
                   )
               )
@@ -331,19 +330,15 @@ treesOrder :: [VertexTreeType]
 treesOrder = [LeftTree, MiddleTree, RightTree, SupportTree]
 
 compareAV
-  :: Scientific -> VertexTreeType -> AnnotatedVertex -> AnnotatedVertex -> Ordering
-compareAV thr treeType vertex1 vertex2 =
+  :: VertexTreeType -> (Int, AnnotatedVertex) -> (Int, AnnotatedVertex) -> Ordering
+compareAV treeType (band1, vertex1) (band2, vertex2) =
   let supportNameCompare =
         bool
           EQ
           (on compare (dropIndex . vName . aVertex) vertex1 vertex2)
           (treeType == SupportTree)
-      y1 = vY . aVertex $ vertex1
-      y2 = vY . aVertex $ vertex2
       compareZ = comparing (vZ . aVertex) vertex1 vertex2
-      compareY =
-        let yDiff = abs $ y1 - y2
-         in bool EQ (compare y1 y2) (yDiff > thr)
+      compareY = compare band1 band2
       compareX = on compare (vX . aVertex) vertex1 vertex2
    in mconcat
         [ supportNameCompare
@@ -397,6 +392,21 @@ assignNames newNames brks treeType prefixMap av =
       prefixMap' = M.insert cleanPrefix (lastIdx + 1) prefixMap
    in (prefixMap', av {aVertex = newVertex})
 
+indexBand
+  :: TransformationConfig
+  -> (Int, Scientific)
+  -> AnnotatedVertex
+  -> ((Int, Scientific), (Int, AnnotatedVertex))
+indexBand tfCfg (bandIndex, bandY) av =
+  let nodeY = vY (aVertex av)
+      distance = abs (nodeY - bandY)
+      thr = ySortingThreshold tfCfg
+   in if distance >= thr
+        then
+          ((bandIndex + 1, nodeY), (bandIndex + 1, av))
+        else
+          ((bandIndex, bandY), (bandIndex, av))
+
 sortVertices
   :: VertexTreeType
   -> UpdateNamesMap
@@ -404,11 +414,12 @@ sortVertices
   -> VertexTree
   -> VertexTree
 sortVertices treeType newNames tfCfg (VertexTree comments vertices) =
-  let thr = ySortingThreshold tfCfg
-      brks = xGroupBreakpoints tfCfg
-      sortedGroups = NE.sortBy (compareAV thr treeType) vertices
-
-      renamedGroups = snd $ mapAccumL (assignNames newNames brks treeType) M.empty sortedGroups
+  let brks = xGroupBreakpoints tfCfg
+      sorted = NE.sortBy (on compare $ vY . aVertex) vertices
+      (_, bandIndices) = mapAccumL (indexBand tfCfg) (0, 0) sorted
+      bandSortedAnnotated = NE.map snd $ NE.sortBy (compareAV treeType) bandIndices
+      renamedGroups =
+        snd $ mapAccumL (assignNames newNames brks treeType) M.empty bandSortedAnnotated
    in VertexTree comments renamedGroups
 
 updateVerticesInNode

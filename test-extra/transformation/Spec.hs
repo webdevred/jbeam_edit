@@ -138,7 +138,7 @@ ySortingBandingSpec =
               -- are unrelated blocks in the file, not a single ordered
               -- sequence, so their relative position isn't meaningful.
               outOfOrder =
-                [ (n1, n2)
+                [ (y1, y2)
                 | ((n1, y1), i1) <- positions
                 , ((n2, y2), i2) <- positions
                 , i1 < i2
