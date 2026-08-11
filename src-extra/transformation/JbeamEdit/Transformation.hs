@@ -195,7 +195,7 @@ moveSupportVertices newNames tfCfg connMap vsPerType =
                       [sideComment SupportTree]
                       ( let renamedVertices = NE.map (uncurry updateSupportVertexName) vs
                             sorted = NE.sortBy (on compare $ vY . aVertex) renamedVertices
-                            (_, bandIndices) = mapAccumL (indexBand tfCfg) (0, 0) sorted
+                            (_, bandIndices) = mapAccumL (indexBand tfCfg) (0, firstY sorted) sorted
                             bandSortedVertices = NE.map snd $ NE.sortBy (compareAV SupportTree) bandIndices
                             (_, renamedVertices') = mapAccumL assignSupportNames M.empty bandSortedVertices
                          in renamedVertices'
@@ -392,6 +392,10 @@ assignNames newNames brks treeType prefixMap av =
       prefixMap' = M.insert cleanPrefix (lastIdx + 1) prefixMap
    in (prefixMap', av {aVertex = newVertex})
 
+-- | Y of the first vertex, to seed the first band on a vertex rather than on 0.
+firstY :: NonEmpty AnnotatedVertex -> Scientific
+firstY = vY . aVertex . NE.head
+
 indexBand
   :: TransformationConfig
   -> (Int, Scientific)
@@ -416,7 +420,7 @@ sortVertices
 sortVertices treeType newNames tfCfg (VertexTree comments vertices) =
   let brks = xGroupBreakpoints tfCfg
       sorted = NE.sortBy (on compare $ vY . aVertex) vertices
-      (_, bandIndices) = mapAccumL (indexBand tfCfg) (0, 0) sorted
+      (_, bandIndices) = mapAccumL (indexBand tfCfg) (0, firstY sorted) sorted
       bandSortedAnnotated = NE.map snd $ NE.sortBy (compareAV treeType) bandIndices
       renamedGroups =
         snd $ mapAccumL (assignNames newNames brks treeType) M.empty bandSortedAnnotated
