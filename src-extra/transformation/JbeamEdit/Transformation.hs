@@ -369,12 +369,12 @@ renameVertexId treeType idx prefix =
 sideLetters :: String
 sideLetters = ['l', 'm', 'r']
 
-{- | Strip a trailing side letter and a trailing @s@ from a prefix. Feeding an
-already renamed support vertex back in then lands on the same name: @rl_fsm@
-strips to @rl_f@ and is built back up to @rl_fsm@.
+{- | Strip the @s@ and side letter a previous run appended. The side letter only
+comes off when it is the one about to be put back, so @rl_r@ keeps its rear @r@
+while @bfl@ loses the @l@ that would otherwise be doubled.
 -}
-dropSupportSuffix :: Text -> Text
-dropSupportSuffix prefix =
+dropSupportSuffix :: Text -> Text -> Text
+dropSupportSuffix sideLetter prefix =
   bool
     withoutSide
     (T.init withoutSide)
@@ -384,7 +384,7 @@ dropSupportSuffix prefix =
       bool
         prefix
         (T.init prefix)
-        (T.length prefix > 2 && T.last prefix `elem` sideLetters)
+        (T.length prefix > 2 && T.takeEnd 1 prefix == sideLetter)
 
 {- | The name a vertex gets, before the running index is appended. Support
 prefixes are a fixed point of this, which is what lets it double as a sort
@@ -394,7 +394,9 @@ vertexPrefix
   :: UpdateNamesMap -> XGroupBreakpoints -> VertexTreeType -> Vertex -> Text
 vertexPrefix newNames brks treeType v
   | treeType == SupportTree =
-      updatedPrefix (dropSupportSuffix prefix) <> T.singleton 's' <> typeSpecific
+      updatedPrefix (dropSupportSuffix typeSpecific prefix)
+        <> T.singleton 's'
+        <> typeSpecific
   | T.length prefix >= 3
       && T.last prefix' == 's' =
       updatedPrefix (T.init prefix') <> typeSpecific

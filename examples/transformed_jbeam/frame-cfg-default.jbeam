@@ -93,7 +93,7 @@
 
             // Support nodes
             ["rl_fsm", 0.053,  -1.314, 0.382], // support for front
-            ["rl_sm",  0.053,  1.710,  0.565], // support for rear
+            ["rl_rsm", 0.053,  1.710,  0.565], // support for rear
             ["rlsm",   0.053,  -0.024, 0.578], // support
         ],
         // --Beams--
@@ -320,21 +320,21 @@
 
             // Rear end
             {"beamDeform" : 19000},
-            ["rl_sm",  "rl_m2"],
-            ["rl_sm",  "rl_r7"],
-            ["rl_r4",  "rl_sm"],
-            ["rl_sm",  "rl_l7"],
-            ["rl_sm",  "rl_l3"],
-            ["rl_sm",  "rl_r5"],
-            ["rl_l6",  "rl_sm"],
-            ["rl_m1",  "rl_sm"],
-            ["rl_sm",  "rl_r3"],
-            ["rl_l4",  "rl_sm"],
-            ["rl_r6",  "rl_sm"],
-            ["rl_m3",  "rl_sm"],
-            ["rl_l2",  "rl_sm"],
-            ["rl_sm",  "rl_m0"],
-            ["rl_r2",  "rl_sm"],
+            ["rl_rsm", "rl_m2"],
+            ["rl_rsm", "rl_r7"],
+            ["rl_r4",  "rl_rsm"],
+            ["rl_rsm", "rl_l7"],
+            ["rl_rsm", "rl_l3"],
+            ["rl_rsm", "rl_r5"],
+            ["rl_l6",  "rl_rsm"],
+            ["rl_m1",  "rl_rsm"],
+            ["rl_rsm", "rl_r3"],
+            ["rl_l4",  "rl_rsm"],
+            ["rl_r6",  "rl_rsm"],
+            ["rl_m3",  "rl_rsm"],
+            ["rl_l2",  "rl_rsm"],
+            ["rl_rsm", "rl_m0"],
+            ["rl_r2",  "rl_rsm"],
             ["rl_r4",  "rl_l5"],
 
             // Front crush
