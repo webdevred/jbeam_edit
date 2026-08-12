@@ -1,0 +1,34 @@
+{
+"testpart":{
+    "nodes":[
+        ["id", "posX", "posY", "posZ"],
+        // Names ending in a letter rather than a digit, in several prefix
+        // groups. These used to be dropped silently: every such group got
+        // the same SupportKey, and the insert replaced instead of merged,
+        // so only the last group survived.
+        ["nl_f", 1.0, -1.0, 0.0],
+        ["nr_f", -1.0, -1.0, 0.0],
+        ["nll", 1.0, 0.0, 0.0],
+        ["nrr", -1.0, 0.0, 0.0],
+        ["nl_r", 1.0, 1.0, 0.0],
+        ["nr_r", -1.0, 1.0, 0.0],
+        // Digit-ending names alongside them, so both paths are exercised.
+        ["nl0", 1.0, 2.0, 0.0],
+        ["nr0", -1.0, 2.0, 0.0],
+    ],
+    "beams":[
+        ["id1:", "id2:"],
+        ["nl_f", "nll"],
+        ["nll", "nl_r"],
+        ["nl_r", "nl0"],
+        ["nr_f", "nrr"],
+        ["nrr", "nr_r"],
+        ["nr_r", "nr0"],
+    ],
+    "triangles":[
+        ["id1:", "id2:", "id3:"],
+        ["nl_f", "nll", "nl_r"],
+        ["nr_f", "nrr", "nr_r"],
+    ],
+},
+}

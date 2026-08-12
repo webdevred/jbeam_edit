@@ -111,6 +111,19 @@ groupByPrefix origTree =
     . NE.map (prefixForVertexKey origTree)
     . NE.groupWith1 (dropIndex . vName . aVertex)
 
+{- | Like 'groupByPrefix', but support vertices always share a single
+SupportKey bucket instead of being split by name prefix.
+-}
+groupForType
+  :: VertexTreeType
+  -> Maybe (OMap1 VertexTreeKey VertexTree)
+  -> NonEmpty AnnotatedVertex
+  -> OMap1 VertexTreeKey VertexTree
+groupForType SupportTree origTree vs =
+  let topComments = concatMap tComments (OMap1.lookup SupportKey =<< origTree)
+   in OMap1.singleton (SupportKey, VertexTree topComments vs)
+groupForType _ origTree vs = groupByPrefix origTree vs
+
 commentsExists :: Maybe (OMap1 VertexTreeKey VertexTree) -> Bool
 commentsExists = any (notNull . tComments . OMap1.head)
 
@@ -130,7 +143,7 @@ addVertexTreeToForest newNames tf grouped forest forestAcc t =
             addSideComment t (commentsExists origTree)
               . addPrefixComments t
               . fmap (sortVertices t newNames tf)
-              $ groupByPrefix origTree groupsForT
+              $ groupForType t origTree groupsForT
        in Right (M.insertWith mergeOMap1Trees t tree forestAcc)
     Nothing -> Right forestAcc
 
@@ -141,7 +154,8 @@ mergeOMap1Trees
 mergeOMap1Trees new existing =
   foldl' go existing (OMap1.assocs new)
   where
-    merge (VertexTree _ newVerts) (VertexTree ec ev) = VertexTree ec (ev <> newVerts)
+    merge (VertexTree nc newVerts) (VertexTree ec ev) =
+      VertexTree (bool nc ec (notNull ec)) (ev <> newVerts)
     go acc (k, v) = OMap1.insertWith merge k v acc
 
 groupAnnotatedVertices
@@ -150,15 +164,6 @@ groupAnnotatedVertices
   -> Either Text (VertexTreeType, [AnnotatedVertex])
 groupAnnotatedVertices brks g = (,[g]) <$> determineGroup' brks (aVertex g)
 
-updateSupportVertexName
-  :: VertexTreeType
-  -> AnnotatedVertex
-  -> AnnotatedVertex
-updateSupportVertexName vType (AnnotatedVertex c v m) = AnnotatedVertex c (v {vName = newName}) m
-  where
-    name = vName v
-    newName = dropIndex name <> prefixForType vType
-
 moveSupportVertices
   :: UpdateNamesMap
   -> TransformationConfig
@@ -166,10 +171,10 @@ moveSupportVertices
   -> M.Map VertexTreeType [AnnotatedVertex]
   -> (VertexForest, M.Map VertexTreeType [AnnotatedVertex])
 moveSupportVertices newNames tfCfg connMap vsPerType =
-  let supportVertices :: [(VertexTreeType, AnnotatedVertex)]
+  let supportVertices :: [AnnotatedVertex]
       supportVertices =
-        [ (vType, av)
-        | (vType, vs) <- M.toList vsPerType
+        [ av
+        | vs <- M.elems vsPerType
         , av <- vs
         , let name = vName (aVertex av)
         , let vertexCount = length vs
@@ -194,17 +199,20 @@ moveSupportVertices newNames tfCfg connMap vsPerType =
                   ( SupportKey
                   , VertexTree
                       [sideComment SupportTree]
-                      ( let renamedVertices = NE.map (uncurry updateSupportVertexName) vs
-                            sorted = NE.sortBy (on compare $ vY . aVertex) renamedVertices
+                      ( let sorted = NE.sortBy (on compare $ vY . aVertex) vs
                             (_, bandIndices) = mapAccumL (indexBand tfCfg) (0, firstY sorted) sorted
-                            bandSortedVertices = NE.map snd $ NE.sortBy (compareAV SupportTree) bandIndices
+                            bandSortedVertices =
+                              NE.map snd $
+                                NE.sortBy
+                                  (compareAV (vertexPrefix newNames brks SupportTree) SupportTree)
+                                  bandIndices
                             (_, renamedVertices') = mapAccumL assignSupportNames M.empty bandSortedVertices
                          in renamedVertices'
                       )
                   )
               )
 
-      supportVertexNames = foldr (S.insert . anVertexName . snd) S.empty supportVertices
+      supportVertexNames = foldr (S.insert . anVertexName) S.empty supportVertices
 
       remainingVertices :: M.Map VertexTreeType [AnnotatedVertex]
       remainingVertices =
@@ -331,12 +339,17 @@ treesOrder :: [VertexTreeType]
 treesOrder = [LeftTree, MiddleTree, RightTree, SupportTree]
 
 compareAV
-  :: VertexTreeType -> (Int, AnnotatedVertex) -> (Int, AnnotatedVertex) -> Ordering
-compareAV treeType (band1, vertex1) (band2, vertex2) =
+  :: (Ord a, Ord b)
+  => (Vertex -> b)
+  -> VertexTreeType
+  -> (a, AnnotatedVertex)
+  -> (a, AnnotatedVertex)
+  -> Ordering
+compareAV supportKey treeType (band1, vertex1) (band2, vertex2) =
   let supportNameCompare =
         bool
           EQ
-          (on compare (dropIndex . vName . aVertex) vertex1 vertex2)
+          (on compare (supportKey . aVertex) vertex1 vertex2)
           (treeType == SupportTree)
       compareZ = comparing (vZ . aVertex) vertex1 vertex2
       compareY = compare band1 band2
@@ -350,9 +363,55 @@ compareAV treeType (band1, vertex1) (band2, vertex2) =
         ]
 
 renameVertexId :: VertexTreeType -> Int -> Text -> Text
-renameVertexId treeType idx vertexPrefix =
+renameVertexId treeType idx prefix =
   let idx' = mwhen (treeType /= SupportTree || idx /= 0) (intToText idx)
-   in vertexPrefix <> idx'
+   in prefix <> idx'
+
+sideLetters :: String
+sideLetters = ['l', 'm', 'r']
+
+{- | Strip the @s@ and side letter a previous run appended. The side letter only
+comes off when it is the one about to be put back, so @rl_r@ keeps its rear @r@
+while @bfl@ loses the @l@ that would otherwise be doubled.
+-}
+dropSupportSuffix :: Text -> Text -> Text
+dropSupportSuffix sideLetter prefix =
+  bool
+    withoutSide
+    (T.init withoutSide)
+    (T.length withoutSide >= 2 && T.last withoutSide == 's')
+  where
+    withoutSide =
+      bool
+        prefix
+        (T.init prefix)
+        (T.length prefix > 2 && T.takeEnd 1 prefix == sideLetter)
+
+{- | The name a vertex gets, before the running index is appended. Support
+prefixes are a fixed point of this, which is what lets it double as a sort
+key that survives a transform.
+-}
+vertexPrefix
+  :: UpdateNamesMap -> XGroupBreakpoints -> VertexTreeType -> Vertex -> Text
+vertexPrefix newNames brks treeType v
+  | treeType == SupportTree =
+      updatedPrefix (dropSupportSuffix typeSpecific prefix)
+        <> T.singleton 's'
+        <> typeSpecific
+  | T.length prefix >= 3
+      && T.last prefix' == 's' =
+      updatedPrefix (T.init prefix') <> typeSpecific
+  | T.length prefix >= 3
+      && isLmr =
+      updatedPrefix prefix' <> typeSpecific
+  | otherwise =
+      updatedPrefix prefix <> typeSpecific
+  where
+    updatedPrefix cleanPrefix = M.findWithDefault cleanPrefix cleanPrefix newNames
+    prefix = dropIndex (vName v)
+    typeSpecific = either (const "") prefixForType (determineGroup brks v)
+    (prefix', lastChar) = fromMaybe (error "unreachable") (T.unsnoc prefix)
+    isLmr = lastChar `elem` sideLetters
 
 assignNames
   :: UpdateNamesMap
@@ -363,33 +422,9 @@ assignNames
   -> (Map Text Int, AnnotatedVertex)
 assignNames newNames brks treeType prefixMap av =
   let v = aVertex av
-      updatedPrefix cleanPrefix' = M.findWithDefault cleanPrefix' cleanPrefix' newNames
-      prefix = dropIndex (vName v)
-      typeSpecific = either (const "") prefixForType (determineGroup brks v)
-      (prefix', lastChar) = fromMaybe (error "unreachable") (T.unsnoc prefix)
-      isLmr = lastChar `elem` ['l', 'm', 'r']
-      supportPrefixChar = T.singleton 's' <> bool typeSpecific (T.singleton lastChar) isLmr
-      cleanPrefix
-        | treeType /= SupportTree
-            && T.length prefix >= 3
-            && T.last prefix' == 's' =
-            updatedPrefix (T.init prefix') <> typeSpecific
-        | treeType /= SupportTree
-            && T.length prefix >= 3
-            && isLmr =
-            updatedPrefix prefix' <> typeSpecific
-        | treeType /= SupportTree =
-            updatedPrefix prefix <> typeSpecific
-        | T.length prefix' >= 3
-            && T.last prefix' == 's' =
-            updatedPrefix (T.init prefix') <> T.singleton 's' <> typeSpecific
-        | T.length prefix' < 2 =
-            updatedPrefix prefix <> supportPrefixChar
-        | otherwise =
-            updatedPrefix prefix' <> supportPrefixChar
+      cleanPrefix = vertexPrefix newNames brks treeType v
       lastIdx = M.findWithDefault 0 cleanPrefix prefixMap
-      newName = renameVertexId treeType lastIdx cleanPrefix
-      newVertex = v {vName = newName}
+      newVertex = v {vName = renameVertexId treeType lastIdx cleanPrefix}
       prefixMap' = M.insert cleanPrefix (lastIdx + 1) prefixMap
    in (prefixMap', av {aVertex = newVertex})
 
@@ -422,7 +457,9 @@ sortVertices treeType newNames tfCfg (VertexTree comments vertices) =
   let brks = xGroupBreakpoints tfCfg
       sorted = NE.sortBy (on compare $ vY . aVertex) vertices
       (_, bandIndices) = mapAccumL (indexBand tfCfg) (0, firstY sorted) sorted
-      bandSortedAnnotated = NE.map snd $ NE.sortBy (compareAV treeType) bandIndices
+      bandSortedAnnotated =
+        NE.map snd $
+          NE.sortBy (compareAV (vertexPrefix newNames brks treeType) treeType) bandIndices
       renamedGroups =
         snd $ mapAccumL (assignNames newNames brks treeType) M.empty bandSortedAnnotated
    in VertexTree comments renamedGroups
