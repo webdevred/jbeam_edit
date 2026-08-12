@@ -5,6 +5,7 @@ module Main (
 import CommandLineOptions
 import Control.Monad (when)
 import Data.Text (Text)
+import JbeamEdit.Core.Newline
 import JbeamEdit.Core.Node (Node)
 import JbeamEdit.Formatting (RuleSet, formatNodeAndWrite)
 import JbeamEdit.Formatting.Config
@@ -12,11 +13,8 @@ import JbeamEdit.IOUtils
 import JbeamEdit.Parsing.Jbeam (parseNodes)
 import System.Directory.OsPath
 import System.Environment (getArgs)
+import System.IO (Newline)
 import System.OsPath
-
-#ifdef ENABLE_WINDOWS_NEWLINES
-import Data.Text qualified as T
-#endif
 
 #ifdef ENABLE_TRANSFORMATION
 import JbeamEdit.Transformation
@@ -48,16 +46,19 @@ editFile opts = do
     Just filename -> do
       createBackupFile filename opts
       contents <- tryReadFile [] filename
-      case contents >>= parseNodes of
-        Right ns -> processNodes opts filename ns formattingConfig
+      case contents of
+        Right contents' ->
+          case parseNodes contents' of
+            Right ns -> processNodes (detectNewline contents') opts filename ns formattingConfig
+            Left err -> putErrorLine err
         Left err -> putErrorLine err
     Nothing -> putErrorLine "missing arg filename"
 
-processNodes :: Options -> OsPath -> Node -> RuleSet -> IO ()
-processNodes opts outFile nodes formattingConfig = do
+processNodes :: Newline -> Options -> OsPath -> Node -> RuleSet -> IO ()
+processNodes newline opts outFile nodes formattingConfig = do
   transformedNode <- applyTransform formattingConfig opts nodes
   case transformedNode of
-    Right transformedNode' -> formatNodeAndWrite formattingConfig outFile transformedNode'
+    Right transformedNode' -> formatNodeAndWrite newline formattingConfig outFile transformedNode'
     Left err -> putErrorLine err
 
 applyTransform :: RuleSet -> Options -> Node -> IO (Either Text Node)

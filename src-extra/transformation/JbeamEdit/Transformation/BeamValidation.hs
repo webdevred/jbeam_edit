@@ -7,7 +7,7 @@ module JbeamEdit.Transformation.BeamValidation (
 ) where
 
 import Control.Monad (forM_, unless)
-import Data.Foldable (foldl')
+import Data.List (foldl')
 import Data.List.NonEmpty (toList)
 import Data.Map qualified as M
 import Data.Set (Set)

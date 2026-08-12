@@ -3,6 +3,7 @@ module Spec (
 ) where
 
 import Data.ByteString.Lazy qualified as LBS
+import Data.Char (isDigit)
 import Data.List (isInfixOf, isPrefixOf, isSuffixOf)
 import Data.Map qualified as M
 import Data.Set (Set)
@@ -130,8 +131,10 @@ beamValidationSpec = do
 nodesQuery :: NP.NodePath
 nodesQuery = fromList [NP.ObjectIndex 0, NP.ObjectKey "nodes"]
 
-{- | (name, Y position) for every vertex in a top node's "nodes" section,
-in file order.
+{- | (name, Y position) for every vertex in a transformed top node's
+"nodes" section, in file order (i.e. the order `transform` actually
+wrote them out in). Read straight back out of the output rather than
+correlated against the input names, since `transform` renames vertices.
 -}
 vertexPositionsInOrder :: Node -> [(Text, Double)]
 vertexPositionsInOrder topNode =
@@ -220,6 +223,42 @@ supportRenameIdempotencySpec =
               once `shouldNotBe` []
               vertexPositionsInOrder twiceNode `shouldBe` once
 
+{- | Real left-side structural node positions from a NASCAR gen4-style body
+file (see issue #214). This specific spacing reproduces a real transform
+run: with y-sorting-threshold 0.1, the frontmost node (nl0, Y=-1.967) ends
+up sorted to the back of its group instead of the front.
+-}
+ySortingReproFixture :: FilePath
+ySortingReproFixture = "examples/regression_jbeam/y-sorting-repro.jbeam"
+
+ySortingBandingSpec :: Spec
+ySortingBandingSpec =
+  describe "y-sorting-threshold"
+    . it
+      "never places a node behind another node that is more than the threshold further forward"
+    $ do
+      let thr = 0.1 :: Double
+          cfg = newTransformationConfig {ySortingThreshold = 0.1}
+      topNode <- parseJbeamFile ySortingReproFixture
+      case transform M.empty cfg topNode of
+        Left err -> expectationFailure ("transform failed: " ++ T.unpack err)
+        Right (_, _, _, resultNode) -> do
+          let positions = zip (vertexPositionsInOrder resultNode) [0 :: Int ..]
+              groupPrefix = T.dropWhileEnd isDigit
+              -- Only compare nodes within the same output group (e.g.
+              -- "nll", "nlm"): a Left-tree node and a Middle-tree node
+              -- are unrelated blocks in the file, not a single ordered
+              -- sequence, so their relative position isn't meaningful.
+              outOfOrder =
+                [ (y1, y2)
+                | ((n1, y1), i1) <- positions
+                , ((n2, y2), i2) <- positions
+                , i1 < i2
+                , groupPrefix n1 == groupPrefix n2
+                , y1 - y2 > thr
+                ]
+          outOfOrder `shouldBe` []
+
 main :: IO ()
 main = hspec $ do
   let exampleConfigPath = unsafeEncodeUtf "examples/jbeam-edit.yaml"
@@ -243,3 +282,4 @@ main = hspec $ do
   beamValidationSpec
   supportRenameIdempotencySpec
   letterEndingNodesSpec
+  ySortingBandingSpec

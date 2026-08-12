@@ -52,6 +52,7 @@ import JbeamEdit.Formatting.Rules (
 import JbeamEdit.Formatting.Rules.ComplexNewLine qualified as CNL
 import JbeamEdit.Formatting.Rules.TrailingComma qualified as TC
 import System.File.OsPath qualified as OS (writeFile)
+import System.IO (Newline (..))
 import System.OsPath (OsPath)
 
 data FormattingState = FormattingState
@@ -459,22 +460,23 @@ formatWithCursor rs _ cursor n =
 formatNode :: RuleSet -> Node -> Text
 formatNode rs node = formatWithCursor rs emptyState newCursor node <> T.singleton '\n'
 
-#ifdef ENABLE_WINDOWS_NEWLINES
-replaceNewlines :: Text -> Text
-replaceNewlines = T.replace "\n" "\r\n"
-#else
-replaceNewlines :: Text -> Text
-replaceNewlines = id
-#endif
+{- | 'formatNode' always emits LF, so rewrite the line endings when the file
+came with CRLF. The handle's newline mode cannot do this, it only applies to
+text-mode writes and the output goes out as bytes.
+-}
+applyNewline :: Newline -> Text -> Text
+applyNewline CRLF = T.replace "\n" "\r\n"
+applyNewline LF = id
 
 formatNodeAndWrite
-  :: RuleSet
+  :: Newline
+  -> RuleSet
   -> OsPath
   -> Node
   -> IO ()
-formatNodeAndWrite rs outFile =
+formatNodeAndWrite newline rs outFile =
   OS.writeFile outFile
     . LBS.fromStrict
     . encodeUtf8
-    . replaceNewlines
+    . applyNewline newline
     . formatNode rs

@@ -26,9 +26,7 @@ import Data.Text.Encoding (decodeUtf8')
 import Data.Word (Word8)
 import JbeamEdit.Core.NodePath
 import JbeamEdit.Formatting.Rules
-import JbeamEdit.Formatting.Rules.ComplexNewLine (ComplexNewLine)
 import JbeamEdit.Formatting.Rules.ComplexNewLine qualified as CNL
-import JbeamEdit.Formatting.Rules.TrailingComma (TrailingComma)
 import JbeamEdit.Formatting.Rules.TrailingComma qualified as TC
 import JbeamEdit.Parsing.Common
 import Text.Megaparsec ((<?>))
