@@ -11,7 +11,7 @@ license-file:       LICENSE
 copyright:          2025 webdevred
 maintainer:         example@example.com
 author:             webdevred
-tested-with:        ghc ==9.10.3 ghc ==9.14.1
+tested-with:        ghc ==9.8.4 ghc ==9.10.3 ghc ==9.14.1
 homepage:           https://github.com/webdevred/jbeam-edit#readme
 bug-reports:        https://github.com/webdevred/jbeam-edit/issues
 synopsis:
@@ -63,6 +63,7 @@ flag windows-example-paths
 
 library
     exposed-modules:
+        JbeamEdit.Core.Newline
         JbeamEdit.Core.Node
         JbeamEdit.Core.NodeCursor
         JbeamEdit.Core.NodePath
@@ -100,7 +101,7 @@ library
         extra >=1.7.13,
         file-io,
         filepath >=1.5.1.0,
-        megaparsec <9.8,
+        megaparsec,
         mtl,
         scientific,
         text >=2.1.2,
@@ -117,9 +118,6 @@ library
 
     if (os(windows) && flag(windows-example-paths))
         cpp-options: -DWINDOWS_EXAMPLE_PATHS
-
-    if os(windows)
-        cpp-options: -DENABLE_WINDOWS_NEWLINES
 
 library jbeam-edit-transformation
     exposed-modules:
@@ -262,6 +260,7 @@ test-suite jbeam-edit-test
     build-tool-depends: hspec-discover:hspec-discover
     hs-source-dirs:     test
     other-modules:
+        Core.NewlineSpec
         Core.NodeCursorSpec
         Core.NodePathSpec
         Core.NodeSpec
@@ -306,7 +305,7 @@ test-suite jbeam-edit-test
     if True
         build-depends:
             hspec-megaparsec,
-            megaparsec <9.8
+            megaparsec
 
 test-suite jbeam-edit-transformation-test
     type:               exitcode-stdio-1.0

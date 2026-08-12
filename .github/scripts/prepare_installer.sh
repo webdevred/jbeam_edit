@@ -49,8 +49,11 @@ cp ./examples/jbeam-edit.yaml ./.jbeam-edit.yaml
 
 JBEAM_DIR="./examples/jbeam"
 
+# Line endings are checked separately by check_newline_preservation.sh. Here we
+# only care about content, and the two sides can disagree on endings because the
+# input comes from a blob while the expected file comes from the working tree.
 custom_diff() {
-  diff --color=always --suppress-common-lines "$1" "$2"
+  diff --color=always --suppress-common-lines --strip-trailing-cr "$1" "$2"
 }
 
 mapfile -t JBEAM_FILES < <(find "$JBEAM_DIR" -maxdepth 1 -name "*.jbeam" -printf "%f\n")

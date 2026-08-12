@@ -25,7 +25,7 @@ description: >-
   and can automatically rename nodes and update references. Custom formatting rules
   are supported via JBFL (JBeam Formatting Language). See the README for usage instructions
   and examples: https://github.com/webdevred/jbeam-edit#readme
-tested-with: [GHC == 9.10.3, GHC == 9.14.1]
+tested-with: [GHC == 9.8.4, GHC == 9.10.3, GHC == 9.14.1]
 
 dependencies:
   - base >= 4.19
@@ -95,14 +95,12 @@ library:
   ghc-options: [-Wunused-packages]
   source-dirs: src
   generated-other-modules: Paths_jbeam_edit
-  dependencies: [extra >= 1.7.13, megaparsec < 9.8, file-io]
+  dependencies: [extra >= 1.7.13, megaparsec, file-io]
   when:
     - condition: flag(transformation)
       cpp-options: -DENABLE_TRANSFORMATION
     - condition: os(windows) && flag(windows-example-paths)
       cpp-options: -DWINDOWS_EXAMPLE_PATHS
-    - condition: os(windows)
-      cpp-options: -DENABLE_WINDOWS_NEWLINES
 
 _jbeam-options: &jbeam-options
   main: Main.hs
@@ -154,7 +152,7 @@ tests:
     source-dirs: test
     when:
       - condition: true
-        dependencies: [megaparsec < 9.8, hspec-megaparsec]
+        dependencies: [megaparsec, hspec-megaparsec]
   jbeam-edit-transformation-test:
     <<: *jbeam-test-common
     main: Spec.hs

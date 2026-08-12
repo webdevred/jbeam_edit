@@ -142,7 +142,7 @@ jobs:
         id: cabal-version
       - name: Set up GHC ${{ matrix.ghc }} and Cabal
         id: setup-ghc
-        uses: haskell-actions/setup@v2.11.0
+        uses: haskell-actions/setup@v2.12.0
         with:
           ghc-version: ${{ matrix.ghc }}
           cabal-version: latest
@@ -182,7 +182,24 @@ jobs:
             }}
           restore-keys: |
             ${{ runner.os }}-cabal-${{ matrix.ghc }}-
+      - name: Fail on unused imports for the oldest GHC
+        if: matrix.oldest == true
+        shell: bash
+        run: |
+          # cabal.project.ci demotes unused-imports to a warning because
+          # widening the supported GHC range makes some imports look
+          # redundant on one version while still required on another. An
+          # import flagged unused on the OLDEST GHC can't be a version
+          # false positive though, it's unused on every newer GHC too, so
+          # only that leg can safely drop the downgrade and fall back to
+          # the plain -Werror already set in the file.
+          sed -i '/-Wwarn=unused-imports/d' cabal.project.ci
       - name: Build project (GHC ${{ steps.setup-ghc.outputs.ghc-version }})
         run: cabal build --project-file cabal.project.ci all
       - name: Run tests (GHC ${{ steps.setup-ghc.outputs.ghc-version }})
         run: cabal test --project-file cabal.project.ci
+      - name: Check that formatting preserves line endings
+        shell: bash
+        run: |
+          bash ./.github/scripts/check_newline_preservation.sh \
+            "$(cabal list-bin --project-file cabal.project.ci jbeam-edit)"

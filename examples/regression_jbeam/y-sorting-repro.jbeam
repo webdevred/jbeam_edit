@@ -1,0 +1,37 @@
+{
+"testpart":{
+    "nodes":[
+        ["id", "posX", "posY", "posZ"],
+        // Synthetic regression-test fixture for issue #214, not vetted by
+        // the jbeam maintainer and not intended as a demo/example.
+        // Real node positions from a gen4-style body file, reduced to just
+        // the left side, kept because this spacing reproduces a real bug.
+        ["nl0", 0.953, -1.967, 0.122],
+        ["nl2", 0.92, -1.953, 0.439],
+        ["nl4", 0.78, -1.815, 0.719],
+        ["nl6", 1.036, -1.807, 0.125],
+        ["nl8", 0.998, -1.791, 0.473],
+        ["nl10", 0.944, -1.644, 0.72],
+        ["nl12", 0.823, -1.362, 0.841],
+        ["nl14", 0.952, -1.354, 0.772],
+        ["nl18", 0.971, -1.107, 0.628],
+        ["nl20", 0.841, -1.079, 0.885],
+        ["nl22", 0.964, -1.058, 0.106],
+        ["nl24", 0.975, -1.054, 0.424],
+        ["nl26", 0.038, -0.997, 0.943],
+        ["nl27", 0.616, -0.958, 0.933],
+        ["nl29", 0.808, -0.898, 0.923],
+        ["nl31", 0.038, -0.838, 0.949],
+        ["nl32", 0.593, -0.78, 0.937],
+        ["nl34", 0.835, -0.688, 0.91],
+        ["nl36", 0.975, -0.645, 0.631],
+        ["nl38", 0.972, -0.644, 0.106],
+    ],
+    "beams":[
+        ["id1:", "id2:"],
+    ],
+    "triangles":[
+        ["id1:", "id2:", "id3:"],
+    ],
+},
+}

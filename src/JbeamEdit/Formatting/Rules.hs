@@ -44,7 +44,6 @@ import JbeamEdit.Core.NodePath (NodeSelector (..))
 import JbeamEdit.Formatting.Rules.ComplexNewLine (ComplexNewLine)
 import JbeamEdit.Formatting.Rules.ComplexNewLine qualified as CNL
 import JbeamEdit.Formatting.Rules.TrailingComma (TrailingComma)
-import JbeamEdit.Formatting.Rules.TrailingComma qualified as TC
 import Text.Read qualified as TR
 
 data NodePatternSelector
