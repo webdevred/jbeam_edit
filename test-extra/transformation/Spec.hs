@@ -4,7 +4,7 @@ module Spec (
 
 import Data.ByteString.Lazy qualified as LBS
 import Data.Char (isDigit)
-import Data.List (isInfixOf, isPrefixOf, isSuffixOf)
+import Data.List (isPrefixOf, isSuffixOf)
 import Data.Map qualified as M
 import Data.Set (Set)
 import Data.Set qualified as S
@@ -82,11 +82,7 @@ fixedPointSpec rs cfName tfConfig outFilename = do
             case transform M.empty tfConfig node of
               Left err -> expectationFailure ("transform failed: " ++ T.unpack err)
               Right (_, _, _, again) -> formatNode rs again `shouldBe` expected
-  describe desc . it "works" $
-    if "suspension" `isInfixOf` outFilename
-      then
-        pendingWith "metadata is not carried across vertex tree boundaries, issue #221"
-      else check
+  describe desc . it "works" $ check
 
 parseJbeamFile :: FilePath -> IO Node
 parseJbeamFile path = do
@@ -223,6 +219,26 @@ supportRenameIdempotencySpec =
               once `shouldNotBe` []
               vertexPositionsInOrder twiceNode `shouldBe` once
 
+{- | Y positions of vertex pairs a transform wrote out of order: a later
+vertex sitting more than the threshold further forward than an earlier
+one in the same output group. Only vertices within one group are
+compared (e.g. "nll", "nlm"): a Left-tree vertex and a Middle-tree
+vertex are unrelated blocks in the file, not a single ordered sequence,
+so their relative position isn't meaningful.
+-}
+outOfOrderPairs :: Double -> Node -> [(Double, Double)]
+outOfOrderPairs thr resultNode =
+  [ (y1, y2)
+  | ((n1, y1), i1) <- positions
+  , ((n2, y2), i2) <- positions
+  , i1 < i2
+  , groupPrefix n1 == groupPrefix n2
+  , y1 - y2 > thr
+  ]
+  where
+    positions = zip (vertexPositionsInOrder resultNode) [0 :: Int ..]
+    groupPrefix = T.dropWhileEnd isDigit
+
 {- | Real left-side structural node positions from a NASCAR gen4-style body
 file (see issue #214). This specific spacing reproduces a real transform
 run: with y-sorting-threshold 0.1, the frontmost node (nl0, Y=-1.967) ends
@@ -237,27 +253,37 @@ ySortingBandingSpec =
     . it
       "never places a node behind another node that is more than the threshold further forward"
     $ do
-      let thr = 0.1 :: Double
-          cfg = newTransformationConfig {ySortingThreshold = 0.1}
+      let cfg = newTransformationConfig {ySortingThreshold = 0.1}
       topNode <- parseJbeamFile ySortingReproFixture
       case transform M.empty cfg topNode of
         Left err -> expectationFailure ("transform failed: " ++ T.unpack err)
+        Right (_, _, _, resultNode) -> outOfOrderPairs 0.1 resultNode `shouldBe` []
+
+{- | A metadata row ahead of the first vertex applies to the whole section,
+and the transform writes it back out at the top, so it says nothing about
+any individual vertex and must not decide where one is placed. It does
+today (issue #221): `newVertexTree` seeds each tree from its own leading
+block, and `breakVertices` splits on prefix, so alternating nl/nr names
+leave only the first vertex carrying the row. `compareAV` sorts on `aMeta`
+ahead of the Y band and an empty map sorts first, which drops that one
+vertex at the end of its group while its mirror on the other side stays
+in front.
+-}
+metadataAcrossTreesFixture :: FilePath
+metadataAcrossTreesFixture =
+  "examples/regression_jbeam/metadata-across-trees-repro.jbeam"
+
+metadataAcrossTreesSpec :: Spec
+metadataAcrossTreesSpec =
+  describe "metadata ahead of the first vertex"
+    . it "does not decide where a vertex is placed"
+    $ do
+      topNode <- parseJbeamFile metadataAcrossTreesFixture
+      case transform M.empty newTransformationConfig topNode of
+        Left err -> expectationFailure ("transform failed: " ++ T.unpack err)
         Right (_, _, _, resultNode) -> do
-          let positions = zip (vertexPositionsInOrder resultNode) [0 :: Int ..]
-              groupPrefix = T.dropWhileEnd isDigit
-              -- Only compare nodes within the same output group (e.g.
-              -- "nll", "nlm"): a Left-tree node and a Middle-tree node
-              -- are unrelated blocks in the file, not a single ordered
-              -- sequence, so their relative position isn't meaningful.
-              outOfOrder =
-                [ (y1, y2)
-                | ((n1, y1), i1) <- positions
-                , ((n2, y2), i2) <- positions
-                , i1 < i2
-                , groupPrefix n1 == groupPrefix n2
-                , y1 - y2 > thr
-                ]
-          outOfOrder `shouldBe` []
+          vertexPositionsInOrder resultNode `shouldNotBe` []
+          outOfOrderPairs 0.05 resultNode `shouldBe` []
 
 main :: IO ()
 main = hspec $ do
@@ -283,3 +309,4 @@ main = hspec $ do
   supportRenameIdempotencySpec
   letterEndingNodesSpec
   ySortingBandingSpec
+  metadataAcrossTreesSpec
