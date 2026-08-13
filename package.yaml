@@ -25,16 +25,16 @@ description: >-
   and can automatically rename nodes and update references. Custom formatting rules
   are supported via JBFL (JBeam Formatting Language). See the README for usage instructions
   and examples: https://github.com/webdevred/jbeam-edit#readme
-tested-with: [GHC == 9.6.6]
+tested-with: [GHC == 9.8.4, GHC == 9.10.3, GHC == 9.14.1]
 
 dependencies:
-  - base >= 4.18 && < 4.22
+  - base >= 4.19
   - bytestring
   - vector >= 0.13
   - text >= 2.1.2
   - containers
   - scientific
-  - directory
+  - directory >= 1.3.8.0
   - filepath >= 1.5.1.0
   - mtl
 
@@ -42,6 +42,7 @@ default-extensions:
   - OverloadedStrings
   - ImportQualifiedPost
   - DerivingStrategies
+  - TupleSections
 
 ghc-options:
   - -Wall
@@ -55,7 +56,7 @@ ghc-options:
   - -Wredundant-constraints
 
 when:
-  - condition: '! flag(lsp-server) && ! flag(transformation) && ! flag(dump-ast)'
+  - condition: '! flag(transformation) && ! flag(dump-ast)'
     dependencies: [containers >= 0.8]
   - condition: os(windows)
     ghc-options: -optc-Os -optl-static
@@ -67,10 +68,6 @@ flags:
     default: false
   transformation:
     description: Enable transformation (experimental)
-    manual: true
-    default: false
-  lsp-server:
-    description: Enable LSP server (experimental)
     manual: true
     default: false
   windows-example-paths:
@@ -88,38 +85,23 @@ internal-libraries:
           - file-io
           - extra
           - transformers
-          - ordered-containers
+          - ordered-containers >= 0.2.4
       else:
         buildable: false
     source-dirs: src-extra/transformation
-    dependencies: [jbeam-edit]
-  jbeam-language-server:
-    default-extensions: [DataKinds, PolyKinds]
-    when:
-      condition: flag(lsp-server)
-      then:
-        dependencies: [lsp >= 2.7, co-log-core,aeson]
-      else:
-        buildable: false
-    source-dirs: src-extra/language-server
     dependencies: [jbeam-edit]
 
 library:
   ghc-options: [-Wunused-packages]
   source-dirs: src
   generated-other-modules: Paths_jbeam_edit
-  dependencies: [extra, megaparsec, file-io]
+  dependencies: [extra >= 1.7.13, megaparsec, file-io]
   when:
     - condition: flag(transformation)
       cpp-options: -DENABLE_TRANSFORMATION
     - condition: os(windows) && flag(windows-example-paths)
       cpp-options: -DWINDOWS_EXAMPLE_PATHS
-    - condition: os(windows)
-      cpp-options: -DENABLE_WINDOWS_NEWLINES
 
-_jbeam-lsp-common: &jbeam-lsp-common
-  main: Main.hs
-  dependencies: [jbeam-edit]
 _jbeam-options: &jbeam-options
   main: Main.hs
   ghc-options: [-threaded, -rtsopts, -with-rtsopts=-N]
@@ -134,23 +116,12 @@ executables:
       - condition: flag(transformation)
         dependencies: [jbeam-edit-transformation]
         cpp-options: -DENABLE_TRANSFORMATION
-  jbeam-lsp-server:
-    source-dirs: exe/jbeam-lsp-server
-    when:
-      condition: flag(lsp-server)
-      then:
-        dependencies: [jbeam-language-server]
-      else:
-        buildable: false
-    <<:
-      - *jbeam-options
-      - *jbeam-lsp-common
   jbeam-edit-dump-ast:
     <<: *jbeam-options
     when:
       condition: (flag(dump-ast) && flag(transformation))
       then:
-        dependencies: [pretty-simple>=3.3, jbeam-edit-transformation]
+        dependencies: [pretty-simple >= 4, jbeam-edit-transformation]
       else:
         buildable: false
     source-dirs: tools/dump_ast
@@ -182,16 +153,6 @@ tests:
     when:
       - condition: true
         dependencies: [megaparsec, hspec-megaparsec]
-  jbeam-language-server-test:
-    <<: *jbeam-test-common
-    source-dirs: test-extra/language-server
-    when:
-      - condition: flag(lsp-server)
-        then:
-          build-tools: jbeam-edit:jbeam-lsp-server
-          dependencies: [jbeam-language-server, lsp-test, lsp >= 2.7]
-        else:
-          buildable: false
   jbeam-edit-transformation-test:
     <<: *jbeam-test-common
     main: Spec.hs

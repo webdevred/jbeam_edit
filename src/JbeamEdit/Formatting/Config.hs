@@ -2,7 +2,6 @@
 
 module JbeamEdit.Formatting.Config (localRuleFile, readFormattingConfig, copyToConfigDir, ConfigType (..)) where
 
-import Control.Monad.Extra (unlessM)
 import Data.Foldable (traverse_)
 import Data.Text qualified as T
 import GHC.IO.Exception (IOErrorType (NoSuchThing))
@@ -72,14 +71,10 @@ copyConfigFile configType dest = do
 copyToConfigDir :: ConfigType -> IO ()
 copyToConfigDir configType = getConfigDir >>= copyConfigFile configType . (</> userRuleFile)
 
-createRuleFileIfDoesNotExist :: OsPath -> IO ()
-createRuleFileIfDoesNotExist configPath = doesFileExist configPath `unlessM` copyConfigFile MinimalConfig configPath
-
 readFormattingConfig :: Maybe OsPath -> IO RuleSet
 readFormattingConfig maybeJbflPath = do
   configDir <- getConfigDir
   traverse_ (putErrorLine . (<>) "Loading jbfl: " . T.show) maybeJbflPath
-  createRuleFileIfDoesNotExist (configDir </> userRuleFile)
   configPath <- getConfigPath maybeJbflPath configDir
   userCfg <- tryReadFile [NoSuchThing] configPath
   defaultRulesetPath <- getJbflSourcePath MinimalConfig

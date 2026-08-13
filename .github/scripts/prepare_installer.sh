@@ -45,22 +45,15 @@ cp "$EXE_PATH" "$DEST_DIR_RELEASE/jbeam-edit.exe"
 du -h "$EXE_PATH"
 echo "Copied exe to /$DEST_DIR_RELEASE/jbeam-edit.exe"
 
-LSP_EXE_PATH=$(find "$DIST_NEWSTYLE/build" -type f -name "jbeam-lsp-server.exe" | head -n 1)
-
-if [ -z "$LSP_EXE_PATH" ]; then
-  echo "Error: No LSP exe found in '$DIST_NEWSTYLE/build', skipping."
-else
-  du -h "$LSP_EXE_PATH"
-  cp "$LSP_EXE_PATH" "$DEST_DIR_RELEASE/jbeam-lsp-server.exe"
-  echo "Copied exe to /$DEST_DIR_RELEASE/jbeam-lsp-server.exe"
-fi
-
 cp ./examples/jbeam-edit.yaml ./.jbeam-edit.yaml
 
 JBEAM_DIR="./examples/jbeam"
 
+# Line endings are checked separately by check_newline_preservation.sh. Here we
+# only care about content, and the two sides can disagree on endings because the
+# input comes from a blob while the expected file comes from the working tree.
 custom_diff() {
-  diff --color=always --suppress-common-lines "$1" "$2"
+  diff --color=always --suppress-common-lines --strip-trailing-cr "$1" "$2"
 }
 
 mapfile -t JBEAM_FILES < <(find "$JBEAM_DIR" -maxdepth 1 -name "*.jbeam" -printf "%f\n")

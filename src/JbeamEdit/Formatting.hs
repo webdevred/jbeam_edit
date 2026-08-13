@@ -24,11 +24,13 @@ import Data.Text.Encoding (encodeUtf8)
 import Data.Vector (Vector)
 import Data.Vector qualified as V
 import JbeamEdit.Core.Node (
+  ArrayValue (..),
   InternalComment (..),
   Node (..),
   NumberValue (..),
+  ObjectValue (..),
+  commentIsAttachedToPreviousNode,
   expectArray,
-  extractPreviousAssocCmt,
   isCommentNode,
   isComplexNode,
   isObjectKeyNode,
@@ -39,15 +41,18 @@ import JbeamEdit.Core.Node (
 import JbeamEdit.Core.NodeCursor (newCursor)
 import JbeamEdit.Core.NodeCursor qualified as NC
 import JbeamEdit.Formatting.Rules (
-  ComplexNewLineMode (..),
   MatchMode (..),
   PropertyKey (..),
   RuleSet (..),
   applyPadLogic,
   findPropertiesForCursor,
+  lookupPropertyForCursor,
   lookupRule,
  )
+import JbeamEdit.Formatting.Rules.ComplexNewLine qualified as CNL
+import JbeamEdit.Formatting.Rules.TrailingComma qualified as TC
 import System.File.OsPath qualified as OS (writeFile)
+import System.IO (Newline (..))
 import System.OsPath (OsPath)
 
 data FormattingState = FormattingState
@@ -90,6 +95,13 @@ singleCharIf a b = mwhen b (T.singleton a)
 singleCharIfNot :: Char -> Bool -> Text
 singleCharIfNot a b = singleCharIf a (not b)
 
+extractPreviousAssocCmtPair
+  :: [(Node, Bool)]
+  -> (Maybe InternalComment, [(Node, Bool)])
+extractPreviousAssocCmtPair ((Comment cmt, _) : ns)
+  | commentIsAttachedToPreviousNode cmt = (Just cmt, ns)
+extractPreviousAssocCmtPair ns = (Nothing, ns)
+
 addDelimiters
   :: RuleSet
   -> Int
@@ -98,12 +110,20 @@ addDelimiters
   -> Bool
   -> FormattingState
   -> [Text]
-  -> [Node]
+  -> [(Node, Bool)]
   -> [Text]
 addDelimiters _ _ _ _ _ _ acc [] = acc
-addDelimiters rs index rowIdx c complexChildren state acc ns@(node : rest)
+addDelimiters rs index rowIdx c complexChildren state acc ns@((node, nodeHadComma) : rest)
   | complexChildren && null acc =
-      addDelimiters rs index rowIdx c complexChildren state ["\n"] ns
+      addDelimiters
+        rs
+        index
+        rowIdx
+        c
+        complexChildren
+        state
+        ["\n"]
+        ns
   | isCommentNode node =
       let formattedComment =
             formatWithCursor
@@ -112,9 +132,17 @@ addDelimiters rs index rowIdx c complexChildren state acc ns@(node : rest)
               c
               (normalizeCommentNode complexChildren node)
           formatted = (newlineBeforeComment <> formattedComment <> "\n") : acc
-       in addDelimiters rs index rowIdx c complexChildren state formatted rest
+       in addDelimiters
+            rs
+            index
+            rowIdx
+            c
+            complexChildren
+            state
+            formatted
+            rest
   | otherwise =
-      case extractPreviousAssocCmt rest of
+      case extractPreviousAssocCmtPair rest of
         (Just comment, rest') ->
           let baseTxt = applyCrumbAndFormat node index
               formatted = (baseTxt <> " " <> formatComment comment) : acc
@@ -130,8 +158,18 @@ addDelimiters rs index rowIdx c complexChildren state acc ns@(node : rest)
         (Nothing, _) ->
           let baseTxt = applyCrumbAndFormat node index
               new_acc = (baseTxt <> singleCharIf ' ' space <> singleCharIf '\n' newline) : acc
-           in addDelimiters rs (index + 1) nextRowIdx c complexChildren state new_acc rest
+           in addDelimiters
+                rs
+                (index + 1)
+                nextRowIdx
+                c
+                complexChildren
+                state
+                new_acc
+                rest
   where
+    restNodes = map fst rest
+
     newlineBeforeComment = case node of
       Comment ic | not (cMultiline ic) ->
         case acc of
@@ -141,8 +179,8 @@ addDelimiters rs index rowIdx c complexChildren state acc ns@(node : rest)
           _ ->
             singleCharIfNot
               '\n'
-              (["\n"] == acc || not (cHadNewlineBefore ic) && any isObjectKeyNode rest)
-      _ -> singleCharIfNot '\n' (any isObjectKeyNode rest || ["\n"] == acc)
+              (["\n"] == acc || not (cHadNewlineBefore ic) && any isObjectKeyNode restNodes)
+      _ -> singleCharIfNot '\n' (any isObjectKeyNode restNodes || ["\n"] == acc)
 
     nextRowIdx =
       rowIdx + case node of
@@ -193,7 +231,21 @@ addDelimiters rs index rowIdx c complexChildren state acc ns@(node : rest)
               let (formatted, spaces) = splitTrailing comma (NC.applyCrumb c (formatWithCursor rs emptyState) idx n)
                in formatted <> singleCharIf ',' comma <> spaces
 
-    comma = notNull rest
+    comma =
+      let tcMode =
+            NC.applyCrumb
+              c
+              ( \childCursor _ ->
+                  fromMaybe
+                    TC.Preserve
+                    (lookupPropertyForCursor PrefixMatch TrailingComma rs childCursor)
+              )
+              index
+              node
+       in case tcMode of
+            TC.Preserve -> nodeHadComma
+            TC.Force -> True
+            TC.None -> notNull rest
     space = notNull rest && not complexChildren
     newline = complexChildren
 
@@ -211,7 +263,7 @@ maxColumnLengthsWithCache rs cursor nodes
   | V.null nodes = (V.empty, V.empty, False)
   | otherwise =
       let (nodesToProcess, headerWasExtracted) = case V.uncons nodes of
-            Just (Array firstRow, rest) | all isStringNode firstRow -> (rest, True)
+            Just (Array (ArrayValue firstRow), rest) | all (isStringNode . fst) firstRow -> (rest, True)
             _ -> (nodes, False)
           (arrayRows, arrayIndices) = extractArrayRows nodesToProcess (fromEnum headerWasExtracted)
           formattedColumns = transposeAndFormat rs cursor arrayRows arrayIndices
@@ -251,7 +303,11 @@ transposeAndFormat rs cursor vvs arrayIndices
                           formatRow rowCursor _rowNode =
                             let formatCell = formatWithCursor rs emptyState
                              in NC.applyCrumb rowCursor formatCell colIdx (row V.! colIdx)
-                       in NC.applyCrumb cursor formatRow actualRowIdx (Array row)
+                       in NC.applyCrumb
+                            cursor
+                            formatRow
+                            actualRowIdx
+                            (Array (ArrayValue (V.map (,True) row)))
                     else ""
               )
               vvs
@@ -260,10 +316,11 @@ doFormatNode
   :: RuleSet
   -> NC.NodeCursor
   -> FormattingState
-  -> Vector Node
+  -> Vector (Node, Bool)
   -> Text
-doFormatNode rs cursor state nodes =
-  let prefixProps = findPropertiesForCursor PrefixMatch cursor rs
+doFormatNode rs cursor state elems =
+  let nodes = V.map fst elems
+      prefixProps = findPropertiesForCursor PrefixMatch cursor rs
       exactProps = findPropertiesForCursor ExactMatch cursor rs
 
       autoPadEnabled = lookupRule AutoPad exactProps == Just True
@@ -271,9 +328,9 @@ doFormatNode rs cursor state nodes =
       autopadSubObjectsEnabled = lookupRule AutoPadSubObjects exactProps == Just True
 
       complexChildren =
-        lookupRule ComplexNewLine prefixProps == Just Force
+        lookupRule ComplexNewLine prefixProps == Just CNL.Force
           || any (liftA2 (||) isSinglelineComment isComplexNode) nodes
-            && lookupRule ComplexNewLine prefixProps /= Just None
+            && lookupRule ComplexNewLine prefixProps /= Just CNL.None
 
       (colWidths, formattedCache, headerWasExtracted) =
         maxColumnLengthsWithCache rs cursor nodes
@@ -293,9 +350,9 @@ doFormatNode rs cursor state nodes =
         | autopadSubObjectsEnabled =
             V.foldl'
               ( \acc n -> case n of
-                  ObjectKey (_, Object subNodes) ->
+                  ObjectKey (_, Object (ObjectValue subElems)) ->
                     V.foldl'
-                      ( \acc2 sn -> case sn of
+                      ( \acc2 (sn, _) -> case sn of
                           ObjectKey (sk, sv) ->
                             let kt = formatScalarNode False sk
                                 vw =
@@ -308,7 +365,7 @@ doFormatNode rs cursor state nodes =
                           _ -> acc2
                       )
                       acc
-                      subNodes
+                      subElems
                   _ -> acc
               )
               Map.empty
@@ -338,9 +395,9 @@ doFormatNode rs cursor state nodes =
         reverse
           . addDelimiters rs 0 0 cursor complexChildren state' []
           . V.toList
-          $ nodes
+          $ elems
 
-      indentationAmount = fromMaybe 2 (lookupRule Indent prefixProps)
+      indentationAmount = fromMaybe 4 (lookupRule Indent prefixProps)
    in if complexChildren
         then
           T.unlines
@@ -372,7 +429,7 @@ formatScalarNode _ n = error $ "Unhandled scalar node: " <> show n
 
 formatWithCursor
   :: RuleSet -> FormattingState -> NC.NodeCursor -> Node -> Text
-formatWithCursor rs state cursor (Array a)
+formatWithCursor rs state cursor (Array (ArrayValue a))
   | V.null a = "[]"
   | otherwise =
       T.concat
@@ -380,7 +437,7 @@ formatWithCursor rs state cursor (Array a)
         , doFormatNode rs cursor state a
         , "]"
         ]
-formatWithCursor rs state cursor (Object o)
+formatWithCursor rs state cursor (Object (ObjectValue o))
   | V.null o = "{}"
   | otherwise =
       T.concat
@@ -403,22 +460,23 @@ formatWithCursor rs _ cursor n =
 formatNode :: RuleSet -> Node -> Text
 formatNode rs node = formatWithCursor rs emptyState newCursor node <> T.singleton '\n'
 
-#ifdef ENABLE_WINDOWS_NEWLINES
-replaceNewlines :: Text -> Text
-replaceNewlines = T.replace "\n" "\r\n"
-#else
-replaceNewlines :: Text -> Text
-replaceNewlines = id
-#endif
+{- | 'formatNode' always emits LF, so rewrite the line endings when the file
+came with CRLF. The handle's newline mode cannot do this, it only applies to
+text-mode writes and the output goes out as bytes.
+-}
+applyNewline :: Newline -> Text -> Text
+applyNewline CRLF = T.replace "\n" "\r\n"
+applyNewline LF = id
 
 formatNodeAndWrite
-  :: RuleSet
+  :: Newline
+  -> RuleSet
   -> OsPath
   -> Node
   -> IO ()
-formatNodeAndWrite rs outFile =
+formatNodeAndWrite newline rs outFile =
   OS.writeFile outFile
     . LBS.fromStrict
     . encodeUtf8
-    . replaceNewlines
+    . applyNewline newline
     . formatNode rs

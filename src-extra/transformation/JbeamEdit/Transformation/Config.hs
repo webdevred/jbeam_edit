@@ -49,7 +49,7 @@ import Text.Read
 defaultSortingThreshold :: Scientific
 defaultSortingThreshold = 0.05
 
-defaultSupportThreshold :: Double
+defaultSupportThreshold :: Scientific
 defaultSupportThreshold = 96
 
 defaultMaxSupportCoordinates :: Natural
@@ -64,9 +64,9 @@ defaultBreakpoints =
     ]
 
 data TransformationConfig = TransformationConfig
-  { zSortingThreshold :: Scientific
+  { ySortingThreshold :: Scientific
   , xGroupBreakpoints :: XGroupBreakpoints
-  , supportThreshold :: Double
+  , supportThreshold :: Scientific
   , maxSupportCoordinates :: Natural
   }
   deriving (Generic)
@@ -125,7 +125,7 @@ instance FromJSON XGroupBreakpoints where
           )
     pure $ XGroupBreakpoints lst
 
-parseSupportThreshold :: Object -> Parser Double
+parseSupportThreshold :: Object -> Parser Scientific
 parseSupportThreshold o = do
   thr <- o .: "support-threshold"
   when (thr < 1) failWithMessage $> thr
@@ -137,7 +137,7 @@ parseSupportThreshold o = do
 instance FromJSON TransformationConfig where
   parseJSON = withObject "TransformationConfig" $ \o ->
     TransformationConfig
-      <$> o .:? "z-sorting-threshold" .!= defaultSortingThreshold
+      <$> o .:? "y-sorting-threshold" .!= defaultSortingThreshold
       <*> o .:? "x-group-breakpoints" .!= defaultBreakpoints
       <*> parseSupportThreshold o
       <*> o .:? "max-support-coordinates" .!= defaultMaxSupportCoordinates

@@ -5,6 +5,7 @@ on:
     branches: [master]
     tags: [v*]
   pull_request:
+    types: [opened, synchronize, reopened, labeled]
     paths:
       - '**.hs'
       - 'package.yaml'
@@ -27,13 +28,13 @@ jobs:
     steps:
       - name: Extract the tested GHC versions
         id: get-latest-version
-        uses: Kleidukos/get-tested@v0.1.9.1
+        uses: Kleidukos/get-tested@v0.1.10.0-rc3
         with:
           cabal-file: jbeam-edit.cabal
-          windows-version: latest
-          version: 0.1.9.1
+          version: 0.1.10.0-rc3
           newest: true
-      - uses: actions/checkout@v6
+          versions-only: true
+      - uses: actions/checkout@v7
       - name: Add experimental flags
         id: add-exp
         shell: bash
@@ -48,10 +49,10 @@ jobs:
     strategy:
       matrix: ${{ fromJSON(needs.get-newest-supported-ghc.outputs.matrix) }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Set up GHC latest and Cabal
         id: setup-ghc
-        uses: haskell-actions/setup@v2.10.3
+        uses: haskell-actions/setup@v2.12.0
         with:
           ghc-version: ${{ matrix.ghc }}
           cabal-version: latest
@@ -67,7 +68,7 @@ jobs:
         shell: bash
         run: bash ./.github/scripts/freeze_dependencies.sh
       - name: Cache GHC, Cabal store, and build artifacts
-        uses: actions/cache@v5.0.4
+        uses: actions/cache@v6.1.0
         with:
           path: |
             dist-newstyle
@@ -84,12 +85,6 @@ jobs:
             ${{ runner.os }}-cabal-${{ matrix.ghc }}-${{ matrix.label }}
       - name: Build dependencies, good to do separate for caching
         run: cabal build --project-file cabal.project.release --only-dependencies
-      - name: Build LSP executable
-        shell: bash
-        run: |
-          cabal build exe:jbeam-lsp-server --project-file cabal.project.release || true
-          LSP_FOLDER=$(find dist-newstyle -path '*/build/jbeam-lsp-server')
-          cp -r examples $LSP_FOLDER/
       - name: Build main executable
         run: cabal build exe:jbeam-edit --project-file cabal.project.release
       - name: Run tests (GHC ${{ matrix.ghc }})
@@ -132,7 +127,7 @@ jobs:
       RELEASE_DIR: ./dist/release
       ZIP_DIR: ./dist/zip_temp
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Download build artifact
         uses: actions/download-artifact@v8
         with:
@@ -143,7 +138,7 @@ jobs:
           CABAL_FILE: jbeam-edit.cabal
         run: bash ./.github/scripts/gen_iss_constants.sh
       - name: Build Inno Setup Installer
-        uses: Minionguyjpro/Inno-Setup-Action@v1.2.7
+        uses: Minionguyjpro/Inno-Setup-Action@v1.2.9
         with:
           path: installer/setup.iss
           options: /O+
@@ -164,7 +159,7 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/')
     name: Release for Windows
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Download all prepared zip artifacts
         uses: actions/download-artifact@v8
         with:
@@ -178,7 +173,7 @@ jobs:
           find dist -type f -name '*.zip' -print0 | xargs -0 -I{} mv {} dist_flat/
           ls -la dist_flat
       - name: Create GitHub Release and upload zips
-        uses: softprops/action-gh-release@v2.6.1
+        uses: softprops/action-gh-release@v3.0.2
         with:
           tag_name: ${{ github.ref_name }}
           draft: true

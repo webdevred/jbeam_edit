@@ -1,6 +1,7 @@
 module JbeamEdit.Transformation (findAndUpdateTextInNode, transform, updateOtherFiles, filterJbeamFiles) where
 
 import Control.Monad (foldM, when)
+import Data.Bifunctor (first)
 import Data.Bool (bool)
 import Data.Foldable.Extra (notNull)
 import Data.Function (on)
@@ -23,6 +24,7 @@ import Data.Traversable (mapAccumL)
 import Data.Vector (Vector, (!), (!?), (//))
 import Data.Vector qualified as V
 import GHC.IsList
+import JbeamEdit.Core.Newline
 import JbeamEdit.Core.Node
 import JbeamEdit.Core.NodeCursor (newCursor)
 import JbeamEdit.Core.NodeCursor qualified as NC
@@ -109,6 +111,19 @@ groupByPrefix origTree =
     . NE.map (prefixForVertexKey origTree)
     . NE.groupWith1 (dropIndex . vName . aVertex)
 
+{- | Like 'groupByPrefix', but support vertices always share a single
+SupportKey bucket instead of being split by name prefix.
+-}
+groupForType
+  :: VertexTreeType
+  -> Maybe (OMap1 VertexTreeKey VertexTree)
+  -> NonEmpty AnnotatedVertex
+  -> OMap1 VertexTreeKey VertexTree
+groupForType SupportTree origTree vs =
+  let topComments = concatMap tComments (OMap1.lookup SupportKey =<< origTree)
+   in OMap1.singleton (SupportKey, VertexTree topComments vs)
+groupForType _ origTree vs = groupByPrefix origTree vs
+
 commentsExists :: Maybe (OMap1 VertexTreeKey VertexTree) -> Bool
 commentsExists = any (notNull . tComments . OMap1.head)
 
@@ -128,24 +143,26 @@ addVertexTreeToForest newNames tf grouped forest forestAcc t =
             addSideComment t (commentsExists origTree)
               . addPrefixComments t
               . fmap (sortVertices t newNames tf)
-              $ groupByPrefix origTree groupsForT
-       in Right (M.insert t tree forestAcc)
+              $ groupForType t origTree groupsForT
+       in Right (M.insertWith mergeOMap1Trees t tree forestAcc)
     Nothing -> Right forestAcc
+
+mergeOMap1Trees
+  :: OMap1 VertexTreeKey VertexTree
+  -> OMap1 VertexTreeKey VertexTree
+  -> OMap1 VertexTreeKey VertexTree
+mergeOMap1Trees new existing =
+  foldl' go existing (OMap1.assocs new)
+  where
+    merge (VertexTree nc newVerts) (VertexTree ec ev) =
+      VertexTree (bool nc ec (notNull ec)) (ev <> newVerts)
+    go acc (k, v) = OMap1.insertWith merge k v acc
 
 groupAnnotatedVertices
   :: XGroupBreakpoints
   -> AnnotatedVertex
   -> Either Text (VertexTreeType, [AnnotatedVertex])
 groupAnnotatedVertices brks g = (,[g]) <$> determineGroup' brks (aVertex g)
-
-updateSupportVertexName
-  :: VertexTreeType
-  -> AnnotatedVertex
-  -> AnnotatedVertex
-updateSupportVertexName vType (AnnotatedVertex c v m) = AnnotatedVertex c (v {vName = newName}) m
-  where
-    name = vName v
-    newName = dropIndex name <> prefixForType vType
 
 moveSupportVertices
   :: UpdateNamesMap
@@ -154,10 +171,10 @@ moveSupportVertices
   -> M.Map VertexTreeType [AnnotatedVertex]
   -> (VertexForest, M.Map VertexTreeType [AnnotatedVertex])
 moveSupportVertices newNames tfCfg connMap vsPerType =
-  let supportVertices :: [(VertexTreeType, AnnotatedVertex)]
+  let supportVertices :: [AnnotatedVertex]
       supportVertices =
-        [ (vType, av)
-        | (vType, vs) <- M.toList vsPerType
+        [ av
+        | vs <- M.elems vsPerType
         , av <- vs
         , let name = vName (aVertex av)
         , let vertexCount = length vs
@@ -168,7 +185,6 @@ moveSupportVertices newNames tfCfg connMap vsPerType =
         ]
 
       brks = xGroupBreakpoints tfCfg
-      thr = zSortingThreshold tfCfg
 
       assignSupportNames = assignNames newNames brks SupportTree
 
@@ -183,17 +199,20 @@ moveSupportVertices newNames tfCfg connMap vsPerType =
                   ( SupportKey
                   , VertexTree
                       [sideComment SupportTree]
-                      ( snd
-                          . mapAccumL
-                            assignSupportNames
-                            M.empty
-                          . NE.sortBy (compareAV thr SupportTree)
-                          $ NE.map (uncurry updateSupportVertexName) vs
+                      ( let sorted = NE.sortBy (on compare $ vY . aVertex) vs
+                            (_, bandIndices) = mapAccumL (indexBand tfCfg) (0, firstY sorted) sorted
+                            bandSortedVertices =
+                              NE.map snd $
+                                NE.sortBy
+                                  (compareAV (vertexPrefix newNames brks SupportTree) SupportTree)
+                                  bandIndices
+                            (_, renamedVertices') = mapAccumL assignSupportNames M.empty bandSortedVertices
+                         in renamedVertices'
                       )
                   )
               )
 
-      supportVertexNames = foldr (S.insert . anVertexName . snd) S.empty supportVertices
+      supportVertexNames = foldr (S.insert . anVertexName) S.empty supportVertices
 
       remainingVertices :: M.Map VertexTreeType [AnnotatedVertex]
       remainingVertices =
@@ -217,22 +236,19 @@ moveVerticesInVertexForest topNode newNames tfCfg vertexTrees =
           vertexTrees
       brks = xGroupBreakpoints tfCfg
    in case mapM (groupAnnotatedVertices brks) allVertices of
-        Right movableVertices' -> do
+        Right movableVertices' ->
           let groupedVertices = M.fromListWith (++) movableVertices'
-          (badBeamNodes, conns) <-
-            vertexConns (maxSupportCoordinates tfCfg) topNode groupedVertices
-          let (supportForest, nonSupportVertices) =
-                moveSupportVertices
-                  newNames
-                  tfCfg
-                  conns
-                  groupedVertices
-          newForest <-
-            foldM
-              (addVertexTreeToForest newNames tfCfg nonSupportVertices vertexTrees)
-              supportForest
-              treesOrder
-          Right (badBeamNodes, newForest)
+           in do
+                (badBeamNodes, conns) <-
+                  vertexConns (maxSupportCoordinates tfCfg) topNode groupedVertices
+                let (supportForest, nonSupportVertices) =
+                      moveSupportVertices newNames tfCfg conns groupedVertices
+                newForest <-
+                  foldM
+                    (addVertexTreeToForest newNames tfCfg nonSupportVertices vertexTrees)
+                    supportForest
+                    treesOrder
+                Right (badBeamNodes, newForest)
         Left err -> Left err
 
 getVertexNamesInForest
@@ -281,7 +297,7 @@ annotatedVertexToNodesWithPrev prevMeta (AnnotatedVertex comments vertex meta) =
       newPrevMeta = M.union localsMeta prevMeta
 
       metaNodes =
-        [ Object (V.singleton (ObjectKey (String k, v)))
+        [ mkObject (V.singleton (ObjectKey (String k, v)))
         | (k, v) <- M.assocs localsMeta
         ]
 
@@ -293,8 +309,8 @@ annotatedVertexToNodesWithPrev prevMeta (AnnotatedVertex comments vertex meta) =
             x = Number (mkNumberValueNormalized (vX vertex))
             y = Number (mkNumberValueNormalized (vY vertex))
             z = Number (mkNumberValueNormalized (vZ vertex))
-            possiblyMeta = concatMap (pure . Object) (vMeta vertex)
-         in Array . V.fromList $ [name, x, y, z] ++ possiblyMeta
+            possiblyMeta = concatMap (pure . mkObject) (vMeta vertex)
+         in mkArray . V.fromList $ [name, x, y, z] ++ possiblyMeta
    in ( map Comment preComments
           ++ metaNodes
           ++ pure vertexArray
@@ -323,19 +339,20 @@ treesOrder :: [VertexTreeType]
 treesOrder = [LeftTree, MiddleTree, RightTree, SupportTree]
 
 compareAV
-  :: Scientific -> VertexTreeType -> AnnotatedVertex -> AnnotatedVertex -> Ordering
-compareAV thr treeType vertex1 vertex2 =
+  :: (Ord a, Ord b)
+  => (Vertex -> b)
+  -> VertexTreeType
+  -> (a, AnnotatedVertex)
+  -> (a, AnnotatedVertex)
+  -> Ordering
+compareAV supportKey treeType (band1, vertex1) (band2, vertex2) =
   let supportNameCompare =
         bool
           EQ
-          (on compare (dropIndex . vName . aVertex) vertex1 vertex2)
+          (on compare (supportKey . aVertex) vertex1 vertex2)
           (treeType == SupportTree)
-      y1 = vY . aVertex $ vertex1
-      y2 = vY . aVertex $ vertex2
       compareZ = comparing (vZ . aVertex) vertex1 vertex2
-      compareY =
-        let zDiff = abs $ y1 - y2
-         in bool EQ (compare y1 y2) (zDiff > thr)
+      compareY = compare band1 band2
       compareX = on compare (vX . aVertex) vertex1 vertex2
    in mconcat
         [ supportNameCompare
@@ -346,9 +363,55 @@ compareAV thr treeType vertex1 vertex2 =
         ]
 
 renameVertexId :: VertexTreeType -> Int -> Text -> Text
-renameVertexId treeType idx vertexPrefix =
+renameVertexId treeType idx prefix =
   let idx' = mwhen (treeType /= SupportTree || idx /= 0) (intToText idx)
-   in vertexPrefix <> idx'
+   in prefix <> idx'
+
+sideLetters :: String
+sideLetters = ['l', 'm', 'r']
+
+{- | Strip the @s@ and side letter a previous run appended. The side letter only
+comes off when it is the one about to be put back, so @rl_r@ keeps its rear @r@
+while @bfl@ loses the @l@ that would otherwise be doubled.
+-}
+dropSupportSuffix :: Text -> Text -> Text
+dropSupportSuffix sideLetter prefix =
+  bool
+    withoutSide
+    (T.init withoutSide)
+    (T.length withoutSide >= 2 && T.last withoutSide == 's')
+  where
+    withoutSide =
+      bool
+        prefix
+        (T.init prefix)
+        (T.length prefix > 2 && T.takeEnd 1 prefix == sideLetter)
+
+{- | The name a vertex gets, before the running index is appended. Support
+prefixes are a fixed point of this, which is what lets it double as a sort
+key that survives a transform.
+-}
+vertexPrefix
+  :: UpdateNamesMap -> XGroupBreakpoints -> VertexTreeType -> Vertex -> Text
+vertexPrefix newNames brks treeType v
+  | treeType == SupportTree =
+      updatedPrefix (dropSupportSuffix typeSpecific prefix)
+        <> T.singleton 's'
+        <> typeSpecific
+  | T.length prefix >= 3
+      && T.last prefix' == 's' =
+      updatedPrefix (T.init prefix') <> typeSpecific
+  | T.length prefix >= 3
+      && isLmr =
+      updatedPrefix prefix' <> typeSpecific
+  | otherwise =
+      updatedPrefix prefix <> typeSpecific
+  where
+    updatedPrefix cleanPrefix = M.findWithDefault cleanPrefix cleanPrefix newNames
+    prefix = dropIndex (vName v)
+    typeSpecific = either (const "") prefixForType (determineGroup brks v)
+    (prefix', lastChar) = fromMaybe (error "unreachable") (T.unsnoc prefix)
+    isLmr = lastChar `elem` sideLetters
 
 assignNames
   :: UpdateNamesMap
@@ -359,35 +422,30 @@ assignNames
   -> (Map Text Int, AnnotatedVertex)
 assignNames newNames brks treeType prefixMap av =
   let v = aVertex av
-      updatedPrefix cleanPrefix' = M.findWithDefault cleanPrefix' cleanPrefix' newNames
-      prefix = dropIndex (vName v)
-      typeSpecific = either (const "") prefixForType (determineGroup brks v)
-      (prefix', lastChar) = fromMaybe (error "unreachable") (T.unsnoc prefix)
-      isLmr = lastChar `elem` ['l', 'm', 'r']
-      supportPrefixChar = T.singleton 's' <> bool typeSpecific (T.singleton lastChar) isLmr
-      cleanPrefix
-        | treeType /= SupportTree
-            && T.length prefix >= 3
-            && T.last prefix' == 's' =
-            updatedPrefix (T.init prefix') <> typeSpecific
-        | treeType /= SupportTree
-            && T.length prefix >= 3
-            && isLmr =
-            updatedPrefix prefix' <> typeSpecific
-        | treeType /= SupportTree =
-            updatedPrefix prefix <> typeSpecific
-        | T.length prefix' >= 3
-            && T.last prefix' == 's' =
-            updatedPrefix (T.init prefix') <> T.singleton 's' <> typeSpecific
-        | T.length prefix' < 2 =
-            updatedPrefix prefix <> supportPrefixChar
-        | otherwise =
-            updatedPrefix prefix' <> supportPrefixChar
+      cleanPrefix = vertexPrefix newNames brks treeType v
       lastIdx = M.findWithDefault 0 cleanPrefix prefixMap
-      newName = renameVertexId treeType lastIdx cleanPrefix
-      newVertex = v {vName = newName}
+      newVertex = v {vName = renameVertexId treeType lastIdx cleanPrefix}
       prefixMap' = M.insert cleanPrefix (lastIdx + 1) prefixMap
    in (prefixMap', av {aVertex = newVertex})
+
+-- | Y of the first vertex, to seed the first band on a vertex rather than on 0.
+firstY :: NonEmpty AnnotatedVertex -> Scientific
+firstY = vY . aVertex . NE.head
+
+indexBand
+  :: TransformationConfig
+  -> (Int, Scientific)
+  -> AnnotatedVertex
+  -> ((Int, Scientific), (Int, AnnotatedVertex))
+indexBand tfCfg (bandIndex, bandY) av =
+  let nodeY = vY (aVertex av)
+      distance = abs (nodeY - bandY)
+      thr = ySortingThreshold tfCfg
+   in if distance >= thr
+        then
+          ((bandIndex + 1, nodeY), (bandIndex + 1, av))
+        else
+          ((bandIndex, bandY), (bandIndex, av))
 
 sortVertices
   :: VertexTreeType
@@ -396,35 +454,52 @@ sortVertices
   -> VertexTree
   -> VertexTree
 sortVertices treeType newNames tfCfg (VertexTree comments vertices) =
-  let thr = zSortingThreshold tfCfg
-      brks = xGroupBreakpoints tfCfg
-      sortedGroups = NE.sortBy (compareAV thr treeType) vertices
-
-      renamedGroups = snd $ mapAccumL (assignNames newNames brks treeType) M.empty sortedGroups
+  let brks = xGroupBreakpoints tfCfg
+      sorted = NE.sortBy (on compare $ vY . aVertex) vertices
+      (_, bandIndices) = mapAccumL (indexBand tfCfg) (0, firstY sorted) sorted
+      bandSortedAnnotated =
+        NE.map snd $
+          NE.sortBy (compareAV (vertexPrefix newNames brks treeType) treeType) bandIndices
+      renamedGroups =
+        snd $ mapAccumL (assignNames newNames brks treeType) M.empty bandSortedAnnotated
    in VertexTree comments renamedGroups
 
 updateVerticesInNode
   :: NP.NodePath -> VertexForest -> NE.NonEmpty Node -> Node -> Node
-updateVerticesInNode (NP.NodePath Empty) g globals (Array _) =
+updateVerticesInNode (NP.NodePath Empty) g globals (Array av) =
   let globalsList = NE.toList globals
       initialMeta =
         M.unions (map metaMapFromObject globalsList)
-   in Array (V.fromList globalsList <> vertexForestToNodeVector initialMeta g)
-updateVerticesInNode (NP.NodePath ((NP.ArrayIndex i) :<| qrest)) g globals (Array children) =
-  let updateInNode nodeToUpdate =
+      allNodes = V.fromList globalsList <> vertexForestToNodeVector initialMeta g
+      origTrailingComma = case V.unsnoc (avElements av) of
+        Just (_, (_, hc)) -> hc
+        Nothing -> False
+      lastIdx = V.length allNodes - 1
+      newElems = V.imap (\i n -> (n, i < lastIdx || origTrailingComma)) allNodes
+   in Array av {avElements = newElems}
+updateVerticesInNode (NP.NodePath ((NP.ArrayIndex i) :<| qrest)) g globals (Array av) =
+  let children = avElements av
+      updateInNode (nodeToUpdate, hc) =
         children
-          // [(i, updateVerticesInNode (NP.NodePath qrest) g globals nodeToUpdate)]
-   in Array $ maybe children updateInNode (children !? i)
-updateVerticesInNode (NP.NodePath ((NP.ObjectIndex i) :<| qrest)) g globals (Object children) =
-  let updateInNode child =
+          // [(i, (updateVerticesInNode (NP.NodePath qrest) g globals nodeToUpdate, hc))]
+   in Array av {avElements = maybe children updateInNode (children !? i)}
+updateVerticesInNode (NP.NodePath ((NP.ObjectIndex i) :<| qrest)) g globals (Object ov) =
+  let children = ovElements ov
+      updateInNode (child, hc) =
         children
-          // [(i, updateVerticesInNode (NP.NodePath qrest) g globals child)]
-   in Object $ maybe children updateInNode (children !? i)
-updateVerticesInNode (NP.NodePath (k@(NP.ObjectKey _) :<| qrest)) g globals (Object children) =
-  let updateInNode i =
-        children
-          // [(i, updateVerticesInNode (NP.NodePath qrest) g globals (children ! i))]
-   in Object . maybe children updateInNode $ V.findIndex (isObjectKeyEqual k) children
+          // [(i, (updateVerticesInNode (NP.NodePath qrest) g globals child, hc))]
+   in Object ov {ovElements = maybe children updateInNode (children !? i)}
+updateVerticesInNode (NP.NodePath (k@(NP.ObjectKey _) :<| qrest)) g globals (Object ov) =
+  let children = ovElements ov
+      updateInNode i =
+        let (child, hc) = children ! i
+         in children
+              // [(i, (updateVerticesInNode (NP.NodePath qrest) g globals child, hc))]
+   in Object
+        ov
+          { ovElements =
+              maybe children updateInNode $ V.findIndex (isObjectKeyEqual k . fst) children
+          }
 updateVerticesInNode query g globals (ObjectKey (k, v)) =
   ObjectKey (k, updateVerticesInNode query g globals v)
 updateVerticesInNode _ _ _ a = a
@@ -436,10 +511,20 @@ isObjectKeyEqual _ _ = False
 findAndUpdateTextInNode :: UpdateNamesMap -> NC.NodeCursor -> Node -> Node
 findAndUpdateTextInNode m cursor node =
   case node of
-    Array arr
-      | NC.comparePathAndCursor verticesQuery cursor -> Array arr
-      | otherwise -> Array $ V.imap applyBreadcrumbAndUpdateText arr
-    Object obj -> Object $ V.imap applyBreadcrumbAndUpdateText obj
+    Array av
+      | NC.comparePathAndCursor verticesQuery cursor -> Array av
+      | otherwise ->
+          Array
+            av
+              { avElements =
+                  V.imap (first . applyBreadcrumbAndUpdateText) (avElements av)
+              }
+    Object ov ->
+      Object
+        ov
+          { ovElements =
+              V.imap (first . applyBreadcrumbAndUpdateText) (ovElements ov)
+          }
     ObjectKey (key, value) ->
       ObjectKey
         (key, findAndUpdateTextInNode m cursor value)
@@ -460,12 +545,15 @@ filterJbeamFiles excludedFilenames = filter go
 updateOtherFiles :: RuleSet -> UpdateNamesMap -> OsPath -> IO ()
 updateOtherFiles formattingConfig updatedNames filepath = do
   contents <- tryReadFile [] filepath
-  case contents >>= parseNodes of
-    Right node ->
-      let node' = findAndUpdateTextInNode updatedNames newCursor node
-       in when
-            (node /= node')
-            (formatNodeAndWrite formattingConfig filepath node')
+  case contents of
+    Right contents' ->
+      case parseNodes contents' of
+        Right node ->
+          let node' = findAndUpdateTextInNode updatedNames newCursor node
+           in when
+                (node /= node')
+                (formatNodeAndWrite (detectNewline contents') formattingConfig filepath node')
+        Left err -> putErrorLine err
     Left err -> putErrorLine err
 
 transform

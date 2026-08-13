@@ -6,6 +6,9 @@ module JbeamEdit.Transformation.Types (
   Vertex (..),
   AnnotatedVertex (..),
   VertexTreeKey (..),
+  Beam (..),
+  BeamPair (..),
+  mkBeamPair,
   MetaMap,
   VertexConnMap,
   UpdateNamesMap,
@@ -16,6 +19,7 @@ import Data.Map (Map)
 import Data.Scientific (Scientific)
 import Data.Text (Text)
 import Data.Text qualified as T
+import Data.Vector (Vector)
 import Data.Yaml.Aeson (
   FromJSON (..),
   withText,
@@ -52,7 +56,7 @@ data VertexTree = VertexTree
 data Vertex = Vertex
   { vName :: Text
   , vX, vY, vZ :: Scientific
-  , vMeta :: Maybe Object
+  , vMeta :: Maybe (Vector Node)
   }
   deriving (Eq, Show)
 
@@ -71,3 +75,15 @@ type MetaMap = Map Text Node
 type VertexConnMap = Map Text (VertexTreeType, Int)
 
 type UpdateNamesMap = Map Text Text
+
+data BeamPair = BeamPair Text Text
+  deriving (Eq, Ord, Show)
+
+mkBeamPair :: Text -> Text -> BeamPair
+mkBeamPair a b = BeamPair (min a b) (max a b)
+
+data Beam = Beam
+  { beamPair :: BeamPair
+  , beamMeta :: MetaMap
+  }
+  deriving (Eq, Ord, Show)

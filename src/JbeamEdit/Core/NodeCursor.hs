@@ -10,6 +10,7 @@ module JbeamEdit.Core.NodeCursor (
 import Data.Sequence (Seq (..))
 import Data.Sequence qualified as Seq (empty, null)
 import Data.Text (Text)
+import Data.Text qualified as T (isPrefixOf)
 import JbeamEdit.Core.Node (Node (..), maybeObjectKey)
 import JbeamEdit.Core.NodePath qualified as NP
 
@@ -56,6 +57,7 @@ Validate whether all the selectors match the corresponding breadcrumb, returning
 -}
 compareSB :: SelCrumbCompFun
 compareSB (NP.ObjectKey s) (ObjectIndexAndKey _ k) = s == k
+compareSB (NP.ObjectPrefixKey s) (ObjectIndexAndKey _ k) = s `T.isPrefixOf` k
 compareSB (NP.ObjectIndex s) (ObjectIndexAndKey i _) = s == i
 compareSB (NP.ArrayIndex s) (ArrayIndex i) = s == i
 compareSB _ _ = False

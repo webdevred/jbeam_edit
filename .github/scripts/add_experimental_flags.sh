@@ -12,8 +12,9 @@ if [[ -z "$CABAL_FILE" || ! -f "$CABAL_FILE" ]]; then
   exit 1
 fi
 
+echo "output from get-tested: $MATRIX"
 MATRIX_JSON=$(sed -E 's/^matrix=//' <<<"$MATRIX")
-
+MATRIX_JSON=$(jq '{include: map({ghc: .})}' <<<"$MATRIX_JSON")
 readarray -t EXP_FLAGS < <(awk -f ./.github/script_helpers/extract_flags.awk "$CABAL_FILE")
 
 ORIGINAL=$(jq --arg label "stable" '.include[0] += {label: $label}' <<<"$MATRIX_JSON")
@@ -23,11 +24,9 @@ echo "$ORIGINAL" | jq -c .
 if [[ ${#EXP_FLAGS[@]} -eq 0 ]]; then
   UPDATED="$ORIGINAL"
 else
-  # TODO: temporary update to newer ghc, remove this once we upgrade the whole project to a newer GHC
   EXP_FLAGS_STRING=$(printf '+%s ' "${EXP_FLAGS[@]}")
-  EXPERIMENTAL=$(jq --arg ghc "9.10.3" --arg flags "$EXP_FLAGS_STRING" --arg label "experimental" \
-    '.include[0] += {ghc: $ghc, flags: $flags, label: $label}' <<<"$MATRIX_JSON")
-
+  EXPERIMENTAL=$(jq --arg flags "$EXP_FLAGS_STRING" --arg label "experimental" \
+    '.include[0] += {flags: $flags, label: $label}' <<<"$ORIGINAL")
   UPDATED=$(jq --argjson exp_include "$(jq '.include' <<<"$EXPERIMENTAL")" \
     '.include += $exp_include' <<<"$ORIGINAL")
 fi

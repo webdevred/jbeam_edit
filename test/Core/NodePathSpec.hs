@@ -9,7 +9,7 @@ spec :: Spec
 spec = describe "select" $ do
   it "selects an element by ArrayIndex, ignoring comments" $ do
     let arr =
-          Array $
+          mkArray $
             fromList
               [ Comment (InternalComment "c" False NextNode False)
               , String "first"
@@ -21,14 +21,14 @@ spec = describe "select" $ do
 
   it "selects a value by ObjectKey" $ do
     let obj =
-          Object $ fromList [ObjectKey (String "first_key", String "first value")]
+          mkObject $ fromList [ObjectKey (String "first_key", String "first value")]
     NP.select (NP.ObjectKey "first_key") obj
       `shouldBe` Just (String "first value")
     NP.select (NP.ObjectKey "second_key") obj `shouldBe` Nothing
 
   it "selects a value by ObjectIndex" $ do
     let obj =
-          Object $
+          mkObject $
             fromList
               [ ObjectKey (String "first_key", String "first value")
               , ObjectKey (String "second_key", String "second value")
