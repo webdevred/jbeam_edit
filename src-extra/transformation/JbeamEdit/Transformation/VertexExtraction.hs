@@ -178,55 +178,66 @@ addCommentToAn ic (AnnotatedVertex comments vertex meta) = AnnotatedVertex (ic :
 nodesToAnnotatedVertices
   :: MetaMap
   -> [Node]
-  -> Either Text ([Node], NonEmpty AnnotatedVertex)
-nodesToAnnotatedVertices initialMeta nodes = go initialMeta [] nodes ([], [])
+  -> Either Text ([Node], NonEmpty AnnotatedVertex, MetaMap)
+nodesToAnnotatedVertices initialMeta nodes = go [] nodes ([], [], initialMeta)
   where
-    go _ _ [] (badNodes, acc) =
+    go _ [] (badNodes, acc, pendingMeta) =
       case reverse acc of
         [] -> Left "no vertices found"
-        revAcc -> Right (badNodes, fromList revAcc)
-    go pendingMeta pendingComments (n : ns) acc@(badNodes, vertices) =
+        revAcc -> Right (badNodes, fromList revAcc, pendingMeta)
+    go pendingComments (n : ns) acc@(badNodes, vertices, pendingMeta) =
       case newVertex n of
         Just v ->
           let av = AnnotatedVertex (reverse pendingComments) v pendingMeta
-           in go pendingMeta [] ns (badNodes, av : vertices)
+           in go [] ns (badNodes, av : vertices, pendingMeta)
         Nothing
           | isObjectNode n ->
               let newMeta = M.union (metaMapFromObject n) pendingMeta
-               in go newMeta pendingComments ns acc
+               in go pendingComments ns (badNodes, vertices, newMeta)
           | isCommentNode n ->
               case (toInternalComment n, acc) of
-                (Just ic@(InternalComment _ _ PreviousNode _), (_, an : ans)) ->
-                  go pendingMeta pendingComments ns (badNodes, addCommentToAn ic an : ans)
+                (Just ic@(InternalComment _ _ PreviousNode _), (_, an : ans, _)) ->
+                  go pendingComments ns (badNodes, addCommentToAn ic an : ans, pendingMeta)
                 (Just ic, _) ->
-                  go pendingMeta (ic : pendingComments) ns acc
+                  go (ic : pendingComments) ns acc
                 (Nothing, _) ->
-                  go pendingMeta pendingComments ns acc
-          | otherwise -> go pendingMeta pendingComments ns (n : badNodes, vertices)
+                  go pendingComments ns acc
+          | otherwise -> go pendingComments ns (n : badNodes, vertices, pendingMeta)
 
 newVertexTree
   :: XGroupBreakpoints
   -> Set Text
   -> [Node]
+  -> MetaMap
   -> VertexForest
   -> NonEmpty Node
-  -> Either Text (Set Text, [Node], VertexTreeType, VertexTree, VertexForest, [Node])
-newVertexTree brks vertexNames badAcc vertexForest nodes =
+  -> Either
+       Text
+       (Set Text, [Node], MetaMap, VertexTreeType, VertexTree, VertexForest, [Node])
+newVertexTree brks vertexNames badAcc startingMeta vertexForest nodes =
   let (topNodes, nodes') = NE.span isNonVertex nodes
       topComments = mapMaybe toInternalComment topNodes
-      topMeta = M.unions . map metaMapFromObject $ topNodes
+      topMeta = foldr (M.union . metaMapFromObject) startingMeta topNodes
       vertexPrefix = getVertexPrefix' nodes'
    in runExcept
         ( do
             (vertexNames', vertexNodes, rest') <-
               except (breakVertices vertexPrefix vertexNames nodes')
-            (badNodes, avNE) <- except (nodesToAnnotatedVertices topMeta vertexNodes)
+            (badNodes, avNE, finalMetaMap) <-
+              except (nodesToAnnotatedVertices topMeta vertexNodes)
             let firstAV = NE.head avNE
                 vertexTree = VertexTree topComments avNE
             treeType <- except . determineGroup brks . aVertex $ firstAV
             let updatedForest = insertTreeInForest treeType vertexTree vertexForest
             pure
-              (vertexNames', badAcc <> badNodes, treeType, vertexTree, updatedForest, rest')
+              ( vertexNames'
+              , badAcc <> badNodes
+              , finalMetaMap
+              , treeType
+              , vertexTree
+              , updatedForest
+              , rest'
+              )
         )
 
 determineGroup :: XGroupBreakpoints -> Vertex -> Either Text VertexTreeType
@@ -245,21 +256,28 @@ nodesListToTree
   -> NonEmpty Node
   -> Either Text ([Node], VertexTreeType, VertexForest)
 nodesListToTree brks nodes =
-  case newVertexTree brks S.empty [] M.empty nodes of
+  case newVertexTree brks S.empty [] M.empty M.empty nodes of
     Left err -> Left err
     Right
-      (vertexNames, badNodes, firstTreeType, _firstVertexTree, vertexForest, rest) ->
+      ( vertexNames
+        , badNodes
+        , metaMap
+        , firstTreeType
+        , _firstVertexTree
+        , vertexForest
+        , rest
+        ) ->
         case NE.nonEmpty rest of
           Nothing -> Right (badNodes, firstTreeType, vertexForest)
-          Just nonEmptyRest -> go vertexNames badNodes vertexForest nonEmptyRest firstTreeType
+          Just nonEmptyRest -> go vertexNames badNodes metaMap vertexForest nonEmptyRest firstTreeType
   where
-    go vertexNames badNodes acc rest firstTreeType =
-      case newVertexTree brks vertexNames badNodes acc rest of
+    go vertexNames badNodes metaMap acc rest firstTreeType =
+      case newVertexTree brks vertexNames badNodes metaMap acc rest of
         Left err -> Left err
-        Right (vertexNames', badNodes', _treeType, _vt, acc', rest') ->
+        Right (vertexNames', badNodes', metaFromTree, _treeType, _vt, acc', rest') ->
           case NE.nonEmpty rest' of
             Nothing -> Right (badNodes, firstTreeType, acc')
-            Just ne -> go vertexNames' (badNodes ++ badNodes') acc' ne firstTreeType
+            Just ne -> go vertexNames' (badNodes ++ badNodes') metaFromTree acc' ne firstTreeType
 
 objectKeysToObjects :: Map Text Node -> [Node]
 objectKeysToObjects =
