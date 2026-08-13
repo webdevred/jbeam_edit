@@ -4,7 +4,7 @@ module Spec (
 
 import Data.ByteString.Lazy qualified as LBS
 import Data.Char (isDigit)
-import Data.List (isInfixOf, isPrefixOf, isSuffixOf)
+import Data.List (isPrefixOf, isSuffixOf)
 import Data.Map qualified as M
 import Data.Set (Set)
 import Data.Set qualified as S
@@ -82,11 +82,7 @@ fixedPointSpec rs cfName tfConfig outFilename = do
             case transform M.empty tfConfig node of
               Left err -> expectationFailure ("transform failed: " ++ T.unpack err)
               Right (_, _, _, again) -> formatNode rs again `shouldBe` expected
-  describe desc . it "works" $
-    if "suspension" `isInfixOf` outFilename
-      then
-        pendingWith "metadata is not carried across vertex tree boundaries, issue #221"
-      else check
+  describe desc . it "works" $ check
 
 parseJbeamFile :: FilePath -> IO Node
 parseJbeamFile path = do
