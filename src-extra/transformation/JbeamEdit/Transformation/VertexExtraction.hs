@@ -12,12 +12,13 @@ import Control.Monad.Except (runExcept)
 import Control.Monad.Trans.Except (except)
 import Data.Bifunctor (first)
 import Data.Char (isDigit)
+import Data.List (partition)
 import Data.List.NonEmpty (NonEmpty (..))
 import Data.List.NonEmpty qualified as NE
 import Data.Map (Map)
 import Data.Map qualified as M
 import Data.Map.Ordered (OMap)
-import Data.Maybe (isJust, isNothing, mapMaybe)
+import Data.Maybe (isJust, isNothing, listToMaybe, mapMaybe)
 import Data.Scientific (Scientific)
 import Data.Set (Set)
 import Data.Set qualified as S
@@ -93,8 +94,11 @@ isCollision vertexNode vertexNames =
         else Right (S.insert vertexName vertexNames)
     Nothing -> Right vertexNames
 
-maybeConsComment :: [Node] -> Maybe InternalComment -> [Node]
-maybeConsComment xs = maybe xs ((: xs) . Comment)
+takeTrailingAssocPriorCmt :: [Node] -> (Maybe Node, [Node], [Node])
+takeTrailingAssocPriorCmt acc = (listToMaybe assocPriorCmt, metaBefore, currentTree)
+  where
+    (nonVertices, currentTree) = span isNonVertex acc
+    (assocPriorCmt, metaBefore) = partition isPriorAssocCommentNode nonVertices
 
 breakVertices
   :: Maybe Text
@@ -110,19 +114,20 @@ breakVertices vertexPrefix allVertexNames ns = go [] ns allVertexNames
           || isNothing vertexPrefix && any isSupportVertex maybeVertex =
           isCollision node vertexNames >>= go (node : acc) rest
       | isJust maybeVertex =
-          let (assocPriorCmt, acc') = extractPreviousAssocCmt acc
-              (metaBefore, currentTree) = span isNonVertex acc'
+          let (assocPriorCmt, metaBefore, currentTree) = takeTrailingAssocPriorCmt acc
            in if null currentTree
                 then
                   Right
                     ( vertexNames
-                    , reverse (maybeConsComment [node] assocPriorCmt)
+                    , case assocPriorCmt of
+                        Just cmt -> [node, cmt]
+                        Nothing -> [node]
                     , reverse metaBefore ++ rest
                     )
                 else
                   Right
                     ( vertexNames
-                    , reverse (maybeConsComment currentTree assocPriorCmt)
+                    , reverse (maybe currentTree (: currentTree) assocPriorCmt)
                     , reverse metaBefore ++ (node : rest)
                     )
       | otherwise = go (node : acc) rest vertexNames
