@@ -276,8 +276,8 @@ nodesListToTree brks nodes =
         Left err -> Left err
         Right (vertexNames', badNodes', metaFromTree, _treeType, _vt, acc', rest') ->
           case NE.nonEmpty rest' of
-            Nothing -> Right (badNodes, firstTreeType, acc')
-            Just ne -> go vertexNames' (badNodes ++ badNodes') metaFromTree acc' ne firstTreeType
+            Nothing -> Right (badNodes', firstTreeType, acc')
+            Just ne -> go vertexNames' badNodes' metaFromTree acc' ne firstTreeType
 
 objectKeysToObjects :: Map Text Node -> [Node]
 objectKeysToObjects =
