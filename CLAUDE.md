@@ -4,6 +4,8 @@
 
 **jbeam-edit** is a Haskell CLI tool for parsing, formatting, and editing JBeam files (BeamNG vehicle format). Key features: JBeam parsing with comment preservation, consistent formatting, JBFL rule-based formatting config, and (experimental) node renaming/reference updating.
 
+Before investigating a transformation bug or writing a fixture for one, read `JBEAM_DOCS.md`. It covers how a nodes section is modelled, which input shapes change behaviour, and how the config is loaded.
+
 ## Build System
 
 - **Build tools:** Cabal (preferred) or Stack — both are supported. Use a GHC version listed in `tested-with` in `package.yaml`.
@@ -97,6 +99,27 @@ cabal test --project-file=cabal.project.dev
 **Never** use plain `cabal test` — it won't run the test suite.
 
 Test files: `test/Spec.hs`, `test/FormattingSpec.hs`, `test/Formatting/RulesSpec.hs`, etc.
+
+## Investigating a transformation bug
+
+Read `JBEAM_DOCS.md` first — it has the model, the config semantics, and the table of input shapes that change behaviour.
+
+Then run the binary on a real file before reasoning about the pipeline. Reading the source has repeatedly produced a confident wrong answer where one command would have settled it. Treat a conclusion drawn only from reading as a hypothesis, and say so.
+
+`--transform` rewrites every `.jbeam` file next to the one you name, and it reads `.jbeam-edit.yaml` from the current working directory. Both have contaminated results before, so always work in a directory of its own:
+
+```bash
+mkdir -p /tmp/repro && cd /tmp/repro
+cp <one file> .
+printf 'y-sorting-threshold: 0.05\nsupport-threshold: 20\n' > .jbeam-edit.yaml
+jbeam-edit --transform <file>
+```
+
+Three checks that pay off on a body file, which is close to mirror symmetric:
+
+- Pair every left vertex with the right vertex at the same `(Y, Z)` and compare their output indices. "One side is fine, the other is a mess" usually turns out to be exactly one vertex in the wrong place, and this finds it at once.
+- Transform twice and diff. Anything that differs is a fixed-point defect.
+- Remove one property of the input, the metadata rows or the interleaved naming, and see whether the symptom survives. Isolating the cause that way beats tracing the pipeline by reading it.
 
 ## Key Architectural Notes
 
