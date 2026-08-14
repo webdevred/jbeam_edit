@@ -4,7 +4,7 @@
 
 **jbeam-edit** is a Haskell CLI tool for parsing, formatting, and editing JBeam files (BeamNG vehicle format). Key features: JBeam parsing with comment preservation, consistent formatting, JBFL rule-based formatting config, and (experimental) node renaming/reference updating.
 
-Before investigating a transformation bug or writing a fixture for one, read `JBEAM_DOCS.md`. It covers how a nodes section is modelled, which input shapes change behaviour, and how the config is loaded.
+Before investigating a transformation bug or writing a fixture for one, read `TRANSFORMATION_DOCS.md`. It covers what `--transform` does to a file, how nodes are classified, sorted and renamed, and what the config keys mean.
 
 ## Build System
 
@@ -111,7 +111,7 @@ These are the ones a general Haskell review misses, because they depend on how t
 
 ## Investigating a transformation bug
 
-Read `JBEAM_DOCS.md` first — it has the model, the config semantics, and the table of input shapes that change behaviour.
+Read `TRANSFORMATION_DOCS.md` first — it has the classification, sorting and naming rules, and what each config key does.
 
 Then run the binary on a real file before reasoning about the pipeline. Reading the source has repeatedly produced a confident wrong answer where one command would have settled it. Treat a conclusion drawn only from reading as a hypothesis, and say so.
 
