@@ -2,6 +2,7 @@ examples/jbeam/*.jbeam.bak
 *.bak.jbeam
 *.bak-*.jbeam
 /jbeam-examples/
+.claude/settings.local.json
 cabal.project.local
 cabal.project.local~
 cabal.project.*.local
