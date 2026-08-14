@@ -1,0 +1,11 @@
+bolide_chassis.jbeam bolide.zip
+bolide_body.jbeam bolide.zip
+bolide_suspension_F.jbeam bolide.zip
+bolide_suspension_R.jbeam bolide.zip
+bolide_subframe_F.jbeam bolide.zip
+bolide_subframe_R.jbeam bolide.zip
+van_frame.jbeam van.zip
+bluebuck_frame.jbeam bluebuck.zip
+burnside_frame.jbeam burnside.zip
+pickup_frame.jbeam pickup.zip
+barstow_body.jbeam barstow.zip
