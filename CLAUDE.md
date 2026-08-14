@@ -130,6 +130,42 @@ Three checks that pay off on a body file, which is close to mirror symmetric:
 - Transform twice and diff. Anything that differs is a fixed-point defect.
 - Remove one property of the input, the metadata rows or the interleaved naming, and see whether the symptom survives. Isolating the cause that way beats tracing the pipeline by reading it.
 
+### Where each step lives
+
+`TRANSFORMATION_DOCS.md` describes the behaviour without naming functions, because its readers do not need them. This is the map back to the code.
+
+| Step                                 | Function                                    | File                 |
+|--------------------------------------|---------------------------------------------|----------------------|
+| Split the node list into chunks      | `breakVertices`                             | VertexExtraction.hs  |
+| Attach sticky metadata and comments  | `nodesToAnnotatedVertices`                  | VertexExtraction.hs  |
+| Classify by X coordinate             | `determineGroup`                            | VertexExtraction.hs  |
+| Classify by name, short-circuiting X | `determineGroup'`                           | VertexExtraction.hs  |
+| Pull out support vertices            | `moveSupportVertices`                       | Transformation.hs    |
+| Band by Y and sort                   | `sortVertices`, `indexBand`, `compareAV`    | Transformation.hs    |
+| Assign new names                     | `assignNames`, `vertexPrefix`               | Transformation.hs    |
+
+Two facts about this pipeline are not derivable from the output, and both have cost time:
+
+**`breakVertices` splits on the name prefix, not on which side a node sits.** A file that calls both sides `rl_f` keeps them in one chunk. A file that alternates `nl0, nr1, nl2` gets one chunk per vertex. That decides which vertices share a leading metadata block, and it is why `examples/jbeam/frame.jbeam` cannot reproduce defects that a body file reproduces on the first run. Check the naming scheme before concluding an existing example covers a case.
+
+**A wrong metadata model produces correct-looking output.** The transformation only ever emits the difference against the previous vertex, so a key the model dropped is usually still standing in the file and still applies. The output reads fine while the model is wrong. It surfaces when the key is set again to a different value further down, or when `aMeta` decides an ordering, which it does in `compareAV`.
+
+### Input shapes that change the outcome
+
+Vary one at a time, whether narrowing a bug or building a fixture for one.
+
+| Shape                                                 | Why it matters                                                                    |
+|-------------------------------------------------------|-----------------------------------------------------------------------------------|
+| Metadata row ahead of the first vertex                | Applies to the whole section, and only the first chunk sees it as a leading block |
+| Alternating vs shared name prefixes                   | Decides where the chunk boundaries fall                                           |
+| Name ending in a letter (`rlsm`) vs a digit (`rlsm1`) | Letter-ending names get a `SupportKey`, digit-ending ones a `PrefixKey`           |
+| A comment between a vertex and a following metadata row | `extractPreviousAssocCmt` only inspects the head of the accumulator             |
+| Y gaps at, just under and just over the threshold     | The band boundary is `>=`, so an exact-threshold gap starts a new band            |
+| Already-transformed output fed back in                | Several defects need two runs to appear                                           |
+| A `beams` section, or none                            | No beams means no support vertices                                                |
+
+Regression fixtures go in `examples/regression_jbeam/`. Read that directory's README first: the bar for adding one is that the test genuinely cannot be built from what is already there.
+
 ## Key Architectural Notes
 
 - Parser: Megaparsec-based, preserves comments and whitespace
@@ -145,12 +181,12 @@ Three checks that pay off on a body file, which is close to mirror symmetric:
 
 Passed through `addDelimiters` / `formatWithCursor` / `doFormatNode`:
 
-| Field                  | Description                                                                                             |
-|------------------------|---------------------------------------------------------------------------------------------------------|
-| `fsUsePad`             | Whether AutoPad is active                                                                               |
-| `fsColumnWidths`       | Max width per column (computed once)                                                                    |
-| `fsFormattedCache`     | Pre-rendered cell texts, rows × cols                                                                    |
-| `fsHeaderWasExtracted` | Whether the first row was a string header                                                               |
+| Field                  | Description                                                                                           |
+|------------------------|-------------------------------------------------------------------------------------------------------|
+| `fsUsePad`             | Whether AutoPad is active                                                                             |
+| `fsColumnWidths`       | Max width per column (computed once)                                                                  |
+| `fsFormattedCache`     | Pre-rendered cell texts, rows × cols                                                                  |
+| `fsHeaderWasExtracted` | Whether the first row was a string header                                                             |
 | `fsCurrentRowIdx`      | `Nothing` = outer (row) context; `Just i` = inner (cell) context, `i` indexes into `fsFormattedCache` |
 
 ### `Object` children include `Comment` nodes
@@ -186,13 +222,13 @@ cabal run jbeam-edit-dump-ast --project-file=cabal.project.dev
 
 This reformats all files in one pass. You may run this when needed, but **do not suggest committing the results** unless the user has clearly reviewed and approved the fixture changes.
 
-| Directory                      | Contents                               |
-|--------------------------------|----------------------------------------|
-| `examples/jbeam/`              | Source `.jbeam` files                  |
+| Directory                     | Contents                               |
+|-------------------------------|----------------------------------------|
+| `examples/jbeam/`             | Source `.jbeam` files                  |
 | `examples/formatted_jbeam/`   | Expected formatter output              |
-| `examples/jbfl/`               | JBFL rule configs                      |
-| `examples/ast/`                | Haskell AST representations            |
-| `examples/invalid_jbeam/`      | Malformed files for parser error tests |
+| `examples/jbfl/`              | JBFL rule configs                      |
+| `examples/ast/`               | Haskell AST representations            |
+| `examples/invalid_jbeam/`     | Malformed files for parser error tests |
 | `examples/transformed_jbeam/` | Expected transformation output         |
 
 ## package.yaml → hpack
