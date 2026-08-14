@@ -1,4 +1,7 @@
 examples/jbeam/*.jbeam.bak
+*.bak.jbeam
+*.bak-*.jbeam
+/jbeam-examples/
 cabal.project.local
 cabal.project.local~
 cabal.project.*.local
