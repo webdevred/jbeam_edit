@@ -100,6 +100,15 @@ cabal test --project-file=cabal.project.dev
 
 Test files: `test/Spec.hs`, `test/FormattingSpec.hs`, `test/Formatting/RulesSpec.hs`, etc.
 
+## Review checks specific to this repo
+
+These are the ones a general Haskell review misses, because they depend on how this project uses the language rather than on the language itself.
+
+- **`show` on numbers reaches the output.** `show` on `Scientific`, `Double` or `Float` gives the Haskell representation (`2.0e-3`), and JBeam wants `0.002`. Whenever `show` produces text that ends up in formatted output, check the representation against the domain. `formatScientific Fixed Nothing` is usually what is meant.
+- **`Show`/`Read` round-trips the AST fixtures.** `examples/ast/` stores derived `Show` output and reads it back. A change to a type's `Show` or `Read` instance breaks those fixtures even when nothing else looks affected.
+- **`src-extra/` is flag-gated experimental code.** Do not report missing unit tests there. Fixture-based tests through `cabal test` are still worth flagging if clearly absent.
+- **New JBFL properties need an example file.** `FormattingSpec` pairs every `examples/jbeam/*.jbeam` with every `examples/jbfl/*.jbfl`, so a property that no example exercises is untested no matter how many specs mention it.
+
 ## Investigating a transformation bug
 
 Read `JBEAM_DOCS.md` first — it has the model, the config semantics, and the table of input shapes that change behaviour.
