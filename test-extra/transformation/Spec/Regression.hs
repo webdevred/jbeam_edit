@@ -140,34 +140,34 @@ metadataPreservedSpec =
   describe "the metadata a node carries" $ do
     it "reads back from the fixture as jbeam defines it" $ do
       topNode <- parseJbeamFile metadataPreservedFixture
-      let before = effectiveMetaByCoordinate topNode
+      let metaBefore = effectiveMetaByCoordinate topNode
       -- Guards the helper and the fixture against each other, so a failure
       -- below is the transform rather than a fixture nobody re-read.
-      M.size before `shouldBe` 6
-      metaNumber "nodeWeight" <$> M.lookup (0.9, -1.0, 0.1) before
+      M.size metaBefore `shouldBe` 6
+      metaNumber "nodeWeight" <$> M.lookup (0.9, -1.0, 0.1) metaBefore
         `shouldBe` Just (Just 2.0)
-      metaNumber "nodeWeight" <$> M.lookup (0.9, 1.0, 0.1) before
+      metaNumber "nodeWeight" <$> M.lookup (0.9, 1.0, 0.1) metaBefore
         `shouldBe` Just (Just 3.0)
-      metaNumber "nodeWeight" <$> M.lookup (0.9, 2.0, 0.1) before
+      metaNumber "nodeWeight" <$> M.lookup (0.9, 2.0, 0.1) metaBefore
         `shouldBe` Just (Just 4.0)
-      metaNumber "frictionCoef" <$> M.lookup (-0.9, 0.0, 0.1) before
+      metaNumber "frictionCoef" <$> M.lookup (-0.9, 0.0, 0.1) metaBefore
         `shouldBe` Just (Just 0.5)
 
     it "survives a transform unchanged" $ do
       topNode <- parseJbeamFile metadataPreservedFixture
-      let before = effectiveMetaByCoordinate topNode
+      let metaBefore = effectiveMetaByCoordinate topNode
       case transform M.empty newTransformationConfig topNode of
         Left err -> expectationFailure ("transform failed: " ++ T.unpack err)
         Right (_, _, _, resultNode) -> do
-          let after = effectiveMetaByCoordinate resultNode
+          let metaAfter = effectiveMetaByCoordinate resultNode
               -- Report only the nodes whose metadata moved, with both values.
               -- Comparing the maps whole prints each of them in full, which
               -- buries which node actually broke.
               changed =
                 [ (pos, expected, actual)
-                | (pos, expected) <- M.toList before
-                , Just actual <- [M.lookup pos after]
+                | (pos, expected) <- M.toList metaBefore
+                , Just actual <- [M.lookup pos metaAfter]
                 , actual /= expected
                 ]
-          M.keys after `shouldBe` M.keys before
+          M.keys metaAfter `shouldBe` M.keys metaBefore
           changed `shouldBe` []
