@@ -1,0 +1,25 @@
+{
+"testpart":{
+    "nodes":[
+        ["id", "posX", "posY", "posZ"],
+        // Synthetic regression-test fixture, not vetted by the jbeam
+        // maintainer and not intended as a demo/example.
+        //
+        // Stored with CRLF line endings on purpose, and pinned as binary in
+        // .gitattributes so no checkout or commit converts them away. 4793 of
+        // the 4943 jbeam files in the stock vehicles are CRLF, and every other
+        // fixture here is LF, so without this one the parser only ever sees LF.
+        /*
+        A block comment, because the parser has had a CRLF-specific bug in one
+        of these before.
+        */
+        {"nodeWeight":1.0},
+        ["nl0", 0.9, -1.0, 0.1],
+        ["nl1", 0.9, 0.0, 0.1, {"group":"test"}],
+    ],
+    "beams":[
+        ["id1:", "id2:"],
+        ["nl0", "nl1"],
+    ],
+},
+}

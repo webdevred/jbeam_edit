@@ -97,9 +97,6 @@ jobs:
         run: |
           echo "Running benchmarks for jbeam-edit"
           cabal bench --project-file cabal.project.release --benchmark-options="--verbosity=1"
-      - name: Enforce CRLF newlines on windows
-        run: bash ./.github/scripts/replace_newlines.sh
-        shell: bash
       - name: Test executable
         shell: bash
         run: bash ./.github/scripts/prepare_installer.sh
