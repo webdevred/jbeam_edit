@@ -50,6 +50,7 @@ jobs:
       matrix: ${{ fromJSON(needs.get-newest-supported-ghc.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v7
+      - run: chcp 65001
       - name: Set up GHC latest and Cabal
         id: setup-ghc
         uses: haskell-actions/setup@v2.12.0
@@ -89,6 +90,7 @@ jobs:
         run: cabal build exe:jbeam-edit --project-file cabal.project.release
       - name: Run tests (GHC ${{ matrix.ghc }})
         run: cabal test --project-file cabal.project.release
+        shell: bash
       - name: Run benchmarks (GHC ${{ matrix.ghc }})
         if: |
           contains(matrix.flags, ' +transformation ') &&
