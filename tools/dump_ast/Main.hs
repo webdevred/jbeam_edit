@@ -7,16 +7,18 @@ import Data.List (isPrefixOf, isSuffixOf)
 import Data.Map qualified as M
 import Data.Text qualified as T
 import Data.Text.Lazy qualified as LT
+import JbeamEdit.Core.Newline
 import JbeamEdit.Formatting
 import JbeamEdit.Parsing.DSL (parseDSL)
 import JbeamEdit.Parsing.Jbeam (parseNodes)
 import JbeamEdit.Transformation
 import JbeamEdit.Transformation.Config
 import JbeamEdit.Transformation.Types
-import System.Directory (copyFile, getDirectoryContents)
+import System.Directory (doesFileExist, getDirectoryContents)
 import System.Exit (exitFailure)
 import System.FilePath (dropExtension, takeBaseName, (</>))
-import System.IO qualified as IO (readFile)
+import System.IO (IOMode (..), Newline (..))
+import System.IO qualified as IO (hClose, openFile, readFile)
 import System.OsPath qualified as OS (unsafeEncodeUtf, (</>))
 import Text.Pretty.Simple (
   StringOutputStyle (..),
@@ -78,9 +80,36 @@ getDirectoryContents' :: FilePath -> IO [String]
 getDirectoryContents' path = filter (not . isPrefixOf ".#") <$> getDirectoryContents path
 
 saveDump :: String -> String -> IO ()
-saveDump outFile formatted =
+saveDump outFile formatted = do
   putStrLn ("creating " ++ outFile)
-    >> writeFile outFile formatted
+  existing <- doesFileExist outFile
+  lineEnding <-
+    if existing
+      then checkFileNewline outFile
+      else pure LF
+  let converted =
+        if lineEnding == CRLF
+          then toCRLF (toLF formatted)
+          else toLF formatted
+  writeFile outFile converted
+  where
+    checkFileNewline existing =
+      do
+        handle <- IO.openFile existing ReadMode
+        contents <- LBS.hGetContents handle
+        let !newline = detectNewline contents
+        IO.hClose handle
+        pure newline
+
+toLF :: String -> String
+toLF ('\r' : '\n' : rest) = '\n' : toLF rest
+toLF (c : rest) = c : toLF rest
+toLF [] = []
+
+toCRLF :: String -> String
+toCRLF ('\n' : rest) = '\r' : '\n' : toCRLF rest
+toCRLF (c : rest) = c : toCRLF rest
+toCRLF [] = []
 
 saveAstDump :: Show a => String -> a -> IO ()
 saveAstDump outFile contents =
@@ -138,12 +167,9 @@ fenderAfterFrame
   -> IO ()
 fenderAfterFrame "frame" rs updateNames input out cfName = do
   let outFile = out </> "fender-after-frame-" ++ cfName ++ ".jbeam"
-  copyFile input outFile
-  putStrLn ("creating " ++ outFile)
-  updateOtherFiles
-    rs
-    updateNames
-    (OS.unsafeEncodeUtf outFile)
+  contents <- IO.readFile input
+  saveDump outFile contents
+  updateOtherFiles rs updateNames (OS.unsafeEncodeUtf outFile)
 fenderAfterFrame _ _ _ _ _ _ = pure ()
 
 dumpTransformedJbeam
