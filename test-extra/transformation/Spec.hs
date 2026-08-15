@@ -22,7 +22,8 @@ import JbeamEdit.Transformation
 import JbeamEdit.Transformation.BeamExtraction (beamInKnownSet)
 import JbeamEdit.Transformation.BeamValidation
 import JbeamEdit.Transformation.Config
-import JbeamEdit.Transformation.Types (Beam)
+import JbeamEdit.Transformation.Types (Beam, MetaMap)
+import JbeamEdit.Transformation.VertexExtraction (metaMapFromObject)
 import System.Directory (getDirectoryContents)
 import System.OsPath
 import Test.Hspec
@@ -163,6 +164,57 @@ vertexCoordinates topNode =
         , Just (Number y) <- [inner V.!? 2]
         , Just (Number z) <- [inner V.!? 3]
         ]
+
+{- | The metadata the first vertex in a transformed file actually carries.
+jbeam metadata is sticky and a later row overrides an earlier one, so this
+replays the rows ahead of that vertex the way the game reads them back rather
+than trusting how many rows the tool chose to emit.
+-}
+effectiveMetaAtFirstVertex :: Node -> MetaMap
+effectiveMetaAtFirstVertex topNode =
+  case NP.queryNodes nodesQuery topNode >>= NP.expectArray nodesQuery of
+    Left _ -> M.empty
+    Right rows -> go M.empty (V.toList rows)
+  where
+    go acc [] = acc
+    go acc (row : rest)
+      | isVertexRow row = acc
+      | otherwise = go (M.union (metaMapFromObject row) acc) rest
+    isVertexRow row =
+      case expectArray row >>= (V.!? 0) of
+        Just (String name) -> name /= "id"
+        _ -> False
+
+metaNumber :: Text -> MetaMap -> Maybe Double
+metaNumber key meta =
+  case M.lookup key meta of
+    Just (Number n) -> Just (realToFrac (nvValue n))
+    _ -> Nothing
+
+{- | A key set twice in one leading metadata block must end up with the second
+value. `topMeta` folds that block with `foldr` over a left-biased `M.union`,
+which puts the first row in the outermost position and lets it win instead.
+None of the files in `examples/jbeam/` repeats a key inside one leading block,
+so the whole-output fixture specs cannot see this; 485 of the 4943 stock
+vehicle files do.
+-}
+lastMetadataRowFixture :: FilePath
+lastMetadataRowFixture =
+  "examples/regression_jbeam/last-metadata-row-repro.jbeam"
+
+lastMetadataRowSpec :: Spec
+lastMetadataRowSpec =
+  describe "a key set twice in one leading metadata block"
+    . it "leaves the last row in force"
+    $ do
+      topNode <- parseJbeamFile lastMetadataRowFixture
+      case transform M.empty newTransformationConfig topNode of
+        Left err -> expectationFailure ("transform failed: " ++ T.unpack err)
+        Right (_, _, _, resultNode) -> do
+          let meta = effectiveMetaAtFirstVertex resultNode
+          meta `shouldNotBe` M.empty
+          metaNumber "nodeWeight" meta `shouldBe` Just 2.0
+          metaNumber "frictionCoef" meta `shouldBe` Just 0.5
 
 {- | Names ending in a letter rather than a digit all map to the same
 SupportKey, so an insert that replaced instead of merged used to drop
@@ -310,3 +362,4 @@ main = hspec $ do
   letterEndingNodesSpec
   ySortingBandingSpec
   metadataAcrossTreesSpec
+  lastMetadataRowSpec

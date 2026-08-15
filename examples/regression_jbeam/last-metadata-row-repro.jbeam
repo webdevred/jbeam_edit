@@ -1,0 +1,25 @@
+{
+"testpart":{
+    "nodes":[
+        ["id", "posX", "posY", "posZ"],
+        // Synthetic regression-test fixture for the leading-block metadata
+        // bias, not vetted by the jbeam maintainer and not intended as a
+        // demo/example.
+        //
+        // nodeWeight is set twice in the same leading block, with an
+        // unrelated key in between so the two are not adjacent. jbeam
+        // metadata is sticky and the last row wins, so both nodes must come
+        // out weighing 2.0 and keeping frictionCoef.
+        {"nodeWeight":1.0},
+        {"frictionCoef":0.5},
+        {"nodeWeight":2.0},
+        ["nl0", 0.9, -1.0, 0.1],
+        ["nl1", 0.9, 0.0, 0.1],
+        ["nr2", -0.9, -1.0, 0.1],
+        ["nr3", -0.9, 0.0, 0.1],
+    ],
+    "beams":[
+        ["id1:", "id2:"],
+    ],
+},
+}
