@@ -62,7 +62,7 @@ jobs:
         env:
           LABEL: ${{ matrix.label }}
           MATRIX_FLAGS: ${{ matrix.flags }}
-      - run: $(cabal list-bin test:jbeam-edit-test) --format=checks --unicode --color | cat -A | head -5
+      - run: $(cabal list-bin test:jbeam-edit-test) --unicode --color | cat -A | head -5
         shell: bash
       - name: Freeze and check dependencies
         env:
