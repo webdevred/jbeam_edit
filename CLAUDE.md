@@ -23,6 +23,26 @@ Before investigating a transformation bug or writing a fixture for one, read `TR
 | `cabal.project.ci`      | CI builds                                               |
 | `cabal.project.release` | Windows release build                                   |
 
+**Every release publishes two builds.** The workflow runs on `windows-latest`
+and builds the matrix twice:
+
+| Build          | Flags                                  | Contains                                                 |
+|----------------|----------------------------------------|----------------------------------------------------------|
+| `stable`       | `cabal.project.release` as it stands   | The formatter. `-transformation`                         |
+| `experimental` | the same, plus every experimental flag | Also `--transform`, `--update-names`, `--validate-beams` |
+
+The split is automatic. `.github/scripts/add_experimental_flags.sh` runs
+`extract_flags.awk` over the `.cabal` file and turns on every flag whose
+description contains `(experimental)`, which today is `transformation` alone.
+Marking a new flag that way puts it in the experimental artifact without
+touching the workflow.
+
+So a transformation change does ship, but only to whoever downloads
+`jbeam-edit-<tag>-experimental.zip`. `--transform`, `--update-names` and
+`--validate-beams` sit behind `#ifdef ENABLE_TRANSFORMATION` in
+`exe/jbeam-edit/CommandLineOptions.hs` and do not exist in the stable build.
+Say which of the two you mean when you call a change user-visible.
+
 ### Build commands
 
 ```bash
