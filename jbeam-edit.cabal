@@ -311,7 +311,11 @@ test-suite jbeam-edit-transformation-test
     type:               exitcode-stdio-1.0
     main-is:            Spec.hs
     hs-source-dirs:     test-extra/transformation
-    other-modules:      Paths_jbeam_edit
+    other-modules:
+        Spec.Helpers
+        Spec.Regression
+        Paths_jbeam_edit
+
     autogen-modules:    Paths_jbeam_edit
     default-language:   GHC2021
     default-extensions:
