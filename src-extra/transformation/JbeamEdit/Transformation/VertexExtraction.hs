@@ -12,7 +12,7 @@ import Control.Monad.Except (runExcept)
 import Control.Monad.Trans.Except (except)
 import Data.Bifunctor (first)
 import Data.Char (isDigit)
-import Data.List (partition)
+import Data.List (foldl', partition)
 import Data.List.NonEmpty (NonEmpty (..))
 import Data.List.NonEmpty qualified as NE
 import Data.Map (Map)
@@ -222,7 +222,8 @@ newVertexTree
 newVertexTree brks vertexNames badAcc startingMeta vertexForest nodes =
   let (topNodes, nodes') = NE.span isNonVertex nodes
       topComments = mapMaybe toInternalComment topNodes
-      topMeta = foldr (M.union . metaMapFromObject) startingMeta topNodes
+      addMetaFromObject acc node = M.union (metaMapFromObject node) acc
+      topMeta = foldl' addMetaFromObject startingMeta topNodes
       vertexPrefix = getVertexPrefix' nodes'
    in runExcept
         ( do
