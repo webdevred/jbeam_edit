@@ -62,8 +62,6 @@ jobs:
         env:
           LABEL: ${{ matrix.label }}
           MATRIX_FLAGS: ${{ matrix.flags }}
-      - run: $(cabal list-bin test:jbeam-edit-test) --unicode --color | cat -A | head -5
-        shell: bash
       - name: Freeze and check dependencies
         env:
           CABAL_PROJECT: cabal.project.release
@@ -91,6 +89,8 @@ jobs:
         run: cabal build exe:jbeam-edit --project-file cabal.project.release
       - name: Run tests (GHC ${{ matrix.ghc }})
         run: cabal test --project-file cabal.project.release
+      - run: $(cabal list-bin test:jbeam-edit-test) --unicode --color | cat -A | head -5
+        shell: bash
       - name: Run benchmarks (GHC ${{ matrix.ghc }})
         if: |
           contains(matrix.flags, ' +transformation ') &&
