@@ -2,7 +2,12 @@
 
 set -euo pipefail
 
-cabal freeze --project-file "${CABAL_PROJECT:?CABAL_PROJECT missing}"
+if [[ "${CI:-}" == "true" ]]; then
+  cabal freeze --project-file "${CABAL_PROJECT:?CABAL_PROJECT missing in CI}"
+else
+  cabal freeze --project-file "${CABAL_PROJECT:-cabal.project.dev}"
+fi
+
 PLAN_PATH=$(find dist-newstyle -name plan.json | head -n 1)
 JQ_QUERY=$(<./.github/script_helpers/list_dependencies.jq)
 JQ_COUNT_QUERY=$(printf '%s | unique_by (split("=")[0]) | length' "$JQ_QUERY")
