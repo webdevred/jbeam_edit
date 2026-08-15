@@ -140,4 +140,4 @@ main = hspec $ do
   letterEndingNodesSpec
   ySortingBandingSpec
   metadataAcrossTreesSpec
-  lastMetadataRowSpec
+  metadataPreservedSpec

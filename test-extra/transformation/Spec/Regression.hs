@@ -8,7 +8,7 @@ module Spec.Regression (
   supportRenameIdempotencySpec,
   ySortingBandingSpec,
   metadataAcrossTreesSpec,
-  lastMetadataRowSpec,
+  metadataPreservedSpec,
 ) where
 
 import Data.Map qualified as M
@@ -119,27 +119,55 @@ metadataAcrossTreesSpec =
           vertexPositionsInOrder resultNode `shouldNotBe` []
           outOfOrderPairs 0.05 resultNode `shouldBe` []
 
-{- | A key set twice in one leading metadata block must end up with the second
-value. `topMeta` folds that block with `foldr` over a left-biased `M.union`,
-which puts the first row in the outermost position and lets it win instead.
-None of the files in `examples/jbeam/` repeats a key inside one leading block,
-so the whole-output fixture specs cannot see this; 485 of the 4943 stock
+{- | The transform renames nodes, reorders them and rewrites the metadata rows,
+but what any one node ends up carrying has to come out the same. The fixture
+covers every shape that decides that: a key set twice in one leading block, a
+key set again further down, an object on the node row overriding the section
+value for that node alone, and a key set once and never again.
+
+Today the leading block is folded with `foldr` over a left-biased `M.union`,
+which puts the first row in the outermost position and lets it beat the later
+one. None of the files in `examples/jbeam/` repeats a key inside one leading
+block, so the whole-output fixture specs cannot see it; 485 of the 4943 stock
 vehicle files do.
 -}
-lastMetadataRowFixture :: FilePath
-lastMetadataRowFixture =
+metadataPreservedFixture :: FilePath
+metadataPreservedFixture =
   "examples/regression_jbeam/last-metadata-row-repro.jbeam"
 
-lastMetadataRowSpec :: Spec
-lastMetadataRowSpec =
-  describe "a key set twice in one leading metadata block"
-    . it "leaves the last row in force"
-    $ do
-      topNode <- parseJbeamFile lastMetadataRowFixture
+metadataPreservedSpec :: Spec
+metadataPreservedSpec =
+  describe "the metadata a node carries" $ do
+    it "reads back from the fixture as jbeam defines it" $ do
+      topNode <- parseJbeamFile metadataPreservedFixture
+      let before = effectiveMetaByCoordinate topNode
+      -- Guards the helper and the fixture against each other, so a failure
+      -- below is the transform rather than a fixture nobody re-read.
+      M.size before `shouldBe` 6
+      metaNumber "nodeWeight" <$> M.lookup (0.9, -1.0, 0.1) before
+        `shouldBe` Just (Just 2.0)
+      metaNumber "nodeWeight" <$> M.lookup (0.9, 1.0, 0.1) before
+        `shouldBe` Just (Just 3.0)
+      metaNumber "nodeWeight" <$> M.lookup (0.9, 2.0, 0.1) before
+        `shouldBe` Just (Just 4.0)
+      metaNumber "frictionCoef" <$> M.lookup (-0.9, 0.0, 0.1) before
+        `shouldBe` Just (Just 0.5)
+
+    it "survives a transform unchanged" $ do
+      topNode <- parseJbeamFile metadataPreservedFixture
+      let before = effectiveMetaByCoordinate topNode
       case transform M.empty newTransformationConfig topNode of
         Left err -> expectationFailure ("transform failed: " ++ T.unpack err)
         Right (_, _, _, resultNode) -> do
-          let meta = effectiveMetaAtFirstVertex resultNode
-          meta `shouldNotBe` M.empty
-          metaNumber "nodeWeight" meta `shouldBe` Just 2.0
-          metaNumber "frictionCoef" meta `shouldBe` Just 0.5
+          let after = effectiveMetaByCoordinate resultNode
+              -- Report only the nodes whose metadata moved, with both values.
+              -- Comparing the maps whole prints each of them in full, which
+              -- buries which node actually broke.
+              changed =
+                [ (pos, expected, actual)
+                | (pos, expected) <- M.toList before
+                , Just actual <- [M.lookup pos after]
+                , actual /= expected
+                ]
+          M.keys after `shouldBe` M.keys before
+          changed `shouldBe` []

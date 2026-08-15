@@ -3,7 +3,7 @@ module Spec.Helpers (
   parseJbeamFile,
   vertexPositionsInOrder,
   vertexCoordinates,
-  effectiveMetaAtFirstVertex,
+  effectiveMetaByCoordinate,
   metaNumber,
   outOfOrderPairs,
 ) where
@@ -72,25 +72,41 @@ vertexCoordinates topNode =
         , Just (Number z) <- [inner V.!? 3]
         ]
 
-{- | The metadata the first vertex in a transformed file actually carries.
-jbeam metadata is sticky and a later row overrides an earlier one, so this
-replays the rows ahead of that vertex the way the game reads them back rather
-than trusting how many rows the tool chose to emit.
+{- | What each vertex in a "nodes" section actually carries, keyed by
+position so it can be compared across a transform that renames and reorders.
+
+jbeam metadata is sticky: a bare object sets properties on every row after it
+until a later row overrides the same key, and an object on the vertex row
+itself overrides the section value for that one vertex. This replays both the
+way the game reads them back, rather than trusting how many rows the tool chose
+to emit, so it holds whatever the output looks like.
 -}
-effectiveMetaAtFirstVertex :: Node -> MetaMap
-effectiveMetaAtFirstVertex topNode =
+effectiveMetaByCoordinate :: Node -> M.Map (Double, Double, Double) MetaMap
+effectiveMetaByCoordinate topNode =
   case NP.queryNodes nodesQuery topNode >>= NP.expectArray nodesQuery of
     Left _ -> M.empty
-    Right rows -> go M.empty (V.toList rows)
+    Right rows -> go M.empty M.empty (V.toList rows)
   where
-    go acc [] = acc
-    go acc (row : rest)
-      | isVertexRow row = acc
-      | otherwise = go (M.union (metaMapFromObject row) acc) rest
-    isVertexRow row =
-      case expectArray row >>= (V.!? 0) of
-        Just (String name) -> name /= "id"
-        _ -> False
+    go _ found [] = found
+    go sticky found (row : rest) =
+      case vertexRow row of
+        Just (pos, inline) ->
+          go sticky (M.insert pos (M.union inline sticky) found) rest
+        Nothing -> go (M.union (metaMapFromObject row) sticky) found rest
+
+    vertexRow row = do
+      inner <- expectArray row
+      String name <- inner V.!? 0
+      Number x <- inner V.!? 1
+      Number y <- inner V.!? 2
+      Number z <- inner V.!? 3
+      if name == "id"
+        then Nothing
+        else
+          Just
+            ( (realToFrac (nvValue x), realToFrac (nvValue y), realToFrac (nvValue z))
+            , maybe M.empty metaMapFromObject (inner V.!? 4)
+            )
 
 metaNumber :: Text -> MetaMap -> Maybe Double
 metaNumber key meta =
