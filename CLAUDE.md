@@ -233,18 +233,28 @@ This reformats all files in one pass. You may run this when needed, but **do not
 
 ## package.yaml → hpack
 
-After editing `package.yaml`, regenerate the `.cabal` file:
+After editing `package.yaml`, regenerate the `.cabal` file by running `hpack`
+directly.
 
-```bash
-stack build --hpack-force
-```
+**The hpack version has to match the one that generated the committed file.**
+Line 3 of `jbeam-edit.cabal` records it. Any other version reformats the whole
+file, and `check_cabal_file.sh` then rejects it even though nothing meaningful
+changed.
 
-**Do not run `hpack` directly.** CI regenerates the file through Stack, which
-bundles its own hpack. A locally installed hpack of a different version
-reformats the whole file, and `check_cabal_file.sh` then rejects it even though
-nothing meaningful changed. If Stack is not available, edit the `.cabal` file by
-hand to match what the `package.yaml` change implies, and keep the diff to those
-lines.
+**Do not regenerate through `stack build --hpack-force`.** Stack bundles its own
+hpack, and the bundled one is currently older than the version the committed
+file was generated with, so it rewrites the entire file. If the matching hpack
+is not available, edit the `.cabal` file by hand to match what the change
+implies, and keep the diff to those lines. Ask before doing that.
+
+Two things that are easy to get wrong here:
+
+- Adding a module under an existing `source-dirs` needs no `package.yaml`
+  change at all. hpack builds `other-modules` by reading the directory, so a
+  regeneration is the whole job.
+- `check_cabal_file.sh` diffs the working tree against `HEAD`, so it fails on
+  any uncommitted change to the `.cabal` file, correct or not. It only tells
+  you something once the change is committed.
 
 ## Git Commits
 
