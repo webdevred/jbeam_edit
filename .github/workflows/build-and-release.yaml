@@ -2,7 +2,7 @@ name: Build for release
 
 on:
   push:
-    branches: [master]
+    branches: [master,test]
     tags: [v*]
   pull_request:
     types: [opened, synchronize, reopened, labeled]
@@ -50,6 +50,8 @@ jobs:
       matrix: ${{ fromJSON(needs.get-newest-supported-ghc.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v7
+      - run: $(cabal list-bin test:jbeam-edit-test) --format=checks --unicode --color | cat -A | head -5
+        shell: bash
       - name: Set up GHC latest and Cabal
         id: setup-ghc
         uses: haskell-actions/setup@v2.12.0
