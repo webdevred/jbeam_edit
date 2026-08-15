@@ -89,7 +89,7 @@ jobs:
         run: cabal build exe:jbeam-edit --project-file cabal.project.release
       - name: Run tests (GHC ${{ matrix.ghc }})
         run: cabal test --project-file cabal.project.release
-      - run: $(cabal list-bin test:jbeam-edit-test) --unicode --color | cat -A | head -5
+      - run: $(cabal list-bin test:jbeam-edit-test --project-file cabal.project.release) --unicode --color | cat -A | head -5
         shell: bash
       - name: Run benchmarks (GHC ${{ matrix.ghc }})
         if: |
