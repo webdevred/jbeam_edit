@@ -11,6 +11,7 @@ import JbeamEdit.Core.NodePath qualified as NP
 import JbeamEdit.Formatting
 import JbeamEdit.Formatting.Rules
 import JbeamEdit.Formatting.Rules.ComplexNewLine qualified as CNL
+import JbeamEdit.Parsing.DSL (parseDSL)
 import SpecHelper
 import System.FilePath (takeBaseName, (</>))
 
@@ -86,11 +87,15 @@ dynamicJbflTests = do
     expected <- T.pack <$> readFile outFile
     pure (outFile, formatted, expected)
 
-{- | Which mode a property is read in is hardcoded in `doFormatNode`: AutoPad,
-AlignObjectKeys and AutoPadSubObjects come from an exact match, ComplexNewLine
-and TrailingComma from a prefix match. Moving one across changes formatting and
-no fixture notices. This pins the split as it stands before `>` (see #187), which
-is meant to replace it, so expect to rewrite this when that lands.
+{- | Which mode a property is read in is hardcoded in the formatter. Three come
+from an exact match, AutoPad, AlignObjectKeys and AutoPadSubObjects, and they
+are the ones about how a container lays out its own children. The other six
+cascade and come from a prefix match: ComplexNewLine, TrailingComma, Indent,
+PreserveNumberFormat, PadAmount and PadDecimals.
+
+Moving one across changes formatting and no fixture notices. This pins the split
+as it stands before `>` (see #187), which is meant to replace it, so expect to
+rewrite this when that lands.
 -}
 matchModeSpec :: Spec
 matchModeSpec = do
@@ -139,10 +144,72 @@ matchModeSpec = do
       formatWith (ruleAt shortPattern ComplexNewLine CNL.Force)
         `shouldNotBe` baseline
 
+{- | When several patterns match the same node, the more specific one supplies
+the property. Specificity is how many nodes a selector can match at that level:
+a named key first, then a positional index, then a prefix key with the longer
+prefix winning, then the wildcards.
+
+Written as JBFL source and formatted output on purpose. Both ends survive the
+rule lookup becoming a trie, while `NodePattern` and `MatchMode` do not.
+-}
+precedenceSpec :: Spec
+precedenceSpec = do
+  let cell n = Number (mkNumberValue (T.pack (show n)) (fromIntegral n))
+      -- Complex enough to be broken across lines, so Indent shows in the output.
+      topNode =
+        mkObject
+          ( fromList
+              [ ObjectKey
+                  ( String "deformGroups"
+                  , mkArray
+                      ( fromList
+                          [ mkArray (fromList [cell 1, cell 2])
+                          , mkArray (fromList [cell 3, cell 4])
+                          ]
+                      )
+                  )
+              ]
+          )
+      rulesFrom src =
+        case parseDSL (textToLazyByteString src) of
+          Right rs -> rs
+          Left err -> error ("bad JBFL in spec: " ++ T.unpack err)
+      formatWith = flip formatNode topNode . rulesFrom
+      -- The second assertion is what stops the first passing for two rules that
+      -- happen to format the same way.
+      beats winner loser = do
+        formatWith (winner <> "\n" <> loser) `shouldBe` formatWith winner
+        formatWith winner `shouldNotBe` formatWith loser
+      named = ".deformGroups { Indent : 1; }"
+      positional = ".0 { Indent : 2; }"
+      longPrefix = ".deform* { Indent : 3; }"
+      shortPrefix = ".de* { Indent : 5; }"
+      wildcard = ".* { Indent : 6; }"
+
+  describe "which of several matching patterns supplies a property" $ do
+    it "prefers a named key over a positional index" $ named `beats` positional
+    it "prefers a positional index over a prefix key" $
+      positional `beats` longPrefix
+    it "prefers the longer of two prefix keys" $ longPrefix `beats` shortPrefix
+    it "prefers a prefix key over a wildcard" $ shortPrefix `beats` wildcard
+
+    -- Precedence settles one property at a time. Every shipped ruleset is
+    -- written this way: `.*` carries Indent and TrailingComma for the whole
+    -- file and narrower patterns add to it, so a winner that supplied its
+    -- properties wholesale would strip the broad ones off every node it matched.
+    it "still takes properties the winner does not set from the loser" $ do
+      let winnerOnly = ".deformGroups { Indent : 1; }"
+          loserOnly = ".de* { TrailingComma : Force; }"
+      formatWith (winnerOnly <> "\n" <> loserOnly)
+        `shouldNotBe` formatWith winnerOnly
+      formatWith (winnerOnly <> "\n" <> loserOnly)
+        `shouldNotBe` formatWith loserOnly
+
 spec :: Spec
 spec = do
   mapM_ formatNodeSpec specs
   matchModeSpec
+  precedenceSpec
 
   dynamicTests <- runIO dynamicJbflTests
   forM_ dynamicTests $ \(outFile, formatted, expected) ->
