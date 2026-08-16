@@ -1,5 +1,6 @@
 module SpecHelper (
   textToLazyByteString,
+  rulesFromSource,
   applySpecOnInput,
   works,
   listFilesInDir,
@@ -15,6 +16,8 @@ import Data.List (isPrefixOf, isSuffixOf)
 import Data.Text qualified as T
 import Data.Text.Encoding (encodeUtf8)
 import JbeamEdit.Core.Node
+import JbeamEdit.Formatting.Rules (RuleSet)
+import JbeamEdit.Parsing.DSL (parseDSL)
 import System.Directory (getDirectoryContents)
 import Test.Hspec
 
@@ -45,3 +48,9 @@ works = it "works"
 
 textToLazyByteString :: String -> ByteString
 textToLazyByteString = BS.fromStrict . encodeUtf8 . T.pack
+
+rulesFromSource :: String -> RuleSet
+rulesFromSource src =
+  case parseDSL (textToLazyByteString src) of
+    Right rs -> rs
+    Left err -> error ("bad JBFL in spec: " ++ T.unpack err)
