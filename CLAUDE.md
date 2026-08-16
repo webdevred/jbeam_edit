@@ -186,6 +186,85 @@ Vary one at a time, whether narrowing a bug or building a fixture for one.
 
 Regression fixtures go in `examples/regression_jbeam/`. Read that directory's README first: the bar for adding one is that the test genuinely cannot be built from what is already there.
 
+## Profiling
+
+Profiling needs `profiling: True` and `profiling-detail: all-functions` in
+`cabal.project`. Neither belongs in a commit, so take them out again when you
+are done.
+
+Each of the five below has cost a wrong conclusion at least once.
+
+**Read allocation, not time.** Two runs of the same binary on the same input
+allocate the same number of bytes, reproducible to about a hundred bytes out of
+several hundred megabytes. Tick counts move by several percent between the same
+two runs, and a typical run is only a few hundred ticks, so a cost centre at 2%
+is two or three ticks. Rank by `%alloc` and treat `%time` as an indication.
+
+**Never profile against `examples/`.** Every run rewrites the file it is given,
+with or without `-i`: `-i` only skips the `.bak.jbeam` copy that is otherwise
+made first (`createBackupFile` in `Main.hs`). There is no read-only mode, so a
+run that looks like a measurement is an edit. On top of that `--transform`
+rewrites every `.jbeam` beside the file you name, so one run overwrites all
+three fixtures. It also silently changes what the next run reads: an
+already-transformed file is shorter, which makes two consecutive runs
+incomparable. Copy the file to a directory of its own first, exactly as the
+section above says for transformation bugs.
+
+**Profile the large tail, not only the examples.** `examples/jbeam/frame.jbeam`
+is close to a typical stock file, so it is a fair sample of the common case, but
+it says nothing about the expensive one. Extract the corpus with
+`tools/extract-and-format-jbeam/corpus-extract.sh` and measure the sizes before
+choosing: the median file is around 11 KB, the 90th percentile around 44 KB, and
+the largest is half a megabyte, roughly 36 times the frame example. Anything in
+the rule lookup that scales worse than linearly is invisible at the median and
+obvious at the tail, so profile one file from each end. Copy them out of the
+corpus directory first, for the same reason as above.
+
+**Give the binary its data directory, and keep stderr.** The shipped ruleset is
+found through `getDataFileName` (`Formatting/Config.hs`), so a binary run from
+outside the build tree finds no `examples/jbfl/complex.jbfl` and formats with no
+rules at all. Rule lookup is about two thirds of all allocation, so the profile
+then measures something the tool never does: the same file allocated 43 MB
+without rules and 186 MB with them. Export `jbeam_edit_datadir=<repo>` when
+running the binary directly, and do not send stderr to `/dev/null`, because the
+tool prints `Loading jbfl:` with the file it actually read.
+
+**Rebuild fully when build flags change.** A partial rebuild leaves modules
+compiled under the old flags, and the result looks like a real difference. If
+allocation moves by more than a rounding error between two runs that should be
+identical, suspect the binary before believing the number.
+
+### Baseline
+
+Measured with `--transform`, with the shipped ruleset loaded. Reproduce it before
+trusting a comparison against it.
+
+| Input                                       | Size      | Allocation |
+|---------------------------------------------|-----------|------------|
+| `examples/jbeam/frame.jbeam`, alone         | 14 236 B  | 186 MB     |
+| a 150 KB stock body file, alone             | 149 896 B | 1 523 MB   |
+| the same body file in its vehicle, 74 files | 1.5 MB    | 12 040 MB  |
+
+The third row is the one that describes the tool as users run it. `--transform`
+rewrites every neighbouring file that referenced a renamed node, 37 of the 74
+here, and rewriting means reformatting the file in full. So the formatter runs
+38 times for one command, and `updateOtherFiles` inherits two thirds of all
+allocation while the renaming inside it costs well under one percent. Anything
+saved in the rule lookup is saved 38 times over.
+
+Two things follow, and both have been mistaken for something else before.
+Allocation runs about ten thousand bytes per byte of input, so the absolute
+figures look alarming and say nothing on their own. And a tenfold larger input
+allocates eight times as much, so the cost is slightly sublinear: there is no
+asymptotic problem hiding in the rule lookup, only a large constant.
+
+That constant is one thing seen from several angles. `viewl` and `$m:<|` are the
+`Seq` pattern match in `sameBy`, `filterWithKey` is the linear sweep in
+`findPropertiesForCursor`, and `unpackCString#` is `propertyName` rebuilding a
+`Text` from a string literal on every `Eq SomeKey` comparison. Together they are
+around two thirds of all allocation, and their shares stay within a few tenths
+of a percent across the whole size range.
+
 ## Key Architectural Notes
 
 - Parser: Megaparsec-based, preserves comments and whitespace
