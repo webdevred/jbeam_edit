@@ -57,10 +57,17 @@ newtype NodePattern
   deriving stock (Eq, Read, Show)
 
 instance Monoid RuleSet where
-  mempty = RuleSet M.empty [] M.empty M.empty
+  mempty = RuleSet M.empty [] M.empty M.empty mempty mempty
 
 instance Semigroup RuleSet where
-  (RuleSet rs1 ps1 aok1 aai1) <> (RuleSet rs2 ps2 aok2 aai2) = RuleSet (M.unionWith M.union rs1 rs2) (ps1 <> ps2) (aok1 <> aok2) (aai1 <> aai2)
+  (RuleSet rs1 ps1 aok1 aai1 h1 b1) <> (RuleSet rs2 ps2 aok2 aai2 h2 b2) =
+    RuleSet
+      (M.union rs1 rs2)
+      (ps1 <> ps2)
+      (M.union aok1 aok2)
+      (M.union aai1 aai2)
+      (h1 <> h2)
+      (b1 <> b2)
 
 instance Ord NodePattern where
   compare (NodePattern a) (NodePattern b) =
@@ -206,7 +213,14 @@ deprecatedAliases =
 type Rule = Map SomeKey SomeProperty
 
 data RuleSet
-  = RuleSet (Map NP.NodeSelector Rule) [(Text,Rule)] Rule Rule
+  = RuleSet
+  { rsBySelectors :: Map NP.NodeSelector RuleSet
+  , rsPrefixes :: [(Text, Map NP.NodeSelector RuleSet)]
+  , rsAnyObjectKey :: Map NP.NodeSelector RuleSet
+  , rsAnyArrayIndex :: Map NP.NodeSelector RuleSet
+  , rsHere :: Rule
+  , rsBelow :: Rule
+  }
   deriving stock (Eq, Read, Show)
 
 lookupProp :: (Eq a, Read a, Show a) => PropertyKey a -> Rule -> Maybe a
@@ -277,5 +291,4 @@ sameBy matchMode f = go
 
 -- TODO: when possible upgrade to containers 0.8 and migrate to M.filterKeys
 findPropertiesForCursor :: MatchMode -> NC.NodeCursor -> RuleSet -> Rule
-findPropertiesForCursor matchMode cursor (RuleSet rs) =
-  fold (M.filterWithKey (const . compareCursorAndPattern matchMode cursor) rs)
+findPropertiesForCursor = undefined
