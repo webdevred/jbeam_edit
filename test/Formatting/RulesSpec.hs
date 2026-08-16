@@ -75,6 +75,20 @@ spec = do
       found PrefixMatch p nodesCursor `shouldBe` Nothing
       found ExactMatch p nodesCursor `shouldBe` Nothing
 
+    -- `.test*` is documented JBFL (JBFL_DOCS.md) and cannot be looked up by
+    -- equality, since the stored key is a prefix of the breadcrumb rather than
+    -- the same text. It is the one selector a trie has to solve rather than
+    -- key on directly.
+    it "matches a prefix key against the rest of the breadcrumb" $ do
+      let p k = [AnyObjectKey, Selector (NP.ObjectPrefixKey k)]
+          atDeformGroups =
+            cursorAt
+              [ObjectIndexAndKey 0 "part", ObjectIndexAndKey 0 "deformGroups"]
+      found ExactMatch (p "deform") atDeformGroups `shouldBe` Just 7
+      found ExactMatch (p "deformGroups") atDeformGroups `shouldBe` Just 7
+      found ExactMatch (p "deformGroupsAndMore") atDeformGroups `shouldBe` Nothing
+      found ExactMatch (p "eform") atDeformGroups `shouldBe` Nothing
+
     it "keeps the two wildcards apart" $ do
       let atArray = cursorAt [ObjectIndexAndKey 0 "part", ArrayIndex 0]
           atKey = cursorAt [ObjectIndexAndKey 0 "part", ObjectIndexAndKey 0 "k"]
