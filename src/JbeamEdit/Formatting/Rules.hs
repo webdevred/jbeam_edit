@@ -215,9 +215,9 @@ type Rule = Map SomeKey SomeProperty
 data RuleSet
   = RuleSet
   { rsBySelectors :: Map NP.NodeSelector RuleSet
-  , rsPrefixes :: [(Text, Map NP.NodeSelector RuleSet)]
-  , rsAnyObjectKey :: Map NP.NodeSelector RuleSet
-  , rsAnyArrayIndex :: Map NP.NodeSelector RuleSet
+  , rsPrefixes :: [(Text, RuleSet)]
+  , rsAnyObjectKey :: RuleSet
+  , rsAnyArrayIndex :: RuleSet
   , rsHere :: Rule
   , rsBelow :: Rule
   }
