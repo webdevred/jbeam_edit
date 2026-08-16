@@ -57,17 +57,18 @@ newtype NodePattern
   deriving stock (Eq, Read, Show)
 
 instance Monoid RuleSet where
-  mempty = RuleSet M.empty [] M.empty M.empty mempty mempty
+  mempty = RuleSet M.empty [] mempty mempty M.empty M.empty
 
 instance Semigroup RuleSet where
   (RuleSet rs1 ps1 aok1 aai1 h1 b1) <> (RuleSet rs2 ps2 aok2 aai2 h2 b2) =
     RuleSet
       (M.union rs1 rs2)
       (ps1 <> ps2)
-      (M.union aok1 aok2)
-      (M.union aai1 aai2)
+      (liftUnion aok1 aok2)
+      (liftUnion aai1 aai2)
       (h1 <> h2)
       (b1 <> b2)
+        where liftUnion = liftA2 (<>)
 
 instance Ord NodePattern where
   compare (NodePattern a) (NodePattern b) =
@@ -214,10 +215,10 @@ type Rule = Map SomeKey SomeProperty
 
 data RuleSet
   = RuleSet
-  { rsBySelectors :: Map NP.NodeSelector RuleSet
+  { rsBySelectors :: Map NP.NodeSelector (Maybe RuleSet)
   , rsPrefixes :: [(Text, RuleSet)]
-  , rsAnyObjectKey :: RuleSet
-  , rsAnyArrayIndex :: RuleSet
+  , rsAnyObjectKey :: Maybe RuleSet
+  , rsAnyArrayIndex :: Maybe RuleSet
   , rsHere :: Rule
   , rsBelow :: Rule
   }
