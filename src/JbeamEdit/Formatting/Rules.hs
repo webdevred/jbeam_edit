@@ -50,28 +50,17 @@ data NodePatternSelector
   = AnyObjectKey
   | AnyArrayIndex
   | Selector NP.NodeSelector
-  deriving stock (Eq, Read, Show)
-
-instance Ord NodePatternSelector where
-  compare a b = compare (rank a) (rank b)
-    where
-      rank :: NodePatternSelector -> (Int, Int, Text)
-      rank (Selector (NP.ObjectKey key)) = (0, 0, key)
-      rank (Selector (NP.ArrayIndex index)) = (1, index, "")
-      rank (Selector (NP.ObjectIndex i)) = (2, i, "")
-      rank (Selector (NP.ObjectPrefixKey prefix)) = (3, negate (T.length prefix), prefix)
-      rank AnyObjectKey = (4, 0, "")
-      rank AnyArrayIndex = (5, 0, "")
+  deriving stock (Eq, Ord, Read, Show)
 
 newtype NodePattern
   = NodePattern (Seq NodePatternSelector)
   deriving stock (Eq, Read, Show)
 
 instance Monoid RuleSet where
-  mempty = RuleSet M.empty
+  mempty = RuleSet M.empty [] M.empty M.empty
 
 instance Semigroup RuleSet where
-  (RuleSet rs1) <> (RuleSet rs2) = RuleSet (M.unionWith M.union rs1 rs2)
+  (RuleSet rs1 ps1 aok1 aai1) <> (RuleSet rs2 ps2 aok2 aai2) = RuleSet (M.unionWith M.union rs1 rs2) (ps1 <> ps2) (aok1 <> aok2) (aai1 <> aai2)
 
 instance Ord NodePattern where
   compare (NodePattern a) (NodePattern b) =
@@ -216,8 +205,8 @@ deprecatedAliases =
 
 type Rule = Map SomeKey SomeProperty
 
-newtype RuleSet
-  = RuleSet (Map NodePattern Rule)
+data RuleSet
+  = RuleSet (Map NP.NodeSelector Rule) [(Text,Rule)] Rule Rule
   deriving stock (Eq, Read, Show)
 
 lookupProp :: (Eq a, Read a, Show a) => PropertyKey a -> Rule -> Maybe a
