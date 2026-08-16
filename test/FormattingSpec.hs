@@ -155,6 +155,8 @@ rule lookup becoming a trie, while `NodePattern` and `MatchMode` do not.
 precedenceSpec :: Spec
 precedenceSpec = do
   let cell n = Number (mkNumberValue (T.pack (show n)) (fromIntegral n))
+      -- Three levels deep, so Indent set two breadcrumbs down still shows.
+      pair a b = mkArray (fromList [mkArray (fromList [a, b]), mkArray (fromList [b, a])])
       -- Complex enough to be broken across lines, so Indent shows in the output.
       topNode =
         mkObject
@@ -163,8 +165,8 @@ precedenceSpec = do
                   ( String "deformGroups"
                   , mkArray
                       ( fromList
-                          [ mkArray (fromList [cell 1, cell 2])
-                          , mkArray (fromList [cell 3, cell 4])
+                          [ pair (cell 1) (cell 2)
+                          , pair (cell 3) (cell 4)
                           ]
                       )
                   )
@@ -197,6 +199,11 @@ precedenceSpec = do
     -- written this way: `.*` carries Indent and TrailingComma for the whole
     -- file and narrower patterns add to it, so a winner that supplied its
     -- properties wholesale would strip the broad ones off every node it matched.
+    -- `[4]` is the last row of the selector table in JBFL_DOCS.md, and the only
+    -- one no shipped ruleset uses, so nothing else would notice it going away.
+    it "matches a literal array index and prefers it over the wildcard" $
+      ".deformGroups[0] { Indent : 1; }" `beats` ".deformGroups[*] { Indent : 4; }"
+
     it "still takes properties the winner does not set from the loser" $ do
       let winnerOnly = ".deformGroups { Indent : 1; }"
           loserOnly = ".de* { TrailingComma : Force; }"
@@ -204,6 +211,23 @@ precedenceSpec = do
         `shouldNotBe` formatWith winnerOnly
       formatWith (winnerOnly <> "\n" <> loserOnly)
         `shouldNotBe` formatWith loserOnly
+
+  -- A user's rules.jbfl is laid over the shipped one with `rs <> defaultRs`
+  -- (`Formatting/Config.hs`), so this is how every configured install resolves
+  -- its rules. The union is left-biased twice over, per pattern and per
+  -- property, and a trie has to reproduce both.
+  describe "combining a user ruleset with the shipped one" $ do
+    let user = rulesFrom ".deformGroups { Indent : 1; }"
+        shipped = rulesFrom ".deformGroups { Indent : 7; TrailingComma : Force; }"
+        format = flip formatNode topNode
+
+    it "takes the user's value and keeps the rest of the shipped one" $ do
+      let merged = rulesFrom ".deformGroups { Indent : 1; TrailingComma : Force; }"
+      format (user <> shipped) `shouldBe` format merged
+      -- Guards the line above: without these the two rulesets could be
+      -- indistinguishable and the merge would prove nothing.
+      format user `shouldNotBe` format shipped
+      format merged `shouldNotBe` format user
 
 spec :: Spec
 spec = do
