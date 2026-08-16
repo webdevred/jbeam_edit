@@ -29,7 +29,7 @@ data NodeSelector
   | ObjectKey Text
   | ObjectPrefixKey Text
   | ObjectIndex Int
-  deriving (Eq, Ord, Read, Show)
+  deriving (Eq, Read, Show)
 
 {- | node path
 A NodePath is a Sequence of selectors to that point out a certain point in a Node tree, either to point at as something when fetching it from Node or to point to something compare that I at a certain point when doing updates.

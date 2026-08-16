@@ -40,7 +40,7 @@ import Data.Text qualified as T
 import Data.Type.Equality ((:~:) (Refl))
 import JbeamEdit.Core.Node
 import JbeamEdit.Core.NodeCursor qualified as NC
-import JbeamEdit.Core.NodePath (NodeSelector (..))
+import JbeamEdit.Core.NodePath qualified as NP (NodeSelector (..))
 import JbeamEdit.Formatting.Rules.ComplexNewLine (ComplexNewLine)
 import JbeamEdit.Formatting.Rules.ComplexNewLine qualified as CNL
 import JbeamEdit.Formatting.Rules.TrailingComma (TrailingComma)
@@ -49,16 +49,19 @@ import Text.Read qualified as TR
 data NodePatternSelector
   = AnyObjectKey
   | AnyArrayIndex
-  | Selector NodeSelector
+  | Selector NP.NodeSelector
   deriving stock (Eq, Read, Show)
 
 instance Ord NodePatternSelector where
   compare a b = compare (rank a) (rank b)
     where
-      rank :: NodePatternSelector -> (Int, Maybe NodeSelector)
-      rank AnyArrayIndex = (2, Nothing)
-      rank AnyObjectKey = (1, Nothing)
-      rank (Selector s) = (0, Just s)
+      rank :: NodePatternSelector -> (Int, Int, Text)
+      rank (Selector (NP.ObjectKey key)) = (0, 0, key)
+      rank (Selector (NP.ArrayIndex index)) = (1, index, "")
+      rank (Selector (NP.ObjectIndex i)) = (2, i, "")
+      rank (Selector (NP.ObjectPrefixKey prefix)) = (3, negate (T.length prefix), prefix)
+      rank AnyObjectKey = (4, 0, "")
+      rank AnyArrayIndex = (5, 0, "")
 
 newtype NodePattern
   = NodePattern (Seq NodePatternSelector)
