@@ -54,12 +54,10 @@ jobs:
           CABAL_PROJECT: cabal.project.ci
         shell: bash
         run: bash ./.github/scripts/freeze_dependencies.sh
-      - name: Cache GHC, Cabal store, and build artifacts
+      - name: Cache Cabal store
         uses: actions/cache@v6.1.0
         with:
-          path: |
-            dist-newstyle
-            ${{ steps.setup-ghc.outputs.cabal-store }}
+          path: ${{ steps.setup-ghc.outputs.cabal-store }}
           key: >-
             ${{ runner.os }}-cabal-${{
               steps.get-ghc.outputs.ghc-version
