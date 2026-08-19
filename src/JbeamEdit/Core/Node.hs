@@ -6,6 +6,7 @@ module JbeamEdit.Core.Node (
   isNumberNode,
   isStringNode,
   maybeObjectKey,
+  maybeString,
   isSinglelineComment,
   commentIsAttachedToPreviousNode,
   isPriorAssocCommentNode,
@@ -42,12 +43,12 @@ import Data.Vector qualified as V
 newtype ArrayValue = ArrayValue
   { avElements :: Vector (Node, Bool)
   }
-  deriving (Eq, Ord, Read, Show)
+  deriving stock (Eq, Ord, Read, Show)
 
 newtype ObjectValue = ObjectValue
   { ovElements :: Vector (Node, Bool)
   }
-  deriving (Eq, Ord, Read, Show)
+  deriving stock (Eq, Ord, Read, Show)
 
 type ObjectKey = (Node, Node)
 
@@ -175,6 +176,10 @@ expectArray _ = Nothing
 expectObject :: Node -> Maybe (Vector Node)
 expectObject (Object ov) = Just (ovNodes ov)
 expectObject _ = Nothing
+
+maybeString :: Node -> Maybe Text
+maybeString (String t) = Just t
+maybeString _ = Nothing
 
 possiblyChildren :: Node -> Maybe (Vector Node)
 possiblyChildren n = expectArray n <|> expectObject n

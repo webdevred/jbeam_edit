@@ -1,5 +1,5 @@
 y-sorting-threshold: 0.05
-support-threshold: 96
+support-threshold: 20
 max-support-coordinates: 3
 
 x-group-breakpoints:
