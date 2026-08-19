@@ -1,0 +1,40 @@
+{
+"testpart":{
+    "nodes":[
+        ["id", "posX", "posY", "posZ"],
+        // Synthetic regression-test fixture for issue #221, not vetted by
+        // the jbeam maintainer and not intended as a demo/example.
+        // Real node positions from a gen4-style body file, both sides kept.
+        //
+        // The leading metadata row plus the alternating nl/nr prefixes are
+        // what matter here. breakVertices splits on prefix, so alternating
+        // names put every vertex in a chunk of its own and only nl0, the
+        // one sharing a chunk with the metadata row, ends up with a
+        // non-empty aMeta. examples/jbeam/frame.jbeam cannot stand in for
+        // this: it names both sides rl_f, so its vertices share one chunk.
+        {"nodeWeight":0.78},
+        ["nl0", 0.953, -1.967, 0.122],
+        ["nr1", -0.877, -1.967, 0.122],
+        ["nl2", 0.92, -1.953, 0.439],
+        ["nr3", -0.845, -1.953, 0.439],
+        ["nl4", 0.78, -1.815, 0.719],
+        ["nr5", -0.704, -1.815, 0.719],
+        ["nl6", 1.036, -1.807, 0.125],
+        ["nr7", -0.961, -1.807, 0.125],
+        ["nl8", 0.998, -1.791, 0.473],
+        ["nr9", -0.922, -1.791, 0.473],
+        ["nl10", 0.944, -1.644, 0.72],
+        ["nr11", -0.869, -1.644, 0.72],
+        ["nl12", 0.823, -1.362, 0.841],
+        ["nr13", -0.747, -1.362, 0.841],
+        ["nl14", 0.952, -1.354, 0.772],
+        ["nr15", -0.876, -1.354, 0.772],
+    ],
+    "beams":[
+        ["id1:", "id2:"],
+    ],
+    "triangles":[
+        ["id1:", "id2:", "id3:"],
+    ],
+},
+}

@@ -3,6 +3,11 @@ name: Lint & format
 on:
   push:
     branches: [master]
+    paths:
+      - '**.hs'
+      - '.hlint.yaml'
+      - 'fourmolu.yaml'
+      - '.github/scripts/**'
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
     paths:

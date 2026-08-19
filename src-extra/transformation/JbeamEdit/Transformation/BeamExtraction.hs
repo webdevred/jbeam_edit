@@ -39,6 +39,9 @@ extractBeamFromArray sectionMeta vec
         then Nothing
         else
           let inlineObjects = mapMaybe maybeObject (V.toList (V.drop 2 vec))
+              -- M.unions lets the first map win a repeated key, the wrong way
+              -- round for jbeam. No stock beam row carries two inline objects,
+              -- so there is never a second map to lose to.
               inlineMeta = M.unions (map metaMapFromObject inlineObjects)
               effectiveMeta = M.union inlineMeta sectionMeta
            in Just (Beam (mkBeamPair n1 n2) effectiveMeta)

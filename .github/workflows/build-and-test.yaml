@@ -3,6 +3,14 @@ name: Build & test (dev)
 on:
   push:
     branches: [master]
+    paths:
+      - '**.hs'
+      - 'package.yaml'
+      - '*.cabal'
+      - 'cabal.project*'
+      - 'stack.yaml*'
+      - 'examples/**'
+      - '.github/**'
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
     paths:
@@ -119,7 +127,7 @@ jobs:
     steps:
       - name: Extract the tested GHC versions
         id: set-matrix
-        uses: kleidukos/get-tested@v0.1.10.0-rc1
+        uses: kleidukos/get-tested@v0.1.10.0-rc3
         with:
           cabal-file: jbeam-edit.cabal
           ubuntu-version: 24.04

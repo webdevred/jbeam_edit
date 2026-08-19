@@ -9,8 +9,8 @@ module JbeamEdit.Core.Node (
   maybeString,
   isSinglelineComment,
   commentIsAttachedToPreviousNode,
+  isPriorAssocCommentNode,
   isComplexNode,
-  extractPreviousAssocCmt,
   possiblyChildren,
   numberValueToScientific,
   scientificToText,
@@ -102,13 +102,6 @@ data Node
 commentIsAttachedToPreviousNode :: InternalComment -> Bool
 commentIsAttachedToPreviousNode = (==) PreviousNode . cAssociationDirection
 
-extractPreviousAssocCmt
-  :: [Node]
-  -> (Maybe InternalComment, [Node])
-extractPreviousAssocCmt (Comment cmt : ns)
-  | commentIsAttachedToPreviousNode cmt = (Just cmt, ns)
-extractPreviousAssocCmt ns = (Nothing, ns)
-
 maybeObjectKey :: Node -> Maybe Text
 maybeObjectKey (ObjectKey (String key, _)) = Just key
 maybeObjectKey _ = Nothing
@@ -153,6 +146,10 @@ isStringNode _ = False
 isNumberNode :: Node -> Bool
 isNumberNode (Number _) = True
 isNumberNode _ = False
+
+isPriorAssocCommentNode :: Node -> Bool
+isPriorAssocCommentNode (Comment cmt) = commentIsAttachedToPreviousNode cmt
+isPriorAssocCommentNode _ = False
 
 numberValueToScientific :: NumberValue -> Scientific
 numberValueToScientific = nvValue
