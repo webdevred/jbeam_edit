@@ -2,6 +2,7 @@
 module Spec.Helpers (
   parseJbeamFile,
   vertexPositionsInOrder,
+  vertexCoordinatesInOrder,
   vertexCoordinates,
   effectiveMetaByCoordinate,
   metaNumber,
@@ -51,6 +52,25 @@ vertexPositionsInOrder topNode =
       , Just (String name) <- [inner V.!? 0]
       , name /= "id"
       , Just (Number yNum) <- [inner V.!? 2]
+      ]
+
+{- | Every vertex coordinate in a top node's "nodes" section, in the order
+`transform` wrote them out. Use this where the defect is about which vertex
+ended up where, rather than about which vertices survived.
+-}
+vertexCoordinatesInOrder :: Node -> [(Double, Double, Double)]
+vertexCoordinatesInOrder topNode =
+  case NP.queryNodes nodesQuery topNode >>= NP.expectArray nodesQuery of
+    Left _ -> []
+    Right rows ->
+      [ (realToFrac (nvValue x), realToFrac (nvValue y), realToFrac (nvValue z))
+      | row <- V.toList rows
+      , Just inner <- [expectArray row]
+      , Just (String name) <- [inner V.!? 0]
+      , name /= "id"
+      , Just (Number x) <- [inner V.!? 1]
+      , Just (Number y) <- [inner V.!? 2]
+      , Just (Number z) <- [inner V.!? 3]
       ]
 
 {- | Every vertex coordinate in a top node's "nodes" section. Positions

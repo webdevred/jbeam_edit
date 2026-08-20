@@ -9,6 +9,7 @@ module Spec.Regression (
   ySortingBandingSpec,
   metadataAcrossTreesSpec,
   metadataPreservedSpec,
+  xColumnSortingSpec,
 ) where
 
 import Data.Map qualified as M
@@ -171,3 +172,34 @@ metadataPreservedSpec =
                 ]
           M.keys metaAfter `shouldBe` M.keys metaBefore
           changed `shouldBe` []
+
+{- | The same gen4-style left-side positions as the y-sorting fixture, read
+for a different defect. Its five frontmost nodes sit in two vertical
+columns: an inner one at X 0.780/0.920/0.953 and an outer one at X
+0.998/1.036, the nose face and the fender beside it. Y and Z interleave
+between the two columns, so no y-sorting-threshold can separate them; only
+X can. Sorting a band by Z alone therefore climbs one column, jumps to the
+other and comes back, which is what the jbeam maintainer marked up on his
+render.
+
+The threshold here is 0.31 rather than the default because that is what puts
+all five in one band, which is where the defect lives. It is not free choice:
+between 0.153 and 0.16 the Y bands land on exactly the two columns, and this
+assertion passes with nothing fixed at all.
+-}
+xColumnSortingSpec :: Spec
+xColumnSortingSpec =
+  describe "vertices in one Y band but different X columns"
+    . it "keeps each column contiguous instead of interleaving them"
+    $ do
+      let cfg = newTransformationConfig {ySortingThreshold = 0.31}
+          inner = [(0.953, -1.967, 0.122), (0.92, -1.953, 0.439), (0.78, -1.815, 0.719)]
+          outer = [(1.036, -1.807, 0.125), (0.998, -1.791, 0.473)]
+      topNode <- parseJbeamFile ySortingReproFixture
+      case transform M.empty cfg topNode of
+        Left err -> expectationFailure ("transform failed: " ++ T.unpack err)
+        Right (_, _, _, resultNode) ->
+          take 5 (leftGroup (vertexCoordinatesInOrder resultNode))
+            `shouldBe` inner ++ outer
+  where
+    leftGroup = filter (\(x, _, _) -> x >= 0.09)
