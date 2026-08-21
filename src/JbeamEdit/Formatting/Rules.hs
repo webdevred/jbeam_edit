@@ -290,6 +290,6 @@ sameBy matchMode f = go
        in res && go ps bs
     go ps bs = Seq.null ps && (Seq.null bs || PrefixMatch == matchMode)
 
--- TODO: when possible upgrade to containers 0.8 and migrate to M.filterKeys
+-- TODO: migrate to M.filterKeys once the stack snapshot ships containers 0.8
 findPropertiesForCursor :: MatchMode -> NC.NodeCursor -> RuleSet -> Rule
 findPropertiesForCursor = undefined

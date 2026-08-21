@@ -229,6 +229,13 @@ without rules and 186 MB with them. Export `jbeam_edit_datadir=<repo>` when
 running the binary directly, and do not send stderr to `/dev/null`, because the
 tool prints `Loading jbfl:` with the file it actually read.
 
+`--rules-path` does not get you out of this. The named file is loaded and then
+discarded when the shipped default cannot be found, so the run formats with no
+rules while reporting that it loaded yours. The only sign is a second stderr
+line, `Failed to parse default ruleset`. This applies to any comparison between
+rulesets, not only to profiling: without the data directory every variant
+produces byte-identical output, which reads as "the rules make no difference".
+
 **Rebuild fully when build flags change.** A partial rebuild leaves modules
 compiled under the old flags, and the result looks like a real difference. If
 allocation moves by more than a rounding error between two runs that should be

@@ -10,7 +10,7 @@ import Data.List.NonEmpty (NonEmpty)
 import Data.List.NonEmpty qualified as NE
 import Data.Map (Map)
 import Data.Map qualified as M
-import Data.Maybe (fromMaybe)
+import Data.Maybe (fromMaybe, mapMaybe)
 import Data.Monoid.Extra (mwhen)
 import Data.Ord (Down (Down), comparing)
 import Data.Scientific (Scientific)
@@ -165,18 +165,20 @@ groupAnnotatedVertices
 groupAnnotatedVertices brks g = (,[g]) <$> determineGroup' brks (aVertex g)
 
 moveSupportVertices
-  :: UpdateNamesMap
+  :: Set Text
+  -> UpdateNamesMap
   -> TransformationConfig
   -> VertexConnMap
-  -> M.Map VertexTreeType [AnnotatedVertex]
-  -> (VertexForest, M.Map VertexTreeType [AnnotatedVertex])
-moveSupportVertices newNames tfCfg connMap vsPerType =
+  -> Map VertexTreeType [AnnotatedVertex]
+  -> (VertexForest, Map VertexTreeType [AnnotatedVertex])
+moveSupportVertices protectedNames newNames tfCfg connMap vsPerType =
   let supportVertices :: [AnnotatedVertex]
       supportVertices =
         [ av
         | vs <- M.elems vsPerType
         , av <- vs
         , let name = vName (aVertex av)
+        , name `S.notMember` protectedNames
         , let vertexCount = length vs
               thrCount =
                 max 1 (round $ supportThreshold tfCfg / 100 * fromIntegral vertexCount)
@@ -199,13 +201,14 @@ moveSupportVertices newNames tfCfg connMap vsPerType =
                   ( SupportKey
                   , VertexTree
                       [sideComment SupportTree]
-                      ( let sorted = NE.sortBy (on compare $ vY . aVertex) vs
+                      ( let prefix = vertexPrefix newNames brks SupportTree
+                            sorted = NE.sortBy (on compare $ vY . aVertex) vs
                             (_, bandIndices) = mapAccumL (indexBand tfCfg) (0, firstY sorted) sorted
-                            bandSortedVertices =
-                              NE.map snd $
-                                NE.sortBy
-                                  (compareAV (vertexPrefix newNames brks SupportTree) SupportTree)
-                                  bandIndices
+                            bandSortedPairs =
+                              NE.sortBy
+                                (compareAV prefix SupportTree)
+                                bandIndices
+                            bandSortedVertices = NE.map snd bandSortedPairs
                             (_, renamedVertices') = mapAccumL assignSupportNames M.empty bandSortedVertices
                          in renamedVertices'
                       )
@@ -224,12 +227,13 @@ notElemByVertexName
 notElemByVertexName vertex = S.notMember (anVertexName vertex)
 
 moveVerticesInVertexForest
-  :: Node
+  :: Set Text
+  -> Node
   -> UpdateNamesMap
   -> TransformationConfig
   -> VertexForest
   -> Either Text ([Node], VertexForest)
-moveVerticesInVertexForest topNode newNames tfCfg vertexTrees =
+moveVerticesInVertexForest triangleVertexNames topNode newNames tfCfg vertexTrees =
   let allVertices =
         concatMap
           (concatMap (NE.toList . tAnnotatedVertices . snd) . toList)
@@ -242,7 +246,7 @@ moveVerticesInVertexForest topNode newNames tfCfg vertexTrees =
                 (badBeamNodes, conns) <-
                   vertexConns (maxSupportCoordinates tfCfg) topNode groupedVertices
                 let (supportForest, nonSupportVertices) =
-                      moveSupportVertices newNames tfCfg conns groupedVertices
+                      moveSupportVertices triangleVertexNames newNames tfCfg conns groupedVertices
                 newForest <-
                   foldM
                     (addVertexTreeToForest newNames tfCfg nonSupportVertices vertexTrees)
@@ -556,6 +560,41 @@ updateOtherFiles formattingConfig updatedNames filepath = do
         Left err -> putErrorLine err
     Left err -> putErrorLine err
 
+trianglesQuery :: NP.NodePath
+trianglesQuery = fromList [NP.ObjectIndex 0, NP.ObjectKey "triangles"]
+
+{- | Vertex names referenced by the triangle rows in a "triangles" array.
+Comment and metadata (object) rows are skipped rather than treated as
+errors, because per-triangle metadata objects (e.g. `{"groundModel": "metal"}`)
+are normal in real jbeam files, the same tolerance BeamExtraction.possiblyBeam
+has for "beams". Any other row that isn't a [String, String, String]
+triple (the header row included, harmlessly) is likewise skipped rather
+than failing the whole section.
+-}
+extractTriangleVertexNames :: Vector Node -> Set Text
+extractTriangleVertexNames =
+  S.fromList
+    . concatMap (\(a, b, c) -> [a, b, c])
+    . mapMaybe extractTriple
+    . V.toList
+    . V.filter (\n -> not (isCommentNode n) && not (isObjectNode n))
+  where
+    extractTriple n = do
+      inner <- expectArray n
+      case V.toList inner of
+        [a, b, c] -> (,,) <$> maybeString a <*> maybeString b <*> maybeString c
+        _ -> Nothing
+
+{- | Names of all vertices referenced by any triangle in the "triangles"
+section. Returns an empty set (not an error) if the section is absent;
+fails only if the section exists but its value isn't an array at all.
+-}
+getTriangleVertexNames :: Node -> Either Text (Set Text)
+getTriangleVertexNames topNode =
+  case NP.queryNodes trianglesQuery topNode of
+    Left _ -> Right S.empty
+    Right node -> extractTriangleVertexNames <$> NP.expectArray trianglesQuery node
+
 transform
   :: UpdateNamesMap
   -> TransformationConfig
@@ -565,10 +604,16 @@ transform newNames tfCfg topNode =
   getVertexForest (xGroupBreakpoints tfCfg) verticesQuery topNode
     >>= getNamesAndUpdateTree
   where
-    getNamesAndUpdateTree (badNodes, globals, vertexForest) =
+    getNamesAndUpdateTree (badNodes, globals, vertexForest) = do
+      triangleVertexNames <- getTriangleVertexNames topNode
       let vertexNames = getVertexNamesInForest vertexForest
-       in moveVerticesInVertexForest topNode newNames tfCfg vertexForest
-            >>= getUpdatedNamesAndUpdateGlobally badNodes globals vertexNames
+      moveVerticesInVertexForest
+        triangleVertexNames
+        topNode
+        newNames
+        tfCfg
+        vertexForest
+        >>= getUpdatedNamesAndUpdateGlobally badNodes globals vertexNames
     getUpdatedNamesAndUpdateGlobally badVertexNodes globals oldVertexNames (badBeamNodes, updatedVertexForest) =
       let updatedVertexNames = getVertexNamesInForest updatedVertexForest
           updateMap = M.fromList $ on zip M.elems oldVertexNames updatedVertexNames

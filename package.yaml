@@ -56,7 +56,7 @@ ghc-options:
   - -Wredundant-constraints
 
 when:
-  - condition: '! flag(transformation) && ! flag(dump-ast)'
+  - condition: flag(modern-containers)
     dependencies: [containers >= 0.8]
   - condition: os(windows)
     ghc-options: -optc-Os -optl-static
@@ -74,6 +74,10 @@ flags:
     description: Use executable-relative example paths (for Windows release builds)
     default: false
     manual: true
+  modern-containers:
+    description: Require containers 0.8
+    manual: true
+    default: true
 
 internal-libraries:
   jbeam-edit-transformation:
