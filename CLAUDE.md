@@ -318,6 +318,40 @@ A node is complex if it contains an array or object with **more than one child**
 
 `AssociationDirection` (`PreviousNode` / `NextNode`) is determined during parsing (`Jbeam.hs`), not post-processing. It controls whether a comment renders inline after the preceding node or on its own line before the next one. Changing separator logic in the parser can silently break comment positioning.
 
+### Writing JBFL
+
+`JBFL_DOCS.md` has a table of the patterns. It does not put the block syntax
+anywhere you can miss, and the block is what gets invented from memory:
+
+```jbfl
+.*.nodes, .*.beams {
+    PadDecimals: 3;
+    AutoPad : true;
+}
+```
+
+A property is `Name : value ;`. Both the colon and the semicolon are required,
+spaces around the colon are optional, and several patterns are separated by
+commas. `PadAmount 7` is not JBFL. Copy a rule out of
+`examples/jbfl/complex.jbfl` and edit it rather than typing one from memory.
+
+**A bad rule in a spec does not announce itself.** `rulesFromSource` calls
+`error` only when the RuleSet is forced, so a spec whose subject throws first,
+an unimplemented function for instance, hits that exception and never parses
+the source at all. The spec then fails for a reason that has nothing to do with
+what it claims to test. Force the parse once before trusting any spec built
+this way:
+
+```
+cabal repl --project-file=cabal.project.dev jbeam-edit-test
+> import SpecHelper (rulesFromSource)
+> print (rulesFromSource ".*.nodes { PadAmount: 7; }")
+```
+
+An empty `RuleSet` is the other failure and is quieter still: the source parsed,
+the rule was dropped, and nothing threw. A spec built on one asserts `Nothing`
+everywhere and passes.
+
 ### Adding a new JBFL property
 
 `PropertyKey` is a GADT in `Formatting/Rules.hs`. Adding a new property requires updates in all of these places — missing any one causes a compile error:
