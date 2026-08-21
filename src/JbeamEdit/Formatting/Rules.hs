@@ -1,6 +1,6 @@
-{-# LANGUAGE OverloadedRecordDot #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE OverloadedRecordDot #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeOperators #-}
@@ -27,13 +27,13 @@ module JbeamEdit.Formatting.Rules (
   findPropertiesForCursor,
 ) where
 
-import Data.Maybe (fromMaybe)
 import Data.Bool (bool)
 import Data.Foldable (fold)
 import Data.Function (on)
 import Data.List (find)
 import Data.Map (Map)
 import Data.Map qualified as M
+import Data.Maybe (fromMaybe)
 import Data.Ord (Down (..))
 import Data.Sequence (Seq (..))
 import Data.Sequence qualified as Seq (length, null)
@@ -70,7 +70,8 @@ instance Semigroup RuleSet where
       (liftUnion aai1 aai2)
       (h1 <> h2)
       (b1 <> b2)
-        where liftUnion = liftA2 (<>)
+    where
+      liftUnion = liftA2 (<>)
 
 instance Ord NodePattern where
   compare (NodePattern a) (NodePattern b) =
@@ -217,7 +218,7 @@ type Rule = Map SomeKey SomeProperty
 
 data RuleSet
   = RuleSet
-  { rsBySelectors :: Map NP.NodeSelector (Maybe RuleSet)
+  { rsBySelectors :: Map NP.NodeSelector RuleSet
   , rsPrefixes :: [(Text, RuleSet)]
   , rsAnyObjectKey :: Maybe RuleSet
   , rsAnyArrayIndex :: Maybe RuleSet
@@ -270,6 +271,16 @@ lookupPropertyForCursor matchMode key rs cursor = lookupProp key (findProperties
 
 findPropertiesForCursor :: MatchMode -> NC.NodeCursor -> RuleSet -> Rule
 findPropertiesForCursor matchMode (NC.NodeCursor cursor) = go cursor
-    where
-       go (NC.ObjectIndexAndKey i k :<| bs) rs = go bs (fold rs.rsAnyObjectKey)
-       go _ rs = rs.rsHere
+  where
+    go (NC.ObjectIndexAndKey i k :<| bs) rs =
+      go
+        bs
+        ( fold (M.lookup (NP.ObjectKey k) rs.rsBySelectors)
+            <> fold (M.lookup (NP.ObjectIndex i) rs.rsBySelectors)
+            <> fold rs.rsAnyObjectKey
+        )
+    go (NC.ArrayIndex i :<| bs) rs =
+      go
+        bs
+        (fold (M.lookup (NP.ObjectIndex i) rs.rsBySelectors) <> fold rs.rsAnyArrayIndex)
+    go _ rs = rs.rsHere

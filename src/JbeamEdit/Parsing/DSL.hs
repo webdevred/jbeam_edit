@@ -181,7 +181,7 @@ combineRuleSets (pats, props) = fold [fold (go pat) | pat <- pats]
     go (AnyObjectKey : pats') = Just (mempty {rsAnyObjectKey = go pats'})
     go (AnyArrayIndex : pats') = Just (mempty {rsAnyArrayIndex = go pats'})
     go (Selector (NP.ObjectPrefixKey p) : pats') = Just (mempty {rsPrefixes = maybe [] (\x -> [(p, x)]) (go pats')})
-    go (Selector s : pats') = Just (mempty {rsBySelectors = M.singleton s (go pats')})
+    go (Selector s : pats') = Just (mempty {rsBySelectors = maybe M.empty (M.singleton s) (go pats')})
 
 ruleSetParser :: JbflParser RuleSet
 ruleSetParser = foldMap combineRuleSets <$> MP.some singleRuleSet
