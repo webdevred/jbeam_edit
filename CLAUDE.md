@@ -222,12 +222,13 @@ corpus directory first, for the same reason as above.
 
 **Give the binary its data directory, and keep stderr.** The shipped ruleset is
 found through `getDataFileName` (`Formatting/Config.hs`), so a binary run from
-outside the build tree finds no `examples/jbfl/complex.jbfl` and formats with no
+outside the build tree finds no `examples/jbfl/minimal.jbfl` and formats with no
 rules at all. Rule lookup is about two thirds of all allocation, so the profile
-then measures something the tool never does: the same file allocated 43 MB
-without rules and 186 MB with them. Export `jbeam_edit_datadir=<repo>` when
-running the binary directly, and do not send stderr to `/dev/null`, because the
-tool prints `Loading jbfl:` with the file it actually read.
+then measures something the tool never does: `frame.jbeam` allocated 15 MB
+without rules and 62 MB with them. Export `jbeam_edit_datadir=<repo>` when
+running the binary directly, and keep stderr, because a failed lookup announces
+itself there. Do not look for `Loading jbfl:`, which is printed only when
+`--rules-path` is given, so its absence means nothing on an ordinary run.
 
 `--rules-path` does not get you out of this. The named file is loaded and then
 discarded when the shipped default cannot be found, so the run formats with no
@@ -243,14 +244,21 @@ identical, suspect the binary before believing the number.
 
 ### Baseline
 
-Measured with `--transform`, with the shipped ruleset loaded. Reproduce it before
-trusting a comparison against it.
+Measured with `--transform`, with the shipped ruleset loaded, reading
+`bytes allocated in the heap` from `+RTS -s`. Reproduce it before trusting a
+comparison against it.
+
+The conditions decide the numbers, so they are part of the measurement: **GHC
+9.14.1, `-O1`, containers 0.8**. Optimization is worth a factor of three and the
+compiler version four to five percent, so a figure quoted without them says
+nothing. `-O1` because that is what ships: `configure_project.sh` passes it, and
+a `-O0` baseline describes a build no user ever gets.
 
 | Input                                       | Size      | Allocation |
 |---------------------------------------------|-----------|------------|
-| `examples/jbeam/frame.jbeam`, alone         | 14 236 B  | 186 MB     |
-| a 150 KB stock body file, alone             | 149 896 B | 1 523 MB   |
-| the same body file in its vehicle, 74 files | 1.5 MB    | 12 040 MB  |
+| `examples/jbeam/frame.jbeam`, alone         | 14 236 B  | 62 MB      |
+| a 150 KB stock body file, alone             | 149 896 B | 499 MB     |
+| the same body file in its vehicle, 74 files | 1.4 MB    | 3 972 MB   |
 
 The third row is the one that describes the tool as users run it. `--transform`
 rewrites every neighbouring file that referenced a renamed node, 37 of the 74
@@ -260,10 +268,13 @@ allocation while the renaming inside it costs well under one percent. Anything
 saved in the rule lookup is saved 38 times over.
 
 Two things follow, and both have been mistaken for something else before.
-Allocation runs about ten thousand bytes per byte of input, so the absolute
+Allocation runs three to four thousand bytes per byte of input, so the absolute
 figures look alarming and say nothing on their own. And a tenfold larger input
 allocates eight times as much, so the cost is slightly sublinear: there is no
 asymptotic problem hiding in the rule lookup, only a large constant.
+
+The shares below come from a profiled `-O0` run and have not been measured again
+at `-O1`, so treat them as where the cost sat, not as a current reading.
 
 That constant is one thing seen from several angles. `viewl` and `$m:<|` are the
 `Seq` pattern match in `sameBy`, `filterWithKey` is the linear sweep in
