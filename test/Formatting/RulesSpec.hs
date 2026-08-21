@@ -3,7 +3,6 @@ module Formatting.RulesSpec (spec) where
 import Data.Text qualified as T
 import GHC.IsList (fromList)
 import JbeamEdit.Core.NodeCursor (NodeBreadcrumb (..), NodeCursor (..))
-import JbeamEdit.Core.NodePath qualified as NP
 import JbeamEdit.Formatting
 import JbeamEdit.Formatting.Rules
 import SpecHelper
@@ -48,42 +47,30 @@ spec = do
     let cursorAt crumbs = NodeCursor (fromList crumbs)
         nodesCursor =
           cursorAt [ObjectIndexAndKey 0 "part", ObjectIndexAndKey 0 "nodes"]
-        ruleSetFor p =
-          RuleSet
-            ( fromList
-                [
-                  ( NodePattern (fromList p)
-                  , fromList [(SomeKey PadAmount, SomeProperty PadAmount 7)]
-                  )
-                ]
-            )
-        found mode p = lookupPropertyForCursor mode PadAmount (ruleSetFor p)
+        found mode pat =
+          lookupPropertyForCursor
+            mode
+            PadAmount
+            (rulesFromSource (pat ++ " { PadAmount: 7; }"))
 
     it "matches a pattern of the same length in both modes" $ do
-      let p = [AnyObjectKey, Selector (NP.ObjectKey "nodes")]
-      found PrefixMatch p nodesCursor `shouldBe` Just 7
-      found ExactMatch p nodesCursor `shouldBe` Just 7
+      found PrefixMatch ".*.nodes" nodesCursor `shouldBe` Just 7
+      found ExactMatch ".*.nodes" nodesCursor `shouldBe` Just 7
 
     it "matches a shorter pattern only as a prefix" $ do
-      let p = [AnyObjectKey]
-      found PrefixMatch p nodesCursor `shouldBe` Just 7
-      found ExactMatch p nodesCursor `shouldBe` Nothing
+      found PrefixMatch ".*" nodesCursor `shouldBe` Just 7
+      found ExactMatch ".*" nodesCursor `shouldBe` Nothing
 
     it "never matches a pattern longer than the cursor" $ do
-      let p =
-            [ AnyObjectKey
-            , Selector (NP.ObjectKey "nodes")
-            , AnyArrayIndex
-            ]
-      found PrefixMatch p nodesCursor `shouldBe` Nothing
-      found ExactMatch p nodesCursor `shouldBe` Nothing
+      found PrefixMatch ".*.nodes[*]" nodesCursor `shouldBe` Nothing
+      found ExactMatch ".*.nodes[*]" nodesCursor `shouldBe` Nothing
 
     -- `.test*` is documented JBFL (JBFL_DOCS.md) and cannot be looked up by
     -- equality, since the stored key is a prefix of the breadcrumb rather than
     -- the same text. It is the one selector a trie has to solve rather than
     -- key on directly.
     it "matches a prefix key against the rest of the breadcrumb" $ do
-      let p k = [AnyObjectKey, Selector (NP.ObjectPrefixKey k)]
+      let p k = ".*." ++ k ++ "*"
           atDeformGroups =
             cursorAt
               [ObjectIndexAndKey 0 "part", ObjectIndexAndKey 0 "deformGroups"]
@@ -95,11 +82,10 @@ spec = do
     it "keeps the two wildcards apart" $ do
       let atArray = cursorAt [ObjectIndexAndKey 0 "part", ArrayIndex 0]
           atKey = cursorAt [ObjectIndexAndKey 0 "part", ObjectIndexAndKey 0 "k"]
-          anyKeyThen w = [AnyObjectKey, w]
-      found ExactMatch (anyKeyThen AnyArrayIndex) atArray `shouldBe` Just 7
-      found ExactMatch (anyKeyThen AnyObjectKey) atArray `shouldBe` Nothing
-      found ExactMatch (anyKeyThen AnyObjectKey) atKey `shouldBe` Just 7
-      found ExactMatch (anyKeyThen AnyArrayIndex) atKey `shouldBe` Nothing
+      found ExactMatch ".*[*]" atArray `shouldBe` Just 7
+      found ExactMatch ".*.*" atArray `shouldBe` Nothing
+      found ExactMatch ".*.*" atKey `shouldBe` Just 7
+      found ExactMatch ".*[*]" atKey `shouldBe` Nothing
 
 {- | When several patterns match the same node, the more specific one supplies
 the property. Specificity is how many nodes a selector can match at that level:
