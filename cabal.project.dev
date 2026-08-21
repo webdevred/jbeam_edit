@@ -17,4 +17,4 @@ package jbeam-edit
 
   documentation: False
   tests: True
-  flags: +dump-ast +transformation -windows-example-paths
+  flags: -modern-containers +dump-ast +transformation -windows-example-paths

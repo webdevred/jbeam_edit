@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedRecordDot #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE RankNTypes #-}
@@ -26,6 +27,7 @@ module JbeamEdit.Formatting.Rules (
   findPropertiesForCursor,
 ) where
 
+import Data.Maybe (fromMaybe)
 import Data.Bool (bool)
 import Data.Foldable (fold)
 import Data.Function (on)
@@ -266,30 +268,8 @@ lookupPropertyForCursor
   => MatchMode -> PropertyKey a -> RuleSet -> NC.NodeCursor -> Maybe a
 lookupPropertyForCursor matchMode key rs cursor = lookupProp key (findPropertiesForCursor matchMode cursor rs)
 
-comparePC :: NodePatternSelector -> NC.NodeBreadcrumb -> Bool
-comparePC AnyObjectKey (NC.ObjectIndexAndKey _ _) = True
-comparePC AnyArrayIndex (NC.ArrayIndex _) = True
-comparePC (Selector s) bc = NC.compareSB s bc
-comparePC _ _ = False
-
-compareCursorAndPattern :: MatchMode -> NC.NodeCursor -> NodePattern -> Bool
-compareCursorAndPattern matchMode (NC.NodeCursor c) (NodePattern p) = sameBy matchMode comparePC p c
-
-type SelCrumbCompFun = NodePatternSelector -> NC.NodeBreadcrumb -> Bool
-
-sameBy
-  :: MatchMode
-  -> SelCrumbCompFun
-  -> Seq NodePatternSelector
-  -> Seq NC.NodeBreadcrumb
-  -> Bool
-sameBy matchMode f = go
-  where
-    go (p :<| ps) (b :<| bs) =
-      let res = f p b
-       in res && go ps bs
-    go ps bs = Seq.null ps && (Seq.null bs || PrefixMatch == matchMode)
-
--- TODO: migrate to M.filterKeys once the stack snapshot ships containers 0.8
 findPropertiesForCursor :: MatchMode -> NC.NodeCursor -> RuleSet -> Rule
-findPropertiesForCursor = undefined
+findPropertiesForCursor matchMode (NC.NodeCursor cursor) = go cursor
+    where
+       go (NC.ObjectIndexAndKey i k :<| bs) rs = go bs (fold rs.rsAnyObjectKey)
+       go _ rs = rs.rsHere
