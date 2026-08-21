@@ -13,18 +13,19 @@ import Data.Bifunctor (first)
 import Data.ByteString qualified as BS
 import Data.ByteString.Lazy qualified as LBS
 import Data.Char (isSpace)
+import Data.Foldable (fold)
 import Data.Functor (void, ($>))
 import Data.Functor.Identity (Identity (..))
 import Data.List.NonEmpty qualified as NE (fromList)
 import Data.Map (Map)
-import Data.Map qualified as M (fromList, fromListWith, union)
-import Data.Sequence qualified as Seq (fromList)
+import Data.Map qualified as M (empty, fromList, singleton)
 import Data.Set qualified as S (fromList)
 import Data.Text (Text)
 import Data.Text qualified as T (init, isSuffixOf, unpack)
 import Data.Text.Encoding (decodeUtf8')
 import Data.Word (Word8)
 import JbeamEdit.Core.NodePath
+import JbeamEdit.Core.NodePath qualified as NP (NodeSelector (..))
 import JbeamEdit.Formatting.Rules
 import JbeamEdit.Formatting.Rules.ComplexNewLine qualified as CNL
 import JbeamEdit.Formatting.Rules.TrailingComma qualified as TC
@@ -67,7 +68,7 @@ patternSelectorParser =
     , arrayIndexParser <?> "array index"
     ]
 
-patternParser :: JbflParser NodePattern
+patternParser :: JbflParser [NodePatternSelector]
 patternParser = do
   pat <- skipWhiteSpace *> patternSelectors
   c <- MP.lookAhead B.asciiChar
@@ -75,7 +76,7 @@ patternParser = do
     ',' -> byteChar ',' $> pat
     _ -> skipWhiteSpace $> pat
   where
-    patternSelectors = NodePattern . Seq.fromList <$> MP.some patternSelectorParser
+    patternSelectors = MP.some patternSelectorParser
 
 tryDecodeKey :: [Word8] -> (Text -> Maybe SomeKey) -> Maybe SomeKey
 tryDecodeKey bs f =
@@ -159,7 +160,7 @@ deprecatedBoolPropertyParser sk valTrue valFalse = do
 separatorParser :: JbflParser ()
 separatorParser = skipWhiteSpace *> void (byteChar ';') <* skipWhiteSpace
 
-ruleParser :: JbflParser ([NodePattern], Map SomeKey SomeProperty)
+ruleParser :: JbflParser ([[NodePatternSelector]], Map SomeKey SomeProperty)
 ruleParser = do
   pats <- MP.some patternParser
   skipWhiteSpace
@@ -170,11 +171,20 @@ ruleParser = do
   skipWhiteSpace
   pure (pats, M.fromList props)
 
-separateRulesets :: [([a], b)] -> [(a, b)]
-separateRulesets rs = [(pat, props) | (pats, props) <- rs, pat <- pats]
+combineRuleSets
+  :: ([[NodePatternSelector]], Map SomeKey SomeProperty) -> RuleSet
+combineRuleSets (_, props)
+  | props == M.empty = mempty
+combineRuleSets (pats, props) = fold [fold (go pat) | pat <- pats]
+  where
+    go [] = Just (mempty {rsHere = props})
+    go (AnyObjectKey : pats') = Just (mempty {rsAnyObjectKey = go pats'})
+    go (AnyArrayIndex : pats') = Just (mempty {rsAnyArrayIndex = go pats'})
+    go (Selector (NP.ObjectPrefixKey p) : pats') = Just (mempty {rsPrefixes = maybe [] (\x -> [(p, x)]) (go pats')})
+    go (Selector s : pats') = Just (mempty {rsBySelectors = M.singleton s (go pats')})
 
 ruleSetParser :: JbflParser RuleSet
-ruleSetParser = RuleSet . M.fromListWith M.union . separateRulesets <$> MP.some singleRuleSet
+ruleSetParser = foldMap combineRuleSets <$> MP.some singleRuleSet
   where
     singleRuleSet = skipComment *> ruleParser <* skipComment
 
