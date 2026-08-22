@@ -59,6 +59,12 @@ cabal test --project-file=cabal.project.dev
 cabal run jbeam-edit -- <file.jbeam>
 ```
 
+`jbeam-edit` names both a library and an executable, so `cabal build jbeam-edit`
+fails with `Ambiguous target` instead of building. Say `exe:jbeam-edit` or
+`lib:jbeam-edit`. The failure is easy to miss when the command is piped, and a
+`cabal list-bin` afterwards still prints a path for the binary that was never
+built.
+
 ### Cabal flags
 
 Flags are defined in `package.yaml` under `flags:`. Some flags are marked `(experimental)` in their description and gate optional features. If your change touches code in a flag-gated module, enable the corresponding flag when building and testing. All experimental flags are enabled by default in `cabal.project.dev`, so using that project file is sufficient when in doubt. If build times are a concern, you can enable only the relevant flag instead of using `cabal.project.dev` — e.g. `-f transformation` for transformation-only changes.
@@ -132,6 +138,7 @@ These are the ones a general Haskell review misses, because they depend on how t
 
 - **`show` on numbers reaches the output.** `show` on `Scientific`, `Double` or `Float` gives the Haskell representation (`2.0e-3`), and JBeam wants `0.002`. Whenever `show` produces text that ends up in formatted output, check the representation against the domain. `formatScientific Fixed Nothing` is usually what is meant.
 - **`Show`/`Read` round-trips the AST fixtures.** `examples/ast/` stores derived `Show` output and reads it back. A change to a type's `Show` or `Read` instance breaks those fixtures even when nothing else looks affected.
+- **Nothing checks the AST fixtures against the parser.** The specs read `examples/ast/jbfl/*.hs` and format with it, but nothing asserts it equals `parseDSL` of the matching `.jbfl`. A change to what the parser produces leaves the fixtures stale and the suite green. Regenerate with `jbeam-edit-dump-ast` whenever parsing changes, and check by comparing the two in `cabal repl` if in doubt.
 - **`src-extra/` is flag-gated experimental code.** Do not report missing unit tests there. Fixture-based tests through `cabal test` are still worth flagging if clearly absent.
 - **New JBFL properties need an example file.** `FormattingSpec` pairs every `examples/jbeam/*.jbeam` with every `examples/jbfl/*.jbfl`, so a property that no example exercises is untested no matter how many specs mention it.
 
