@@ -40,10 +40,8 @@ spec = do
       applyPadLogic (formatScalarNode False) ruleSet fakeNode `shouldBe` "123.50 "
 
   -- Whether a property reaches below the node its rule names is decided by the
-  -- property, not by the caller: the parser puts the keys in `prefixProperties`
-  -- into rsBelow and the rest into rsHere. Every property the formatter reads
-  -- comes through this one lookup, so a split that answers at the wrong depth
-  -- changes formatting everywhere.
+  -- property, not by the caller: `prefixProperties` goes to rsBelow, the rest
+  -- to rsHere.
   describe "matching a pattern against a cursor" $ do
     let cursorAt crumbs = NodeCursor (fromList crumbs)
         nodesCursor =
@@ -64,10 +62,8 @@ spec = do
       cascading ".*.nodes[*]" nodesCursor `shouldBe` Nothing
       hereOnly ".*.nodes[*]" nodesCursor `shouldBe` Nothing
 
-    -- `.test*` is documented JBFL (JBFL_DOCS.md) and cannot be looked up by
-    -- equality, since the stored key is a prefix of the breadcrumb rather than
-    -- the same text. It is the one selector a trie has to solve rather than
-    -- key on directly.
+    -- The one selector a trie cannot key on directly: the stored text is a
+    -- prefix of the breadcrumb, not equal to it.
     it "matches a prefix key against the rest of the breadcrumb" $ do
       let p k = ".*." ++ k ++ "*"
           atDeformGroups =
@@ -87,12 +83,8 @@ spec = do
       hereOnly ".*[*]" atKey `shouldBe` Nothing
 
 {- | When several patterns match the same node, the more specific one supplies
-the property. Specificity is how many nodes a selector can match at that level:
-a named key first, then a positional index, then a prefix key with the longer
-prefix winning, then the wildcards.
-
-Written as JBFL source and formatted output on purpose. Both ends survive the
-rule lookup becoming a trie, while `NodePattern` and `MatchMode` do not.
+the property: a named key, then a positional index, then a prefix key with the
+longer prefix, then the wildcards.
 -}
 precedenceSpec :: Spec
 precedenceSpec = do
@@ -117,10 +109,12 @@ precedenceSpec = do
           )
       rulesFrom = rulesFromSource
       formatWith = flip formatNode topNode . rulesFrom
-      -- The second assertion is what stops the first passing for two rules that
-      -- happen to format the same way.
+      -- Both orders, because writing the winner first would otherwise let a
+      -- lookup that just takes the first parsed rule pass. The last assertion
+      -- stops the others passing for two rules that format the same way.
       beats winner loser = do
         formatWith (winner <> "\n" <> loser) `shouldBe` formatWith winner
+        formatWith (loser <> "\n" <> winner) `shouldBe` formatWith winner
         formatWith winner `shouldNotBe` formatWith loser
       named = ".deformGroups { Indent : 1; }"
       positional = ".0 { Indent : 2; }"
