@@ -26,6 +26,7 @@ patternSelectorSpecs =
     , (".test", Selector (NP.ObjectKey "test"))
     , (".test*", Selector (NP.ObjectPrefixKey "test"))
     , (".deformGroups_oilPan*", Selector (NP.ObjectPrefixKey "deformGroups_oilPan"))
+    , (".a>.b", Selector (NP.ObjectKey "a"))
     , (".3", Selector (NP.ObjectIndex 3))
     , ("[3]", Selector (NP.ArrayIndex 3))
     ]
