@@ -9,7 +9,6 @@ module JbeamEdit.Parsing.DSL (
   ruleSetParser,
 ) where
 
-import Control.Applicative ((<|>))
 import Data.Bifunctor (first)
 import Data.ByteString qualified as BS
 import Data.ByteString.Lazy qualified as LBS
@@ -60,7 +59,7 @@ objectKeyParser = byteChar '.' *> key
   where
     key = parseWord8s (Selector . t) (MP.some . MP.satisfy $ p)
     t k = if T.isSuffixOf "*" k then ObjectPrefixKey (T.init k) else ObjectKey k
-    p = charBoth (not . isSpace) (`notElem` [',', '[', '.']) . toChar
+    p = charBoth (not . isSpace) (`notElem` [',', '[', '.', '>']) . toChar
 
 objectIndexParser :: JbflParser NodePatternSelector
 objectIndexParser = byteChar '.' *> index
@@ -84,18 +83,19 @@ patternSelectorParser =
 
 patternParser :: JbflParser NodePattern
 patternParser = do
-  pat <- skipWhiteSpace *> (MP.try exactPattern <|> prefixPattern)
+  pat <- nodePattern
   c <- MP.lookAhead B.asciiChar
   case toChar c of
     ',' -> byteChar ',' $> pat
     _ -> skipWhiteSpace $> pat
   where
-    exactPattern = do
-      basePattern <- MP.some patternSelectorParser
-      B.space1 *> void (byteChar '>') <* B.space1
-      ExactPattern (Seq.fromList basePattern) <$> patternSelectorParser
-
-    prefixPattern = PrefixPattern . Seq.fromList <$> MP.some patternSelectorParser
+    nodePattern = do
+      skipWhiteSpace
+      basePattern <- Seq.fromList <$> MP.some patternSelectorParser
+      arrow <- MP.optional (MP.try $ B.space1 *> byteChar '>' <* B.space1)
+      case arrow of
+        Nothing -> pure (PrefixPattern basePattern)
+        Just _ -> ExactPattern basePattern <$> patternSelectorParser
 
 tryDecodeKey :: [Word8] -> (Text -> Maybe SomeKey) -> Maybe SomeKey
 tryDecodeKey bs f =
