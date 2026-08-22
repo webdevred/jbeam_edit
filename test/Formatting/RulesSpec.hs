@@ -127,6 +127,20 @@ precedenceSpec = do
     it "prefers a positional index over a prefix key" $
       positional `beats` longPrefix
     it "prefers the longer of two prefix keys" $ longPrefix `beats` shortPrefix
+
+    -- Resolution is per property, as in CSS: two matching rules that set
+    -- different properties both apply, and only a property they both set is
+    -- decided by specificity. Read through the lookup rather than the output,
+    -- since one formatted file cannot show which rule each property came from.
+    it "takes each property from its own most specific match" $ do
+      let cur = NodeCursor (fromList [ObjectIndexAndKey 0 "deformGroups"])
+          both a b = rulesFromSource (a <> "\n" <> b)
+          short = ".de* { Indent: 2; PadAmount: 4; }"
+          long = ".deform* { PadAmount: 8; }"
+      lookupPropertyForCursor Indent (both short long) cur `shouldBe` Just 2
+      lookupPropertyForCursor Indent (both long short) cur `shouldBe` Just 2
+      lookupPropertyForCursor PadAmount (both short long) cur `shouldBe` Just 8
+      lookupPropertyForCursor PadAmount (both long short) cur `shouldBe` Just 8
     it "prefers a prefix key over a wildcard" $ shortPrefix `beats` wildcard
 
     -- Precedence settles one property at a time. Every shipped ruleset is
