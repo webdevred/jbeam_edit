@@ -46,8 +46,8 @@ import JbeamEdit.Formatting.Rules (
   RuleSet (..),
   applyPadLogic,
   findPropertiesForCursor,
+  lookupProperty,
   lookupPropertyForCursor,
-  lookupProperty
  )
 import JbeamEdit.Formatting.Rules.ComplexNewLine qualified as CNL
 import JbeamEdit.Formatting.Rules.TrailingComma qualified as TC
