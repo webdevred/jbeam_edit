@@ -94,12 +94,18 @@ All code written or modified **must** satisfy both tools before being considered
 
 1. **fourmolu** — formatter, config in `fourmolu.yaml`
    ```bash
-   fourmolu --mode inplace src/
+   fourmolu --mode inplace src/ src-extra/ test/ test-extra/ exe/ tools/
+   fourmolu --check-idempotence --mode check src/ src-extra/ test/ test-extra/ exe/ tools/
    ```
 2. **HLint** — linter, config in `.hlint.yaml`
    ```bash
-   hlint src/
+   hlint src/ src-extra/ test/ test-extra/ exe/ tools/
    ```
+
+CI runs both over all six directories, and fourmolu with `--check-idempotence`.
+A single `--mode inplace` can leave a file that is formatted but not a fixed
+point, which passes a plain `--mode check` here and fails in CI, so run the
+second line before pushing.
 
 - Language extensions and GHC warnings are specified in `package.yaml` — code must compile warning-free
 - Do not import data types qualified unless necessary. Use unqualified imports for types and constructors (e.g. `import Foo (Bar (..))`) and qualified imports for functions that would clash. The project-internal qualifiers `N` (Node), `NC` (NodeCursor), and `NP` (NodePath) are intentional conventions and should be kept.
@@ -186,6 +192,102 @@ Vary one at a time, whether narrowing a bug or building a fixture for one.
 
 Regression fixtures go in `examples/regression_jbeam/`. Read that directory's README first: the bar for adding one is that the test genuinely cannot be built from what is already there.
 
+## Profiling
+
+Profiling needs `profiling: True` and `profiling-detail: all-functions` in
+`cabal.project`. Neither belongs in a commit, so take them out again when you
+are done.
+
+Each of the five below has cost a wrong conclusion at least once.
+
+**Read allocation, not time.** Two runs of the same binary on the same input
+allocate the same number of bytes, reproducible to about a hundred bytes out of
+several hundred megabytes. Tick counts move by several percent between the same
+two runs, and a typical run is only a few hundred ticks, so a cost centre at 2%
+is two or three ticks. Rank by `%alloc` and treat `%time` as an indication.
+
+**Never profile against `examples/`.** Every run rewrites the file it is given,
+with or without `-i`: `-i` only skips the `.bak.jbeam` copy that is otherwise
+made first (`createBackupFile` in `Main.hs`). There is no read-only mode, so a
+run that looks like a measurement is an edit. On top of that `--transform`
+rewrites every `.jbeam` beside the file you name, so one run overwrites all
+three fixtures. It also silently changes what the next run reads: an
+already-transformed file is shorter, which makes two consecutive runs
+incomparable. Copy the file to a directory of its own first, exactly as the
+section above says for transformation bugs.
+
+**Profile the large tail, not only the examples.** `examples/jbeam/frame.jbeam`
+is close to a typical stock file, so it is a fair sample of the common case, but
+it says nothing about the expensive one. Extract the corpus with
+`tools/extract-and-format-jbeam/corpus-extract.sh` and measure the sizes before
+choosing: the median file is around 11 KB, the 90th percentile around 44 KB, and
+the largest is half a megabyte, roughly 36 times the frame example. Anything in
+the rule lookup that scales worse than linearly is invisible at the median and
+obvious at the tail, so profile one file from each end. Copy them out of the
+corpus directory first, for the same reason as above.
+
+**Give the binary its data directory, and keep stderr.** The shipped ruleset is
+found through `getDataFileName` (`Formatting/Config.hs`), so a binary run from
+outside the build tree finds no `examples/jbfl/minimal.jbfl` and formats with no
+rules at all. Rule lookup is about two thirds of all allocation, so the profile
+then measures something the tool never does: `frame.jbeam` allocated 15 MB
+without rules and 62 MB with them. Export `jbeam_edit_datadir=<repo>` when
+running the binary directly, and keep stderr, because a failed lookup announces
+itself there. Do not look for `Loading jbfl:`, which is printed only when
+`--rules-path` is given, so its absence means nothing on an ordinary run.
+
+`--rules-path` does not get you out of this. The named file is loaded and then
+discarded when the shipped default cannot be found, so the run formats with no
+rules while reporting that it loaded yours. The only sign is a second stderr
+line, `Failed to parse default ruleset`. This applies to any comparison between
+rulesets, not only to profiling: without the data directory every variant
+produces byte-identical output, which reads as "the rules make no difference".
+
+**Rebuild fully when build flags change.** A partial rebuild leaves modules
+compiled under the old flags, and the result looks like a real difference. If
+allocation moves by more than a rounding error between two runs that should be
+identical, suspect the binary before believing the number.
+
+### Baseline
+
+Measured with `--transform`, with the shipped ruleset loaded, reading
+`bytes allocated in the heap` from `+RTS -s`. Reproduce it before trusting a
+comparison against it.
+
+The conditions decide the numbers, so they are part of the measurement: **GHC
+9.14.1, `-O1`, containers 0.8, master at `6e9c96f`**. Optimization is worth a
+factor of three and the compiler version four to five percent, so a figure
+quoted without them says nothing. `-O1` because that is what ships: `configure_project.sh` passes it, and
+a `-O0` baseline describes a build no user ever gets.
+
+| Input                                       | Size      | Allocation |
+|---------------------------------------------|-----------|------------|
+| `examples/jbeam/frame.jbeam`, alone         | 14 236 B  | 23 MB      |
+| a 150 KB stock body file, alone             | 149 896 B | 173 MB     |
+| the same body file in its vehicle, 74 files | 1.4 MB    | 1 465 MB   |
+
+The third row is the one that describes the tool as users run it. `--transform`
+rewrites every neighbouring file that referenced a renamed node, 37 of the 74
+here, and rewriting means reformatting the file in full. So the formatter runs
+38 times for one command, and `updateOtherFiles` inherits two thirds of all
+allocation while the renaming inside it costs well under one percent. Anything
+saved in the rule lookup is saved 38 times over. Making that lookup a trie is
+what took these three rows down by about sixty percent.
+
+Two things follow, and both have been mistaken for something else before.
+Allocation runs one to two thousand bytes per byte of input, so the absolute
+figures look alarming and say nothing on their own. And a tenfold larger input
+allocates eight times as much, so the cost is slightly sublinear: there is no
+asymptotic problem hiding in the rule lookup, only a large constant.
+
+Where that constant sat was profiled once, at `-O0`, before the rule lookup
+became a trie: a linear sweep over every stored pattern, the `Seq` pattern match
+that compared each one against the cursor, and `propertyName` rebuilding a
+`Text` from a string literal on every `Eq SomeKey` comparison, together about
+two thirds of all allocation. The first two no longer exist. Nothing has been
+profiled since, so treat the shares as history and measure before acting on
+them.
+
 ## Key Architectural Notes
 
 - Parser: Megaparsec-based, preserves comments and whitespace
@@ -221,6 +323,40 @@ A node is complex if it contains an array or object with **more than one child**
 
 `AssociationDirection` (`PreviousNode` / `NextNode`) is determined during parsing (`Jbeam.hs`), not post-processing. It controls whether a comment renders inline after the preceding node or on its own line before the next one. Changing separator logic in the parser can silently break comment positioning.
 
+### Writing JBFL
+
+`JBFL_DOCS.md` has a table of the patterns. It does not put the block syntax
+anywhere you can miss, and the block is what gets invented from memory:
+
+```jbfl
+.*.nodes, .*.beams {
+    PadDecimals: 3;
+    AutoPad : true;
+}
+```
+
+A property is `Name : value ;`. Both the colon and the semicolon are required,
+spaces around the colon are optional, and several patterns are separated by
+commas. `PadAmount 7` is not JBFL. Copy a rule out of
+`examples/jbfl/complex.jbfl` and edit it rather than typing one from memory.
+
+**A bad rule in a spec does not announce itself.** `rulesFromSource` calls
+`error` only when the RuleSet is forced, so a spec whose subject throws first,
+an unimplemented function for instance, hits that exception and never parses
+the source at all. The spec then fails for a reason that has nothing to do with
+what it claims to test. Force the parse once before trusting any spec built
+this way:
+
+```
+cabal repl --project-file=cabal.project.dev jbeam-edit-test
+> import SpecHelper (rulesFromSource)
+> print (rulesFromSource ".*.nodes { PadAmount: 7; }")
+```
+
+An empty `RuleSet` is the other failure and is quieter still: the source parsed,
+the rule was dropped, and nothing threw. A spec built on one asserts `Nothing`
+everywhere and passes.
+
 ### Adding a new JBFL property
 
 `PropertyKey` is a GADT in `Formatting/Rules.hs`. Adding a new property requires updates in all of these places — missing any one causes a compile error:
@@ -228,9 +364,12 @@ A node is complex if it contains an array or object with **more than one child**
 1. `PropertyKey a` GADT definition
 2. `propertyName`
 3. `eqKey`
-4. `boolProperties` or `intProperties`
+4. `boolProperties`, `enumProperties` or `intProperties`
 5. `parseValueForKey` in `Parsing/DSL.hs`
 6. Formatting logic in `Formatting.hs`
+7. `propertyReach`, saying whether the property reaches below the node its rule names
+
+`JBFL_DOCS.md` has the user-facing table of which ones do.
 
 ### `examples/` directory structure
 
@@ -253,18 +392,28 @@ This reformats all files in one pass. You may run this when needed, but **do not
 
 ## package.yaml → hpack
 
-After editing `package.yaml`, regenerate the `.cabal` file:
+After editing `package.yaml`, regenerate the `.cabal` file by running `hpack`
+directly.
 
-```bash
-stack build --hpack-force
-```
+**The hpack version has to match the one that generated the committed file.**
+Line 3 of `jbeam-edit.cabal` records it. Any other version reformats the whole
+file, and `check_cabal_file.sh` then rejects it even though nothing meaningful
+changed.
 
-**Do not run `hpack` directly.** CI regenerates the file through Stack, which
-bundles its own hpack. A locally installed hpack of a different version
-reformats the whole file, and `check_cabal_file.sh` then rejects it even though
-nothing meaningful changed. If Stack is not available, edit the `.cabal` file by
-hand to match what the `package.yaml` change implies, and keep the diff to those
-lines.
+**Do not regenerate through `stack build --hpack-force`.** Stack bundles its own
+hpack, and the bundled one is currently older than the version the committed
+file was generated with, so it rewrites the entire file. If the matching hpack
+is not available, edit the `.cabal` file by hand to match what the change
+implies, and keep the diff to those lines. Ask before doing that.
+
+Two things that are easy to get wrong here:
+
+- Adding a module under an existing `source-dirs` needs no `package.yaml`
+  change at all. hpack builds `other-modules` by reading the directory, so a
+  regeneration is the whole job.
+- `check_cabal_file.sh` diffs the working tree against `HEAD`, so it fails on
+  any uncommitted change to the `.cabal` file, correct or not. It only tells
+  you something once the change is committed.
 
 ## Git Commits
 

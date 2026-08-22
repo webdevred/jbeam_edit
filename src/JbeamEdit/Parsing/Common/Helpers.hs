@@ -49,9 +49,11 @@ tryParsers = asum . map MP.try
 
 byteChar :: Char -> Parser m Word8
 byteChar = B.char . toWord8
+{-# INLINE byteChar #-}
 
 skipWhiteSpace :: Parser m ()
 skipWhiteSpace = B.space
+{-# INLINE skipWhiteSpace #-}
 
 parseWord8s :: (T.Text -> a) -> Parser m [Word8] -> Parser m a
 parseWord8s f bsParser = do

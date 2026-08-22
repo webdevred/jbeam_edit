@@ -1,0 +1,36 @@
+{
+"testpart":{
+    "nodes":[
+        ["id", "posX", "posY", "posZ"],
+        // Synthetic regression-test fixture for jbeam metadata semantics, not
+        // vetted by the jbeam maintainer and not intended as a demo/example.
+        //
+        // Every shape that decides what a node ends up carrying:
+        //
+        //   nodeWeight set twice in one leading block, with an unrelated key
+        //   between them, so the two are not adjacent. Last one wins, so nl0
+        //   and nl1 weigh 2.0.
+        //
+        //   nodeWeight set again further down, so nl2 weighs 3.0 while the
+        //   nodes above it keep 2.0.
+        //
+        //   an inline object on nl3, which overrides the section value for
+        //   that node only, so nl3 weighs 4.0 and nr4 is back to 3.0.
+        //
+        //   frictionCoef set once and never again, so every node keeps it.
+        {"nodeWeight":1.0},
+        {"frictionCoef":0.5},
+        {"nodeWeight":2.0},
+        ["nl0", 0.9, -1.0, 0.1],
+        ["nl1", 0.9, 0.0, 0.1],
+        {"nodeWeight":3.0},
+        ["nl2", 0.9, 1.0, 0.1],
+        ["nl3", 0.9, 2.0, 0.1, {"nodeWeight":4.0}],
+        ["nr4", -0.9, -1.0, 0.1],
+        ["nr5", -0.9, 0.0, 0.1],
+    ],
+    "beams":[
+        ["id1:", "id2:"],
+    ],
+},
+}

@@ -50,6 +50,7 @@ jobs:
       matrix: ${{ fromJSON(needs.get-newest-supported-ghc.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v7
+      - run: chcp 65001
       - name: Set up GHC latest and Cabal
         id: setup-ghc
         uses: haskell-actions/setup@v2.12.0
@@ -67,12 +68,10 @@ jobs:
           CABAL_PROJECT: cabal.project.release
         shell: bash
         run: bash ./.github/scripts/freeze_dependencies.sh
-      - name: Cache GHC, Cabal store, and build artifacts
+      - name: Cache Cabal store
         uses: actions/cache@v6.1.0
         with:
-          path: |
-            dist-newstyle
-            ${{ steps.setup-ghc.outputs.cabal-store }}
+          path: ${{ steps.setup-ghc.outputs.cabal-store }}
           key: >-
             ${{ runner.os }}-cabal-${{
               matrix.ghc
@@ -89,6 +88,7 @@ jobs:
         run: cabal build exe:jbeam-edit --project-file cabal.project.release
       - name: Run tests (GHC ${{ matrix.ghc }})
         run: cabal test --project-file cabal.project.release
+        shell: bash
       - name: Run benchmarks (GHC ${{ matrix.ghc }})
         if: |
           contains(matrix.flags, ' +transformation ') &&

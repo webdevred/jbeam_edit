@@ -1,28 +1,27 @@
+{- | The fixture-driven half of the transformation suite: every file in
+`examples/ast/jbeam/` transformed under both configs and compared against
+its expected output, plus the cross-file beam checks. One reproduced defect
+per spec lives in "Spec.Regression" instead.
+-}
 module Spec (
   main,
 ) where
 
 import Data.ByteString.Lazy qualified as LBS
-import Data.Char (isDigit)
 import Data.List (isPrefixOf, isSuffixOf)
 import Data.Map qualified as M
-import Data.Set (Set)
 import Data.Set qualified as S
-import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Text.Encoding (encodeUtf8)
-import Data.Vector qualified as V
-import GHC.IsList (fromList)
-import JbeamEdit.Core.Node (Node (..), NumberValue (..), expectArray)
-import JbeamEdit.Core.NodePath qualified as NP
 import JbeamEdit.Formatting
-import JbeamEdit.IOUtils (tryReadFile)
 import JbeamEdit.Parsing.Jbeam (parseNodes)
 import JbeamEdit.Transformation
 import JbeamEdit.Transformation.BeamExtraction (beamInKnownSet)
 import JbeamEdit.Transformation.BeamValidation
 import JbeamEdit.Transformation.Config
 import JbeamEdit.Transformation.Types (Beam)
+import Spec.Helpers (parseJbeamFile)
+import Spec.Regression
 import System.Directory (getDirectoryContents)
 import System.OsPath
 import Test.Hspec
@@ -84,14 +83,6 @@ fixedPointSpec rs cfName tfConfig outFilename = do
               Right (_, _, _, again) -> formatNode rs again `shouldBe` expected
   describe desc . it "works" $ check
 
-parseJbeamFile :: FilePath -> IO Node
-parseJbeamFile path = do
-  let osPath = unsafeEncodeUtf path
-  contents <- tryReadFile [] osPath
-  case contents >>= parseNodes of
-    Right node -> pure node
-    Left err -> fail $ "Failed to parse " ++ path ++ ": " ++ T.unpack err
-
 beamValidationSpec :: Spec
 beamValidationSpec = do
   frameNode <-
@@ -124,166 +115,23 @@ beamValidationSpec = do
     it "has no duplicate beams" $
       findDuplicateBeams internalBeams `shouldBe` []
 
-nodesQuery :: NP.NodePath
-nodesQuery = fromList [NP.ObjectIndex 0, NP.ObjectKey "nodes"]
-
-{- | (name, Y position) for every vertex in a transformed top node's
-"nodes" section, in file order (i.e. the order `transform` actually
-wrote them out in). Read straight back out of the output rather than
-correlated against the input names, since `transform` renames vertices.
+{- | Real jbeam files commonly interleave per-triangle metadata objects
+(e.g. `{"groundModel": "metal"}`) among triangle rows. That is normal,
+not malformed input. `getTriangleVertexNames` used to fail the whole
+`transform` call on the first such row instead of skipping it.
 -}
-vertexPositionsInOrder :: Node -> [(Text, Double)]
-vertexPositionsInOrder topNode =
-  case NP.queryNodes nodesQuery topNode >>= NP.expectArray nodesQuery of
-    Left _ -> []
-    Right rows ->
-      [ (name, realToFrac (nvValue yNum))
-      | row <- V.toList rows
-      , Just inner <- [expectArray row]
-      , Just (String name) <- [inner V.!? 0]
-      , name /= "id"
-      , Just (Number yNum) <- [inner V.!? 2]
-      ]
+trianglesWithMetadataFixture :: FilePath
+trianglesWithMetadataFixture = "examples/regression_jbeam/triangles-with-metadata-repro.jbeam"
 
-{- | Every vertex coordinate in a top node's "nodes" section. Positions
-survive renaming, so they identify a vertex across a transform.
--}
-vertexCoordinates :: Node -> Set (Double, Double, Double)
-vertexCoordinates topNode =
-  case NP.queryNodes nodesQuery topNode >>= NP.expectArray nodesQuery of
-    Left _ -> S.empty
-    Right rows ->
-      S.fromList
-        [ (realToFrac (nvValue x), realToFrac (nvValue y), realToFrac (nvValue z))
-        | row <- V.toList rows
-        , Just inner <- [expectArray row]
-        , Just (String name) <- [inner V.!? 0]
-        , name /= "id"
-        , Just (Number x) <- [inner V.!? 1]
-        , Just (Number y) <- [inner V.!? 2]
-        , Just (Number z) <- [inner V.!? 3]
-        ]
-
-{- | Names ending in a letter rather than a digit all map to the same
-SupportKey, so an insert that replaced instead of merged used to drop
-every group but the last.
--}
-letterEndingNodesFixture :: FilePath
-letterEndingNodesFixture =
-  "examples/regression_jbeam/letter-ending-nodes-repro.jbeam"
-
-letterEndingNodesSpec :: Spec
-letterEndingNodesSpec =
-  describe "letter-ending node names"
-    . it "keeps every vertex through a transform"
+triangleMetadataSpec :: Spec
+triangleMetadataSpec =
+  describe "triangles with inline metadata rows"
+    . it "does not fail transform"
     $ do
-      topNode <- parseJbeamFile letterEndingNodesFixture
-      let expected = vertexCoordinates topNode
-      expected `shouldNotBe` S.empty
+      topNode <- parseJbeamFile trianglesWithMetadataFixture
       case transform M.empty newTransformationConfig topNode of
         Left err -> expectationFailure ("transform failed: " ++ T.unpack err)
-        Right (_, _, _, resultNode) ->
-          vertexCoordinates resultNode `shouldBe` expected
-
-{- | Three small hubs (nl0, nl10, nl20; front/mid/rear), each beamed to
-three of its own ordinary leaf nodes (see issue #215). At
-support-threshold 20 with 12 nodes in the group, thrCount =
-round(0.2*12) = 2: each hub (3 connections) clears it and becomes a
-support vertex, each leaf (1 connection) doesn't. This mirrors the
-support-hub shape seen in real body files (three support nodes sharing
-one prefix group) at a size small enough to reason about by hand: after
-the first transform, the mid/rear hubs get a trailing index (e.g. nlsl1,
-nlsl2) while the front one doesn't (nlsl), and that index is exactly
-what trips up the second pass. Y positions are spaced well outside the
-(default 0.05) y-sorting-threshold so this test stays isolated from the
-separate y-sorting-threshold banding bug (issue #214).
--}
-supportRenameIdempotencyFixture :: FilePath
-supportRenameIdempotencyFixture =
-  "examples/regression_jbeam/support-rename-idempotency-repro.jbeam"
-
-supportRenameIdempotencySpec :: Spec
-supportRenameIdempotencySpec =
-  describe "support vertex renaming"
-    . it "is a fixed point: transforming the output again renames nothing further"
-    $ do
-      let cfg = newTransformationConfig {supportThreshold = 20}
-      topNode <- parseJbeamFile supportRenameIdempotencyFixture
-      case transform M.empty cfg topNode of
-        Left err -> expectationFailure ("first transform failed: " ++ T.unpack err)
-        Right (_, _, _, onceNode) ->
-          case transform M.empty cfg onceNode of
-            Left err -> expectationFailure ("second transform failed: " ++ T.unpack err)
-            Right (_, _, _, twiceNode) -> do
-              let once = vertexPositionsInOrder onceNode
-              once `shouldNotBe` []
-              vertexPositionsInOrder twiceNode `shouldBe` once
-
-{- | Y positions of vertex pairs a transform wrote out of order: a later
-vertex sitting more than the threshold further forward than an earlier
-one in the same output group. Only vertices within one group are
-compared (e.g. "nll", "nlm"): a Left-tree vertex and a Middle-tree
-vertex are unrelated blocks in the file, not a single ordered sequence,
-so their relative position isn't meaningful.
--}
-outOfOrderPairs :: Double -> Node -> [(Double, Double)]
-outOfOrderPairs thr resultNode =
-  [ (y1, y2)
-  | ((n1, y1), i1) <- positions
-  , ((n2, y2), i2) <- positions
-  , i1 < i2
-  , groupPrefix n1 == groupPrefix n2
-  , y1 - y2 > thr
-  ]
-  where
-    positions = zip (vertexPositionsInOrder resultNode) [0 :: Int ..]
-    groupPrefix = T.dropWhileEnd isDigit
-
-{- | Real left-side structural node positions from a NASCAR gen4-style body
-file (see issue #214). This specific spacing reproduces a real transform
-run: with y-sorting-threshold 0.1, the frontmost node (nl0, Y=-1.967) ends
-up sorted to the back of its group instead of the front.
--}
-ySortingReproFixture :: FilePath
-ySortingReproFixture = "examples/regression_jbeam/y-sorting-repro.jbeam"
-
-ySortingBandingSpec :: Spec
-ySortingBandingSpec =
-  describe "y-sorting-threshold"
-    . it
-      "never places a node behind another node that is more than the threshold further forward"
-    $ do
-      let cfg = newTransformationConfig {ySortingThreshold = 0.1}
-      topNode <- parseJbeamFile ySortingReproFixture
-      case transform M.empty cfg topNode of
-        Left err -> expectationFailure ("transform failed: " ++ T.unpack err)
-        Right (_, _, _, resultNode) -> outOfOrderPairs 0.1 resultNode `shouldBe` []
-
-{- | A metadata row ahead of the first vertex applies to the whole section,
-and the transform writes it back out at the top, so it says nothing about
-any individual vertex and must not decide where one is placed. It does
-today (issue #221): `newVertexTree` seeds each tree from its own leading
-block, and `breakVertices` splits on prefix, so alternating nl/nr names
-leave only the first vertex carrying the row. `compareAV` sorts on `aMeta`
-ahead of the Y band and an empty map sorts first, which drops that one
-vertex at the end of its group while its mirror on the other side stays
-in front.
--}
-metadataAcrossTreesFixture :: FilePath
-metadataAcrossTreesFixture =
-  "examples/regression_jbeam/metadata-across-trees-repro.jbeam"
-
-metadataAcrossTreesSpec :: Spec
-metadataAcrossTreesSpec =
-  describe "metadata ahead of the first vertex"
-    . it "does not decide where a vertex is placed"
-    $ do
-      topNode <- parseJbeamFile metadataAcrossTreesFixture
-      case transform M.empty newTransformationConfig topNode of
-        Left err -> expectationFailure ("transform failed: " ++ T.unpack err)
-        Right (_, _, _, resultNode) -> do
-          vertexPositionsInOrder resultNode `shouldNotBe` []
-          outOfOrderPairs 0.05 resultNode `shouldBe` []
+        Right _ -> pure ()
 
 main :: IO ()
 main = hspec $ do
@@ -310,3 +158,5 @@ main = hspec $ do
   letterEndingNodesSpec
   ySortingBandingSpec
   metadataAcrossTreesSpec
+  metadataPreservedSpec
+  triangleMetadataSpec

@@ -49,6 +49,10 @@ flag dump-ast
     default:     False
     manual:      True
 
+flag modern-containers
+    description: Require containers 0.8
+    manual:      True
+
 flag transformation
     description: Enable transformation (experimental)
     default:     False
@@ -107,7 +111,7 @@ library
         text >=2.1.2,
         vector >=0.13
 
-    if (!flag(transformation) && !flag(dump-ast))
+    if flag(modern-containers)
         build-depends: containers >=0.8
 
     if os(windows)
@@ -154,7 +158,7 @@ library jbeam-edit-transformation
         text >=2.1.2,
         vector >=0.13
 
-    if (!flag(transformation) && !flag(dump-ast))
+    if flag(modern-containers)
         build-depends: containers >=0.8
 
     if os(windows)
@@ -202,7 +206,7 @@ executable jbeam-edit
         text >=2.1.2,
         vector >=0.13
 
-    if (!flag(transformation) && !flag(dump-ast))
+    if flag(modern-containers)
         build-depends: containers >=0.8
 
     if os(windows)
@@ -240,7 +244,7 @@ executable jbeam-edit-dump-ast
         text >=2.1.2,
         vector >=0.13
 
-    if (!flag(transformation) && !flag(dump-ast))
+    if flag(modern-containers)
         build-depends: containers >=0.8
 
     if os(windows)
@@ -297,7 +301,7 @@ test-suite jbeam-edit-test
         text >=2.1.2,
         vector >=0.13
 
-    if (!flag(transformation) && !flag(dump-ast))
+    if flag(modern-containers)
         build-depends: containers >=0.8
 
     if os(windows)
@@ -312,7 +316,11 @@ test-suite jbeam-edit-transformation-test
     type:               exitcode-stdio-1.0
     main-is:            Spec.hs
     hs-source-dirs:     test-extra/transformation
-    other-modules:      Paths_jbeam_edit
+    other-modules:
+        Spec.Helpers
+        Spec.Regression
+        Paths_jbeam_edit
+
     autogen-modules:    Paths_jbeam_edit
     default-language:   GHC2021
     default-extensions:
@@ -338,7 +346,7 @@ test-suite jbeam-edit-transformation-test
         text >=2.1.2,
         vector >=0.13
 
-    if (!flag(transformation) && !flag(dump-ast))
+    if flag(modern-containers)
         build-depends: containers >=0.8
 
     if os(windows)
@@ -382,7 +390,7 @@ benchmark jbeam-edit-bench
         text >=2.1.2,
         vector >=0.13
 
-    if (!flag(transformation) && !flag(dump-ast))
+    if flag(modern-containers)
         build-depends: containers >=0.8
 
     if os(windows)

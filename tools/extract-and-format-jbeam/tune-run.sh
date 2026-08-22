@@ -15,6 +15,34 @@
 #
 # file-list defaults to tools/extract-and-format-jbeam/tune-files.txt
 # filter: optional substring to match against zip names
+#
+# The default list is a curated handful, meant to be read by hand. To ask how
+# common something is across all stock files instead, generate a list covering
+# every vehicle zip and pass that:
+#
+#   source tools/extract-and-format-jbeam/lib/beamng.sh
+#   V="$(beamng_find_vehicles_dir)"
+#   for z in "$V"/*.zip; do
+#       zn="$(basename "$z")"
+#       beamng_list_jbeam_files "$z" | while IFS= read -r p; do
+#           echo "$(basename "$p") $zn"
+#       done
+#   done > /tmp/corpus-files.txt
+#
+# That list depends on the installed game version, so it is generated when
+# needed rather than committed.
+#
+# Two limits matter at that scale, and both give a wrong answer quietly.
+#
+# Files are written to TUNE_DIR under their base name, so two vehicles shipping
+# the same file name overwrite each other and only the last one is examined. The
+# curated list has unique names; a corpus-wide one does not. Roughly 175 names
+# collide across the stock vehicles, so about 350 files are reduced to 175.
+#
+# The status column is decided by the exit code, and jbeam-edit exits 0 even
+# when it cannot parse the file. Every row therefore reads "ok" and the run
+# reports no errors at all, whatever the file contained. To count files that
+# failed to parse, look at what the tool wrote to stderr instead.
 
 set -euo pipefail
 

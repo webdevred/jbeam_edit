@@ -83,9 +83,45 @@ dynamicJbflTests = do
     expected <- T.pack <$> readFile outFile
     pure (outFile, formatted, expected)
 
+reachSpec :: Spec
+reachSpec = do
+  let row cells = mkArray (fromList cells)
+      rows =
+        row
+          [ row [String "a_long_name", Number (mkNumberValue "1" 1)]
+          , row [String "n1", Number (mkNumberValue "2" 2)]
+          ]
+      topNode =
+        mkObject
+          ( fromList
+              [ ObjectKey
+                  ( String "part"
+                  , mkObject (fromList [ObjectKey (String "rows", rows)])
+                  )
+              ]
+          )
+      formatWith src = formatNode (rulesFromSource src) topNode
+      shortPattern prop = ".* { " <> prop <> " }"
+      exactPattern prop = ".*.rows { " <> prop <> " }"
+
+      wrap body = "{\"part\" : {\n    \"rows\" : [\n" <> body <> "\n    ]\n}}\n"
+      baseline = wrap "        [\"a_long_name\", 1],\n        [\"n1\", 2]"
+      padded = wrap "        [\"a_long_name\", 1],\n        [\"n1\",          2]"
+
+  describe "how far down a property reaches" $ do
+    it "applies AutoPad to the matched value only" $ do
+      formatWith (exactPattern "AutoPad : true;") `shouldBe` padded
+      -- Guards the line below: a shortPattern matching nothing passes it too.
+      formatWith (shortPattern "ComplexNewLine : Force;") `shouldNotBe` baseline
+      formatWith (shortPattern "AutoPad : true;") `shouldBe` baseline
+
+    it "applies ComplexNewLine below the matched value too" $
+      formatWith (shortPattern "ComplexNewLine : Force;") `shouldNotBe` baseline
+
 spec :: Spec
 spec = do
   mapM_ formatNodeSpec specs
+  reachSpec
 
   dynamicTests <- runIO dynamicJbflTests
   forM_ dynamicTests $ \(outFile, formatted, expected) ->

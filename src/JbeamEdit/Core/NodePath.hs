@@ -9,9 +9,10 @@ module JbeamEdit.Core.NodePath (
 ) where
 
 import Data.Either.Extra (maybeToEither)
+import Data.Function (on)
 import Data.Sequence (Seq (..))
 import Data.Text (Text)
-import Data.Text qualified as T (isPrefixOf, show)
+import Data.Text qualified as T (isPrefixOf, length, show)
 import Data.Vector (Vector)
 import Data.Vector qualified as V
 import GHC.IsList (IsList (..))
@@ -29,7 +30,16 @@ data NodeSelector
   | ObjectKey Text
   | ObjectPrefixKey Text
   | ObjectIndex Int
-  deriving (Eq, Ord, Read, Show)
+  deriving (Eq, Read, Show)
+
+instance Ord NodeSelector where
+  compare = on compare rank
+    where
+      rank :: NodeSelector -> (Int, Int, Text)
+      rank (ObjectKey key) = (0, 0, key)
+      rank (ArrayIndex index) = (1, index, "")
+      rank (ObjectIndex i) = (2, i, "")
+      rank (ObjectPrefixKey prefix) = (3, negate (T.length prefix), prefix)
 
 {- | node path
 A NodePath is a Sequence of selectors to that point out a certain point in a Node tree, either to point at as something when fetching it from Node or to point to something compare that I at a certain point when doing updates.
