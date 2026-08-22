@@ -185,6 +185,14 @@ precedenceSpec = do
   -- (`Formatting/Config.hs`), so this is how every configured install resolves
   -- its rules. The union is left-biased twice over, per pattern and per
   -- property, and a trie has to reproduce both.
+  -- The other direction from the merge below: within one file the later rule
+  -- wins, while a user ruleset beats the shipped one it is merged with.
+  describe "two rules with the same pattern"
+    . it "takes the value from the later one" $ do
+    let twice = rulesFrom ".deformGroups { Indent : 1; }\n.deformGroups { Indent : 2; }"
+        cur = NodeCursor (fromList [ObjectIndexAndKey 0 "deformGroups"])
+    lookupPropertyForCursor Indent twice cur `shouldBe` Just 2
+
   describe "combining a user ruleset with the shipped one" $ do
     let user = rulesFrom ".deformGroups { Indent : 1; }"
         shipped = rulesFrom ".deformGroups { Indent : 7; TrailingComma : Force; }"
