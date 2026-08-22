@@ -359,7 +359,7 @@ everywhere and passes.
 
 ### Adding a new JBFL property
 
-`PropertyKey` is a GADT in `Formatting/Rules.hs`. Adding a new property requires updates in all of these places:
+`PropertyKey` is a GADT in `Formatting/Rules.hs`. Adding a new property requires updates in all of these places — missing any one causes a compile error:
 
 1. `PropertyKey a` GADT definition
 2. `propertyName`
@@ -367,11 +367,9 @@ everywhere and passes.
 4. `boolProperties`, `enumProperties` or `intProperties`
 5. `parseValueForKey` in `Parsing/DSL.hs`
 6. Formatting logic in `Formatting.hs`
-7. `prefixProperties`, if the property should reach below the node its rule names
+7. `propertyReach`, saying whether the property reaches below the node its rule names
 
-The first six fail to compile if you miss them. The seventh does not: leave a
-property out of `prefixProperties` and everything builds, the property just
-stops cascading. `JBFL_DOCS.md` has the table of which ones do.
+`JBFL_DOCS.md` has the user-facing table of which ones do.
 
 ### `examples/` directory structure
 
