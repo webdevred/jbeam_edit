@@ -18,7 +18,13 @@ import Data.Functor (void, ($>))
 import Data.Functor.Identity (Identity (..))
 import Data.List.NonEmpty qualified as NE (fromList)
 import Data.Map (Map)
-import Data.Map qualified as M (empty, fromList, partitionWithKey, singleton)
+import Data.Map qualified as M (
+  empty,
+  fromList,
+  null,
+  partitionWithKey,
+  singleton,
+ )
 import Data.Monoid (Dual (..))
 import Data.Set qualified as S (fromList)
 import Data.Text (Text)
@@ -26,7 +32,6 @@ import Data.Text qualified as T (init, isSuffixOf, unpack)
 import Data.Text.Encoding (decodeUtf8')
 import Data.Word (Word8)
 import JbeamEdit.Core.NodePath
-import JbeamEdit.Core.NodePath qualified as NP (NodeSelector (..))
 import JbeamEdit.Formatting.Rules
 import JbeamEdit.Formatting.Rules.ComplexNewLine qualified as CNL
 import JbeamEdit.Formatting.Rules.TrailingComma qualified as TC
@@ -175,7 +180,7 @@ ruleParser = do
 combineRuleSets
   :: ([[NodePatternSelector]], Map SomeKey SomeProperty) -> RuleSet
 combineRuleSets (_, props)
-  | props == M.empty = mempty
+  | M.null props = mempty
 combineRuleSets (pats, props) = fold [fold (go pat) | pat <- pats]
   where
     go :: [NodePatternSelector] -> Maybe RuleSet
@@ -184,7 +189,7 @@ combineRuleSets (pats, props) = fold [fold (go pat) | pat <- pats]
         (belowProps, hereProps) = M.partitionWithKey (\k _ -> k `elem` prefixProperties) props
     go (AnyObjectKey : pats') = Just (mempty {rsAnyObjectKey = go pats'})
     go (AnyArrayIndex : pats') = Just (mempty {rsAnyArrayIndex = go pats'})
-    go (Selector (NP.ObjectPrefixKey p) : pats') = Just (mempty {rsPrefixes = maybe [] (\x -> [(p, x)]) (go pats')})
+    go (Selector (ObjectPrefixKey p) : pats') = Just (mempty {rsPrefixes = maybe [] (\x -> [(p, x)]) (go pats')})
     go (Selector s : pats') = Just (mempty {rsBySelectors = maybe M.empty (M.singleton s) (go pats')})
 
 ruleSetParser :: JbflParser RuleSet
