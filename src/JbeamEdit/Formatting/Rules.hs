@@ -203,7 +203,8 @@ prefixProperties :: [SomeKey]
 prefixProperties =
   SomeKey ComplexNewLine
     : SomeKey TrailingComma
-    : map SomeKey [PadAmount, Indent]
+    : SomeKey PreserveNumberFormat
+    : map SomeKey [PadAmount, PadDecimals, Indent]
 
 -- | Maps deprecated property names to (key, value-when-true, value-when-false).
 deprecatedAliases :: [(Text, (SomeKey, SomeProperty, SomeProperty))]
