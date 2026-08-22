@@ -23,7 +23,7 @@ module JbeamEdit.Formatting.Rules (
   keyName,
   applyPadLogic,
   complexNewLine,
-  lookupRule,
+  lookupProperty,
   lookupPropertyForCursor,
   findPropertiesForCursor,
 ) where
@@ -239,17 +239,14 @@ data RuleSet
   }
   deriving stock (Eq, Read, Show)
 
-lookupProp :: (Eq a, Read a, Show a) => PropertyKey a -> Rule -> Maybe a
-lookupProp targetKey m =
+lookupProperty :: (Eq a, Read a, Show a) => PropertyKey a -> Rule -> Maybe a
+lookupProperty targetKey m =
   case M.lookup (SomeKey targetKey) m of
     Just (SomeProperty key val) ->
       case eqKey key targetKey of
         Just Refl -> Just val
         Nothing -> Nothing
     Nothing -> Nothing
-
-lookupRule :: (Eq a, Read a, Show a) => PropertyKey a -> Rule -> Maybe a
-lookupRule = lookupProp
 
 applyDecimalPadding :: Int -> Text -> Text
 applyDecimalPadding padDecimals node
@@ -262,8 +259,8 @@ applyDecimalPadding padDecimals node
 
 applyPadLogic :: (Node -> Text) -> Rule -> Node -> Text
 applyPadLogic f rs n =
-  let padAmount = sum $ lookupProp PadAmount rs
-      padDecimals = sum $ lookupProp PadDecimals rs
+  let padAmount = sum $ lookupProperty PadAmount rs
+      padDecimals = sum $ lookupProperty PadDecimals rs
       decimalPaddedText
         | isNumberNode n = applyDecimalPadding padDecimals (f n)
         | otherwise = f n
@@ -272,14 +269,16 @@ applyPadLogic f rs n =
 complexNewLine :: RuleSet -> NC.NodeCursor -> Maybe ComplexNewLine
 complexNewLine rs cursor =
   let ps = findPropertiesForCursor PrefixMatch cursor rs
-   in lookupProp ComplexNewLine ps
+   in lookupProperty ComplexNewLine ps
 
 data MatchMode = PrefixMatch | ExactMatch deriving (Eq, Show)
 
 lookupPropertyForCursor
   :: (Eq a, Read a, Show a)
-  => MatchMode -> PropertyKey a -> RuleSet -> NC.NodeCursor -> Maybe a
-lookupPropertyForCursor matchMode key rs cursor = lookupProp key (findPropertiesForCursor matchMode cursor rs)
+  => PropertyKey a -> RuleSet -> NC.NodeCursor -> Maybe a
+lookupPropertyForCursor key rs cursor = lookupProperty key (findPropertiesForCursor matchMode cursor rs)
+  where
+    matchMode = bool ExactMatch PrefixMatch (SomeKey key `elem` prefixProperties)
 
 findPropertiesForCursor :: MatchMode -> NC.NodeCursor -> RuleSet -> Rule
 findPropertiesForCursor matchMode (NC.NodeCursor cursor) = go cursor

@@ -47,7 +47,7 @@ import JbeamEdit.Formatting.Rules (
   applyPadLogic,
   findPropertiesForCursor,
   lookupPropertyForCursor,
-  lookupRule,
+  lookupProperty
  )
 import JbeamEdit.Formatting.Rules.ComplexNewLine qualified as CNL
 import JbeamEdit.Formatting.Rules.TrailingComma qualified as TC
@@ -238,7 +238,7 @@ addDelimiters rs index rowIdx c complexChildren state acc ns@((node, nodeHadComm
               ( \childCursor _ ->
                   fromMaybe
                     TC.Preserve
-                    (lookupPropertyForCursor PrefixMatch TrailingComma rs childCursor)
+                    (lookupPropertyForCursor TrailingComma rs childCursor)
               )
               index
               node
@@ -323,14 +323,14 @@ doFormatNode rs cursor state elems =
       prefixProps = findPropertiesForCursor PrefixMatch cursor rs
       exactProps = findPropertiesForCursor ExactMatch cursor rs
 
-      autoPadEnabled = lookupRule AutoPad exactProps == Just True
-      alignObjectKeysEnabled = lookupRule AlignObjectKeys exactProps == Just True
-      autopadSubObjectsEnabled = lookupRule AutoPadSubObjects exactProps == Just True
+      autoPadEnabled = lookupProperty AutoPad exactProps == Just True
+      alignObjectKeysEnabled = lookupProperty AlignObjectKeys exactProps == Just True
+      autopadSubObjectsEnabled = lookupProperty AutoPadSubObjects exactProps == Just True
 
       complexChildren =
-        lookupRule ComplexNewLine prefixProps == Just CNL.Force
+        lookupProperty ComplexNewLine prefixProps == Just CNL.Force
           || any (liftA2 (||) isSinglelineComment isComplexNode) nodes
-            && lookupRule ComplexNewLine prefixProps /= Just CNL.None
+            && lookupProperty ComplexNewLine prefixProps /= Just CNL.None
 
       (colWidths, formattedCache, headerWasExtracted) =
         maxColumnLengthsWithCache rs cursor nodes
@@ -397,7 +397,7 @@ doFormatNode rs cursor state elems =
           . V.toList
           $ elems
 
-      indentationAmount = fromMaybe 4 (lookupRule Indent prefixProps)
+      indentationAmount = fromMaybe 4 (lookupProperty Indent prefixProps)
    in if complexChildren
         then
           T.unlines
@@ -454,7 +454,7 @@ formatWithCursor rs state cursor (ObjectKey (k, v)) =
 formatWithCursor _ _ _ (Comment comment) = formatComment comment
 formatWithCursor rs _ cursor n =
   let ps = findPropertiesForCursor PrefixMatch cursor rs
-      preserve = (Just True == lookupRule PreserveNumberFormat ps)
+      preserve = (Just True == lookupProperty PreserveNumberFormat ps)
    in applyPadLogic (formatScalarNode preserve) ps n
 
 formatNode :: RuleSet -> Node -> Text
