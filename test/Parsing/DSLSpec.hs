@@ -5,6 +5,7 @@ module Parsing.DSLSpec (
 import Data.ByteString.Lazy (ByteString)
 import Data.ByteString.Lazy qualified as BS (fromStrict, readFile)
 import Data.Functor.Identity (Identity (..))
+import Data.List.NonEmpty qualified as NE (head)
 import Data.Text qualified as T
 import Data.Text.Encoding (encodeUtf8)
 import Data.Void (Void)
@@ -119,12 +120,22 @@ invalidKeyPropertySpecs =
     (assertParserFailure keyPropertyPairParser)
     (invalidEnumProperties ++ invalidIntProperties)
 
+misplacedArrowSpecs :: [Spec]
+misplacedArrowSpecs = [assertFailsAt ruleSetParser (".a > { Indent: 2; }", 5)]
+
 applyParserSpec
   :: (Eq a, Show a) => ParsecT Void ByteString Identity a -> (String, a) -> Spec
 applyParserSpec parser = uncurry $ applySpecOnInput descFun assertParsesTo
   where
     assertParsesTo input = shouldParse . parse parser "" . BS.fromStrict . encodeUtf8 $ T.pack input
     descFun input expResult = "should parse " <> input <> " to " <> expResult
+
+assertFailsAt :: Show a => JbflParser a -> (String, Int) -> Spec
+assertFailsAt parser (input, offset) =
+  describe ("should reject " <> input <> " at offset " <> show offset) . works $
+    case parse parser "" (textToLazyByteString input) of
+      Left bundle -> errorOffset (NE.head (bundleErrors bundle)) `shouldBe` offset
+      Right r -> expectationFailure ("parsed to " <> show r)
 
 assertParserFailure
   :: Show a => JbflParser a -> (String, ParseError ByteString Void) -> Spec
@@ -138,5 +149,8 @@ assertParserFailure parser (input, expError) =
 spec :: Spec
 spec = do
   sequence_ $
-    keyPropertyPairSpecs ++ invalidKeyPropertySpecs ++ patternSelectorSpecs
+    keyPropertyPairSpecs
+      ++ invalidKeyPropertySpecs
+      ++ patternSelectorSpecs
+      ++ misplacedArrowSpecs
   ruleSetSpecs
