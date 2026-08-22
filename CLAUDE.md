@@ -94,12 +94,18 @@ All code written or modified **must** satisfy both tools before being considered
 
 1. **fourmolu** — formatter, config in `fourmolu.yaml`
    ```bash
-   fourmolu --mode inplace src/
+   fourmolu --mode inplace src/ src-extra/ test/ test-extra/ exe/ tools/
+   fourmolu --check-idempotence --mode check src/ src-extra/ test/ test-extra/ exe/ tools/
    ```
 2. **HLint** — linter, config in `.hlint.yaml`
    ```bash
-   hlint src/
+   hlint src/ src-extra/ test/ test-extra/ exe/ tools/
    ```
+
+CI runs both over all six directories, and fourmolu with `--check-idempotence`.
+A single `--mode inplace` can leave a file that is formatted but not a fixed
+point, which passes a plain `--mode check` here and fails in CI, so run the
+second line before pushing.
 
 - Language extensions and GHC warnings are specified in `package.yaml` — code must compile warning-free
 - Do not import data types qualified unless necessary. Use unqualified imports for types and constructors (e.g. `import Foo (Bar (..))`) and qualified imports for functions that would clash. The project-internal qualifiers `N` (Node), `NC` (NodeCursor), and `NP` (NodePath) are intentional conventions and should be kept.
@@ -249,39 +255,38 @@ Measured with `--transform`, with the shipped ruleset loaded, reading
 comparison against it.
 
 The conditions decide the numbers, so they are part of the measurement: **GHC
-9.14.1, `-O1`, containers 0.8**. Optimization is worth a factor of three and the
+9.14.1, `-O1`, containers 0.8, master at the trie merge (#232)**. Optimization is worth a factor of three and the
 compiler version four to five percent, so a figure quoted without them says
 nothing. `-O1` because that is what ships: `configure_project.sh` passes it, and
 a `-O0` baseline describes a build no user ever gets.
 
 | Input                                       | Size      | Allocation |
 |---------------------------------------------|-----------|------------|
-| `examples/jbeam/frame.jbeam`, alone         | 14 236 B  | 62 MB      |
-| a 150 KB stock body file, alone             | 149 896 B | 499 MB     |
-| the same body file in its vehicle, 74 files | 1.4 MB    | 3 972 MB   |
+| `examples/jbeam/frame.jbeam`, alone         | 14 236 B  | 25 MB      |
+| a 150 KB stock body file, alone             | 149 896 B | 187 MB     |
+| the same body file in its vehicle, 74 files | 1.4 MB    | 1 603 MB   |
 
 The third row is the one that describes the tool as users run it. `--transform`
 rewrites every neighbouring file that referenced a renamed node, 37 of the 74
 here, and rewriting means reformatting the file in full. So the formatter runs
 38 times for one command, and `updateOtherFiles` inherits two thirds of all
 allocation while the renaming inside it costs well under one percent. Anything
-saved in the rule lookup is saved 38 times over.
+saved in the rule lookup is saved 38 times over. Making that lookup a trie is
+what took these three rows down by about sixty percent.
 
 Two things follow, and both have been mistaken for something else before.
-Allocation runs three to four thousand bytes per byte of input, so the absolute
+Allocation runs one to two thousand bytes per byte of input, so the absolute
 figures look alarming and say nothing on their own. And a tenfold larger input
 allocates eight times as much, so the cost is slightly sublinear: there is no
 asymptotic problem hiding in the rule lookup, only a large constant.
 
-The shares below come from a profiled `-O0` run and have not been measured again
-at `-O1`, so treat them as where the cost sat, not as a current reading.
-
-That constant is one thing seen from several angles. `viewl` and `$m:<|` are the
-`Seq` pattern match in `sameBy`, `filterWithKey` is the linear sweep in
-`findPropertiesForCursor`, and `unpackCString#` is `propertyName` rebuilding a
-`Text` from a string literal on every `Eq SomeKey` comparison. Together they are
-around two thirds of all allocation, and their shares stay within a few tenths
-of a percent across the whole size range.
+Where that constant sat was profiled once, at `-O0`, before the rule lookup
+became a trie: a linear sweep over every stored pattern, the `Seq` pattern match
+that compared each one against the cursor, and `propertyName` rebuilding a
+`Text` from a string literal on every `Eq SomeKey` comparison, together about
+two thirds of all allocation. The first two no longer exist. Nothing has been
+profiled since, so treat the shares as history and measure before acting on
+them.
 
 ## Key Architectural Notes
 
@@ -354,14 +359,19 @@ everywhere and passes.
 
 ### Adding a new JBFL property
 
-`PropertyKey` is a GADT in `Formatting/Rules.hs`. Adding a new property requires updates in all of these places — missing any one causes a compile error:
+`PropertyKey` is a GADT in `Formatting/Rules.hs`. Adding a new property requires updates in all of these places:
 
 1. `PropertyKey a` GADT definition
 2. `propertyName`
 3. `eqKey`
-4. `boolProperties` or `intProperties`
+4. `boolProperties`, `enumProperties` or `intProperties`
 5. `parseValueForKey` in `Parsing/DSL.hs`
 6. Formatting logic in `Formatting.hs`
+7. `prefixProperties`, if the property should reach below the node its rule names
+
+The first six fail to compile if you miss them. The seventh does not: leave a
+property out of `prefixProperties` and everything builds, the property just
+stops cascading. `JBFL_DOCS.md` has the table of which ones do.
 
 ### `examples/` directory structure
 
