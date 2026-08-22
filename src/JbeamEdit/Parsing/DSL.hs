@@ -186,7 +186,7 @@ combineRuleSets (pats, props) = fold [fold (go pat) | pat <- pats]
     go :: [NodePatternSelector] -> Maybe RuleSet
     go [] = Just (mempty {rsHere = hereProps, rsBelow = belowProps})
       where
-        (belowProps, hereProps) = M.partitionWithKey (\k _ -> k `elem` prefixProperties) props
+        (belowProps, hereProps) = M.partitionWithKey (\(SomeKey k) _ -> propertyReach k == Below) props
     go (AnyObjectKey : pats') = Just (mempty {rsAnyObjectKey = go pats'})
     go (AnyArrayIndex : pats') = Just (mempty {rsAnyArrayIndex = go pats'})
     go (Selector (ObjectPrefixKey p) : pats') = Just (mempty {rsPrefixes = maybe [] (\x -> [(p, x)]) (go pats')})
