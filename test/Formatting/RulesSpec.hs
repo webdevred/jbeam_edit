@@ -39,31 +39,30 @@ spec = do
     it "applies PadAmount and PadDecimals" $
       applyPadLogic (formatScalarNode False) ruleSet fakeNode `shouldBe` "123.50 "
 
-  -- A pattern matches only once it has been consumed whole, and leftover
-  -- breadcrumbs are allowed under PrefixMatch alone. A lookup that answers at
-  -- the wrong depth silently changes formatting everywhere, since every
-  -- property the formatter reads comes through one of the two modes.
+  -- Whether a property reaches below the node its rule names is decided by the
+  -- property, not by the caller: the parser puts the keys in `prefixProperties`
+  -- into rsBelow and the rest into rsHere. Every property the formatter reads
+  -- comes through this one lookup, so a split that answers at the wrong depth
+  -- changes formatting everywhere.
   describe "matching a pattern against a cursor" $ do
     let cursorAt crumbs = NodeCursor (fromList crumbs)
         nodesCursor =
           cursorAt [ObjectIndexAndKey 0 "part", ObjectIndexAndKey 0 "nodes"]
-        found mode pat =
-          lookupPropertyForCursor
-            mode
-            PadAmount
-            (rulesFromSource (pat ++ " { PadAmount: 7; }"))
+        rulesFor pat = rulesFromSource (pat ++ " { PadAmount: 7; AutoPad: true; }")
+        cascading pat = lookupPropertyForCursor PadAmount (rulesFor pat)
+        hereOnly pat = lookupPropertyForCursor AutoPad (rulesFor pat)
 
-    it "matches a pattern of the same length in both modes" $ do
-      found PrefixMatch ".*.nodes" nodesCursor `shouldBe` Just 7
-      found ExactMatch ".*.nodes" nodesCursor `shouldBe` Just 7
+    it "answers both kinds at the node the pattern names" $ do
+      cascading ".*.nodes" nodesCursor `shouldBe` Just 7
+      hereOnly ".*.nodes" nodesCursor `shouldBe` Just True
 
-    it "matches a shorter pattern only as a prefix" $ do
-      found PrefixMatch ".*" nodesCursor `shouldBe` Just 7
-      found ExactMatch ".*" nodesCursor `shouldBe` Nothing
+    it "carries a cascading property below that node, and nothing else" $ do
+      cascading ".*" nodesCursor `shouldBe` Just 7
+      hereOnly ".*" nodesCursor `shouldBe` Nothing
 
-    it "never matches a pattern longer than the cursor" $ do
-      found PrefixMatch ".*.nodes[*]" nodesCursor `shouldBe` Nothing
-      found ExactMatch ".*.nodes[*]" nodesCursor `shouldBe` Nothing
+    it "never answers for a pattern longer than the cursor" $ do
+      cascading ".*.nodes[*]" nodesCursor `shouldBe` Nothing
+      hereOnly ".*.nodes[*]" nodesCursor `shouldBe` Nothing
 
     -- `.test*` is documented JBFL (JBFL_DOCS.md) and cannot be looked up by
     -- equality, since the stored key is a prefix of the breadcrumb rather than
@@ -74,18 +73,18 @@ spec = do
           atDeformGroups =
             cursorAt
               [ObjectIndexAndKey 0 "part", ObjectIndexAndKey 0 "deformGroups"]
-      found ExactMatch (p "deform") atDeformGroups `shouldBe` Just 7
-      found ExactMatch (p "deformGroups") atDeformGroups `shouldBe` Just 7
-      found ExactMatch (p "deformGroupsAndMore") atDeformGroups `shouldBe` Nothing
-      found ExactMatch (p "eform") atDeformGroups `shouldBe` Nothing
+      hereOnly (p "deform") atDeformGroups `shouldBe` Just True
+      hereOnly (p "deformGroups") atDeformGroups `shouldBe` Just True
+      hereOnly (p "deformGroupsAndMore") atDeformGroups `shouldBe` Nothing
+      hereOnly (p "eform") atDeformGroups `shouldBe` Nothing
 
     it "keeps the two wildcards apart" $ do
       let atArray = cursorAt [ObjectIndexAndKey 0 "part", ArrayIndex 0]
           atKey = cursorAt [ObjectIndexAndKey 0 "part", ObjectIndexAndKey 0 "k"]
-      found ExactMatch ".*[*]" atArray `shouldBe` Just 7
-      found ExactMatch ".*.*" atArray `shouldBe` Nothing
-      found ExactMatch ".*.*" atKey `shouldBe` Just 7
-      found ExactMatch ".*[*]" atKey `shouldBe` Nothing
+      hereOnly ".*[*]" atArray `shouldBe` Just True
+      hereOnly ".*.*" atArray `shouldBe` Nothing
+      hereOnly ".*.*" atKey `shouldBe` Just True
+      hereOnly ".*[*]" atKey `shouldBe` Nothing
 
 {- | When several patterns match the same node, the more specific one supplies
 the property. Specificity is how many nodes a selector can match at that level:
