@@ -255,16 +255,16 @@ Measured with `--transform`, with the shipped ruleset loaded, reading
 comparison against it.
 
 The conditions decide the numbers, so they are part of the measurement: **GHC
-9.14.1, `-O1`, containers 0.8, master at the trie merge (#232)**. Optimization is worth a factor of three and the
-compiler version four to five percent, so a figure quoted without them says
-nothing. `-O1` because that is what ships: `configure_project.sh` passes it, and
+9.14.1, `-O1`, containers 0.8, master at `6e9c96f`**. Optimization is worth a
+factor of three and the compiler version four to five percent, so a figure
+quoted without them says nothing. `-O1` because that is what ships: `configure_project.sh` passes it, and
 a `-O0` baseline describes a build no user ever gets.
 
 | Input                                       | Size      | Allocation |
 |---------------------------------------------|-----------|------------|
-| `examples/jbeam/frame.jbeam`, alone         | 14 236 B  | 25 MB      |
-| a 150 KB stock body file, alone             | 149 896 B | 187 MB     |
-| the same body file in its vehicle, 74 files | 1.4 MB    | 1 603 MB   |
+| `examples/jbeam/frame.jbeam`, alone         | 14 236 B  | 23 MB      |
+| a 150 KB stock body file, alone             | 149 896 B | 173 MB     |
+| the same body file in its vehicle, 74 files | 1.4 MB    | 1 465 MB   |
 
 The third row is the one that describes the tool as users run it. `--transform`
 rewrites every neighbouring file that referenced a renamed node, 37 of the 74
