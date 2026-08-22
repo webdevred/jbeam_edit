@@ -8,7 +8,6 @@
 module JbeamEdit.Formatting.Rules (
   MatchMode (..),
   NodePatternSelector (..),
-  NodePattern (..),
   SomeKey (..),
   SomeProperty (..),
   PropertyKey (..),
@@ -36,7 +35,6 @@ import Data.Map (Map)
 import Data.Map qualified as M
 import Data.Ord (Down (..))
 import Data.Sequence (Seq (..))
-import Data.Sequence qualified as Seq (length)
 import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Type.Equality ((:~:) (Refl))
@@ -54,18 +52,6 @@ data NodePatternSelector
   | Selector NP.NodeSelector
   deriving stock (Eq, Read, Show)
 
-newtype NodePattern
-  = NodePattern (Seq NodePatternSelector)
-  deriving stock (Eq, Read, Show)
-
-instance Ord NodePatternSelector where
-  compare = on compare rank
-    where
-      rank :: NodePatternSelector -> (Int, Maybe NP.NodeSelector)
-      rank AnyArrayIndex = (2, Nothing)
-      rank AnyObjectKey = (1, Nothing)
-      rank (Selector s) = (0, Just s)
-
 instance Monoid RuleSet where
   mempty = RuleSet M.empty [] mempty mempty M.empty M.empty
 
@@ -78,12 +64,6 @@ instance Semigroup RuleSet where
       (aai1 <> aai2)
       (h1 <> h2)
       (b1 <> b2)
-
-instance Ord NodePattern where
-  compare (NodePattern a) (NodePattern b) =
-    case on compare (Down . Seq.length) a b of
-      EQ -> compare a b
-      c -> c
 
 data PropertyKey a where
   AutoPad :: PropertyKey Bool
