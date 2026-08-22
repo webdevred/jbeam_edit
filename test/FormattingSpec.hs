@@ -83,21 +83,9 @@ dynamicJbflTests = do
     expected <- T.pack <$> readFile outFile
     pure (outFile, formatted, expected)
 
-{- | Which mode a property is read in is hardcoded in the formatter. Three come
-from an exact match, AutoPad, AlignObjectKeys and AutoPadSubObjects, and they
-are the ones about how a container lays out its own children. The other six
-cascade and come from a prefix match: ComplexNewLine, TrailingComma, Indent,
-PreserveNumberFormat, PadAmount and PadDecimals.
-
-Moving one across changes formatting and no fixture notices. This pins the split
-as it stands before `>` (see #187), which is meant to replace it, so expect to
-rewrite this when that lands.
--}
 reachSpec :: Spec
 reachSpec = do
   let row cells = mkArray (fromList cells)
-      -- The first column has to vary in width for AutoPad to show, since
-      -- trailing spaces on the last one are trimmed either way.
       rows =
         row
           [ row [String "a_long_name", Number (mkNumberValue "1" 1)]
@@ -112,14 +100,10 @@ reachSpec = do
                   )
               ]
           )
-      -- The rows array sits two breadcrumbs deep, so `.*` is a prefix of its
-      -- cursor and `.*.rows` matches it exactly.
       formatWith src = formatNode (rulesFromSource src) topNode
       shortPattern prop = ".* { " <> prop <> " }"
       exactPattern prop = ".*.rows { " <> prop <> " }"
 
-      -- The only difference is the run of spaces before the 2, which is the
-      -- second column padded out to the width of the first row.
       wrap body = "{\"part\" : {\n    \"rows\" : [\n" <> body <> "\n    ]\n}}\n"
       baseline = wrap "        [\"a_long_name\", 1],\n        [\"n1\", 2]"
       padded = wrap "        [\"a_long_name\", 1],\n        [\"n1\",          2]"
@@ -127,8 +111,7 @@ reachSpec = do
   describe "how far down a property reaches" $ do
     it "applies AutoPad to the matched value only" $ do
       formatWith (exactPattern "AutoPad : true;") `shouldBe` padded
-      -- Without this line the assertion below also passes for a shortPattern
-      -- that matches nothing at all, which is not what is being claimed.
+      -- Guards the line below: a shortPattern matching nothing passes it too.
       formatWith (shortPattern "ComplexNewLine : Force;") `shouldNotBe` baseline
       formatWith (shortPattern "AutoPad : true;") `shouldBe` baseline
 

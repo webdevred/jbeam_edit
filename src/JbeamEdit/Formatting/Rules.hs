@@ -178,11 +178,6 @@ intProperties = map SomeKey [PadAmount, PadDecimals, Indent]
 allProperties :: [SomeKey]
 allProperties = boolProperties ++ enumProperties ++ intProperties
 
-{- | Longest prefix first, one entry per prefix, so a lookup only has to keep
-the matches in the order it finds them. Kept here rather than at the lookup
-because it also makes two rulesets that say the same thing compare equal, which
-`examples/ast/jbfl/` relies on.
--}
 mergePrefixes :: [(Text, RuleSet)] -> [(Text, RuleSet)] -> [(Text, RuleSet)]
 mergePrefixes ps1 ps2 =
   sortOn (Down . T.length . fst) . M.toList . M.fromListWith (flip (<>)) $
@@ -267,10 +262,6 @@ lookupPropertyForCursor
 lookupPropertyForCursor key rs cursor =
   lookupProperty key (findPropertiesForCursor cursor rs)
 
-{- | Every property that applies at the cursor. What reaches below the node a
-rule names is decided when the rule is parsed, by whether its key is in
-'prefixProperties', so the walk always inherits rsBelow and never rsHere.
--}
 findPropertiesForCursor :: NC.NodeCursor -> RuleSet -> Rule
 findPropertiesForCursor (NC.NodeCursor cursor) = go cursor
   where
