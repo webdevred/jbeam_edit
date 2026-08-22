@@ -187,11 +187,12 @@ precedenceSpec = do
   -- property, and a trie has to reproduce both.
   -- The other direction from the merge below: within one file the later rule
   -- wins, while a user ruleset beats the shipped one it is merged with.
-  describe "two rules with the same pattern"
-    . it "takes the value from the later one" $ do
+  describe "two rules with the same pattern" $ do
     let twice = rulesFrom ".deformGroups { Indent : 1; }\n.deformGroups { Indent : 2; }"
         cur = NodeCursor (fromList [ObjectIndexAndKey 0 "deformGroups"])
-    lookupPropertyForCursor Indent twice cur `shouldBe` Just 2
+
+    it "takes the value from the later one" $
+      lookupPropertyForCursor Indent twice cur `shouldBe` Just 2
 
   describe "combining a user ruleset with the shipped one" $ do
     let user = rulesFrom ".deformGroups { Indent : 1; }"
