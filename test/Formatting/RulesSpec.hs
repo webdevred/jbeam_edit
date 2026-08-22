@@ -151,6 +151,18 @@ precedenceSpec = do
       formatWith (winnerOnly <> "\n" <> loserOnly)
         `shouldNotBe` formatWith loserOnly
 
+  describe "the > operator" $ do
+    let cur c = NodeCursor (fromList c)
+        at = cur [ObjectIndexAndKey 0 "part", ObjectIndexAndKey 0 "nodes"]
+        below = cur [ObjectIndexAndKey 0 "part", ObjectIndexAndKey 0 "nodes", ArrayIndex 0]
+        restricted = rulesFrom ".* > .nodes { PadAmount : 7; }"
+        cascading = rulesFrom ".*.nodes { PadAmount : 7; }"
+
+    it "keeps a cascading property at the node it names" $ do
+      lookupPropertyForCursor PadAmount restricted at `shouldBe` Just 7
+      lookupPropertyForCursor PadAmount restricted below `shouldBe` Nothing
+      lookupPropertyForCursor PadAmount cascading below `shouldBe` Just 7
+
   describe "two rules with the same pattern" $ do
     let twice = rulesFrom ".deformGroups { Indent : 1; }\n.deformGroups { Indent : 2; }"
         cur = NodeCursor (fromList [ObjectIndexAndKey 0 "deformGroups"])
