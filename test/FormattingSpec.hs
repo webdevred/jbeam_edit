@@ -93,8 +93,8 @@ Moving one across changes formatting and no fixture notices. This pins the split
 as it stands before `>` (see #187), which is meant to replace it, so expect to
 rewrite this when that lands.
 -}
-matchModeSpec :: Spec
-matchModeSpec = do
+reachSpec :: Spec
+reachSpec = do
   let row cells = mkArray (fromList cells)
       -- The first column has to vary in width for AutoPad to show, since
       -- trailing spaces on the last one are trimmed either way.
@@ -124,21 +124,21 @@ matchModeSpec = do
       baseline = wrap "        [\"a_long_name\", 1],\n        [\"n1\", 2]"
       padded = wrap "        [\"a_long_name\", 1],\n        [\"n1\",          2]"
 
-  describe "which match mode a property is read in" $ do
-    it "reads AutoPad from an exact match only" $ do
+  describe "how far down a property reaches" $ do
+    it "applies AutoPad to the matched value only" $ do
       formatWith (exactPattern "AutoPad : true;") `shouldBe` padded
       -- Without this line the assertion below also passes for a shortPattern
       -- that matches nothing at all, which is not what is being claimed.
       formatWith (shortPattern "ComplexNewLine : Force;") `shouldNotBe` baseline
       formatWith (shortPattern "AutoPad : true;") `shouldBe` baseline
 
-    it "reads ComplexNewLine from a prefix match" $
+    it "applies ComplexNewLine below the matched value too" $
       formatWith (shortPattern "ComplexNewLine : Force;") `shouldNotBe` baseline
 
 spec :: Spec
 spec = do
   mapM_ formatNodeSpec specs
-  matchModeSpec
+  reachSpec
 
   dynamicTests <- runIO dynamicJbflTests
   forM_ dynamicTests $ \(outFile, formatted, expected) ->

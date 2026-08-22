@@ -74,6 +74,24 @@ Typical use cases include:
 - `TrailingComma: None` strips trailing commas. `Force` always adds them. `Preserve` (default) keeps whatever the source file had.
 - `TrailingComma` is resolved at the child level, so `.* { TrailingComma: None; }` also strips the trailing comma in the root object.
 
+### How far a property reaches
+
+A pattern names one level. Some properties then apply only to what sits exactly
+there, and others also apply to everything nested below it, so a rule on `.*`
+can still decide how a value five levels down is printed.
+
+| Reaches                     | Properties                                                                                      |
+|-----------------------------|-------------------------------------------------------------------------------------------------|
+| The matched value only      | `AutoPad`, `AlignObjectKeys`, `AutoPadSubObjects`                                                |
+| The matched value and below | `PadDecimals`, `PadAmount`, `Indent`, `ComplexNewLine`, `TrailingComma`, `PreserveNumberFormat`  |
+
+The three in the first row all describe how one array or object lays out its own
+children, so inheriting them would align structures the rule never mentioned.
+
+This is why `.* { Indent: 2; }` indents the whole file while `.* { AutoPad: true; }`
+only pads the root object, and why the shipped `minimal.jbfl` can set
+`PadDecimals` on `.*.nodes[*][*]` or on a parent and get the same result.
+
 ## Detailed Rules Examples
 
 ### Pattern: `.*.nodes[*][*]`
