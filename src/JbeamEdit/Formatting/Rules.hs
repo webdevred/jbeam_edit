@@ -17,7 +17,8 @@ module JbeamEdit.Formatting.Rules (
   lookupKey,
   allProperties,
   deprecatedAliases,
-  prefixProperties,
+  Reach (..),
+  propertyReach,
   keyName,
   applyPadLogic,
   complexNewLine,
@@ -183,12 +184,19 @@ mergePrefixes ps1 ps2 =
   sortOn (Down . T.length . fst) . M.toList . M.fromListWith (flip (<>)) $
     ps1 <> ps2
 
-prefixProperties :: [SomeKey]
-prefixProperties =
-  SomeKey ComplexNewLine
-    : SomeKey TrailingComma
-    : SomeKey PreserveNumberFormat
-    : map SomeKey [PadAmount, PadDecimals, Indent]
+data Reach = Here | Below
+  deriving stock (Eq, Show)
+
+propertyReach :: PropertyKey a -> Reach
+propertyReach AutoPad = Here
+propertyReach AlignObjectKeys = Here
+propertyReach AutoPadSubObjects = Here
+propertyReach ComplexNewLine = Below
+propertyReach PreserveNumberFormat = Below
+propertyReach PadAmount = Below
+propertyReach PadDecimals = Below
+propertyReach Indent = Below
+propertyReach TrailingComma = Below
 
 -- | Maps deprecated property names to (key, value-when-true, value-when-false).
 deprecatedAliases :: [(Text, (SomeKey, SomeProperty, SomeProperty))]

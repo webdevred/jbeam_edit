@@ -1,0 +1,11 @@
+# The repository stores LF. Windows checkouts convert on the way in and out,
+# which is fine for everything except the two cases below.
+* text=auto
+
+# Bash refuses to run a script with carriage returns.
+*.sh text eol=lf
+
+# Deliberately CRLF, and pinned as binary so no checkout or commit normalises
+# it away. Real BeamNG files are overwhelmingly CRLF and every other fixture
+# here is LF, so this is the only one that exercises that path.
+examples/regression_jbeam/crlf-line-endings.jbeam -text

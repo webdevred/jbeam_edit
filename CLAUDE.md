@@ -49,7 +49,7 @@ Say which of the two you mean when you call a change user-visible.
 # Build (default)
 cabal build
 
-# Build with dev config (tests, LSP, transformation)
+# Build with dev config (tests, dump-ast, transformation)
 cabal build --project-file=cabal.project.dev
 
 # Run tests
@@ -58,6 +58,12 @@ cabal test --project-file=cabal.project.dev
 # Run the tool
 cabal run jbeam-edit -- <file.jbeam>
 ```
+
+`jbeam-edit` names both a library and an executable, so `cabal build jbeam-edit`
+fails with `Ambiguous target` instead of building. Say `exe:jbeam-edit` or
+`lib:jbeam-edit`. The failure is easy to miss when the command is piped, and a
+`cabal list-bin` afterwards still prints a path for the binary that was never
+built.
 
 ### Cabal flags
 
@@ -82,7 +88,6 @@ src/JbeamEdit/
   IOUtils.hs
 
 src-extra/transformation/ # Experimental node transformation (flag-gated)
-src-extra/language-server/ # Experimental LSP server (flag-gated)
 
 exe/                     # Main executable entry point
 test/                    # HSpec test suite
@@ -116,7 +121,7 @@ Whenever editing any `.md` file in the repo, ensure all tables have aligned, pad
 
 ## Testing — REQUIRED
 
-Always use `cabal.project.dev` (enables tests, LSP, transformation flags):
+Always use `cabal.project.dev` (enables tests, dump-ast and transformation flags):
 
 ```bash
 cabal test --project-file=cabal.project.dev
@@ -132,6 +137,7 @@ These are the ones a general Haskell review misses, because they depend on how t
 
 - **`show` on numbers reaches the output.** `show` on `Scientific`, `Double` or `Float` gives the Haskell representation (`2.0e-3`), and JBeam wants `0.002`. Whenever `show` produces text that ends up in formatted output, check the representation against the domain. `formatScientific Fixed Nothing` is usually what is meant.
 - **`Show`/`Read` round-trips the AST fixtures.** `examples/ast/` stores derived `Show` output and reads it back. A change to a type's `Show` or `Read` instance breaks those fixtures even when nothing else looks affected.
+- **Nothing checks the AST fixtures against the parser.** The specs read `examples/ast/jbfl/*.hs` and format with it, but nothing asserts it equals `parseDSL` of the matching `.jbfl`. A change to what the parser produces leaves the fixtures stale and the suite green. Regenerate with `jbeam-edit-dump-ast` whenever parsing changes, and check by comparing the two in `cabal repl` if in doubt.
 - **`src-extra/` is flag-gated experimental code.** Do not report missing unit tests there. Fixture-based tests through `cabal test` are still worth flagging if clearly absent.
 - **New JBFL properties need an example file.** `FormattingSpec` pairs every `examples/jbeam/*.jbeam` with every `examples/jbfl/*.jbfl`, so a property that no example exercises is untested no matter how many specs mention it.
 
@@ -255,16 +261,16 @@ Measured with `--transform`, with the shipped ruleset loaded, reading
 comparison against it.
 
 The conditions decide the numbers, so they are part of the measurement: **GHC
-9.14.1, `-O1`, containers 0.8, master at the trie merge (#232)**. Optimization is worth a factor of three and the
-compiler version four to five percent, so a figure quoted without them says
-nothing. `-O1` because that is what ships: `configure_project.sh` passes it, and
+9.14.1, `-O1`, containers 0.8, master at `6e9c96f`**. Optimization is worth a
+factor of three and the compiler version four to five percent, so a figure
+quoted without them says nothing. `-O1` because that is what ships: `configure_project.sh` passes it, and
 a `-O0` baseline describes a build no user ever gets.
 
 | Input                                       | Size      | Allocation |
 |---------------------------------------------|-----------|------------|
-| `examples/jbeam/frame.jbeam`, alone         | 14 236 B  | 25 MB      |
-| a 150 KB stock body file, alone             | 149 896 B | 187 MB     |
-| the same body file in its vehicle, 74 files | 1.4 MB    | 1 603 MB   |
+| `examples/jbeam/frame.jbeam`, alone         | 14 236 B  | 23 MB      |
+| a 150 KB stock body file, alone             | 149 896 B | 173 MB     |
+| the same body file in its vehicle, 74 files | 1.4 MB    | 1 465 MB   |
 
 The third row is the one that describes the tool as users run it. `--transform`
 rewrites every neighbouring file that referenced a renamed node, 37 of the 74
@@ -359,7 +365,7 @@ everywhere and passes.
 
 ### Adding a new JBFL property
 
-`PropertyKey` is a GADT in `Formatting/Rules.hs`. Adding a new property requires updates in all of these places:
+`PropertyKey` is a GADT in `Formatting/Rules.hs`. Adding a new property requires updates in all of these places — missing any one causes a compile error:
 
 1. `PropertyKey a` GADT definition
 2. `propertyName`
@@ -367,11 +373,9 @@ everywhere and passes.
 4. `boolProperties`, `enumProperties` or `intProperties`
 5. `parseValueForKey` in `Parsing/DSL.hs`
 6. Formatting logic in `Formatting.hs`
-7. `prefixProperties`, if the property should reach below the node its rule names
+7. `propertyReach`, saying whether the property reaches below the node its rule names
 
-The first six fail to compile if you miss them. The seventh does not: leave a
-property out of `prefixProperties` and everything builds, the property just
-stops cascading. `JBFL_DOCS.md` has the table of which ones do.
+`JBFL_DOCS.md` has the user-facing table of which ones do.
 
 ### `examples/` directory structure
 

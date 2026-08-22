@@ -143,6 +143,14 @@ The yaml configuration file allows the user to configure custom transformation s
 
 **File:** `examples/jbeam-edit.yaml`
 
+## Line endings
+
+These files use LF, while most files that ship with BeamNG use CRLF. Nothing
+breaks either way. jbeam-edit reads both, and formatting a `.jbeam` file keeps
+whichever line endings that file already had, so your own files are untouched.
+BeamNG itself is not consistent about it: 150 of the 4943 jbeam files in the
+stock vehicles are LF.
+
 ---
 
 For complete documentation, refer to the root [README.md](../README.md).
