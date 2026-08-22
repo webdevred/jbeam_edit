@@ -7,18 +7,16 @@ import Data.List (isPrefixOf, isSuffixOf)
 import Data.Map qualified as M
 import Data.Text qualified as T
 import Data.Text.Lazy qualified as LT
-import JbeamEdit.Core.Newline
 import JbeamEdit.Formatting
 import JbeamEdit.Parsing.DSL (parseDSL)
 import JbeamEdit.Parsing.Jbeam (parseNodes)
 import JbeamEdit.Transformation
 import JbeamEdit.Transformation.Config
 import JbeamEdit.Transformation.Types
-import System.Directory (doesFileExist, getDirectoryContents)
+import System.Directory (getDirectoryContents)
 import System.Exit (exitFailure)
 import System.FilePath (dropExtension, takeBaseName, (</>))
-import System.IO (IOMode (..), Newline (..))
-import System.IO qualified as IO (hClose, openFile, readFile)
+import System.IO qualified as IO (readFile)
 import System.OsPath qualified as OS (unsafeEncodeUtf, (</>))
 import Text.Pretty.Simple (
   StringOutputStyle (..),
@@ -82,34 +80,14 @@ getDirectoryContents' path = filter (not . isPrefixOf ".#") <$> getDirectoryCont
 saveDump :: String -> String -> IO ()
 saveDump outFile formatted = do
   putStrLn ("creating " ++ outFile)
-  existing <- doesFileExist outFile
-  lineEnding <-
-    if existing
-      then checkFileNewline outFile
-      else pure LF
-  let converted =
-        if lineEnding == CRLF
-          then toCRLF (toLF formatted)
-          else toLF formatted
-  writeFile outFile converted
-  where
-    checkFileNewline existing =
-      do
-        handle <- IO.openFile existing ReadMode
-        contents <- LBS.hGetContents handle
-        let !newline = detectNewline contents
-        IO.hClose handle
-        pure newline
+  writeFile outFile (toLF formatted)
 
+-- The repository stores LF (`.gitattributes`), and the formatter hands back
+-- whatever the source file used, which is CRLF for two of the fender fixtures.
 toLF :: String -> String
 toLF ('\r' : '\n' : rest) = '\n' : toLF rest
 toLF (c : rest) = c : toLF rest
 toLF [] = []
-
-toCRLF :: String -> String
-toCRLF ('\n' : rest) = '\r' : '\n' : toCRLF rest
-toCRLF (c : rest) = c : toCRLF rest
-toCRLF [] = []
 
 saveAstDump :: Show a => String -> a -> IO ()
 saveAstDump outFile contents =

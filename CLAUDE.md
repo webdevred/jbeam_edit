@@ -49,7 +49,7 @@ Say which of the two you mean when you call a change user-visible.
 # Build (default)
 cabal build
 
-# Build with dev config (tests, LSP, transformation)
+# Build with dev config (tests, dump-ast, transformation)
 cabal build --project-file=cabal.project.dev
 
 # Run tests
@@ -88,7 +88,6 @@ src/JbeamEdit/
   IOUtils.hs
 
 src-extra/transformation/ # Experimental node transformation (flag-gated)
-src-extra/language-server/ # Experimental LSP server (flag-gated)
 
 exe/                     # Main executable entry point
 test/                    # HSpec test suite
@@ -122,7 +121,7 @@ Whenever editing any `.md` file in the repo, ensure all tables have aligned, pad
 
 ## Testing — REQUIRED
 
-Always use `cabal.project.dev` (enables tests, LSP, transformation flags):
+Always use `cabal.project.dev` (enables tests, dump-ast and transformation flags):
 
 ```bash
 cabal test --project-file=cabal.project.dev
