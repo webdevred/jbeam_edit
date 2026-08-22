@@ -31,7 +31,7 @@ module JbeamEdit.Formatting.Rules (
 import Data.Bool (bool)
 import Data.Foldable (fold)
 import Data.Function (on)
-import Data.List (find)
+import Data.List (find, sortOn)
 import Data.Map (Map)
 import Data.Map qualified as M
 import Data.Ord (Down (..))
@@ -291,7 +291,7 @@ findPropertiesForCursor matchMode (NC.NodeCursor cursor) = go cursor
         ( addBelowProps rs $
             fold (M.lookup (NP.ObjectKey k) rs.rsBySelectors)
               <> fold (M.lookup (NP.ObjectIndex i) rs.rsBySelectors)
-              <> foldMap snd (find (\(prefix, _) -> T.isPrefixOf prefix k) rs.rsPrefixes)
+              <> sortAndMergePrefixes k rs.rsPrefixes
               <> fold rs.rsAnyObjectKey
         )
     go (NC.ArrayIndex i :<| bs) rs =
@@ -306,3 +306,7 @@ findPropertiesForCursor matchMode (NC.NodeCursor cursor) = go cursor
         { rsBelow =
             bool rs.rsBelow (rs.rsBelow <> rsAbove.rsBelow) (matchMode == PrefixMatch)
         }
+    sortAndMergePrefixes k =
+      foldMap snd
+        . sortOn (Down . T.length . fst)
+        . filter ((`T.isPrefixOf` k) . fst)
