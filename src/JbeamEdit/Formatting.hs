@@ -41,7 +41,6 @@ import JbeamEdit.Core.Node (
 import JbeamEdit.Core.NodeCursor (newCursor)
 import JbeamEdit.Core.NodeCursor qualified as NC
 import JbeamEdit.Formatting.Rules (
-  MatchMode (..),
   PropertyKey (..),
   RuleSet (..),
   applyPadLogic,
@@ -320,17 +319,16 @@ doFormatNode
   -> Text
 doFormatNode rs cursor state elems =
   let nodes = V.map fst elems
-      prefixProps = findPropertiesForCursor PrefixMatch cursor rs
-      exactProps = findPropertiesForCursor ExactMatch cursor rs
+      props = findPropertiesForCursor cursor rs
 
-      autoPadEnabled = lookupProperty AutoPad exactProps == Just True
-      alignObjectKeysEnabled = lookupProperty AlignObjectKeys exactProps == Just True
-      autopadSubObjectsEnabled = lookupProperty AutoPadSubObjects exactProps == Just True
+      autoPadEnabled = lookupProperty AutoPad props == Just True
+      alignObjectKeysEnabled = lookupProperty AlignObjectKeys props == Just True
+      autopadSubObjectsEnabled = lookupProperty AutoPadSubObjects props == Just True
 
       complexChildren =
-        lookupProperty ComplexNewLine prefixProps == Just CNL.Force
+        lookupProperty ComplexNewLine props == Just CNL.Force
           || any (liftA2 (||) isSinglelineComment isComplexNode) nodes
-            && lookupProperty ComplexNewLine prefixProps /= Just CNL.None
+            && lookupProperty ComplexNewLine props /= Just CNL.None
 
       (colWidths, formattedCache, headerWasExtracted) =
         maxColumnLengthsWithCache rs cursor nodes
@@ -397,7 +395,7 @@ doFormatNode rs cursor state elems =
           . V.toList
           $ elems
 
-      indentationAmount = fromMaybe 4 (lookupProperty Indent prefixProps)
+      indentationAmount = fromMaybe 4 (lookupProperty Indent props)
    in if complexChildren
         then
           T.unlines
@@ -453,7 +451,7 @@ formatWithCursor rs state cursor (ObjectKey (k, v)) =
    in paddedKey <> " : " <> valueText
 formatWithCursor _ _ _ (Comment comment) = formatComment comment
 formatWithCursor rs _ cursor n =
-  let ps = findPropertiesForCursor PrefixMatch cursor rs
+  let ps = findPropertiesForCursor cursor rs
       preserve = (Just True == lookupProperty PreserveNumberFormat ps)
    in applyPadLogic (formatScalarNode preserve) ps n
 

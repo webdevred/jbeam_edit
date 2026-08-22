@@ -6,7 +6,6 @@
 {-# LANGUAGE TypeOperators #-}
 
 module JbeamEdit.Formatting.Rules (
-  MatchMode (..),
   NodePatternSelector (..),
   SomeKey (..),
   SomeProperty (..),
@@ -59,7 +58,7 @@ instance Semigroup RuleSet where
   (RuleSet rs1 ps1 aok1 aai1 h1 b1) <> (RuleSet rs2 ps2 aok2 aai2 h2 b2) =
     RuleSet
       (M.unionWith (<>) rs1 rs2)
-      (ps1 <> ps2)
+      (mergePrefixes ps1 ps2)
       (aok1 <> aok2)
       (aai1 <> aai2)
       (h1 <> h2)
@@ -179,6 +178,16 @@ intProperties = map SomeKey [PadAmount, PadDecimals, Indent]
 allProperties :: [SomeKey]
 allProperties = boolProperties ++ enumProperties ++ intProperties
 
+{- | Longest prefix first, one entry per prefix, so a lookup only has to keep
+the matches in the order it finds them. Kept here rather than at the lookup
+because it also makes two rulesets that say the same thing compare equal, which
+`examples/ast/jbfl/` relies on.
+-}
+mergePrefixes :: [(Text, RuleSet)] -> [(Text, RuleSet)] -> [(Text, RuleSet)]
+mergePrefixes ps1 ps2 =
+  sortOn (Down . T.length . fst) . M.toList . M.fromListWith (flip (<>)) $
+    ps1 <> ps2
+
 prefixProperties :: [SomeKey]
 prefixProperties =
   SomeKey ComplexNewLine
@@ -249,20 +258,21 @@ applyPadLogic f rs n =
 
 complexNewLine :: RuleSet -> NC.NodeCursor -> Maybe ComplexNewLine
 complexNewLine rs cursor =
-  let ps = findPropertiesForCursor PrefixMatch cursor rs
+  let ps = findPropertiesForCursor cursor rs
    in lookupProperty ComplexNewLine ps
-
-data MatchMode = PrefixMatch | ExactMatch deriving (Eq, Show)
 
 lookupPropertyForCursor
   :: (Eq a, Read a, Show a)
   => PropertyKey a -> RuleSet -> NC.NodeCursor -> Maybe a
-lookupPropertyForCursor key rs cursor = lookupProperty key (findPropertiesForCursor matchMode cursor rs)
-  where
-    matchMode = bool ExactMatch PrefixMatch (SomeKey key `elem` prefixProperties)
+lookupPropertyForCursor key rs cursor =
+  lookupProperty key (findPropertiesForCursor cursor rs)
 
-findPropertiesForCursor :: MatchMode -> NC.NodeCursor -> RuleSet -> Rule
-findPropertiesForCursor matchMode (NC.NodeCursor cursor) = go cursor
+{- | Every property that applies at the cursor. What reaches below the node a
+rule names is decided when the rule is parsed, by whether its key is in
+'prefixProperties', so the walk always inherits rsBelow and never rsHere.
+-}
+findPropertiesForCursor :: NC.NodeCursor -> RuleSet -> Rule
+findPropertiesForCursor (NC.NodeCursor cursor) = go cursor
   where
     go Empty rs = rs.rsHere <> rs.rsBelow
     go (NC.ObjectIndexAndKey i k :<| bs) rs =
@@ -271,7 +281,7 @@ findPropertiesForCursor matchMode (NC.NodeCursor cursor) = go cursor
         ( addBelowProps rs $
             fold (M.lookup (NP.ObjectKey k) rs.rsBySelectors)
               <> fold (M.lookup (NP.ObjectIndex i) rs.rsBySelectors)
-              <> sortAndMergePrefixes k rs.rsPrefixes
+              <> matchingPrefixes k rs.rsPrefixes
               <> fold rs.rsAnyObjectKey
         )
     go (NC.ArrayIndex i :<| bs) rs =
@@ -281,12 +291,5 @@ findPropertiesForCursor matchMode (NC.NodeCursor cursor) = go cursor
             fold (M.lookup (NP.ArrayIndex i) rs.rsBySelectors)
               <> fold rs.rsAnyArrayIndex
         )
-    addBelowProps rsAbove rs =
-      rs
-        { rsBelow =
-            bool rs.rsBelow (rs.rsBelow <> rsAbove.rsBelow) (matchMode == PrefixMatch)
-        }
-    sortAndMergePrefixes k =
-      foldMap snd
-        . sortOn (Down . T.length . fst)
-        . filter ((`T.isPrefixOf` k) . fst)
+    addBelowProps rsAbove rs = rs {rsBelow = rs.rsBelow <> rsAbove.rsBelow}
+    matchingPrefixes k = foldMap snd . filter ((`T.isPrefixOf` k) . fst)
