@@ -9,6 +9,7 @@ module JbeamEdit.Parsing.DSL (
   ruleSetParser,
 ) where
 
+import Control.Applicative ((<|>))
 import Data.Bifunctor (first)
 import Data.ByteString qualified as BS
 import Data.ByteString.Lazy qualified as LBS
@@ -26,6 +27,8 @@ import Data.Map qualified as M (
   singleton,
  )
 import Data.Monoid (Dual (..))
+import Data.Sequence (Seq (..))
+import Data.Sequence qualified as Seq (fromList)
 import Data.Set qualified as S (fromList)
 import Data.Text (Text)
 import Data.Text qualified as T (init, isSuffixOf, unpack)
@@ -44,6 +47,11 @@ import Text.Megaparsec.Byte.Lexer qualified as L (
   skipBlockComment,
   skipLineComment,
  )
+
+data NodePattern
+  = PrefixPattern (Seq NodePatternSelector)
+  | ExactPattern (Seq NodePatternSelector) NodePatternSelector
+  deriving stock (Read, Show)
 
 type JbflParser a = Parser Identity a
 
@@ -74,15 +82,20 @@ patternSelectorParser =
     , arrayIndexParser <?> "array index"
     ]
 
-patternParser :: JbflParser [NodePatternSelector]
+patternParser :: JbflParser NodePattern
 patternParser = do
-  pat <- skipWhiteSpace *> patternSelectors
+  pat <- skipWhiteSpace *> (MP.try exactPattern <|> prefixPattern)
   c <- MP.lookAhead B.asciiChar
   case toChar c of
     ',' -> byteChar ',' $> pat
     _ -> skipWhiteSpace $> pat
   where
-    patternSelectors = MP.some patternSelectorParser
+    exactPattern = do
+      basePattern <- MP.some patternSelectorParser
+      B.space1 *> void (byteChar '>') <* B.space1
+      ExactPattern (Seq.fromList basePattern) <$> patternSelectorParser
+
+    prefixPattern = PrefixPattern . Seq.fromList <$> MP.some patternSelectorParser
 
 tryDecodeKey :: [Word8] -> (Text -> Maybe SomeKey) -> Maybe SomeKey
 tryDecodeKey bs f =
@@ -166,7 +179,7 @@ deprecatedBoolPropertyParser sk valTrue valFalse = do
 separatorParser :: JbflParser ()
 separatorParser = skipWhiteSpace *> void (byteChar ';') <* skipWhiteSpace
 
-ruleParser :: JbflParser ([[NodePatternSelector]], Map SomeKey SomeProperty)
+ruleParser :: JbflParser ([NodePattern], Map SomeKey SomeProperty)
 ruleParser = do
   pats <- MP.some patternParser
   skipWhiteSpace
@@ -178,19 +191,22 @@ ruleParser = do
   pure (pats, M.fromList props)
 
 combineRuleSets
-  :: ([[NodePatternSelector]], Map SomeKey SomeProperty) -> RuleSet
+  :: ([NodePattern], Map SomeKey SomeProperty) -> RuleSet
 combineRuleSets (_, props)
   | M.null props = mempty
-combineRuleSets (pats, props) = fold [fold (go pat) | pat <- pats]
+combineRuleSets (pats, props) = fold [fold (rsFromPattern pat) | pat <- pats]
   where
-    go :: [NodePatternSelector] -> Maybe RuleSet
-    go [] = Just (mempty {rsHere = hereProps, rsBelow = belowProps})
+    go :: Seq NodePatternSelector -> Bool -> Maybe RuleSet
+    go Empty exact = Just (mempty {rsHere = hereProps, rsBelow = belowProps})
       where
-        (belowProps, hereProps) = M.partitionWithKey (\(SomeKey k) _ -> propertyReach k == Below) props
-    go (AnyObjectKey : pats') = Just (mempty {rsAnyObjectKey = go pats'})
-    go (AnyArrayIndex : pats') = Just (mempty {rsAnyArrayIndex = go pats'})
-    go (Selector (ObjectPrefixKey p) : pats') = Just (mempty {rsPrefixes = maybe [] (\x -> [(p, x)]) (go pats')})
-    go (Selector s : pats') = Just (mempty {rsBySelectors = maybe M.empty (M.singleton s) (go pats')})
+        (hereProps, belowProps) = M.partitionWithKey (\(SomeKey k) _ -> propertyReach k == Here || exact) props
+    go (AnyObjectKey :<| pats') exact = Just (mempty {rsAnyObjectKey = go pats' exact})
+    go (AnyArrayIndex :<| pats') exact = Just (mempty {rsAnyArrayIndex = go pats' exact})
+    go (Selector (ObjectPrefixKey p) :<| pats') exact = Just (mempty {rsPrefixes = maybe [] (\x -> [(p, x)]) (go pats' exact)})
+    go (Selector s :<| pats') exact =
+      Just (mempty {rsBySelectors = maybe M.empty (M.singleton s) (go pats' exact)})
+    rsFromPattern (ExactPattern pat selector) = go (pat :|> selector) True
+    rsFromPattern (PrefixPattern pat) = go pat False
 
 ruleSetParser :: JbflParser RuleSet
 ruleSetParser = getDual . foldMap (Dual . combineRuleSets) <$> MP.some singleRuleSet
