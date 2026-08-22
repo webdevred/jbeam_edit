@@ -201,10 +201,7 @@ allProperties = boolProperties ++ enumProperties ++ intProperties
 
 prefixProperties :: [SomeKey]
 prefixProperties =
-  map
-    SomeKey
-    [ PadAmount
-    ]
+  SomeKey PadAmount : [SomeKey ComplexNewLine]
 
 -- | Maps deprecated property names to (key, value-when-true, value-when-false).
 deprecatedAliases :: [(Text, (SomeKey, SomeProperty, SomeProperty))]
@@ -299,7 +296,7 @@ findPropertiesForCursor matchMode (NC.NodeCursor cursor) = go cursor
       go
         bs
         ( addBelowProps rs $
-            fold (M.lookup (NP.ObjectIndex i) rs.rsBySelectors)
+            fold (M.lookup (NP.ArrayIndex i) rs.rsBySelectors)
               <> fold rs.rsAnyArrayIndex
         )
     addBelowProps rsAbove rs =
