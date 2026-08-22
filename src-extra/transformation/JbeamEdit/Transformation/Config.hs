@@ -1,4 +1,5 @@
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE MultiWayIf #-}
 
 module JbeamEdit.Transformation.Config (
   loadTransformationConfig,
@@ -18,6 +19,7 @@ import Control.Monad (forM, when)
 import Data.Bifunctor (first)
 import Data.ByteString.Lazy qualified as LBS
 import Data.Functor (($>))
+import Data.Maybe (isJust, isNothing)
 import Data.Scientific (Scientific)
 import Data.Text (Text)
 import Data.Text qualified as T
@@ -46,6 +48,9 @@ import Numeric.Natural (Natural)
 import System.OsPath
 import Text.Read
 
+defaultXSortingThreshold :: Maybe Scientific
+defaultXSortingThreshold = Nothing
+
 defaultSortingThreshold :: Scientific
 defaultSortingThreshold = 0.05
 
@@ -65,6 +70,7 @@ defaultBreakpoints =
 
 data TransformationConfig = TransformationConfig
   { ySortingThreshold :: Scientific
+  , xSortingThreshold :: Maybe Scientific
   , xGroupBreakpoints :: XGroupBreakpoints
   , supportThreshold :: Scientific
   , maxSupportCoordinates :: Natural
@@ -75,6 +81,7 @@ newTransformationConfig :: TransformationConfig
 newTransformationConfig =
   TransformationConfig
     defaultSortingThreshold
+    defaultXSortingThreshold
     defaultBreakpoints
     defaultSupportThreshold
     defaultMaxSupportCoordinates
@@ -134,10 +141,25 @@ parseSupportThreshold o = do
       fail
         "'support-threshold' must be a percentage value of 1 or higher (e.g., 80 or 80.8). Values below 1 (e.g., 0.80) are not allowed."
 
+parseXSortingThreshold :: Object -> Parser (Maybe Scientific)
+parseXSortingThreshold o = do
+  thr <- o .:? "x-sorting-threshold"
+  let cleanThr = T.unpack . T.strip <$> thr
+      maybeValid = cleanThr >>= readMaybe
+   in if
+        | thr == Just "off" || isNothing thr -> pure defaultXSortingThreshold
+        | isJust maybeValid -> pure maybeValid
+        | True -> failWithMessage
+  where
+    failWithMessage =
+      fail
+        "TODO: proper error message"
+
 instance FromJSON TransformationConfig where
   parseJSON = withObject "TransformationConfig" $ \o ->
     TransformationConfig
       <$> o .:? "y-sorting-threshold" .!= defaultSortingThreshold
+      <*> parseXSortingThreshold o
       <*> o .:? "x-group-breakpoints" .!= defaultBreakpoints
       <*> parseSupportThreshold o
       <*> o .:? "max-support-coordinates" .!= defaultMaxSupportCoordinates

@@ -157,6 +157,7 @@ main = hspec $ do
   supportRenameIdempotencySpec
   letterEndingNodesSpec
   ySortingBandingSpec
+  xColumnSortingSpec
   metadataAcrossTreesSpec
   metadataPreservedSpec
   triangleMetadataSpec

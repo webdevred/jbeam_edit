@@ -2,10 +2,16 @@
 "testpart":{
     "nodes":[
         ["id", "posX", "posY", "posZ"],
-        // Synthetic regression-test fixture for issue #214, not vetted by
-        // the jbeam maintainer and not intended as a demo/example.
+        // Synthetic regression-test fixture, not vetted by the jbeam
+        // maintainer and not intended as a demo/example.
         // Real node positions from a gen4-style body file, reduced to just
-        // the left side, kept because this spacing reproduces a real bug.
+        // the left side, kept because this spacing reproduces two real bugs.
+        // Issue #214: at y-sorting-threshold 0.1 the frontmost node sorts to
+        // the back of its group.
+        // X columns: the five frontmost nodes sit in two vertical columns
+        // that Y and Z cannot separate, so a band sorted by Z alone climbs
+        // one column, jumps to the other and comes back.
+        // Change these positions and both tests are measuring something else.
         ["nl0", 0.953, -1.967, 0.122],
         ["nl2", 0.92, -1.953, 0.439],
         ["nl4", 0.78, -1.815, 0.719],
