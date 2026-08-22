@@ -18,7 +18,7 @@ import Data.Functor (void, ($>))
 import Data.Functor.Identity (Identity (..))
 import Data.List.NonEmpty qualified as NE (fromList)
 import Data.Map (Map)
-import Data.Map qualified as M (empty, fromList, singleton)
+import Data.Map qualified as M (empty, fromList, partitionWithKey, singleton)
 import Data.Set qualified as S (fromList)
 import Data.Text (Text)
 import Data.Text qualified as T (init, isSuffixOf, unpack)
@@ -177,7 +177,10 @@ combineRuleSets (_, props)
   | props == M.empty = mempty
 combineRuleSets (pats, props) = fold [fold (go pat) | pat <- pats]
   where
-    go [] = Just (mempty {rsHere = props})
+    go :: [NodePatternSelector] -> Maybe RuleSet
+    go [] = Just (mempty {rsHere = hereProps, rsBelow = belowProps})
+      where
+        (belowProps, hereProps) = M.partitionWithKey (\k _ -> k `elem` prefixProperties) props
     go (AnyObjectKey : pats') = Just (mempty {rsAnyObjectKey = go pats'})
     go (AnyArrayIndex : pats') = Just (mempty {rsAnyArrayIndex = go pats'})
     go (Selector (NP.ObjectPrefixKey p) : pats') = Just (mempty {rsPrefixes = maybe [] (\x -> [(p, x)]) (go pats')})

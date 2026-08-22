@@ -19,6 +19,7 @@ module JbeamEdit.Formatting.Rules (
   lookupKey,
   allProperties,
   deprecatedAliases,
+  prefixProperties,
   keyName,
   applyPadLogic,
   complexNewLine,
@@ -33,10 +34,9 @@ import Data.Function (on)
 import Data.List (find)
 import Data.Map (Map)
 import Data.Map qualified as M
-import Data.Maybe (fromMaybe)
 import Data.Ord (Down (..))
 import Data.Sequence (Seq (..))
-import Data.Sequence qualified as Seq (length, null)
+import Data.Sequence qualified as Seq (length)
 import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Type.Equality ((:~:) (Refl))
@@ -52,11 +52,19 @@ data NodePatternSelector
   = AnyObjectKey
   | AnyArrayIndex
   | Selector NP.NodeSelector
-  deriving stock (Eq, Ord, Read, Show)
+  deriving stock (Eq, Read, Show)
 
 newtype NodePattern
   = NodePattern (Seq NodePatternSelector)
   deriving stock (Eq, Read, Show)
+
+instance Ord NodePatternSelector where
+  compare = on compare rank
+    where
+      rank :: NodePatternSelector -> (Int, Maybe NP.NodeSelector)
+      rank AnyArrayIndex = (2, Nothing)
+      rank AnyObjectKey = (1, Nothing)
+      rank (Selector s) = (0, Just s)
 
 instance Monoid RuleSet where
   mempty = RuleSet M.empty [] mempty mempty M.empty M.empty
@@ -64,14 +72,12 @@ instance Monoid RuleSet where
 instance Semigroup RuleSet where
   (RuleSet rs1 ps1 aok1 aai1 h1 b1) <> (RuleSet rs2 ps2 aok2 aai2 h2 b2) =
     RuleSet
-      (M.union rs1 rs2)
+      (M.unionWith (<>) rs1 rs2)
       (ps1 <> ps2)
-      (liftUnion aok1 aok2)
-      (liftUnion aai1 aai2)
+      (aok1 <> aok2)
+      (aai1 <> aai2)
       (h1 <> h2)
       (b1 <> b2)
-    where
-      liftUnion = liftA2 (<>)
 
 instance Ord NodePattern where
   compare (NodePattern a) (NodePattern b) =
@@ -193,6 +199,13 @@ intProperties = map SomeKey [PadAmount, PadDecimals, Indent]
 allProperties :: [SomeKey]
 allProperties = boolProperties ++ enumProperties ++ intProperties
 
+prefixProperties :: [SomeKey]
+prefixProperties =
+  map
+    SomeKey
+    [ PadAmount
+    ]
+
 -- | Maps deprecated property names to (key, value-when-true, value-when-false).
 deprecatedAliases :: [(Text, (SomeKey, SomeProperty, SomeProperty))]
 deprecatedAliases =
@@ -272,15 +285,25 @@ lookupPropertyForCursor matchMode key rs cursor = lookupProp key (findProperties
 findPropertiesForCursor :: MatchMode -> NC.NodeCursor -> RuleSet -> Rule
 findPropertiesForCursor matchMode (NC.NodeCursor cursor) = go cursor
   where
+    go Empty rs = rs.rsHere <> rs.rsBelow
     go (NC.ObjectIndexAndKey i k :<| bs) rs =
       go
         bs
-        ( fold (M.lookup (NP.ObjectKey k) rs.rsBySelectors)
-            <> fold (M.lookup (NP.ObjectIndex i) rs.rsBySelectors)
-            <> fold rs.rsAnyObjectKey
+        ( addBelowProps rs $
+            fold (M.lookup (NP.ObjectKey k) rs.rsBySelectors)
+              <> fold (M.lookup (NP.ObjectIndex i) rs.rsBySelectors)
+              <> foldMap snd (find (\(prefix, _) -> T.isPrefixOf prefix k) rs.rsPrefixes)
+              <> fold rs.rsAnyObjectKey
         )
     go (NC.ArrayIndex i :<| bs) rs =
       go
         bs
-        (fold (M.lookup (NP.ObjectIndex i) rs.rsBySelectors) <> fold rs.rsAnyArrayIndex)
-    go _ rs = rs.rsHere
+        ( addBelowProps rs $
+            fold (M.lookup (NP.ObjectIndex i) rs.rsBySelectors)
+              <> fold rs.rsAnyArrayIndex
+        )
+    addBelowProps rsAbove rs =
+      rs
+        { rsBelow =
+            bool rs.rsBelow (rs.rsBelow <> rsAbove.rsBelow) (matchMode == PrefixMatch)
+        }
