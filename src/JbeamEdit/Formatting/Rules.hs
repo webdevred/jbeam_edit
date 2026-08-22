@@ -201,7 +201,9 @@ allProperties = boolProperties ++ enumProperties ++ intProperties
 
 prefixProperties :: [SomeKey]
 prefixProperties =
-  SomeKey PadAmount : [SomeKey ComplexNewLine]
+  SomeKey ComplexNewLine
+    : SomeKey TrailingComma
+    : map SomeKey [PadAmount, Indent]
 
 -- | Maps deprecated property names to (key, value-when-true, value-when-false).
 deprecatedAliases :: [(Text, (SomeKey, SomeProperty, SomeProperty))]
