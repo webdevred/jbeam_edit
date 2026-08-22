@@ -19,6 +19,7 @@ import Data.Functor.Identity (Identity (..))
 import Data.List.NonEmpty qualified as NE (fromList)
 import Data.Map (Map)
 import Data.Map qualified as M (empty, fromList, partitionWithKey, singleton)
+import Data.Monoid (Dual (..))
 import Data.Set qualified as S (fromList)
 import Data.Text (Text)
 import Data.Text qualified as T (init, isSuffixOf, unpack)
@@ -187,7 +188,7 @@ combineRuleSets (pats, props) = fold [fold (go pat) | pat <- pats]
     go (Selector s : pats') = Just (mempty {rsBySelectors = maybe M.empty (M.singleton s) (go pats')})
 
 ruleSetParser :: JbflParser RuleSet
-ruleSetParser = foldMap combineRuleSets <$> MP.some singleRuleSet
+ruleSetParser = getDual . foldMap (Dual . combineRuleSets) <$> MP.some singleRuleSet
   where
     singleRuleSet = skipComment *> ruleParser <* skipComment
 
