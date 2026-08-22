@@ -1,13 +1,12 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE OverloadedRecordDot #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeOperators #-}
 
 module JbeamEdit.Formatting.Rules (
-  MatchMode (..),
   NodePatternSelector (..),
-  NodePattern (..),
   SomeKey (..),
   SomeProperty (..),
   PropertyKey (..),
@@ -18,10 +17,11 @@ module JbeamEdit.Formatting.Rules (
   lookupKey,
   allProperties,
   deprecatedAliases,
+  prefixProperties,
   keyName,
   applyPadLogic,
   complexNewLine,
-  lookupRule,
+  lookupProperty,
   lookupPropertyForCursor,
   findPropertiesForCursor,
 ) where
@@ -29,18 +29,17 @@ module JbeamEdit.Formatting.Rules (
 import Data.Bool (bool)
 import Data.Foldable (fold)
 import Data.Function (on)
-import Data.List (find)
+import Data.List (find, sortOn)
 import Data.Map (Map)
 import Data.Map qualified as M
 import Data.Ord (Down (..))
 import Data.Sequence (Seq (..))
-import Data.Sequence qualified as Seq (length, null)
 import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Type.Equality ((:~:) (Refl))
 import JbeamEdit.Core.Node
 import JbeamEdit.Core.NodeCursor qualified as NC
-import JbeamEdit.Core.NodePath (NodeSelector (..))
+import JbeamEdit.Core.NodePath qualified as NP (NodeSelector (..))
 import JbeamEdit.Formatting.Rules.ComplexNewLine (ComplexNewLine)
 import JbeamEdit.Formatting.Rules.ComplexNewLine qualified as CNL
 import JbeamEdit.Formatting.Rules.TrailingComma (TrailingComma)
@@ -49,32 +48,21 @@ import Text.Read qualified as TR
 data NodePatternSelector
   = AnyObjectKey
   | AnyArrayIndex
-  | Selector NodeSelector
-  deriving stock (Eq, Read, Show)
-
-instance Ord NodePatternSelector where
-  compare a b = compare (rank a) (rank b)
-    where
-      rank :: NodePatternSelector -> (Int, Maybe NodeSelector)
-      rank AnyArrayIndex = (2, Nothing)
-      rank AnyObjectKey = (1, Nothing)
-      rank (Selector s) = (0, Just s)
-
-newtype NodePattern
-  = NodePattern (Seq NodePatternSelector)
+  | Selector NP.NodeSelector
   deriving stock (Eq, Read, Show)
 
 instance Monoid RuleSet where
-  mempty = RuleSet M.empty
+  mempty = RuleSet M.empty [] mempty mempty M.empty M.empty
 
 instance Semigroup RuleSet where
-  (RuleSet rs1) <> (RuleSet rs2) = RuleSet (M.unionWith M.union rs1 rs2)
-
-instance Ord NodePattern where
-  compare (NodePattern a) (NodePattern b) =
-    case on compare (Down . Seq.length) a b of
-      EQ -> compare a b
-      c -> c
+  (RuleSet rs1 ps1 aok1 aai1 h1 b1) <> (RuleSet rs2 ps2 aok2 aai2 h2 b2) =
+    RuleSet
+      (M.unionWith (<>) rs1 rs2)
+      (mergePrefixes ps1 ps2)
+      (aok1 <> aok2)
+      (aai1 <> aai2)
+      (h1 <> h2)
+      (b1 <> b2)
 
 data PropertyKey a where
   AutoPad :: PropertyKey Bool
@@ -190,6 +178,18 @@ intProperties = map SomeKey [PadAmount, PadDecimals, Indent]
 allProperties :: [SomeKey]
 allProperties = boolProperties ++ enumProperties ++ intProperties
 
+mergePrefixes :: [(Text, RuleSet)] -> [(Text, RuleSet)] -> [(Text, RuleSet)]
+mergePrefixes ps1 ps2 =
+  sortOn (Down . T.length . fst) . M.toList . M.fromListWith (flip (<>)) $
+    ps1 <> ps2
+
+prefixProperties :: [SomeKey]
+prefixProperties =
+  SomeKey ComplexNewLine
+    : SomeKey TrailingComma
+    : SomeKey PreserveNumberFormat
+    : map SomeKey [PadAmount, PadDecimals, Indent]
+
 -- | Maps deprecated property names to (key, value-when-true, value-when-false).
 deprecatedAliases :: [(Text, (SomeKey, SomeProperty, SomeProperty))]
 deprecatedAliases =
@@ -213,21 +213,25 @@ deprecatedAliases =
 
 type Rule = Map SomeKey SomeProperty
 
-newtype RuleSet
-  = RuleSet (Map NodePattern Rule)
+data RuleSet
+  = RuleSet
+  { rsBySelectors :: Map NP.NodeSelector RuleSet
+  , rsPrefixes :: [(Text, RuleSet)]
+  , rsAnyObjectKey :: Maybe RuleSet
+  , rsAnyArrayIndex :: Maybe RuleSet
+  , rsHere :: Rule
+  , rsBelow :: Rule
+  }
   deriving stock (Eq, Read, Show)
 
-lookupProp :: (Eq a, Read a, Show a) => PropertyKey a -> Rule -> Maybe a
-lookupProp targetKey m =
+lookupProperty :: (Eq a, Read a, Show a) => PropertyKey a -> Rule -> Maybe a
+lookupProperty targetKey m =
   case M.lookup (SomeKey targetKey) m of
     Just (SomeProperty key val) ->
       case eqKey key targetKey of
         Just Refl -> Just val
         Nothing -> Nothing
     Nothing -> Nothing
-
-lookupRule :: (Eq a, Read a, Show a) => PropertyKey a -> Rule -> Maybe a
-lookupRule = lookupProp
 
 applyDecimalPadding :: Int -> Text -> Text
 applyDecimalPadding padDecimals node
@@ -240,8 +244,8 @@ applyDecimalPadding padDecimals node
 
 applyPadLogic :: (Node -> Text) -> Rule -> Node -> Text
 applyPadLogic f rs n =
-  let padAmount = sum $ lookupProp PadAmount rs
-      padDecimals = sum $ lookupProp PadDecimals rs
+  let padAmount = sum $ lookupProperty PadAmount rs
+      padDecimals = sum $ lookupProperty PadDecimals rs
       decimalPaddedText
         | isNumberNode n = applyDecimalPadding padDecimals (f n)
         | otherwise = f n
@@ -249,41 +253,34 @@ applyPadLogic f rs n =
 
 complexNewLine :: RuleSet -> NC.NodeCursor -> Maybe ComplexNewLine
 complexNewLine rs cursor =
-  let ps = findPropertiesForCursor PrefixMatch cursor rs
-   in lookupProp ComplexNewLine ps
-
-data MatchMode = PrefixMatch | ExactMatch deriving (Eq, Show)
+  let ps = findPropertiesForCursor cursor rs
+   in lookupProperty ComplexNewLine ps
 
 lookupPropertyForCursor
   :: (Eq a, Read a, Show a)
-  => MatchMode -> PropertyKey a -> RuleSet -> NC.NodeCursor -> Maybe a
-lookupPropertyForCursor matchMode key rs cursor = lookupProp key (findPropertiesForCursor matchMode cursor rs)
+  => PropertyKey a -> RuleSet -> NC.NodeCursor -> Maybe a
+lookupPropertyForCursor key rs cursor =
+  lookupProperty key (findPropertiesForCursor cursor rs)
 
-comparePC :: NodePatternSelector -> NC.NodeBreadcrumb -> Bool
-comparePC AnyObjectKey (NC.ObjectIndexAndKey _ _) = True
-comparePC AnyArrayIndex (NC.ArrayIndex _) = True
-comparePC (Selector s) bc = NC.compareSB s bc
-comparePC _ _ = False
-
-compareCursorAndPattern :: MatchMode -> NC.NodeCursor -> NodePattern -> Bool
-compareCursorAndPattern matchMode (NC.NodeCursor c) (NodePattern p) = sameBy matchMode comparePC p c
-
-type SelCrumbCompFun = NodePatternSelector -> NC.NodeBreadcrumb -> Bool
-
-sameBy
-  :: MatchMode
-  -> SelCrumbCompFun
-  -> Seq NodePatternSelector
-  -> Seq NC.NodeBreadcrumb
-  -> Bool
-sameBy matchMode f = go
+findPropertiesForCursor :: NC.NodeCursor -> RuleSet -> Rule
+findPropertiesForCursor (NC.NodeCursor cursor) = go cursor
   where
-    go (p :<| ps) (b :<| bs) =
-      let res = f p b
-       in res && go ps bs
-    go ps bs = Seq.null ps && (Seq.null bs || PrefixMatch == matchMode)
-
--- TODO: migrate to M.filterKeys once the stack snapshot ships containers 0.8
-findPropertiesForCursor :: MatchMode -> NC.NodeCursor -> RuleSet -> Rule
-findPropertiesForCursor matchMode cursor (RuleSet rs) =
-  fold (M.filterWithKey (const . compareCursorAndPattern matchMode cursor) rs)
+    go Empty rs = rs.rsHere <> rs.rsBelow
+    go (NC.ObjectIndexAndKey i k :<| bs) rs =
+      go
+        bs
+        ( addBelowProps rs $
+            fold (M.lookup (NP.ObjectKey k) rs.rsBySelectors)
+              <> fold (M.lookup (NP.ObjectIndex i) rs.rsBySelectors)
+              <> matchingPrefixes k rs.rsPrefixes
+              <> fold rs.rsAnyObjectKey
+        )
+    go (NC.ArrayIndex i :<| bs) rs =
+      go
+        bs
+        ( addBelowProps rs $
+            fold (M.lookup (NP.ArrayIndex i) rs.rsBySelectors)
+              <> fold rs.rsAnyArrayIndex
+        )
+    addBelowProps rsAbove rs = rs {rsBelow = rs.rsBelow <> rsAbove.rsBelow}
+    matchingPrefixes k = foldMap snd . filter ((`T.isPrefixOf` k) . fst)
