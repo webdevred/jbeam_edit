@@ -40,17 +40,107 @@ Transformation reads `.jbeam-edit.yaml` in the working directory if present. Wit
 
 Parameter reference:
 
-| Key                       | Default | Description                                                                     |
-|---------------------------|---------|---------------------------------------------------------------------------------|
-| `y-sorting-threshold`     | 0.05    | Y distance (meters) below which two nodes are treated as the same depth band    |
+| Key                       | Default | Description                                                                      |
+|---------------------------|---------|----------------------------------------------------------------------------------|
+| `y-sorting-threshold`     | 0.05    | Y distance (meters) below which two nodes are treated as the same depth band     |
 | `x-sorting-threshold`     | off     | X distance (meters) below which two nodes in one Y band count as the same column |
-| `support-threshold`       | 96      | Minimum beam count as a percentage of group size to classify a node as support  |
-| `max-support-coordinates` | 3       | Maximum number of support node candidates examined per spatial group            |
-| `x-group-breakpoints`     | ±0.09   | Rules that map X coordinate to Left, Middle, or Right (see Left, Middle, Right) |
+| `support-threshold`       | 96      | Minimum beam count as a percentage of group size to classify a node as support   |
+| `max-support-coordinates` | 3       | Maximum number of support node candidates examined per spatial group             |
+| `x-group-breakpoints`     | ±0.09   | Rules that map X coordinate to Left, Middle, or Right (see Left, Middle, Right)  |
 
 `x-sorting-threshold` is off unless you set it, and `off` is the only word it
 accepts besides a distance. There is no number that turns it off: `0` gives
 every node its own column, which is the most column sorting rather than none.
+
+### Picking the two sorting thresholds
+
+Both settings are distances in meters, so `0.05` means 5 cm.
+
+They also work the same way, and it is worth knowing how. The tool goes through
+the nodes in order and starts a new group as soon as a node is at least the
+threshold away from **the first node of the group it is currently filling**. It
+does not compare each node to the one right before it. That is deliberate: a
+long gentle slope would otherwise chain together into one enormous group.
+
+**Start with `y-sorting-threshold`.** It decides how much front to back
+variation still counts as the same row of nodes. When you place a row across a
+panel the nodes are never at exactly the same Y, and without a threshold a
+millimetre of difference would decide the order, which would also make the two
+sides of the car come out differently.
+
+The number you want is the depth of one row, not the space between rows. The
+default 5 cm suits a row you placed carefully on a flat face. A curved panel
+needs more, because the row follows the curve.
+
+[`examples/regression_jbeam/y-sorting-repro.jbeam`](examples/regression_jbeam/y-sorting-repro.jbeam)
+shows what that looks like. Its five frontmost left side nodes are one row as
+far as the modeller is concerned, but they cover a fair bit of depth:
+
+| Measurement                                   | Value |
+|-----------------------------------------------|-------|
+| Depth of the front row, -1.967 back to -1.791 | 0.176 |
+| Front row's first node back to the next row's | 0.323 |
+| Space between the two rows, -1.791 to -1.644  | 0.147 |
+| Biggest step inside the front row             | 0.138 |
+
+Anything above 0.176 and up to 0.323 keeps that row together, so 0.31 is a
+comfortable pick and it is what the regression test uses. The default 0.05
+splits the row in two. Note the trap again: the space between the rows is 0.147,
+barely more than the 0.138 step inside the row, so a threshold picked from the
+space between rows lands in the wrong place.
+
+| What you see                                | What to do                                   |
+|---------------------------------------------|----------------------------------------------|
+| One row comes out ordered front to back     | Raise it, the row is deeper than you thought |
+| Nodes at clearly different depths are mixed | Lower it                                     |
+
+**Then `x-sorting-threshold`.** It does the same thing sideways, inside each
+row. Turn it on if the file zigzags: the heights climb, drop back down and climb
+again. That happens when one row covers two vertical columns of nodes, say an
+outer face and the one set back beside it, and the tool has nothing but height
+to go on.
+
+Here is the part that trips people up. **The number you want is the width of a
+column, not the space between the columns.** Because the tool measures from the
+first node of a group, the threshold has to be a bit wider than your widest
+column, and no wider than the step from one column's innermost node across to
+the next column's innermost node.
+
+Those same five nodes show it. Once they are in one row, the inner column sits
+at X 0.780, 0.920 and 0.953, and the outer one at 0.998 and 1.036:
+
+| Measurement                                    | Value |
+|------------------------------------------------|-------|
+| Width of the inner column, 0.780 out to 0.953  | 0.173 |
+| Inner column's innermost across to the outer's | 0.218 |
+| Space between the two columns, 0.953 to 0.998  | 0.045 |
+| Biggest step inside the inner column           | 0.140 |
+
+So anything above 0.173 and up to 0.218 does the job, and 0.2 is the obvious
+pick. Notice that the space between the columns is only 0.045, smaller than a
+step inside the inner column. Set 0.045 and the tool splits the inner column in
+two, leaves 0.780 on its own, and you get a third wrong order rather than the
+right one. The space between the columns is the number that looks right, so it
+is worth measuring the column itself instead.
+
+To find the number for your own vehicle, transform once with the setting off,
+find a spot where the heights zigzag, and read the X values of those rows. The
+two columns separate by eye. Take the first and last X of the wider column,
+subtract, and pick something a little above that. Transform again and the zigzag
+should be gone.
+
+If it still looks wrong:
+
+| What you see                               | What to do                                   |
+|--------------------------------------------|----------------------------------------------|
+| Nothing changed at all                     | The threshold is too big, try a smaller one  |
+| Runs of one or two nodes, still zigzagging | The threshold is too small, try a bigger one |
+| Still zigzagging whatever you set          | Raise `y-sorting-threshold` first, see below |
+
+That last one is worth checking early, because no X value can fix it. Columns
+only exist inside a row, so if your two columns sit further apart front to back
+than `y-sorting-threshold` allows, they never end up in the same row and
+`x-sorting-threshold` never gets to look at them together.
 
 Three ways this file can fail without saying much:
 
