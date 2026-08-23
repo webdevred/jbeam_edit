@@ -34,22 +34,9 @@ This tells the tool that when it would generate a prefix derived from `rl_f`, us
 
 ## Configuration
 
-Transformation reads `.jbeam-edit.yaml` in the working directory if present. Without it, built-in defaults are used. Create this file to override any parameter:
+Transformation reads `.jbeam-edit.yaml` in the working directory if present. Without it, built-in defaults are used. Create this file to override any parameter.
 
-```yaml
-y-sorting-threshold: 0.05
-x-sorting-threshold: off
-support-threshold: 96
-max-support-coordinates: 3
-
-x-group-breakpoints:
-  - breakpoint: ">= 0.09"
-    vertex-type: LeftTree
-  - breakpoint: "> -0.09"
-    vertex-type: MiddleTree
-  - breakpoint: "<= -0.09"
-    vertex-type: RightTree
-```
+[`examples/jbeam-edit.yaml`](examples/jbeam-edit.yaml) is a working one to copy. It is the config the test suite transforms every example file with, so it cannot drift out of date the way a block quoted here would.
 
 Parameter reference:
 
@@ -59,7 +46,7 @@ Parameter reference:
 | `x-sorting-threshold`     | off     | X distance (meters) below which two nodes in one Y band count as the same column |
 | `support-threshold`       | 96      | Minimum beam count as a percentage of group size to classify a node as support  |
 | `max-support-coordinates` | 3       | Maximum number of support node candidates examined per spatial group            |
-| `x-group-breakpoints`     | (above) | Rules that map X coordinate to Left, Middle, or Right                           |
+| `x-group-breakpoints`     | ±0.09   | Rules that map X coordinate to Left, Middle, or Right (see Left, Middle, Right) |
 
 `x-sorting-threshold` is off unless you set it, and `off` is the only word it
 accepts besides a distance. There is no number that turns it off: `0` gives
