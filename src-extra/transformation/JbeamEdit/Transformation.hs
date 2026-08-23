@@ -10,7 +10,7 @@ import Data.List.NonEmpty (NonEmpty)
 import Data.List.NonEmpty qualified as NE
 import Data.Map (Map)
 import Data.Map qualified as M
-import Data.Maybe (fromMaybe, mapMaybe)
+import Data.Maybe (fromMaybe, isJust, mapMaybe)
 import Data.Monoid.Extra (mwhen)
 import Data.Ord (Down (Down), comparing)
 import Data.Scientific (Scientific)
@@ -420,20 +420,42 @@ assignNames newNames brks treeType prefixMap av =
 firstY :: NonEmpty AnnotatedVertex -> Scientific
 firstY = vY . aVertex . NE.head
 
+firstX :: NonEmpty (Int, AnnotatedVertex) -> Scientific
+firstX = vX . aVertex . snd . NE.head
+
 indexBand
-  :: TransformationConfig
+  :: Scientific
+  -> (a -> Scientific)
   -> (Int, Scientific)
-  -> AnnotatedVertex
-  -> ((Int, Scientific), (Int, AnnotatedVertex))
-indexBand tfCfg (bandIndex, bandY) av =
-  let nodeY = vY (aVertex av)
+  -> a
+  -> ((Int, Scientific), (Int, a))
+indexBand thr f (bandIndex, bandY) av =
+  let nodeY = f av
       distance = abs (nodeY - bandY)
-      thr = ySortingThreshold tfCfg
    in if distance >= thr
         then
           ((bandIndex + 1, nodeY), (bandIndex + 1, av))
         else
           ((bandIndex, bandY), (bandIndex, av))
+
+data Band = XBand Int Int | YBand Int deriving (Eq, Ord)
+
+columnBandVertices
+  :: TransformationConfig
+  -> NonEmpty (Int, AnnotatedVertex)
+  -> NonEmpty (Band, AnnotatedVertex)
+columnBandVertices tfCfg vs =
+  let maybeThr = xSortingThreshold tfCfg
+   in case maybeThr of
+        Just thr ->
+          let bandGroups = NE.groupBy1 (on (==) fst) vs
+              assignColumnBand group =
+                let sorted = NE.sortBy (on compare $ vX . aVertex . snd) group
+                    (_, bandIndices) = mapAccumL (indexBand thr (vX . aVertex . snd)) (0, firstX sorted) sorted
+                 in NE.map (\(xBand, (yBand, vertex)) -> (XBand yBand xBand, vertex)) bandIndices
+           in sconcat $ NE.map assignColumnBand bandGroups
+        Nothing ->
+          NE.map (first YBand) vs
 
 sortVertices
   :: VertexTreeType
@@ -443,13 +465,20 @@ sortVertices
   -> VertexTree
 sortVertices treeType newNames tfCfg (VertexTree comments vertices) =
   let brks = xGroupBreakpoints tfCfg
+      thr = ySortingThreshold tfCfg
       sorted = NE.sortBy (on compare $ vY . aVertex) vertices
-      (_, bandIndices) = mapAccumL (indexBand tfCfg) (0, firstY sorted) sorted
+      (_, bandIndices) = mapAccumL (indexBand thr (vY . aVertex)) (0, firstY sorted) sorted
       bandSortedAnnotated =
+        NE.sortBy (compareAV (vertexPrefix newNames brks treeType) treeType) bandIndices
+      columnBandIndices = columnBandVertices tfCfg bandSortedAnnotated
+      columnSortedAnnotated =
         NE.map snd $
-          NE.sortBy (compareAV (vertexPrefix newNames brks treeType) treeType) bandIndices
+          NE.sortBy
+            (compareAV (vertexPrefix newNames brks treeType) treeType)
+            columnBandIndices
       renamedGroups =
-        snd $ mapAccumL (assignNames newNames brks treeType) M.empty bandSortedAnnotated
+        snd $
+          mapAccumL (assignNames newNames brks treeType) M.empty columnSortedAnnotated
    in VertexTree comments renamedGroups
 
 updateVerticesInNode
