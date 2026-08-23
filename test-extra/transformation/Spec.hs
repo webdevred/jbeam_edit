@@ -20,6 +20,7 @@ import JbeamEdit.Transformation.BeamExtraction (beamInKnownSet)
 import JbeamEdit.Transformation.BeamValidation
 import JbeamEdit.Transformation.Config
 import JbeamEdit.Transformation.Types (Beam)
+import Spec.Config (configParsingSpec)
 import Spec.Helpers (parseJbeamFile)
 import Spec.Regression
 import System.Directory (getDirectoryContents)
@@ -153,6 +154,7 @@ main = hspec $ do
   mapM_ (testInputFile "cfg-example" tfConfig) inputFiles
   mapM_ (testFixedPoint "cfg-default" newTransformationConfig) inputFiles
   mapM_ (testFixedPoint "cfg-example" tfConfig) inputFiles
+  configParsingSpec
   beamValidationSpec
   supportRenameIdempotencySpec
   letterEndingNodesSpec

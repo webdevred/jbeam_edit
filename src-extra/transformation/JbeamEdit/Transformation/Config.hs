@@ -3,6 +3,7 @@
 
 module JbeamEdit.Transformation.Config (
   loadTransformationConfig,
+  decodeConfig,
   transformationConfigFile,
   applyOperator,
   newTransformationConfig,

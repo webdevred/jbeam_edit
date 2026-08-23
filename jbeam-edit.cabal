@@ -312,6 +312,7 @@ test-suite jbeam-edit-transformation-test
     main-is:            Spec.hs
     hs-source-dirs:     test-extra/transformation
     other-modules:
+        Spec.Config
         Spec.Helpers
         Spec.Regression
         Paths_jbeam_edit
