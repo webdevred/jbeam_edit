@@ -50,8 +50,8 @@ configParsingSpec = describe "the transformation config parser" $ do
     pendingWith
       "support-threshold is the only key read with .: rather than .:?, so a \
       \config that omits it is rejected outright and the loader falls back to \
-      \every default. Whether that is meant to be a required key has not been \
-      \decided."
+      \every default instead. The key is meant to have a default like the \
+      \others, and this spec goes green with the change that gives it one."
     parseField supportThreshold "y-sorting-threshold: 0.04\n"
       `shouldBe` Right defaultSupportThreshold
 
