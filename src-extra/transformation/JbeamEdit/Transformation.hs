@@ -186,34 +186,18 @@ moveSupportVertices protectedNames newNames tfCfg connMap vsPerType =
         , count >= thrCount
         ]
 
-      brks = xGroupBreakpoints tfCfg
-
-      assignSupportNames = assignNames newNames brks SupportTree
-
       vertexForest :: VertexForest
       vertexForest =
         case NE.nonEmpty supportVertices of
           Nothing -> M.empty
           Just vs ->
-            M.singleton
-              SupportTree
-              ( OMap1.singleton
-                  ( SupportKey
-                  , VertexTree
-                      [sideComment SupportTree]
-                      ( let prefix = vertexPrefix newNames brks SupportTree
-                            sorted = NE.sortBy (on compare $ vY . aVertex) vs
-                            (_, bandIndices) = mapAccumL (indexBand tfCfg) (0, firstY sorted) sorted
-                            bandSortedPairs =
-                              NE.sortBy
-                                (compareAV prefix SupportTree)
-                                bandIndices
-                            bandSortedVertices = NE.map snd bandSortedPairs
-                            (_, renamedVertices') = mapAccumL assignSupportNames M.empty bandSortedVertices
-                         in renamedVertices'
-                      )
+            let supportTree = VertexTree [sideComment SupportTree] vs
+                sortedSupportTree = sortVertices SupportTree newNames tfCfg supportTree
+             in M.singleton
+                  SupportTree
+                  ( OMap1.singleton
+                      (SupportKey, sortedSupportTree)
                   )
-              )
 
       supportVertexNames = foldr (S.insert . anVertexName) S.empty supportVertices
 
