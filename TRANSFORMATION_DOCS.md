@@ -10,7 +10,7 @@ This document explains what the tool does and how to configure it.
 
 Transformation targets structural files containing positional node data: frames, suspension arms, subframes, chassis rails. The file must have a `nodes` section with the `["id", "posX", "posY", "posZ"]` header.
 
-It is not intended for body files, engine files, gauges, interior parts, or any file where nodes have semantic names like `int_strsl`, `dshsl`, `e1`, `cam`. Those names carry meaning that transformation does not understand and will overwrite.
+It is not intended for any file where nodes have semantic names like `int_strsl`, `dshsl`, `e1`, `cam`, which is common in engine files, gauges and interior parts. Those names carry meaning that transformation does not understand and will overwrite.
 
 ---
 
@@ -34,30 +34,113 @@ This tells the tool that when it would generate a prefix derived from `rl_f`, us
 
 ## Configuration
 
-Transformation reads `.jbeam-edit.yaml` in the working directory if present. Without it, built-in defaults are used. Create this file to override any parameter:
+Transformation reads `.jbeam-edit.yaml` in the working directory if present. Without it, built-in defaults are used. Create this file to override any parameter.
 
-```yaml
-y-sorting-threshold: 0.05
-support-threshold: 96
-max-support-coordinates: 3
-
-x-group-breakpoints:
-  - breakpoint: ">= 0.09"
-    vertex-type: LeftTree
-  - breakpoint: "> -0.09"
-    vertex-type: MiddleTree
-  - breakpoint: "<= -0.09"
-    vertex-type: RightTree
-```
+[`examples/jbeam-edit.yaml`](examples/jbeam-edit.yaml) is a working one to copy. It is the config the test suite transforms every example file with, so it cannot drift out of date the way a block quoted here would.
 
 Parameter reference:
 
-| Key                      | Default | Description                                                                    |
-|--------------------------|---------|--------------------------------------------------------------------------------|
-| `y-sorting-threshold`    | 0.05    | Y distance (meters) below which two nodes are treated as the same depth band   |
-| `support-threshold`      | 96      | Minimum beam count as a percentage of group size to classify a node as support |
-| `max-support-coordinates`| 3       | Maximum number of support node candidates examined per spatial group           |
-| `x-group-breakpoints`    | (above) | Rules that map X coordinate to Left, Middle, or Right                          |
+| Key                       | Default | Description                                                                      |
+|---------------------------|---------|----------------------------------------------------------------------------------|
+| `y-sorting-threshold`     | 0.05    | Y distance (meters) below which two nodes are treated as the same depth band     |
+| `x-sorting-threshold`     | off     | X distance (meters) below which two nodes in one Y band count as the same column |
+| `support-threshold`       | 96      | Minimum beam count as a percentage of group size to classify a node as support   |
+| `max-support-coordinates` | 3       | Maximum number of support node candidates examined per spatial group             |
+| `x-group-breakpoints`     | ±0.09   | Rules that map X coordinate to Left, Middle, or Right (see Left, Middle, Right)  |
+
+`x-sorting-threshold` is off unless you set it, and `off` is the only word it
+accepts besides a distance. There is no number that turns it off: `0` gives
+every node its own column, which is the most column sorting rather than none.
+
+### Picking the two sorting thresholds
+
+Both settings are distances in meters, so `0.05` means 5 cm.
+
+They also work the same way, and it is worth knowing how. The tool goes through
+the nodes in order and starts a new group as soon as a node is at least the
+threshold away from **the first node of the group it is currently filling**. It
+does not compare each node to the one right before it. That is deliberate: a
+long gentle slope would otherwise chain together into one enormous group.
+
+**Start with `y-sorting-threshold`.** It decides how much front to back
+variation still counts as the same row of nodes. When you place a row across a
+panel the nodes are never at exactly the same Y, and without a threshold a
+millimetre of difference would decide the order, which would also make the two
+sides of the car come out differently.
+
+The number you want is the depth of one row, not the space between rows. The
+default 5 cm suits a row you placed carefully on a flat face. A curved panel
+needs more, because the row follows the curve.
+
+[`examples/regression_jbeam/y-sorting-repro.jbeam`](examples/regression_jbeam/y-sorting-repro.jbeam)
+shows what that looks like. Its five frontmost left side nodes are one row as
+far as the modeller is concerned, but they cover a fair bit of depth:
+
+| Measurement                                   | Value |
+|-----------------------------------------------|-------|
+| Depth of the front row, -1.967 back to -1.791 | 0.176 |
+| Front row's first node back to the next row's | 0.323 |
+| Space between the two rows, -1.791 to -1.644  | 0.147 |
+| Biggest step inside the front row             | 0.138 |
+
+Anything above 0.176 and up to 0.323 keeps that row together, so 0.31 is a
+comfortable pick and it is what the regression test uses. The default 0.05
+splits the row in two. Note the trap again: the space between the rows is 0.147,
+barely more than the 0.138 step inside the row, so a threshold picked from the
+space between rows lands in the wrong place.
+
+| What you see                                | What to do                                   |
+|---------------------------------------------|----------------------------------------------|
+| One row comes out ordered front to back     | Raise it, the row is deeper than you thought |
+| Nodes at clearly different depths are mixed | Lower it                                     |
+
+**Then `x-sorting-threshold`.** It does the same thing sideways, inside each
+row. Turn it on if the file zigzags: the heights climb, drop back down and climb
+again. That happens when one row covers two vertical columns of nodes, say the
+nose face of a panel and the fender beside it, and the tool has nothing but
+height to go on.
+
+Here is the part that trips people up. **The number you want is the width of a
+column, not the space between the columns.** Because the tool measures from the
+first node of a group, the threshold has to be a bit wider than your widest
+column, and no wider than the step from one column's innermost node across to
+the next column's innermost node.
+
+Those same five nodes show it. Once they are in one row, the inner column sits
+at X 0.780, 0.920 and 0.953, and the outer one at 0.998 and 1.036:
+
+| Measurement                                    | Value |
+|------------------------------------------------|-------|
+| Width of the inner column, 0.780 out to 0.953  | 0.173 |
+| Inner column's innermost across to the outer's | 0.218 |
+| Space between the two columns, 0.953 to 0.998  | 0.045 |
+| Biggest step inside the inner column           | 0.140 |
+
+So anything above 0.173 and up to 0.218 does the job, and 0.2 is the obvious
+pick. Notice that the space between the columns is only 0.045, smaller than a
+step inside the inner column. Set 0.045 and the tool splits the inner column in
+two, leaves 0.780 on its own, and you get a third wrong order rather than the
+right one. The space between the columns is the number that looks right, so it
+is worth measuring the column itself instead.
+
+To find the number for your own vehicle, transform once with the setting off,
+find a spot where the heights zigzag, and read the X values of those rows. The
+two columns separate by eye. Take the first and last X of the wider column,
+subtract, and pick something a little above that. Transform again and the zigzag
+should be gone.
+
+If it still looks wrong:
+
+| What you see                               | What to do                                   |
+|--------------------------------------------|----------------------------------------------|
+| Nothing changed at all                     | The threshold is too big, try a smaller one  |
+| Runs of one or two nodes, still zigzagging | The threshold is too small, try a bigger one |
+| Still zigzagging whatever you set          | Raise `y-sorting-threshold` first, see below |
+
+That last one is worth checking early, because no X value can fix it. Columns
+only exist inside a row, so if your two columns sit further apart front to back
+than `y-sorting-threshold` allows, they never end up in the same row and
+`x-sorting-threshold` never gets to look at them together.
 
 Three ways this file can fail without saying much:
 
@@ -160,6 +243,8 @@ Nodes within each group are sorted by three coordinates in order:
 
 A band starts at the node that opened it, not at the previous node, so a long run of small steps cannot chain into one band much wider than the threshold.
 
+With `x-sorting-threshold` set, each Y band is banded a second time before step 2, by X and by the same opener rule. Nodes in the same Y band but different columns then come out one column at a time, lower node first within each. Without it a band that spans two columns is ordered by height alone, so the output climbs one column, jumps to the other and comes back. That is what the setting is for: on a body panel the nose face and the fender beside it can sit at heights that interleave, and no Y threshold separates them because they are at the same depth.
+
 The threshold is there because nodes you placed at one depth are rarely at exactly the same Y. Without it, a millimetre of difference would order them by Y instead of by height, and the two sides of a symmetric vehicle would come out in different orders.
 
 ---
@@ -209,7 +294,7 @@ Without a filename argument, all `.jbeam` files in the directory are validated. 
 
 ## Limitations
 
-**Body files are not supported.** Body files mix structural nodes with semantically named nodes (`int_strsl`, `dshsl`, `rm_*`). Transformation renames all nodes without distinction. An `excludePrefixes` config option is planned to protect named nodes from being renamed.
+**Named nodes are not protected.** Transformation renames every node in the file without distinction, so a file that mixes structural nodes with semantically named ones (`int_strsl`, `dshsl`, `rm_*`) loses those names. Check a file for named nodes before transforming it. An `excludePrefixes` config option is planned to protect them.
 
 **The transformation feature is experimental.** It is not included in the standard release binary. To use it, you need to build from source with the `transformation` flag enabled, or download a build that explicitly includes it.
 

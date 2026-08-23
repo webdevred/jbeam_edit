@@ -2,6 +2,7 @@
 
 module JbeamEdit.Transformation.Config (
   loadTransformationConfig,
+  decodeConfig,
   transformationConfigFile,
   applyOperator,
   newTransformationConfig,
@@ -25,6 +26,7 @@ import Data.Yaml (
   Object,
   ParseException (..),
   Parser,
+  Value (..),
   decodeEither',
   prettyPrintParseException,
  )
@@ -44,7 +46,10 @@ import JbeamEdit.IOUtils
 import JbeamEdit.Transformation.Types (VertexTreeType (..))
 import Numeric.Natural (Natural)
 import System.OsPath
-import Text.Read
+import Text.Read (readMaybe)
+
+defaultXSortingThreshold :: Maybe Scientific
+defaultXSortingThreshold = Nothing
 
 defaultSortingThreshold :: Scientific
 defaultSortingThreshold = 0.05
@@ -65,6 +70,7 @@ defaultBreakpoints =
 
 data TransformationConfig = TransformationConfig
   { ySortingThreshold :: Scientific
+  , xSortingThreshold :: Maybe Scientific
   , xGroupBreakpoints :: XGroupBreakpoints
   , supportThreshold :: Scientific
   , maxSupportCoordinates :: Natural
@@ -75,6 +81,7 @@ newTransformationConfig :: TransformationConfig
 newTransformationConfig =
   TransformationConfig
     defaultSortingThreshold
+    defaultXSortingThreshold
     defaultBreakpoints
     defaultSupportThreshold
     defaultMaxSupportCoordinates
@@ -134,10 +141,29 @@ parseSupportThreshold o = do
       fail
         "'support-threshold' must be a percentage value of 1 or higher (e.g., 80 or 80.8). Values below 1 (e.g., 0.80) are not allowed."
 
+{- | Unquoted 'off' reaches this as a boolean, because that is how YAML
+resolves it, so the string case alone would only catch the quoted spelling.
+-}
+parseXSortingThreshold :: Object -> Parser (Maybe Scientific)
+parseXSortingThreshold o = do
+  thr <- o .:? "x-sorting-threshold"
+  case thr of
+    Nothing -> pure defaultXSortingThreshold
+    Just Null -> pure defaultXSortingThreshold
+    Just (Bool False) -> pure defaultXSortingThreshold
+    Just (String "off") -> pure defaultXSortingThreshold
+    Just (Number number) -> pure (Just number)
+    Just _ -> failWithMessage
+  where
+    failWithMessage =
+      fail
+        "'x-sorting-threshold' must be a distance in meters (e.g., 0.2 for 20 cm), or 'off' to leave the column sorting out. Omitting the key does the same as 'off'."
+
 instance FromJSON TransformationConfig where
   parseJSON = withObject "TransformationConfig" $ \o ->
     TransformationConfig
       <$> o .:? "y-sorting-threshold" .!= defaultSortingThreshold
+      <*> parseXSortingThreshold o
       <*> o .:? "x-group-breakpoints" .!= defaultBreakpoints
       <*> parseSupportThreshold o
       <*> o .:? "max-support-coordinates" .!= defaultMaxSupportCoordinates

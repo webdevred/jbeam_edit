@@ -186,34 +186,18 @@ moveSupportVertices protectedNames newNames tfCfg connMap vsPerType =
         , count >= thrCount
         ]
 
-      brks = xGroupBreakpoints tfCfg
-
-      assignSupportNames = assignNames newNames brks SupportTree
-
       vertexForest :: VertexForest
       vertexForest =
         case NE.nonEmpty supportVertices of
           Nothing -> M.empty
           Just vs ->
-            M.singleton
-              SupportTree
-              ( OMap1.singleton
-                  ( SupportKey
-                  , VertexTree
-                      [sideComment SupportTree]
-                      ( let prefix = vertexPrefix newNames brks SupportTree
-                            sorted = NE.sortBy (on compare $ vY . aVertex) vs
-                            (_, bandIndices) = mapAccumL (indexBand tfCfg) (0, firstY sorted) sorted
-                            bandSortedPairs =
-                              NE.sortBy
-                                (compareAV prefix SupportTree)
-                                bandIndices
-                            bandSortedVertices = NE.map snd bandSortedPairs
-                            (_, renamedVertices') = mapAccumL assignSupportNames M.empty bandSortedVertices
-                         in renamedVertices'
-                      )
+            let supportTree = VertexTree [sideComment SupportTree] vs
+                sortedSupportTree = sortVertices SupportTree newNames tfCfg supportTree
+             in M.singleton
+                  SupportTree
+                  ( OMap1.singleton
+                      (SupportKey, sortedSupportTree)
                   )
-              )
 
       supportVertexNames = foldr (S.insert . anVertexName) S.empty supportVertices
 
@@ -436,20 +420,35 @@ assignNames newNames brks treeType prefixMap av =
 firstY :: NonEmpty AnnotatedVertex -> Scientific
 firstY = vY . aVertex . NE.head
 
+firstX :: NonEmpty (Int, AnnotatedVertex) -> Scientific
+firstX = vX . aVertex . snd . NE.head
+
 indexBand
-  :: TransformationConfig
+  :: Scientific
+  -> (a -> Scientific)
   -> (Int, Scientific)
-  -> AnnotatedVertex
-  -> ((Int, Scientific), (Int, AnnotatedVertex))
-indexBand tfCfg (bandIndex, bandY) av =
-  let nodeY = vY (aVertex av)
+  -> a
+  -> ((Int, Scientific), (Int, a))
+indexBand thr f (bandIndex, bandY) av =
+  let nodeY = f av
       distance = abs (nodeY - bandY)
-      thr = ySortingThreshold tfCfg
    in if distance >= thr
         then
           ((bandIndex + 1, nodeY), (bandIndex + 1, av))
         else
           ((bandIndex, bandY), (bandIndex, av))
+
+columnBandVertices
+  :: Scientific
+  -> NonEmpty (Int, AnnotatedVertex)
+  -> NonEmpty ((Int, Int), AnnotatedVertex)
+columnBandVertices thr vs =
+  let bandGroups = NE.groupBy1 (on (==) fst) vs
+      assignColumnBand group =
+        let sorted = NE.sortBy (on compare $ vX . aVertex . snd) group
+            (_, bandIndices) = mapAccumL (indexBand thr (vX . aVertex . snd)) (0, firstX sorted) sorted
+         in NE.map (\(xBand, (yBand, vertex)) -> ((yBand, xBand), vertex)) bandIndices
+   in sconcat $ NE.map assignColumnBand bandGroups
 
 sortVertices
   :: VertexTreeType
@@ -459,13 +458,25 @@ sortVertices
   -> VertexTree
 sortVertices treeType newNames tfCfg (VertexTree comments vertices) =
   let brks = xGroupBreakpoints tfCfg
+      thr = ySortingThreshold tfCfg
       sorted = NE.sortBy (on compare $ vY . aVertex) vertices
-      (_, bandIndices) = mapAccumL (indexBand tfCfg) (0, firstY sorted) sorted
-      bandSortedAnnotated =
-        NE.map snd $
-          NE.sortBy (compareAV (vertexPrefix newNames brks treeType) treeType) bandIndices
+      (_, bandIndices) = mapAccumL (indexBand thr (vY . aVertex)) (0, firstY sorted) sorted
+
+      renameVertices
+        :: Ord a => NonEmpty (a, AnnotatedVertex) -> NonEmpty AnnotatedVertex
+      renameVertices banded =
+        let columnSortedAnnotated =
+              NE.map snd $
+                NE.sortBy
+                  (compareAV (vertexPrefix newNames brks treeType) treeType)
+                  banded
+         in snd $
+              mapAccumL (assignNames newNames brks treeType) M.empty columnSortedAnnotated
+
       renamedGroups =
-        snd $ mapAccumL (assignNames newNames brks treeType) M.empty bandSortedAnnotated
+        case xSortingThreshold tfCfg of
+          Nothing -> renameVertices bandIndices
+          Just xThr -> renameVertices (columnBandVertices xThr bandIndices)
    in VertexTree comments renamedGroups
 
 updateVerticesInNode
