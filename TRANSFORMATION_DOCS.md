@@ -10,7 +10,7 @@ This document explains what the tool does and how to configure it.
 
 Transformation targets structural files containing positional node data: frames, suspension arms, subframes, chassis rails. The file must have a `nodes` section with the `["id", "posX", "posY", "posZ"]` header.
 
-It is not intended for body files, engine files, gauges, interior parts, or any file where nodes have semantic names like `int_strsl`, `dshsl`, `e1`, `cam`. Those names carry meaning that transformation does not understand and will overwrite.
+It is not intended for any file where nodes have semantic names like `int_strsl`, `dshsl`, `e1`, `cam`, which is common in engine files, gauges and interior parts. Those names carry meaning that transformation does not understand and will overwrite.
 
 ---
 
@@ -96,9 +96,9 @@ space between rows lands in the wrong place.
 
 **Then `x-sorting-threshold`.** It does the same thing sideways, inside each
 row. Turn it on if the file zigzags: the heights climb, drop back down and climb
-again. That happens when one row covers two vertical columns of nodes, say an
-outer face and the one set back beside it, and the tool has nothing but height
-to go on.
+again. That happens when one row covers two vertical columns of nodes, say the
+nose face of a panel and the fender beside it, and the tool has nothing but
+height to go on.
 
 Here is the part that trips people up. **The number you want is the width of a
 column, not the space between the columns.** Because the tool measures from the
@@ -294,7 +294,7 @@ Without a filename argument, all `.jbeam` files in the directory are validated. 
 
 ## Limitations
 
-**Body files are not supported.** Body files mix structural nodes with semantically named nodes (`int_strsl`, `dshsl`, `rm_*`). Transformation renames all nodes without distinction. An `excludePrefixes` config option is planned to protect named nodes from being renamed.
+**Named nodes are not protected.** Transformation renames every node in the file without distinction, so a file that mixes structural nodes with semantically named ones (`int_strsl`, `dshsl`, `rm_*`) loses those names. Check a file for named nodes before transforming it. An `excludePrefixes` config option is planned to protect them.
 
 **The transformation feature is experimental.** It is not included in the standard release binary. To use it, you need to build from source with the `transformation` flag enabled, or download a build that explicitly includes it.
 
