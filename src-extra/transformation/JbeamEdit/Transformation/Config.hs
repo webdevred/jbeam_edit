@@ -24,10 +24,11 @@ import Data.Maybe (isJust, isNothing)
 import Data.Scientific (Scientific)
 import Data.Text (Text)
 import Data.Text qualified as T
-import Data.Yaml (
+import Data.Yaml qualified as Y (
   Object,
   ParseException (..),
   Parser,
+  Value (..),
   decodeEither',
   prettyPrintParseException,
  )
@@ -133,7 +134,7 @@ instance FromJSON XGroupBreakpoints where
           )
     pure $ XGroupBreakpoints lst
 
-parseSupportThreshold :: Object -> Parser Scientific
+parseSupportThreshold :: Y.Object -> Y.Parser Scientific
 parseSupportThreshold o = do
   thr <- o .: "support-threshold"
   when (thr < 1) failWithMessage $> thr
@@ -142,19 +143,18 @@ parseSupportThreshold o = do
       fail
         "'support-threshold' must be a percentage value of 1 or higher (e.g., 80 or 80.8). Values below 1 (e.g., 0.80) are not allowed."
 
-parseXSortingThreshold :: Object -> Parser (Maybe Scientific)
+parseXSortingThreshold :: Y.Object -> Y.Parser (Maybe Scientific)
 parseXSortingThreshold o = do
   thr <- o .:? "x-sorting-threshold"
-  let cleanThr = T.unpack . T.strip <$> thr
-      maybeValid = cleanThr >>= readMaybe
-   in if
-        | thr == Just "off" || isNothing thr -> pure defaultXSortingThreshold
-        | isJust maybeValid -> pure maybeValid
-        | True -> failWithMessage
+  case thr of
+    Nothing -> pure defaultXSortingThreshold
+    Just Y.Null -> pure defaultXSortingThreshold
+    Just (Y.Number number) -> pure (Just number)
+    Just (Y.String "off") -> pure defaultXSortingThreshold
+    val -> failWithMessage val
   where
-    failWithMessage =
-      fail
-        "TODO: proper error message"
+    failWithMessage val =
+      fail ("'x-sorting-threshold' set to unsupported value " ++ show val)
 
 instance FromJSON TransformationConfig where
   parseJSON = withObject "TransformationConfig" $ \o ->
@@ -165,9 +165,9 @@ instance FromJSON TransformationConfig where
       <*> parseSupportThreshold o
       <*> o .:? "max-support-coordinates" .!= defaultMaxSupportCoordinates
 
-formatParseError :: ParseException -> String
-formatParseError (AesonException err) = err
-formatParseError excp = prettyPrintParseException excp
+formatParseError :: Y.ParseException -> String
+formatParseError (Y.AesonException err) = err
+formatParseError excp = Y.prettyPrintParseException excp
 
 transformationConfigFile :: OsPath
 transformationConfigFile = unsafeEncodeUtf ".jbeam-edit.yaml"
@@ -177,7 +177,7 @@ decodeConfig "" = Right newTransformationConfig
 decodeConfig content =
   first
     (T.pack . formatParseError)
-    (decodeEither' $ LBS.toStrict content)
+    (Y.decodeEither' $ LBS.toStrict content)
 
 loadTransformationConfig :: OsPath -> IO TransformationConfig
 loadTransformationConfig filename = do
