@@ -1,5 +1,4 @@
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE MultiWayIf #-}
 
 module JbeamEdit.Transformation.Config (
   loadTransformationConfig,
@@ -20,11 +19,10 @@ import Control.Monad (forM, when)
 import Data.Bifunctor (first)
 import Data.ByteString.Lazy qualified as LBS
 import Data.Functor (($>))
-import Data.Maybe (isJust, isNothing)
 import Data.Scientific (Scientific)
 import Data.Text (Text)
 import Data.Text qualified as T
-import Data.Yaml qualified as Y (
+import Data.Yaml (
   Object,
   ParseException (..),
   Parser,
@@ -48,7 +46,7 @@ import JbeamEdit.IOUtils
 import JbeamEdit.Transformation.Types (VertexTreeType (..))
 import Numeric.Natural (Natural)
 import System.OsPath
-import Text.Read
+import Text.Read(readMaybe)
 
 defaultXSortingThreshold :: Maybe Scientific
 defaultXSortingThreshold = Nothing
@@ -134,7 +132,7 @@ instance FromJSON XGroupBreakpoints where
           )
     pure $ XGroupBreakpoints lst
 
-parseSupportThreshold :: Y.Object -> Y.Parser Scientific
+parseSupportThreshold :: Object -> Parser Scientific
 parseSupportThreshold o = do
   thr <- o .: "support-threshold"
   when (thr < 1) failWithMessage $> thr
@@ -143,14 +141,14 @@ parseSupportThreshold o = do
       fail
         "'support-threshold' must be a percentage value of 1 or higher (e.g., 80 or 80.8). Values below 1 (e.g., 0.80) are not allowed."
 
-parseXSortingThreshold :: Y.Object -> Y.Parser (Maybe Scientific)
+parseXSortingThreshold :: Object -> Parser (Maybe Scientific)
 parseXSortingThreshold o = do
   thr <- o .:? "x-sorting-threshold"
   case thr of
     Nothing -> pure defaultXSortingThreshold
-    Just Y.Null -> pure defaultXSortingThreshold
-    Just (Y.Number number) -> pure (Just number)
-    Just (Y.String "off") -> pure defaultXSortingThreshold
+    Just Null -> pure defaultXSortingThreshold
+    Just (Number number) -> pure (Just number)
+    Just (String "off") -> pure defaultXSortingThreshold
     val -> failWithMessage val
   where
     failWithMessage val =
@@ -165,9 +163,9 @@ instance FromJSON TransformationConfig where
       <*> parseSupportThreshold o
       <*> o .:? "max-support-coordinates" .!= defaultMaxSupportCoordinates
 
-formatParseError :: Y.ParseException -> String
-formatParseError (Y.AesonException err) = err
-formatParseError excp = Y.prettyPrintParseException excp
+formatParseError :: ParseException -> String
+formatParseError (AesonException err) = err
+formatParseError excp = prettyPrintParseException excp
 
 transformationConfigFile :: OsPath
 transformationConfigFile = unsafeEncodeUtf ".jbeam-edit.yaml"
@@ -177,7 +175,7 @@ decodeConfig "" = Right newTransformationConfig
 decodeConfig content =
   first
     (T.pack . formatParseError)
-    (Y.decodeEither' $ LBS.toStrict content)
+    (decodeEither' $ LBS.toStrict content)
 
 loadTransformationConfig :: OsPath -> IO TransformationConfig
 loadTransformationConfig filename = do
