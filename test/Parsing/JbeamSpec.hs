@@ -4,6 +4,7 @@ module Parsing.JbeamSpec (
 
 import Data.ByteString.Lazy (ByteString)
 import Data.ByteString.Lazy qualified as BS (readFile)
+import Data.Either (isRight)
 import Data.Vector (fromList)
 import Data.Void (Void)
 import JbeamEdit.Parsing.Common.Helpers
@@ -186,6 +187,22 @@ invalidSpec =
   where
     expLabels = foldMap elabel ["a valid scalar", "object", "array"]
 
+{- | BeamNG treats a comma as insignificant, closer to white space than to
+structure, so a stray one between two array elements is a file the game
+reads. The grammar allows exactly one comma between elements and has nowhere
+to put a second, which stops the parse. Issue #230.
+
+This says only that the input is accepted. What the formatter writes back for
+the empty slot, a comma or nothing, is a separate decision and needs its own
+spec once it is made.
+-}
+insignificantCommaSpec :: Spec
+insignificantCommaSpec =
+  describe "an array with a stray comma where an element would be"
+    . it "is accepted, because the game reads it"
+    $ parseNodesState' nodeParser "[\"id\", ,\"idRef:\"]"
+      `shouldSatisfy` isRight
+
 invalidNumberSpec :: Spec
 invalidNumberSpec =
   describe
@@ -238,6 +255,7 @@ spec :: Spec
 spec = do
   mapM_ (applyParserSpec nodeParser) specs
   invalidSpec
+  insignificantCommaSpec
   invalidNumberSpec
   invalidTopNodeSpec
   topNodeSpecs
