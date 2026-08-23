@@ -38,6 +38,7 @@ Transformation reads `.jbeam-edit.yaml` in the working directory if present. Wit
 
 ```yaml
 y-sorting-threshold: 0.05
+x-sorting-threshold: off
 support-threshold: 96
 max-support-coordinates: 3
 
@@ -52,12 +53,17 @@ x-group-breakpoints:
 
 Parameter reference:
 
-| Key                      | Default | Description                                                                    |
-|--------------------------|---------|--------------------------------------------------------------------------------|
-| `y-sorting-threshold`    | 0.05    | Y distance (meters) below which two nodes are treated as the same depth band   |
-| `support-threshold`      | 96      | Minimum beam count as a percentage of group size to classify a node as support |
-| `max-support-coordinates`| 3       | Maximum number of support node candidates examined per spatial group           |
-| `x-group-breakpoints`    | (above) | Rules that map X coordinate to Left, Middle, or Right                          |
+| Key                       | Default | Description                                                                     |
+|---------------------------|---------|---------------------------------------------------------------------------------|
+| `y-sorting-threshold`     | 0.05    | Y distance (meters) below which two nodes are treated as the same depth band    |
+| `x-sorting-threshold`     | off     | X distance (meters) below which two nodes in one Y band count as the same column |
+| `support-threshold`       | 96      | Minimum beam count as a percentage of group size to classify a node as support  |
+| `max-support-coordinates` | 3       | Maximum number of support node candidates examined per spatial group            |
+| `x-group-breakpoints`     | (above) | Rules that map X coordinate to Left, Middle, or Right                           |
+
+`x-sorting-threshold` is off unless you set it, and `off` is the only word it
+accepts besides a distance. There is no number that turns it off: `0` gives
+every node its own column, which is the most column sorting rather than none.
 
 Three ways this file can fail without saying much:
 
@@ -159,6 +165,8 @@ Nodes within each group are sorted by three coordinates in order:
 3. **X (side offset)** - within the same Y and Z band, nodes are sorted by X.
 
 A band starts at the node that opened it, not at the previous node, so a long run of small steps cannot chain into one band much wider than the threshold.
+
+With `x-sorting-threshold` set, each Y band is banded a second time before step 2, by X and by the same opener rule. Nodes in the same Y band but different columns then come out one column at a time, lower node first within each. Without it a band that spans two columns is ordered by height alone, so the output climbs one column, jumps to the other and comes back. That is what the setting is for: on a body panel the nose face and the fender beside it can sit at heights that interleave, and no Y threshold separates them because they are at the same depth.
 
 The threshold is there because nodes you placed at one depth are rarely at exactly the same Y. Without it, a millimetre of difference would order them by Y instead of by height, and the two sides of a symmetric vehicle would come out in different orders.
 
