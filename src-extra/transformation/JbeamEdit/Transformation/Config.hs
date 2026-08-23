@@ -46,7 +46,7 @@ import JbeamEdit.IOUtils
 import JbeamEdit.Transformation.Types (VertexTreeType (..))
 import Numeric.Natural (Natural)
 import System.OsPath
-import Text.Read(readMaybe)
+import Text.Read (readMaybe)
 
 defaultXSortingThreshold :: Maybe Scientific
 defaultXSortingThreshold = Nothing
@@ -141,18 +141,23 @@ parseSupportThreshold o = do
       fail
         "'support-threshold' must be a percentage value of 1 or higher (e.g., 80 or 80.8). Values below 1 (e.g., 0.80) are not allowed."
 
+{- | Unquoted 'off' reaches this as a boolean, because that is how YAML
+resolves it, so the string case alone would only catch the quoted spelling.
+-}
 parseXSortingThreshold :: Object -> Parser (Maybe Scientific)
 parseXSortingThreshold o = do
   thr <- o .:? "x-sorting-threshold"
   case thr of
     Nothing -> pure defaultXSortingThreshold
     Just Null -> pure defaultXSortingThreshold
-    Just (Number number) -> pure (Just number)
+    Just (Bool False) -> pure defaultXSortingThreshold
     Just (String "off") -> pure defaultXSortingThreshold
-    val -> failWithMessage val
+    Just (Number number) -> pure (Just number)
+    Just _ -> failWithMessage
   where
-    failWithMessage val =
-      fail ("'x-sorting-threshold' set to unsupported value " ++ show val)
+    failWithMessage =
+      fail
+        "'x-sorting-threshold' must be a distance in meters (e.g., 0.2 for 20 cm), or 'off' to leave the column sorting out. Omitting the key does the same as 'off'."
 
 instance FromJSON TransformationConfig where
   parseJSON = withObject "TransformationConfig" $ \o ->

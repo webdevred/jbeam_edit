@@ -58,6 +58,18 @@ configParsingSpec = describe "the transformation config parser" $ do
   it "leaves the column pass off when x-sorting-threshold is absent" $
     parseField xSortingThreshold "support-threshold: 20\n" `shouldBe` Right Nothing
 
+  it "reads off as leaving the column pass out, quoted or not" $ do
+    parseField xSortingThreshold (olderThresholds <> "x-sorting-threshold: off\n")
+      `shouldBe` Right Nothing
+    parseField
+      xSortingThreshold
+      (olderThresholds <> "x-sorting-threshold: \"off\"\n")
+      `shouldBe` Right Nothing
+
+  it "rejects an x-sorting-threshold that is neither a number nor off" $
+    parseField xSortingThreshold (olderThresholds <> "x-sorting-threshold: soon\n")
+      `shouldSatisfy` isLeft
+
   it "accepts a support-threshold of exactly 1" $
     parseField supportThreshold "support-threshold: 1\n" `shouldBe` Right 1
 
