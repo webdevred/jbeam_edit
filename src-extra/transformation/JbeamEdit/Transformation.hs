@@ -473,7 +473,6 @@ sortVertices treeType newNames tfCfg (VertexTree comments vertices) =
          in snd $
               mapAccumL (assignNames newNames brks treeType) M.empty columnSortedAnnotated
 
-
       renamedGroups =
         case xSortingThreshold tfCfg of
           Nothing -> renameVertices bandIndices
