@@ -194,21 +194,29 @@ does not run at all.
 -}
 xColumnSortingSpec :: Spec
 xColumnSortingSpec =
-  describe "vertices in one Y band but different X columns"
-    . it "keeps each column contiguous instead of interleaving them"
-    $ do
-      let cfg =
-            newTransformationConfig
-              { ySortingThreshold = 0.31
-              , xSortingThreshold = Just 0.2
-              }
-          inner = [(0.953, -1.967, 0.122), (0.92, -1.953, 0.439), (0.78, -1.815, 0.719)]
+  describe "vertices in one Y band but different X columns" $ do
+    it "keeps each column contiguous instead of interleaving them" $ do
+      let inner = [(0.953, -1.967, 0.122), (0.92, -1.953, 0.439), (0.78, -1.815, 0.719)]
           outer = [(1.036, -1.807, 0.125), (0.998, -1.791, 0.473)]
       topNode <- parseJbeamFile ySortingReproFixture
-      case transform M.empty cfg topNode of
-        Left err -> expectationFailure ("transform failed: " ++ T.unpack err)
-        Right (_, _, _, resultNode) ->
-          take 5 (leftGroup (vertexCoordinatesInOrder resultNode))
-            `shouldBe` inner ++ outer
+      withColumnSorting topNode $ \resultNode ->
+        take 5 (leftGroup (vertexCoordinatesInOrder resultNode))
+          `shouldBe` inner ++ outer
+
+    it "is a fixed point: a second transform moves nothing further" $ do
+      topNode <- parseJbeamFile ySortingReproFixture
+      withColumnSorting topNode $ \resultNode ->
+        withColumnSorting resultNode $ \againNode ->
+          vertexCoordinatesInOrder againNode
+            `shouldBe` vertexCoordinatesInOrder resultNode
   where
     leftGroup = filter (\(x, _, _) -> x >= 0.09)
+    columnSortingConfig =
+      newTransformationConfig
+        { ySortingThreshold = 0.31
+        , xSortingThreshold = Just 0.2
+        }
+    withColumnSorting node assert =
+      case transform M.empty columnSortingConfig node of
+        Left err -> expectationFailure ("transform failed: " ++ T.unpack err)
+        Right (_, _, _, resultNode) -> assert resultNode

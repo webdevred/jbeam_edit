@@ -10,7 +10,7 @@ import Data.List.NonEmpty (NonEmpty)
 import Data.List.NonEmpty qualified as NE
 import Data.Map (Map)
 import Data.Map qualified as M
-import Data.Maybe (fromMaybe, isJust, mapMaybe)
+import Data.Maybe (fromMaybe, mapMaybe)
 import Data.Monoid.Extra (mwhen)
 import Data.Ord (Down (Down), comparing)
 import Data.Scientific (Scientific)
@@ -468,9 +468,7 @@ sortVertices treeType newNames tfCfg (VertexTree comments vertices) =
       thr = ySortingThreshold tfCfg
       sorted = NE.sortBy (on compare $ vY . aVertex) vertices
       (_, bandIndices) = mapAccumL (indexBand thr (vY . aVertex)) (0, firstY sorted) sorted
-      bandSortedAnnotated =
-        NE.sortBy (compareAV (vertexPrefix newNames brks treeType) treeType) bandIndices
-      columnBandIndices = columnBandVertices tfCfg bandSortedAnnotated
+      columnBandIndices = columnBandVertices tfCfg bandIndices
       columnSortedAnnotated =
         NE.map snd $
           NE.sortBy
