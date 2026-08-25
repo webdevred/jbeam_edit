@@ -85,7 +85,7 @@ numberParser = do
   before <- MP.getInput
   value <- L.scientific <?> "decimal number or integer"
   after <- MP.getInput
-  _ <- MP.optional (byteChar '.')
+  _ <- MP.optional (MP.try (byteChar '.' <* MP.notFollowedBy B.digitChar))
   let rawBytes = LBS.take (LBS.length before - LBS.length after) before
       rawText = decodeUtf8Lenient (LBS.toStrict rawBytes)
   pure $ Number (mkNumberValue (signText <> rawText) (signFactor value))
