@@ -10,6 +10,7 @@ module Spec.Regression (
   metadataAcrossTreesSpec,
   metadataPreservedSpec,
   xColumnSortingSpec,
+  noBeamsSpec,
 ) where
 
 import Data.Map qualified as M
@@ -220,3 +221,24 @@ xColumnSortingSpec =
       case transform M.empty columnSortingConfig node of
         Left err -> expectationFailure ("transform failed: " ++ T.unpack err)
         Right (_, _, _, resultNode) -> assert resultNode
+
+{- | A jbeam file is not obliged to have a beams section. Classifying, sorting
+and renaming need none: only support classification reads beams, and its
+answer without them is that there are no support nodes. Issue #229.
+
+`transform` instead fails the whole file, and the tool still exits 0, so a
+run over a directory leaves such files untouched without saying why.
+-}
+noBeamsFixture :: FilePath
+noBeamsFixture = "examples/regression_jbeam/no-beams-repro.jbeam"
+
+noBeamsSpec :: Spec
+noBeamsSpec =
+  describe "a file with no beams section"
+    . it "is transformed, with no node classified as support"
+    $ do
+      topNode <- parseJbeamFile noBeamsFixture
+      case transform M.empty newTransformationConfig topNode of
+        Left err -> expectationFailure ("transform failed: " ++ T.unpack err)
+        Right (_, _, _, resultNode) ->
+          length (vertexCoordinates resultNode) `shouldBe` 4
