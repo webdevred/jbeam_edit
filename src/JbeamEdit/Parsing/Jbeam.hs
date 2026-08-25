@@ -18,7 +18,6 @@ import Data.Char (isSpace)
 import Data.Functor (($>))
 import Data.Maybe (isJust, isNothing)
 import Data.Monoid.Extra (mwhen)
-import Data.Scientific (Scientific)
 import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Text.Encoding (decodeUtf8Lenient)
@@ -36,7 +35,7 @@ import JbeamEdit.Parsing.Common
 import Text.Megaparsec ((<?>), (<|>))
 import Text.Megaparsec qualified as MP
 import Text.Megaparsec.Byte qualified as B
-import Text.Megaparsec.Byte.Lexer qualified as L (decimal, scientific)
+import Text.Megaparsec.Byte.Lexer qualified as L (scientific)
 import Text.Megaparsec.Char qualified as C
 
 data ParseState = ParseState
@@ -51,7 +50,7 @@ separatorParser :: JbeamParser ()
 separatorParser = do
   ws1 <- MP.takeWhileP Nothing wordIsSpace
   comma <- MP.optional (MP.label "comma" $ byteChar ',')
-  ws2 <- MP.takeWhileP Nothing wordIsSpace
+  ws2 <- MP.takeWhileP Nothing (\x -> wordIsSpace x || toChar x == ',')
 
   let nl = toWord8 '\n'
       ws1Newlines = LBS.count nl ws1
@@ -84,14 +83,12 @@ numberParser = do
       else pure ""
   let signFactor = if char == toWord8 '-' then negate else id
   before <- MP.getInput
-  value <- MP.try intAsScientific <|> L.scientific
+  value <- L.scientific <?> "decimal number or integer"
   after <- MP.getInput
+  _ <- MP.optional (MP.try (byteChar '.' <* MP.notFollowedBy B.digitChar))
   let rawBytes = LBS.take (LBS.length before - LBS.length after) before
       rawText = decodeUtf8Lenient (LBS.toStrict rawBytes)
   pure $ Number (mkNumberValue (signText <> rawText) (signFactor value))
-  where
-    intAsScientific :: JbeamParser Scientific
-    intAsScientific = fromIntegral <$> intDecimalParser
 
 associationDirection :: ParseState -> AssociationDirection
 associationDirection st = bool PreviousNode NextNode (lastNodeEndedWithNewline st)
@@ -151,10 +148,6 @@ stringParser = parseWord8s String string
     emptyString = C.string "\"\"" >> pure []
     string = emptyString <|> validString
 
-intDecimalParser :: JbeamParser Integer
-intDecimalParser =
-  L.decimal <* MP.notFollowedBy (byteChar '.' <|> byteChar 'e' <|> byteChar 'E')
-
 scalarParser :: JbeamParser Node
 scalarParser =
   tryScalarParsers
@@ -203,7 +196,10 @@ objectKeyParser = do
   _ <- skipWhiteSpace
   key <- MP.try (stringParser <?> "string")
   _ <- skipWhiteSpace
+  _ <- MP.optional (byteChar ',')
+  _ <- skipWhiteSpace
   _ <- byteChar ':'
+  _ <- MP.optional (byteChar ',')
   value <- nodeParser
   pure $ ObjectKey (key, value)
 
@@ -215,7 +211,12 @@ objectParser = do
   pure . Object $ ObjectValue (V.fromList elems)
 
 topNodeParser :: JbeamParser Node
-topNodeParser = nodeParser <* skipWhiteSpace <* MP.eof
+topNodeParser =
+  nodeParser
+    <* skipWhiteSpace
+    <* MP.optional (byteChar ',')
+    <* skipWhiteSpace
+    <* MP.eof
 
 parseNodesState
   :: JbeamParser a

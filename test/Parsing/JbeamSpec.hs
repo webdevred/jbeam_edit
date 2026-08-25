@@ -4,6 +4,7 @@ module Parsing.JbeamSpec (
 
 import Data.ByteString.Lazy (ByteString)
 import Data.ByteString.Lazy qualified as BS (readFile)
+import Data.Either (isRight)
 import Data.Vector (fromList)
 import Data.Void (Void)
 import JbeamEdit.Parsing.Common.Helpers
@@ -186,13 +187,57 @@ invalidSpec =
   where
     expLabels = foldMap elabel ["a valid scalar", "object", "array"]
 
+{- | Shapes that BeamNG reads and our grammar rejects, from issue #230. A comma
+is insignificant to the game, closer to white space than to structure, and a
+number may end on its decimal point.
+
+Each spec says only that the input is accepted, because what the formatter
+writes back for each shape is not decided yet.
+-}
+acceptsFragment :: (String, String) -> Spec
+acceptsFragment (desc, input) =
+  describe desc . it "is accepted, because the game reads it" $
+    parseNodesState' nodeParser input `shouldSatisfy` isRight
+
+acceptsDocument :: (String, String) -> Spec
+acceptsDocument (desc, input) =
+  describe desc . it "is accepted, because the game reads it" $
+    parseNodes (textToLazyByteString input) `shouldSatisfy` isRight
+
+gameReadableSpecs :: [Spec]
+gameReadableSpecs =
+  map
+    acceptsFragment
+    [
+      ( "an array with a stray comma where an element would be"
+      , "[\"id\", ,\"idRef:\"]"
+      )
+    , ("a comma after the colon of a key", "{\"innerfender_R\":, {\"a\": 1}}")
+    , ("a comma before the colon of a key", "{\"spoke1\",: {\"a\": 1}}")
+    , ("a number ending on its decimal point", "[\"f1\", 0., -1.66]")
+    ]
+    ++ [acceptsDocument ("a comma after the root object", "{\"a\": 1},\n")]
+
 invalidNumberSpec :: Spec
 invalidNumberSpec =
   describe
     "should fail parsing Number when there is space after the negative sign"
     . works
     $ parseNodesState numberParser "- 0.3"
-      `shouldFailWith` err 1 (utok (toWord8 ' ') <> elabel "digit" <> elabel "integer")
+      `shouldFailWith` err 1 (utok (toWord8 ' ') <> elabel "decimal number or integer")
+
+numberWithBadDecimalPoint :: Spec
+numberWithBadDecimalPoint =
+  describe
+    "should consume and discard a trailing period with no decimal digits"
+    . works
+    $ case parseNodesState ((,) <$> numberParser <*> MP.getInput) "3." of
+      Left bundle ->
+        expectationFailure $
+          "expected successful parse, got error:\n" <> MP.errorBundlePretty bundle
+      Right (node, remaining) -> do
+        node `shouldBe` Number (mkNumberValue "3" 3)
+        remaining `shouldBe` ""
 
 topNodeSpec :: FilePath -> FilePath -> Spec
 topNodeSpec inFilename outFilename = do
@@ -238,8 +283,10 @@ spec :: Spec
 spec = do
   mapM_ (applyParserSpec nodeParser) specs
   invalidSpec
+  sequence_ gameReadableSpecs
   invalidNumberSpec
   invalidTopNodeSpec
+  numberWithBadDecimalPoint
   topNodeSpecs
   where
     specs =
