@@ -189,21 +189,36 @@ invalidSpec =
   where
     expLabels = foldMap elabel ["a valid scalar", "object", "array"]
 
-{- | BeamNG treats a comma as insignificant, closer to white space than to
-structure, so a stray one between two array elements is a file the game
-reads. The grammar allows exactly one comma between elements and has nowhere
-to put a second, which stops the parse. Issue #230.
+{- | Shapes that BeamNG reads and our grammar rejects, from issue #230. A comma
+is insignificant to the game, closer to white space than to structure, and a
+number may end on its decimal point.
 
-This says only that the input is accepted. What the formatter writes back for
-the empty slot, a comma or nothing, is a separate decision and needs its own
-spec once it is made.
+Each spec says only that the input is accepted. What the formatter writes back
+is a separate decision per shape, and needs its own spec once it is made.
 -}
-insignificantCommaSpec :: Spec
-insignificantCommaSpec =
-  describe "an array with a stray comma where an element would be"
-    . it "is accepted, because the game reads it"
-    $ parseNodesState' nodeParser "[\"id\", ,\"idRef:\"]"
-      `shouldSatisfy` isRight
+acceptsFragment :: (String, String) -> Spec
+acceptsFragment (desc, input) =
+  describe desc . it "is accepted, because the game reads it" $
+    parseNodesState' nodeParser input `shouldSatisfy` isRight
+
+acceptsDocument :: (String, String) -> Spec
+acceptsDocument (desc, input) =
+  describe desc . it "is accepted, because the game reads it" $
+    parseNodes (textToLazyByteString input) `shouldSatisfy` isRight
+
+gameReadableSpecs :: [Spec]
+gameReadableSpecs =
+  map
+    acceptsFragment
+    [
+      ( "an array with a stray comma where an element would be"
+      , "[\"id\", ,\"idRef:\"]"
+      )
+    , ("a comma after the colon of a key", "{\"innerfender_R\":, {\"a\": 1}}")
+    , ("a comma before the colon of a key", "{\"spoke1\",: {\"a\": 1}}")
+    , ("a number ending on its decimal point", "[\"f1\", 0., -1.66]")
+    ]
+    ++ [acceptsDocument ("a comma after the root object", "{\"a\": 1},\n")]
 
 invalidNumberSpec :: Spec
 invalidNumberSpec =
@@ -274,7 +289,7 @@ spec :: Spec
 spec = do
   mapM_ (applyParserSpec nodeParser) specs
   invalidSpec
-  insignificantCommaSpec
+  sequence_ gameReadableSpecs
   invalidNumberSpec
   invalidTopNodeSpec
   numberWithBadDecimalPoint
