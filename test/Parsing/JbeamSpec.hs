@@ -2,6 +2,7 @@ module Parsing.JbeamSpec (
   spec,
 ) where
 
+import Control.Monad.State (State, evalState)
 import Data.ByteString.Lazy (ByteString)
 import Data.ByteString.Lazy qualified as BS (readFile)
 import Data.Either (isRight)
@@ -9,6 +10,7 @@ import Data.Vector (fromList)
 import Data.Void (Void)
 import JbeamEdit.Parsing.Common.Helpers
 import JbeamEdit.Parsing.Jbeam
+import JbeamEdit.Parsing.Jbeam qualified as P (initialState)
 import SpecHelper
 import Test.Hspec.Megaparsec
 import Text.Megaparsec qualified as MP
@@ -209,7 +211,24 @@ invalidNumberSpec =
     "should fail parsing Number when there is space after the negative sign"
     . works
     $ parseNodesState numberParser "- 0.3"
-      `shouldFailWith` err 1 (utok (toWord8 ' ') <> elabel "digit" <> elabel "integer")
+      `shouldFailWith` err 1 (utok (toWord8 ' ') <> elabel "decimal number or integer")
+
+numberWithBadDecimalPoint :: Spec
+numberWithBadDecimalPoint =
+  describe
+    "should consume and discard a trailing period with no decimal digits"
+    . works
+    $ do
+      let input = "3."
+      case evalState
+        (MP.runParserT ((,) <$> numberParser <*> MP.getInput) "<input>" input)
+        P.initialState of
+        Left bundle ->
+          expectationFailure $
+            "expected successful parse, got error:\n" <> MP.errorBundlePretty bundle
+        Right (node, remaining) -> do
+          node `shouldBe` Number (mkNumberValue "3" 3)
+          remaining `shouldBe` ""
 
 topNodeSpec :: FilePath -> FilePath -> Spec
 topNodeSpec inFilename outFilename = do
@@ -258,6 +277,7 @@ spec = do
   insignificantCommaSpec
   invalidNumberSpec
   invalidTopNodeSpec
+  numberWithBadDecimalPoint
   topNodeSpecs
   where
     specs =

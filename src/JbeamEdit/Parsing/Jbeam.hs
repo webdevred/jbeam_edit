@@ -3,6 +3,7 @@ module JbeamEdit.Parsing.Jbeam (
   JbeamParser,
   nodeParser,
   numberParser,
+  initialState,
   parseNodes,
   parseNodesState,
 ) where
@@ -18,7 +19,6 @@ import Data.Char (isSpace)
 import Data.Functor (($>))
 import Data.Maybe (isJust, isNothing)
 import Data.Monoid.Extra (mwhen)
-import Data.Scientific (Scientific)
 import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Text.Encoding (decodeUtf8Lenient)
@@ -36,7 +36,7 @@ import JbeamEdit.Parsing.Common
 import Text.Megaparsec ((<?>), (<|>))
 import Text.Megaparsec qualified as MP
 import Text.Megaparsec.Byte qualified as B
-import Text.Megaparsec.Byte.Lexer qualified as L (decimal, scientific)
+import Text.Megaparsec.Byte.Lexer qualified as L (scientific)
 import Text.Megaparsec.Char qualified as C
 
 data ParseState = ParseState
@@ -84,14 +84,12 @@ numberParser = do
       else pure ""
   let signFactor = if char == toWord8 '-' then negate else id
   before <- MP.getInput
-  value <- MP.try intAsScientific <|> L.scientific
+  value <- L.scientific <?> "decimal number or integer"
   after <- MP.getInput
+  _ <- MP.optional (byteChar '.')
   let rawBytes = LBS.take (LBS.length before - LBS.length after) before
       rawText = decodeUtf8Lenient (LBS.toStrict rawBytes)
   pure $ Number (mkNumberValue (signText <> rawText) (signFactor value))
-  where
-    intAsScientific :: JbeamParser Scientific
-    intAsScientific = fromIntegral <$> intDecimalParser
 
 associationDirection :: ParseState -> AssociationDirection
 associationDirection st = bool PreviousNode NextNode (lastNodeEndedWithNewline st)
@@ -150,10 +148,6 @@ stringParser = parseWord8s String string
       byteChar '"' *> MP.some (MP.satisfy (charNotEqWord8 '"')) <* byteChar '"'
     emptyString = C.string "\"\"" >> pure []
     string = emptyString <|> validString
-
-intDecimalParser :: JbeamParser Integer
-intDecimalParser =
-  L.decimal <* MP.notFollowedBy (byteChar '.' <|> byteChar 'e' <|> byteChar 'E')
 
 scalarParser :: JbeamParser Node
 scalarParser =
@@ -217,18 +211,19 @@ objectParser = do
 topNodeParser :: JbeamParser Node
 topNodeParser = nodeParser <* skipWhiteSpace <* MP.eof
 
+initialState :: ParseState
+initialState =
+  ParseState
+    { lastNodeEndedWithNewline = True
+    , lastSeparatorHadBlankLine = False
+    , lastSeparatorHadComma = False
+    }
+
 parseNodesState
   :: JbeamParser a
   -> LBS.ByteString
   -> Either (MP.ParseErrorBundle LBS.ByteString Void) a
-parseNodesState parser input =
-  let initialState =
-        ParseState
-          { lastNodeEndedWithNewline = True
-          , lastSeparatorHadBlankLine = False
-          , lastSeparatorHadComma = False
-          }
-   in evalState (MP.runParserT parser "<input>" input) initialState
+parseNodesState parser input = evalState (MP.runParserT parser "<input>" input) initialState
 
 parseNodes :: LBS.ByteString -> Either Text Node
 parseNodes input = first formatErrors (parseNodesState topNodeParser input)
