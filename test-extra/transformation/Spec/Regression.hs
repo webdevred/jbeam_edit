@@ -235,13 +235,11 @@ noBeamsFixture = "examples/regression_jbeam/no-beams-repro.jbeam"
 noBeamsSpec :: Spec
 noBeamsSpec =
   describe "a file with no beams section" $ do
-    it "is transformed, keeping every node" $
-      withNoBeams $ \resultNode ->
-        length (vertexCoordinates resultNode) `shouldBe` 4
+    it "is transformed, keeping every node" . withNoBeams $ \resultNode ->
+      length (vertexCoordinates resultNode) `shouldBe` 4
 
-    it "classifies no node as support" $
-      withNoBeams $ \resultNode ->
-        commentTexts resultNode `shouldNotContain` ["Support nodes"]
+    it "classifies no node as support" . withNoBeams $ \resultNode ->
+      commentTexts resultNode `shouldNotContain` ["Support nodes"]
   where
     withNoBeams assert = do
       topNode <- parseJbeamFile noBeamsFixture
