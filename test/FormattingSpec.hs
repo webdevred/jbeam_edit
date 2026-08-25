@@ -118,10 +118,47 @@ reachSpec = do
     it "applies ComplexNewLine below the matched value too" $
       formatWith (shortPattern "ComplexNewLine : Force;") `shouldNotBe` baseline
 
+{- | `PadDecimals` guarantees a minimum number of decimal digits, so a
+coordinate the source wrote as `12.0` should come out with three of them. It
+comes out as `12`, because `scientificToText` rebuilds the text from the
+parsed value and drops the point for a whole number, and `applyDecimalPadding`
+only pads text that already contains one. The source text is still on the node
+in `nvText`, so nothing is lost at parse time. Issue #217.
+
+The third case is the control: a source that wrote no point asks for no
+decimals, and padding it would change what the author meant.
+-}
+decimalPaddingSpec :: Spec
+decimalPaddingSpec = do
+  let row cells = mkArray (fromList cells)
+      docWith cell =
+        mkObject
+          ( fromList
+              [ ObjectKey
+                  ( String "part"
+                  , mkObject (fromList [ObjectKey (String "nodes", row [row [cell]])])
+                  )
+              ]
+          )
+      rules = rulesFromSource ".*.nodes[*][*] { PadDecimals: 3; }"
+      formatCell = formatNode rules . docWith
+      wrap body = "{\"part\" : {\"nodes\" : [[" <> body <> "]]}}\n"
+
+  describe "PadDecimals on a whole number" $ do
+    it "pads one the source wrote with a decimal point" $
+      formatCell (Number (mkNumberValue "12.0" 12)) `shouldBe` wrap "12.000"
+
+    it "pads one that already has decimals" $
+      formatCell (Number (mkNumberValue "1.2" 1.2)) `shouldBe` wrap "1.200"
+
+    it "leaves one the source wrote without a decimal point alone" $
+      formatCell (Number (mkNumberValue "12" 12)) `shouldBe` wrap "12"
+
 spec :: Spec
 spec = do
   mapM_ formatNodeSpec specs
   reachSpec
+  decimalPaddingSpec
 
   dynamicTests <- runIO dynamicJbflTests
   forM_ dynamicTests $ \(outFile, formatted, expected) ->
