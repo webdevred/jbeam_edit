@@ -7,6 +7,7 @@ module Spec.Helpers (
   effectiveMetaByCoordinate,
   metaNumber,
   outOfOrderPairs,
+  commentTexts,
 ) where
 
 import Data.Char (isDigit)
@@ -17,7 +18,14 @@ import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Vector qualified as V
 import GHC.IsList (fromList)
-import JbeamEdit.Core.Node (Node (..), NumberValue (..), expectArray)
+import JbeamEdit.Core.Node (
+  InternalComment (..),
+  Node (..),
+  NumberValue (..),
+  avNodes,
+  expectArray,
+  ovNodes,
+ )
 import JbeamEdit.Core.NodePath qualified as NP
 import JbeamEdit.IOUtils (tryReadFile)
 import JbeamEdit.Parsing.Jbeam (parseNodes)
@@ -153,3 +161,15 @@ outOfOrderPairs thr resultNode =
   where
     positions = zip (vertexPositionsInOrder resultNode) [0 :: Int ..]
     groupPrefix = T.dropWhileEnd isDigit
+
+{- | Every comment in a top node, in no particular order. The transformation
+writes a side comment above each tree it creates, so the absence of one names
+a tree that was never created.
+-}
+commentTexts :: Node -> [Text]
+commentTexts node = case node of
+  Comment comment -> [cText comment]
+  Array arrayValue -> concatMap commentTexts (V.toList (avNodes arrayValue))
+  Object objectValue -> concatMap commentTexts (V.toList (ovNodes objectValue))
+  ObjectKey (key, value) -> commentTexts key ++ commentTexts value
+  _ -> []
