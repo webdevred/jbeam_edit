@@ -196,7 +196,10 @@ objectKeyParser = do
   _ <- skipWhiteSpace
   key <- MP.try (stringParser <?> "string")
   _ <- skipWhiteSpace
+  _ <- MP.optional (byteChar ',')
+  _ <- skipWhiteSpace
   _ <- byteChar ':'
+  _ <- MP.optional (byteChar ',')
   value <- nodeParser
   pure $ ObjectKey (key, value)
 
@@ -208,7 +211,12 @@ objectParser = do
   pure . Object $ ObjectValue (V.fromList elems)
 
 topNodeParser :: JbeamParser Node
-topNodeParser = nodeParser <* skipWhiteSpace <* MP.eof
+topNodeParser =
+  nodeParser
+    <* skipWhiteSpace
+    <* MP.optional (byteChar ',')
+    <* skipWhiteSpace
+    <* MP.eof
 
 parseNodesState
   :: JbeamParser a
