@@ -9,7 +9,7 @@
 #   <file>          -- formatted file (or original if formatting failed)
 #   <file>.diff     -- unified diff (empty if no changes)
 #   <file>.error    -- error output (only if formatting failed)
-#   summary.tsv     -- one line per file: filename, zip, lines_changed, blank, indent, trailing, colon, structural, status
+#   summary.tsv     -- one line per file: filename, zip, lines_changed, blank, indent, trailing, spacing, structural, status
 #
 # Usage: bash tools/extract-and-format-jbeam/tune-run.sh [file-list] [filter] [rules]
 #
@@ -50,7 +50,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 # categorize_diff <diff_file>
-# Prints: blank indent trailing-comma colon-spacing structural
+# Prints: blank indent trailing-comma inner-spacing structural
 # Each count is the number of changed lines (both - and +) in that category.
 categorize_diff() {
   local diff_file="$1"
@@ -59,33 +59,57 @@ categorize_diff() {
     /^@@/ { flush(); next }
     /^-/ { minus_lines[++n_minus] = substr($0, 2); next }
     /^\+/ { plus_lines[++n_plus] = substr($0, 2); next }
-    END { flush(); print blank+0, indent+0, trailing_comma+0, colon_space+0, structural+0 }
+    END { flush(); print blank+0, indent+0, trailing_comma+0, inner_space+0, structural+0 }
 
-    function flush(    i, n, m, p, ms, ps, ms2, ps2, mc, pc) {
-        n = (n_minus < n_plus) ? n_minus : n_plus
-        for (i = 1; i <= n; i++) {
-            m = minus_lines[i]; p = plus_lines[i]
-            if (m ~ /^[[:space:]]*$/ && p ~ /^[[:space:]]*$/) { blank += 2; continue }
-            if (m ~ /^[[:space:]]*$/ || p ~ /^[[:space:]]*$/) { blank++; structural++; continue }
-            ms = m; ps = p
-            gsub(/^[[:space:]]+/, "", ms); gsub(/^[[:space:]]+/, "", ps)
-            if (ms == ps) { indent += 2; continue }
-            ms2 = ms; ps2 = ps
-            sub(/,$/, "", ms2); sub(/,$/, "", ps2)
-            if (ms2 == ps2) { trailing_comma += 2; continue }
-            mc = ms; pc = ps
-            gsub(/[[:space:]]*:[[:space:]]*/, ":", mc)
-            gsub(/[[:space:]]*:[[:space:]]*/, ":", pc)
-            if (mc == pc) { colon_space += 2; continue }
-            structural += 2
+    function strip_ws(s) { gsub(/^[[:space:]]+/, "", s); return s }
+    function strip_comma(s) { sub(/,$/, "", s); return s }
+    # Spacing the formatter adds or removes inside a line, around both the
+    # colon of a key and the commas of an array. The two travel together in
+    # practice, so one category counts both.
+    function strip_spacing(s) {
+        gsub(/[[:space:]]*:[[:space:]]*/, ":", s)
+        gsub(/,[[:space:]]+/, ",", s)
+        return s
+    }
+
+    # A changed line is classified by the least invasive normalisation that
+    # finds it an unclaimed partner on the other side of the hunk. Pairing by
+    # position instead looks simpler and is wrong: the formatter adds and removes
+    # lines, so the two sides fall out of step and every later pair compares
+    # unrelated text, which lands the rest of the file in structural.
+    function flush(    i, key, form) {
+        delete claimed
+        for (i = 1; i <= n_plus; i++) {
+            if (plus_lines[i] ~ /^[[:space:]]*$/) { blank_plus[++n_blank_plus] = i; continue }
+            by_ws[strip_ws(plus_lines[i])] = by_ws[strip_ws(plus_lines[i])] " " i
+            form = strip_comma(strip_ws(plus_lines[i]))
+            by_comma[form] = by_comma[form] " " i
+            form = strip_spacing(strip_ws(plus_lines[i]))
+            by_space[form] = by_space[form] " " i
         }
-        for (i = n+1; i <= n_minus; i++) {
-            if (minus_lines[i] ~ /^[[:space:]]*$/) blank++; else structural++
+        for (i = 1; i <= n_minus; i++) {
+            if (minus_lines[i] ~ /^[[:space:]]*$/) { blank++; continue }
+            key = strip_ws(minus_lines[i])
+            if (take(by_ws, key)) { indent += 2; continue }
+            if (take(by_comma, strip_comma(key))) { trailing_comma += 2; continue }
+            if (take(by_space, strip_spacing(key))) { inner_space += 2; continue }
+            structural++
         }
-        for (i = n+1; i <= n_plus; i++) {
-            if (plus_lines[i] ~ /^[[:space:]]*$/) blank++; else structural++
-        }
-        delete minus_lines; delete plus_lines; n_minus=0; n_plus=0
+        for (i = 1; i <= n_plus; i++)
+            if (!(i in claimed) && !(plus_lines[i] ~ /^[[:space:]]*$/)) structural++
+        blank += n_blank_plus
+        delete minus_lines; delete plus_lines; delete by_ws; delete by_comma
+        delete by_space; delete blank_plus
+        n_minus = 0; n_plus = 0; n_blank_plus = 0
+    }
+
+    # Claims the first unclaimed plus line stored under key, if any.
+    function take(map, key,    parts, n, i) {
+        if (!(key in map)) return 0
+        n = split(map[key], parts, " ")
+        for (i = 1; i <= n; i++)
+            if (!(parts[i] in claimed)) { claimed[parts[i]] = 1; return 1 }
+        return 0
     }
     ' "$diff_file"
 }
@@ -182,12 +206,12 @@ while read -r file zip; do
     lines_changed=$((lines_changed - header_lines))
   fi
 
-  read -r cat_blank cat_indent cat_trailing cat_colon cat_structural \
+  read -r cat_blank cat_indent cat_trailing cat_spacing cat_structural \
     <<<"$(categorize_diff "$TUNE_DIR/$out.diff")"
 
   printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' \
     "$file" "$zip" "$lines_changed" \
-    "$cat_blank" "$cat_indent" "$cat_trailing" "$cat_colon" "$cat_structural" \
+    "$cat_blank" "$cat_indent" "$cat_trailing" "$cat_spacing" "$cat_structural" \
     "$status" >>"$TUNE_DIR/summary.tsv"
 done <"$FILE_LIST"
 
@@ -197,7 +221,7 @@ echo "extracted: $extracted, formatted: $formatted, errors: $errors"
 echo ""
 if [[ -f "$TUNE_DIR/summary.tsv" ]]; then
   printf '%-40s %-20s %7s  %6s %6s %8s %6s %10s  %s\n' \
-    "FILE" "ZIP" "CHANGED" "BLANK" "INDENT" "TRAILING" "COLON" "STRUCTURAL" "STATUS"
+    "FILE" "ZIP" "CHANGED" "BLANK" "INDENT" "TRAILING" "SPACING" "STRUCTURAL" "STATUS"
   printf '%-40s %-20s %7s  %6s %6s %8s %6s %10s  %s\n' \
     "----" "---" "-------" "-----" "------" "--------" "-----" "----------" "------"
   while IFS=$'\t' read -r f z lc bl ind tr co st status; do
