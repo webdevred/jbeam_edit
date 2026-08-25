@@ -118,6 +118,29 @@ reachSpec = do
     it "applies ComplexNewLine below the matched value too" $
       formatWith (shortPattern "ComplexNewLine : Force;") `shouldNotBe` baseline
 
+{- | A single cell in a `nodes` row, formatted with the ruleset given. The
+padding properties only reach values under `nodes`, so the cell needs the
+structure around it even when the spec is about one number.
+-}
+paddedCell :: String -> Node -> Text
+paddedCell rules cell =
+  formatNode (rulesFromSource rules) (docWith cell)
+  where
+    row cells = mkArray (fromList cells)
+    docWith c =
+      mkObject
+        ( fromList
+            [ ObjectKey
+                ( String "part"
+                , mkObject (fromList [ObjectKey (String "nodes", row [row [c]])])
+                )
+            ]
+        )
+
+-- | The one-line document `paddedCell` produces, around an already formatted cell.
+cellOutput :: Text -> Text
+cellOutput body = "{\"part\" : {\"nodes\" : [[" <> body <> "]]}}\n"
+
 {- | `PadDecimals` guarantees a minimum number of decimal digits, so a
 coordinate the source wrote as `12.0` should come out with three of them. It
 comes out as `12`, because `scientificToText` rebuilds the text from the
@@ -125,33 +148,23 @@ parsed value and drops the point for a whole number, and `applyDecimalPadding`
 only pads text that already contains one. The source text is still on the node
 in `nvText`, so nothing is lost at parse time. Issue #217.
 
-The third case is the control: a source that wrote no point asks for no
-decimals, and padding it would change what the author meant.
+The other two cases are controls: padding still works where the source has
+decimals, and a source that wrote no point is left alone, because padding it
+would change what the author meant.
 -}
 decimalPaddingSpec :: Spec
 decimalPaddingSpec = do
-  let row cells = mkArray (fromList cells)
-      docWith cell =
-        mkObject
-          ( fromList
-              [ ObjectKey
-                  ( String "part"
-                  , mkObject (fromList [ObjectKey (String "nodes", row [row [cell]])])
-                  )
-              ]
-          )
-      rules = rulesFromSource ".*.nodes[*][*] { PadDecimals: 3; }"
-      formatCell = formatNode rules . docWith
-      wrap body = "{\"part\" : {\"nodes\" : [[" <> body <> "]]}}\n"
+  let formatCell = paddedCell ".*.nodes[*][*] { PadDecimals: 3; }"
+      wrap = cellOutput
 
-  describe "PadDecimals on a whole number" $ do
-    it "pads one the source wrote with a decimal point" $
+  describe "PadDecimals" $ do
+    it "pads a whole number the source wrote with a decimal point" $
       formatCell (Number (mkNumberValue "12.0" 12)) `shouldBe` wrap "12.000"
 
     it "pads one that already has decimals" $
       formatCell (Number (mkNumberValue "1.2" 1.2)) `shouldBe` wrap "1.200"
 
-    it "leaves one the source wrote without a decimal point alone" $
+    it "leaves one written without a decimal point alone" $
       formatCell (Number (mkNumberValue "12" 12)) `shouldBe` wrap "12"
 
 {- | `JBFL_DOCS.md` gives a table for `PadDecimals: 3` with `PadAmount: 8`:
@@ -163,22 +176,11 @@ because that is what a reader configures against. Issue #217.
 -}
 padAmountSpec :: Spec
 padAmountSpec = do
-  let row cells = mkArray (fromList cells)
-      docWith cell =
-        mkObject
-          ( fromList
-              [ ObjectKey
-                  ( String "part"
-                  , mkObject (fromList [ObjectKey (String "nodes", row [row [cell]])])
-                  )
-              ]
-          )
-      rules = rulesFromSource ".*.nodes[*][*] { PadDecimals: 3; PadAmount: 8; }"
-      formatCell = formatNode rules . docWith
-      wrap body = "{\"part\" : {\"nodes\" : [[" <> body <> "]]}}\n"
+  let formatCell = paddedCell ".*.nodes[*][*] { PadDecimals: 3; PadAmount: 8; }"
+      wrap = cellOutput
 
-  describe "PadAmount on a number that has decimals" $ do
-    it "fills to the width with trailing zeros" $ do
+  describe "PadAmount" $ do
+    it "fills a number that has decimals with trailing zeros" $ do
       formatCell (Number (mkNumberValue "1.2" 1.2)) `shouldBe` wrap "1.200000"
       formatCell (Number (mkNumberValue "3.14" 3.14)) `shouldBe` wrap "3.140000"
 
