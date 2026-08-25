@@ -18,17 +18,17 @@ FILTER="${1:-}"
 
 VEHICLES_DIR="$(beamng_find_vehicles_dir)"
 if [[ -z "$VEHICLES_DIR" ]]; then
-    echo "error: could not find BeamNG vehicles directory" >&2
-    exit 1
+  echo "error: could not find BeamNG vehicles directory" >&2
+  exit 1
 fi
 
 for zip_path in "$VEHICLES_DIR"/*.zip; do
-    zip_name="$(basename "$zip_path")"
-    if [[ -n "$FILTER" && "$zip_name" != *"$FILTER"* ]]; then
-        continue
-    fi
-    # Parse unzip -l output: length and filename for .jbeam files
-    unzip -l "$zip_path" | awk -v zip="$zip_name" '
+  zip_name="$(basename "$zip_path")"
+  if [[ -n "$FILTER" && "$zip_name" != *"$FILTER"* ]]; then
+    continue
+  fi
+  # Parse unzip -l output: length and filename for .jbeam files
+  unzip -l "$zip_path" | awk -v zip="$zip_name" '
         /\.jbeam$/ {
             size = $1
             # Filename is the last field

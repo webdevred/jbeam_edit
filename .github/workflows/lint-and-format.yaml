@@ -47,6 +47,6 @@ jobs:
         run: |
           sudo apt update > /dev/null 2>&1
           sudo apt install -y shfmt > /dev/null 2>&1
-          shfmt -d .github/scripts
+          shfmt -d .github/scripts tools
         env:
           FORCE_COLOR: true
