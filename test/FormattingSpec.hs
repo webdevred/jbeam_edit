@@ -154,11 +154,43 @@ decimalPaddingSpec = do
     it "leaves one the source wrote without a decimal point alone" $
       formatCell (Number (mkNumberValue "12" 12)) `shouldBe` wrap "12"
 
+{- | `JBFL_DOCS.md` gives a table for `PadDecimals: 3` with `PadAmount: 8`:
+1.2 becomes 1.200000 and 3.14 becomes 3.140000, described as "padding with
+trailing zeros after the decimal point". Both come out padded with spaces
+instead, so the number keeps three decimals and the row is widened with
+blanks. Either the table or the code is wrong; these specs pick the table,
+because that is what a reader configures against. Issue #217.
+-}
+padAmountSpec :: Spec
+padAmountSpec = do
+  let row cells = mkArray (fromList cells)
+      docWith cell =
+        mkObject
+          ( fromList
+              [ ObjectKey
+                  ( String "part"
+                  , mkObject (fromList [ObjectKey (String "nodes", row [row [cell]])])
+                  )
+              ]
+          )
+      rules = rulesFromSource ".*.nodes[*][*] { PadDecimals: 3; PadAmount: 8; }"
+      formatCell = formatNode rules . docWith
+      wrap body = "{\"part\" : {\"nodes\" : [[" <> body <> "]]}}\n"
+
+  describe "PadAmount on a number that has decimals" $ do
+    it "fills to the width with trailing zeros" $ do
+      formatCell (Number (mkNumberValue "1.2" 1.2)) `shouldBe` wrap "1.200000"
+      formatCell (Number (mkNumberValue "3.14" 3.14)) `shouldBe` wrap "3.140000"
+
+    it "fills a number written without a point with spaces" $
+      formatCell (Number (mkNumberValue "12" 12)) `shouldBe` wrap "12      "
+
 spec :: Spec
 spec = do
   mapM_ formatNodeSpec specs
   reachSpec
   decimalPaddingSpec
+  padAmountSpec
 
   dynamicTests <- runIO dynamicJbflTests
   forM_ dynamicTests $ \(outFile, formatted, expected) ->
