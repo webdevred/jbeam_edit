@@ -51,7 +51,7 @@ separatorParser :: JbeamParser ()
 separatorParser = do
   ws1 <- MP.takeWhileP Nothing wordIsSpace
   comma <- MP.optional (MP.label "comma" $ byteChar ',')
-  ws2 <- MP.takeWhileP Nothing wordIsSpace
+  ws2 <- MP.takeWhileP Nothing (\x -> wordIsSpace x || toChar x == ',')
 
   let nl = toWord8 '\n'
       ws1Newlines = LBS.count nl ws1
