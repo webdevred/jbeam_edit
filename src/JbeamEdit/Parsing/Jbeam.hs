@@ -3,7 +3,6 @@ module JbeamEdit.Parsing.Jbeam (
   JbeamParser,
   nodeParser,
   numberParser,
-  initialState,
   parseNodes,
   parseNodesState,
 ) where
@@ -211,19 +210,18 @@ objectParser = do
 topNodeParser :: JbeamParser Node
 topNodeParser = nodeParser <* skipWhiteSpace <* MP.eof
 
-initialState :: ParseState
-initialState =
-  ParseState
-    { lastNodeEndedWithNewline = True
-    , lastSeparatorHadBlankLine = False
-    , lastSeparatorHadComma = False
-    }
-
 parseNodesState
   :: JbeamParser a
   -> LBS.ByteString
   -> Either (MP.ParseErrorBundle LBS.ByteString Void) a
-parseNodesState parser input = evalState (MP.runParserT parser "<input>" input) initialState
+parseNodesState parser input =
+  let initialState =
+        ParseState
+          { lastNodeEndedWithNewline = True
+          , lastSeparatorHadBlankLine = False
+          , lastSeparatorHadComma = False
+          }
+   in evalState (MP.runParserT parser "<input>" input) initialState
 
 parseNodes :: LBS.ByteString -> Either Text Node
 parseNodes input = first formatErrors (parseNodesState topNodeParser input)

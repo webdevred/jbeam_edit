@@ -2,7 +2,6 @@ module Parsing.JbeamSpec (
   spec,
 ) where
 
-import Control.Monad.State (State, evalState)
 import Data.ByteString.Lazy (ByteString)
 import Data.ByteString.Lazy qualified as BS (readFile)
 import Data.Either (isRight)
@@ -10,7 +9,6 @@ import Data.Vector (fromList)
 import Data.Void (Void)
 import JbeamEdit.Parsing.Common.Helpers
 import JbeamEdit.Parsing.Jbeam
-import JbeamEdit.Parsing.Jbeam qualified as P (initialState)
 import SpecHelper
 import Test.Hspec.Megaparsec
 import Text.Megaparsec qualified as MP
@@ -193,8 +191,8 @@ invalidSpec =
 is insignificant to the game, closer to white space than to structure, and a
 number may end on its decimal point.
 
-Each spec says only that the input is accepted. What the formatter writes back
-is a separate decision per shape, and needs its own spec once it is made.
+Each spec says only that the input is accepted, because what the formatter
+writes back for each shape is not decided yet.
 -}
 acceptsFragment :: (String, String) -> Spec
 acceptsFragment (desc, input) =
@@ -233,17 +231,13 @@ numberWithBadDecimalPoint =
   describe
     "should consume and discard a trailing period with no decimal digits"
     . works
-    $ do
-      let input = "3."
-      case evalState
-        (MP.runParserT ((,) <$> numberParser <*> MP.getInput) "<input>" input)
-        P.initialState of
-        Left bundle ->
-          expectationFailure $
-            "expected successful parse, got error:\n" <> MP.errorBundlePretty bundle
-        Right (node, remaining) -> do
-          node `shouldBe` Number (mkNumberValue "3" 3)
-          remaining `shouldBe` ""
+    $ case parseNodesState ((,) <$> numberParser <*> MP.getInput) "3." of
+      Left bundle ->
+        expectationFailure $
+          "expected successful parse, got error:\n" <> MP.errorBundlePretty bundle
+      Right (node, remaining) -> do
+        node `shouldBe` Number (mkNumberValue "3" 3)
+        remaining `shouldBe` ""
 
 topNodeSpec :: FilePath -> FilePath -> Spec
 topNodeSpec inFilename outFilename = do
