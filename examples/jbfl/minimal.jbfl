@@ -29,11 +29,6 @@
 .*.mainEngine.torqueModMult[*],
 .*.mainEngine.torqueCompressionBrake[*],
 .*.powertrain[*], .*.flexbodies[*],
-.*.gearbox.*, .*.clutch.*,
-.*.turbocharger.*,
-.*.vehicleController.*,
-.*.radiator.*, .*.waterDamage.*,
-.*.engineBlock.*,
 .*.pressureWheels[*],
 .*.slidenodes[*], .*.torsionbars[*],
 .*.mainEngine.deformGroups*,
@@ -75,16 +70,35 @@
 
 .*.mainEngine, .*.sounds,
 .*.soundConfig, .*.soundConfigExhaust,
-.*.information, .*.gearbox,
-.*.clutch, .*.turbocharger,
-.*.vehicleController, .*.radiator,
-.*.waterDamage, .*.engineBlock,
-.*.gauges, .*.gauges.configuration,
+.*.information, .*.gauges,
+.*.gauges.configuration,
 .*.gauges.displayData,
 .*.differential_R, .*.differential_F,
 .*.differential_C {
     ComplexNewLine: Force;
     AlignObjectKeys: true;
+    PreserveNumberFormat: true;
+}
+
+/* These containers render multi-line with aligned keys, but the arrays and
+  objects inside them stay on one line. ComplexNewLine reaches below the node
+  its rule names, so without > each of the seven needed a second rule setting
+  None on its children purely to undo the first. PreserveNumberFormat has to
+  keep reaching down, which is why it cannot join the > block. */
+.* > .gearbox, .* > .clutch,
+.* > .turbocharger,
+.* > .vehicleController,
+.* > .radiator, .* > .waterDamage,
+.* > .engineBlock {
+    ComplexNewLine: Force;
+    AlignObjectKeys: true;
+}
+
+.*.gearbox, .*.clutch,
+.*.turbocharger,
+.*.vehicleController,
+.*.radiator, .*.waterDamage,
+.*.engineBlock {
     PreserveNumberFormat: true;
 }
 
