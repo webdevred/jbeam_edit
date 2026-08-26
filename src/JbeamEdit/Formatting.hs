@@ -16,7 +16,7 @@ import Data.Char (isSpace)
 import Data.Foldable.Extra (notNull)
 import Data.Map.Strict (Map)
 import Data.Map.Strict qualified as Map
-import Data.Maybe (fromMaybe)
+import Data.Maybe (fromMaybe, isJust)
 import Data.Monoid.Extra
 import Data.Text (Text)
 import Data.Text qualified as T
@@ -452,7 +452,10 @@ formatWithCursor rs state cursor (ObjectKey (k, v)) =
 formatWithCursor _ _ _ (Comment comment) = formatComment comment
 formatWithCursor rs _ cursor n =
   let ps = findPropertiesForCursor cursor rs
-      preserve = (Just True == lookupProperty PreserveNumberFormat ps)
+      preserve =
+        ( Just True == lookupProperty PreserveNumberFormat ps
+            || isJust (lookupProperty PadDecimals ps)
+        )
    in applyPadLogic (formatScalarNode preserve) ps n
 
 formatNode :: RuleSet -> Node -> Text
