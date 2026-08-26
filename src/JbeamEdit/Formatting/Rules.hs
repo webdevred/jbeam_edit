@@ -246,7 +246,8 @@ applyDecimalPadding padDecimals node
   | padDecimals /= 0
   , T.any (== '.') node =
       let (int, frac) = T.breakOnEnd "." node
-          paddedFrac = T.justifyLeft padDecimals '0' frac
+          cleanFrac = T.dropWhileEnd ('0' ==) frac
+          paddedFrac = T.justifyLeft padDecimals '0' cleanFrac
        in int <> paddedFrac
   | otherwise = node
 
