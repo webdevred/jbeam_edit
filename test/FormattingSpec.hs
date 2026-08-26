@@ -118,10 +118,76 @@ reachSpec = do
     it "applies ComplexNewLine below the matched value too" $
       formatWith (shortPattern "ComplexNewLine : Force;") `shouldNotBe` baseline
 
+{- | The padding properties only reach values under `nodes`, so a spec about one
+number still has to build the structure around it.
+-}
+paddedCell :: String -> Node -> Text
+paddedCell rules cell =
+  formatNode (rulesFromSource rules) (docWith cell)
+  where
+    row cells = mkArray (fromList cells)
+    docWith c =
+      mkObject
+        ( fromList
+            [ ObjectKey
+                ( String "part"
+                , mkObject (fromList [ObjectKey (String "nodes", row [row [c]])])
+                )
+            ]
+        )
+
+cellOutput :: Text -> Text
+cellOutput body = "{\"part\" : {\"nodes\" : [[" <> body <> "]]}}\n"
+
+{- | `12.0` comes out as `12`: `scientificToText` rebuilds the text from the
+parsed value and drops the point, and `applyDecimalPadding` only pads text that
+already has one. The source text is still on the node in `nvText`, so the fix
+belongs in the formatter and not in the parser. Issue #217.
+-}
+decimalPaddingSpec :: Spec
+decimalPaddingSpec = do
+  let formatCell = paddedCell ".*.nodes[*][*] { PadDecimals: 3; }"
+      wrap = cellOutput
+
+  describe "PadDecimals" $ do
+    it "pads a whole number the source wrote with a decimal point" $
+      formatCell (Number (mkNumberValue "12.0" 12)) `shouldBe` wrap "12.000"
+
+    it "pads one that already has decimals" $
+      formatCell (Number (mkNumberValue "1.2" 1.2)) `shouldBe` wrap "1.200"
+
+    it "leaves one written without a decimal point alone" $
+      formatCell (Number (mkNumberValue "12" 12)) `shouldBe` wrap "12"
+
+    it "trims trailing zeros back to the minimum" $
+      formatCell (Number (mkNumberValue "0.12000" 0.12)) `shouldBe` wrap "0.120"
+
+    it "leaves significant decimals past the minimum alone" $
+      formatCell (Number (mkNumberValue "0.12345" 0.12345)) `shouldBe` wrap "0.12345"
+
+{- | `JBFL_DOCS.md` described this twice and got it wrong both times, once as
+trailing zeros and once as leading spaces, so a reader could reasonably try to
+make either true. The shipped `complex.jbfl` depends on the real behaviour to
+line up its `glowMap` columns.
+-}
+padAmountSpec :: Spec
+padAmountSpec = do
+  let formatCell = paddedCell ".*.nodes[*][*] { PadAmount: 8; }"
+      wrap = cellOutput
+
+  describe "PadAmount"
+    . it "fills the value out to the width with trailing spaces"
+    $ do
+      formatCell (Number (mkNumberValue "7.89" 7.89)) `shouldBe` wrap "7.89    "
+      formatCell (Number (mkNumberValue "0.1234" 0.1234)) `shouldBe` wrap "0.1234  "
+      formatCell (Number (mkNumberValue "12" 12)) `shouldBe` wrap "12      "
+
 spec :: Spec
 spec = do
   mapM_ formatNodeSpec specs
   reachSpec
+  decimalPaddingSpec
+  padAmountSpec
 
   dynamicTests <- runIO dynamicJbflTests
   forM_ dynamicTests $ \(outFile, formatted, expected) ->
