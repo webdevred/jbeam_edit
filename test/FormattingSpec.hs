@@ -118,9 +118,8 @@ reachSpec = do
     it "applies ComplexNewLine below the matched value too" $
       formatWith (shortPattern "ComplexNewLine : Force;") `shouldNotBe` baseline
 
-{- | A single cell in a `nodes` row, formatted with the ruleset given. The
-padding properties only reach values under `nodes`, so the cell needs the
-structure around it even when the spec is about one number.
+{- | The padding properties only reach values under `nodes`, so a spec about one
+number still has to build the structure around it.
 -}
 paddedCell :: String -> Node -> Text
 paddedCell rules cell =
@@ -137,20 +136,13 @@ paddedCell rules cell =
             ]
         )
 
--- | The one-line document `paddedCell` produces, around an already formatted cell.
 cellOutput :: Text -> Text
 cellOutput body = "{\"part\" : {\"nodes\" : [[" <> body <> "]]}}\n"
 
-{- | `PadDecimals` guarantees a minimum number of decimal digits, so a
-coordinate the source wrote as `12.0` should come out with three of them. It
-comes out as `12`, because `scientificToText` rebuilds the text from the
-parsed value and drops the point for a whole number, and `applyDecimalPadding`
-only pads text that already contains one. The source text is still on the node
-in `nvText`, so nothing is lost at parse time. Issue #217.
-
-The other two cases are controls: padding still works where the source has
-decimals, and a source that wrote no point is left alone, because padding it
-would change what the author meant.
+{- | `12.0` comes out as `12`: `scientificToText` rebuilds the text from the
+parsed value and drops the point, and `applyDecimalPadding` only pads text that
+already has one. The source text is still on the node in `nvText`, so the fix
+belongs in the formatter and not in the parser. Issue #217.
 -}
 decimalPaddingSpec :: Spec
 decimalPaddingSpec = do
@@ -167,11 +159,10 @@ decimalPaddingSpec = do
     it "leaves one written without a decimal point alone" $
       formatCell (Number (mkNumberValue "12" 12)) `shouldBe` wrap "12"
 
-{- | `PadAmount` sets a width, and the value is filled out to it with trailing
-spaces so a column lines up. That is what the shipped `complex.jbfl` uses it
-for on `glowMap`, and these specs guard it: `JBFL_DOCS.md` described it twice
-and got it wrong both times, once as trailing zeros and once as leading
-spaces, so a reader could reasonably try to make either true.
+{- | `JBFL_DOCS.md` described this twice and got it wrong both times, once as
+trailing zeros and once as leading spaces, so a reader could reasonably try to
+make either true. The shipped `complex.jbfl` depends on the real behaviour to
+line up its `glowMap` columns.
 -}
 padAmountSpec :: Spec
 padAmountSpec = do
