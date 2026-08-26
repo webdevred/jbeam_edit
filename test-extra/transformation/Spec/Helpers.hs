@@ -172,4 +172,7 @@ commentTexts node = case node of
   Array arrayValue -> concatMap commentTexts (V.toList (avNodes arrayValue))
   Object objectValue -> concatMap commentTexts (V.toList (ovNodes objectValue))
   ObjectKey (key, value) -> commentTexts key ++ commentTexts value
-  _ -> []
+  String _ -> []
+  Number _ -> []
+  Bool _ -> []
+  Null -> []
