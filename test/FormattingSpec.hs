@@ -167,24 +167,22 @@ decimalPaddingSpec = do
     it "leaves one written without a decimal point alone" $
       formatCell (Number (mkNumberValue "12" 12)) `shouldBe` wrap "12"
 
-{- | `JBFL_DOCS.md` gives a table for `PadDecimals: 3` with `PadAmount: 8`:
-1.2 becomes 1.200000 and 3.14 becomes 3.140000, described as "padding with
-trailing zeros after the decimal point". Both come out padded with spaces
-instead, so the number keeps three decimals and the row is widened with
-blanks. Either the table or the code is wrong; these specs pick the table,
-because that is what a reader configures against. Issue #217.
+{- | `PadAmount` sets a width, and the value is filled out to it with trailing
+spaces so a column lines up. That is what the shipped `complex.jbfl` uses it
+for on `glowMap`, and these specs guard it: `JBFL_DOCS.md` described it twice
+and got it wrong both times, once as trailing zeros and once as leading
+spaces, so a reader could reasonably try to make either true.
 -}
 padAmountSpec :: Spec
 padAmountSpec = do
-  let formatCell = paddedCell ".*.nodes[*][*] { PadDecimals: 3; PadAmount: 8; }"
+  let formatCell = paddedCell ".*.nodes[*][*] { PadAmount: 8; }"
       wrap = cellOutput
 
-  describe "PadAmount" $ do
-    it "fills a number that has decimals with trailing zeros" $ do
-      formatCell (Number (mkNumberValue "1.2" 1.2)) `shouldBe` wrap "1.200000"
-      formatCell (Number (mkNumberValue "3.14" 3.14)) `shouldBe` wrap "3.140000"
-
-    it "fills a number written without a point with spaces" $
+  describe "PadAmount"
+    . it "fills the value out to the width with trailing spaces"
+    $ do
+      formatCell (Number (mkNumberValue "7.89" 7.89)) `shouldBe` wrap "7.89    "
+      formatCell (Number (mkNumberValue "0.1234" 0.1234)) `shouldBe` wrap "0.1234  "
       formatCell (Number (mkNumberValue "12" 12)) `shouldBe` wrap "12      "
 
 spec :: Spec
