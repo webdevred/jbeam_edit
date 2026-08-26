@@ -159,6 +159,12 @@ decimalPaddingSpec = do
     it "leaves one written without a decimal point alone" $
       formatCell (Number (mkNumberValue "12" 12)) `shouldBe` wrap "12"
 
+    it "trims trailing zeros back to the minimum" $
+      formatCell (Number (mkNumberValue "0.12000" 0.12)) `shouldBe` wrap "0.120"
+
+    it "leaves significant decimals past the minimum alone" $
+      formatCell (Number (mkNumberValue "0.12345" 0.12345)) `shouldBe` wrap "0.12345"
+
 {- | `JBFL_DOCS.md` described this twice and got it wrong both times, once as
 trailing zeros and once as leading spaces, so a reader could reasonably try to
 make either true. The shipped `complex.jbfl` depends on the real behaviour to
