@@ -10,8 +10,10 @@ module Spec.Regression (
   metadataAcrossTreesSpec,
   metadataPreservedSpec,
   xColumnSortingSpec,
+  vertexTextSpec,
 ) where
 
+import Data.List (sort)
 import Data.Map qualified as M
 import Data.Set qualified as S
 import Data.Text qualified as T
@@ -220,3 +222,24 @@ xColumnSortingSpec =
       case transform M.empty columnSortingConfig node of
         Left err -> expectationFailure ("transform failed: " ++ T.unpack err)
         Right (_, _, _, resultNode) -> assert resultNode
+
+{- | The transformation reorders and renames, and never changes a coordinate,
+so a number has to come back out spelled the way the file wrote it. It used to
+be read as a value and written back from that value, which dropped the point
+in `-1.0` and the trailing zeros in `0.5000`. Only the formatter decides how a
+number looks, and it can only do that while the source text is still there.
+
+Compared as sorted lists because the transform is free to move a vertex.
+-}
+vertexTextSpec :: Spec
+vertexTextSpec =
+  describe "the coordinates a transform writes back"
+    . it "are spelled the way the file wrote them"
+    $ do
+      topNode <- parseJbeamFile letterEndingNodesFixture
+      let before = sort (vertexTextsInOrder topNode)
+      before `shouldNotBe` []
+      case transform M.empty newTransformationConfig topNode of
+        Left err -> expectationFailure ("transform failed: " ++ T.unpack err)
+        Right (_, _, _, resultNode) ->
+          sort (vertexTextsInOrder resultNode) `shouldBe` before

@@ -251,26 +251,25 @@ applyDecimalPadding padDecimals node
        in int <> paddedFrac
   | otherwise = node
 
-{- | A whole number renders without a point, so `applyDecimalPadding` has
-nothing to pad and `12.0` would come back as `12`. Only the source text says
-whether the file asked for decimals at all, and that is all it is read for.
--}
-restoreSourcePoint :: Int -> Text -> Text -> Text
-restoreSourcePoint padDecimals origText text
-  | padDecimals > 0
-  , T.any ('.' ==) origText
-  , not (T.any ('.' ==) text) =
-      text <> "."
-  | otherwise = text
-
 applyPadLogic :: (Node -> Text) -> Rule -> Node -> Text
 applyPadLogic f rs n =
   let padAmount = sum $ lookupProperty PadAmount rs
       padDecimals = sum $ lookupProperty PadDecimals rs
       preserveNumberFormat = Just True == lookupProperty PreserveNumberFormat rs
+      -- A whole number renders without a point, so `applyDecimalPadding` would
+      -- have nothing to pad and a `12.0` in the file would come back as `12`.
+      -- Whether the file asked for decimals is the one thing the value cannot
+      -- say. The bare point left here is filled in by the padding below, which
+      -- runs whenever this branch does.
       numberText (NumberValue origText _)
         | preserveNumberFormat = origText
-        | otherwise = restoreSourcePoint padDecimals origText (f n)
+        | padDecimals > 0
+        , T.any ('.' ==) origText
+        , not (T.any ('.' ==) rendered) =
+            rendered <> "."
+        | otherwise = rendered
+        where
+          rendered = f n
       decimalPaddedText = case n of
         Number number -> applyDecimalPadding padDecimals (numberText number)
         _ -> f n
