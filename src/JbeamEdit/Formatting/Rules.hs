@@ -34,6 +34,7 @@ import Data.List (find, sortOn)
 import Data.Map (Map)
 import Data.Map qualified as M
 import Data.Ord (Down (..))
+import Data.Scientific (isFloating, isInteger)
 import Data.Sequence (Seq (..))
 import Data.Text (Text)
 import Data.Text qualified as T
@@ -255,8 +256,15 @@ applyPadLogic :: (Node -> Text) -> Rule -> Node -> Text
 applyPadLogic f rs n =
   let padAmount = sum $ lookupProperty PadAmount rs
       padDecimals = sum $ lookupProperty PadDecimals rs
+      preserveNumberFormat = lookupProperty PreserveNumberFormat rs
+      preserveText text = case (preserveNumberFormat, n) of
+        (Just True, Number number) -> nvText number
+        (_, Number (NumberValue origText number))
+          | padDecimals > 0 && T.any ('.' ==) origText -> text
+          | isInteger number -> T.pack $ show (floor number :: Integer)
+        _ -> text
       decimalPaddedText
-        | isNumberNode n = applyDecimalPadding padDecimals (f n)
+        | isNumberNode n = applyDecimalPadding padDecimals (preserveText $ f n)
         | otherwise = f n
    in bool (T.justifyLeft padAmount ' ' decimalPaddedText) (f n) (isComplexNode n)
 

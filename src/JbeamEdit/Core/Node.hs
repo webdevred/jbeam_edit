@@ -33,7 +33,6 @@ import Data.Scientific (
   FPFormat (Fixed),
   Scientific,
   formatScientific,
-  isInteger,
  )
 import Data.Text (Text)
 import Data.Text qualified as T
@@ -155,9 +154,7 @@ numberValueToScientific :: NumberValue -> Scientific
 numberValueToScientific = nvValue
 
 scientificToText :: Scientific -> Text
-scientificToText v
-  | isInteger v = T.pack $ show (floor v :: Integer)
-  | otherwise = T.pack $ formatScientific Fixed Nothing v
+scientificToText v = T.pack $ formatScientific Fixed Nothing v
 
 mkNumberValue :: Text -> Scientific -> NumberValue
 mkNumberValue = NumberValue
