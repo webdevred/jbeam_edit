@@ -6,6 +6,9 @@ module JbeamEdit.Transformation.Types (
   Vertex (..),
   AnnotatedVertex (..),
   VertexTreeKey (..),
+  Axis (..),
+  SortAxes (..),
+  axisOf,
   Beam (..),
   BeamPair (..),
   mkBeamPair,
@@ -57,6 +60,23 @@ data Vertex = Vertex
   { vName :: Text
   , vX, vY, vZ :: Scientific
   , vMeta :: Maybe (Vector Node)
+  }
+  deriving (Eq, Show)
+
+data Axis = AxisX | AxisY | AxisZ deriving (Eq, Show)
+
+axisOf :: Axis -> Vertex -> Scientific
+axisOf AxisX = vX
+axisOf AxisY = vY
+axisOf AxisZ = vZ
+
+{- | The three steps of the vertex sort: the axis that is banded with the
+threshold, the axis a band is walked along, and the axis that breaks a tie.
+-}
+data SortAxes = SortAxes
+  { groupAxis :: Axis
+  , walkAxis :: Axis
+  , tieAxis :: Axis
   }
   deriving (Eq, Show)
 

@@ -10,6 +10,7 @@ module JbeamEdit.Transformation.Config (
   XGroupBreakpoint (..),
   XGroupBreakpoints (..),
   defaultSortingThreshold,
+  defaultSortAxes,
   defaultSupportThreshold,
   defaultBreakpoints,
   defaultMaxSupportCoordinates,
@@ -43,7 +44,11 @@ import GHC.Generics
 import GHC.IO.Exception (IOErrorType (NoSuchThing))
 import GHC.IsList
 import JbeamEdit.IOUtils
-import JbeamEdit.Transformation.Types (VertexTreeType (..))
+import JbeamEdit.Transformation.Types (
+  Axis (..),
+  SortAxes (..),
+  VertexTreeType (..),
+ )
 import Numeric.Natural (Natural)
 import System.OsPath
 import Text.Read (readMaybe)
@@ -53,6 +58,9 @@ defaultXSortingThreshold = Nothing
 
 defaultSortingThreshold :: Scientific
 defaultSortingThreshold = 0.05
+
+defaultSortAxes :: SortAxes
+defaultSortAxes = SortAxes AxisY AxisZ AxisX
 
 defaultSupportThreshold :: Scientific
 defaultSupportThreshold = 96
@@ -70,6 +78,7 @@ defaultBreakpoints =
 
 data TransformationConfig = TransformationConfig
   { ySortingThreshold :: Scientific
+  , sortAxes :: SortAxes
   , xSortingThreshold :: Maybe Scientific
   , xGroupBreakpoints :: XGroupBreakpoints
   , supportThreshold :: Scientific
@@ -81,6 +90,7 @@ newTransformationConfig :: TransformationConfig
 newTransformationConfig =
   TransformationConfig
     defaultSortingThreshold
+    defaultSortAxes
     defaultXSortingThreshold
     defaultBreakpoints
     defaultSupportThreshold
@@ -163,6 +173,8 @@ instance FromJSON TransformationConfig where
   parseJSON = withObject "TransformationConfig" $ \o ->
     TransformationConfig
       <$> o .:? "y-sorting-threshold" .!= defaultSortingThreshold
+      -- No key reads this yet, see #243.
+      <*> pure defaultSortAxes
       <*> parseXSortingThreshold o
       <*> o .:? "x-group-breakpoints" .!= defaultBreakpoints
       <*> parseSupportThreshold o

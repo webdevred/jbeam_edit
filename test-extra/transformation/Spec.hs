@@ -23,6 +23,7 @@ import JbeamEdit.Transformation.Types (Beam)
 import Spec.Config (configParsingSpec)
 import Spec.Helpers (parseJbeamFile)
 import Spec.Regression
+import Spec.SortAxes (sortAxesSpec)
 import System.Directory (getDirectoryContents)
 import System.OsPath
 import Test.Hspec
@@ -155,6 +156,7 @@ main = hspec $ do
   mapM_ (testFixedPoint "cfg-default" newTransformationConfig) inputFiles
   mapM_ (testFixedPoint "cfg-example" tfConfig) inputFiles
   configParsingSpec
+  sortAxesSpec
   beamValidationSpec
   supportRenameIdempotencySpec
   letterEndingNodesSpec
