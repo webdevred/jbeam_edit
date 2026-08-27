@@ -12,7 +12,6 @@ module JbeamEdit.Core.Node (
   isPriorAssocCommentNode,
   isComplexNode,
   possiblyChildren,
-  numberValueToScientific,
   scientificToText,
   mkNumberValue,
   mkNumberValueNormalized,
@@ -33,6 +32,7 @@ import Data.Scientific (
   FPFormat (Fixed),
   Scientific,
   formatScientific,
+  isInteger,
  )
 import Data.Text (Text)
 import Data.Text qualified as T
@@ -150,11 +150,10 @@ isPriorAssocCommentNode :: Node -> Bool
 isPriorAssocCommentNode (Comment cmt) = commentIsAttachedToPreviousNode cmt
 isPriorAssocCommentNode _ = False
 
-numberValueToScientific :: NumberValue -> Scientific
-numberValueToScientific = nvValue
-
 scientificToText :: Scientific -> Text
-scientificToText v = T.pack $ formatScientific Fixed Nothing v
+scientificToText v
+  | isInteger v = T.pack $ show (floor v :: Integer)
+  | otherwise = T.pack $ formatScientific Fixed Nothing v
 
 mkNumberValue :: Text -> Scientific -> NumberValue
 mkNumberValue = NumberValue

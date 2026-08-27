@@ -16,7 +16,7 @@ import Data.Char (isSpace)
 import Data.Foldable.Extra (notNull)
 import Data.Map.Strict (Map)
 import Data.Map.Strict qualified as Map
-import Data.Maybe (fromMaybe, isJust)
+import Data.Maybe (fromMaybe)
 import Data.Monoid.Extra
 import Data.Text (Text)
 import Data.Text qualified as T

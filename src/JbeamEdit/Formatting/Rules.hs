@@ -34,7 +34,6 @@ import Data.List (find, sortOn)
 import Data.Map (Map)
 import Data.Map qualified as M
 import Data.Ord (Down (..))
-import Data.Scientific (isFloating, isInteger)
 import Data.Sequence (Seq (..))
 import Data.Text (Text)
 import Data.Text qualified as T
@@ -252,20 +251,29 @@ applyDecimalPadding padDecimals node
        in int <> paddedFrac
   | otherwise = node
 
+{- | A whole number renders without a point, so `applyDecimalPadding` has
+nothing to pad and `12.0` would come back as `12`. Only the source text says
+whether the file asked for decimals at all, and that is all it is read for.
+-}
+restoreSourcePoint :: Int -> Text -> Text -> Text
+restoreSourcePoint padDecimals origText text
+  | padDecimals > 0
+  , T.any ('.' ==) origText
+  , not (T.any ('.' ==) text) =
+      text <> "."
+  | otherwise = text
+
 applyPadLogic :: (Node -> Text) -> Rule -> Node -> Text
 applyPadLogic f rs n =
   let padAmount = sum $ lookupProperty PadAmount rs
       padDecimals = sum $ lookupProperty PadDecimals rs
-      preserveNumberFormat = lookupProperty PreserveNumberFormat rs
-      preserveText text = case (preserveNumberFormat, n) of
-        (Just True, Number number) -> nvText number
-        (_, Number (NumberValue origText number))
-          | padDecimals > 0 && T.any ('.' ==) origText -> text
-          | isInteger number -> T.pack $ show (floor number :: Integer)
-        _ -> text
-      decimalPaddedText
-        | isNumberNode n = applyDecimalPadding padDecimals (preserveText $ f n)
-        | otherwise = f n
+      preserveNumberFormat = Just True == lookupProperty PreserveNumberFormat rs
+      numberText (NumberValue origText _)
+        | preserveNumberFormat = origText
+        | otherwise = restoreSourcePoint padDecimals origText (f n)
+      decimalPaddedText = case n of
+        Number number -> applyDecimalPadding padDecimals (numberText number)
+        _ -> f n
    in bool (T.justifyLeft padAmount ' ' decimalPaddedText) (f n) (isComplexNode n)
 
 complexNewLine :: RuleSet -> NC.NodeCursor -> Maybe ComplexNewLine
