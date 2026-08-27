@@ -4,6 +4,9 @@ module JbeamEdit.Transformation.Types (
   VertexTree (..),
   VertexTreeType (..),
   Vertex (..),
+  vX,
+  vY,
+  vZ,
   AnnotatedVertex (..),
   VertexTreeKey (..),
   Beam (..),
@@ -55,17 +58,26 @@ data VertexTree = VertexTree
 
 data Vertex = Vertex
   { vName :: Text
-  , vX, vY, vZ :: Scientific
+  , vXNum, vYNum, vZNum :: NumberValue
   , vMeta :: Maybe (Vector Node)
   }
-  deriving (Eq, Show)
+  deriving (Show)
+
+{- | A vertex keeps the number as the file wrote it, because it is written
+back out unchanged and the formatter decides how it looks. Sorting and
+grouping want the value, and read it through these.
+-}
+vX, vY, vZ :: Vertex -> Scientific
+vX = nvValue . vXNum
+vY = nvValue . vYNum
+vZ = nvValue . vZNum
 
 data AnnotatedVertex = AnnotatedVertex
   { aComments :: [InternalComment]
   , aVertex :: Vertex
   , aMeta :: MetaMap
   }
-  deriving (Eq, Show)
+  deriving (Show)
 
 anVertexName :: AnnotatedVertex -> Text
 anVertexName = vName . aVertex
