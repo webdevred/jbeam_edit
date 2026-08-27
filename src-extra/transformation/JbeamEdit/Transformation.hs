@@ -417,7 +417,9 @@ assignNames newNames brks treeType prefixMap av =
       prefixMap' = M.insert cleanPrefix (lastIdx + 1) prefixMap
    in (prefixMap', av {aVertex = newVertex})
 
--- | Seeds the first band on a vertex rather than on 0.
+{- | The coordinate the first band starts from, read off a vertex so that the
+banding is relative to where the data sits and not to the origin.
+-}
 firstOn :: (a -> Scientific) -> NonEmpty a -> Scientific
 firstOn f = f . NE.head
 

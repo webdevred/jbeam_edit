@@ -1,7 +1,7 @@
-{- | The three axes the sort reads: the one it bands with the threshold, the
-one it walks a band along, and the one that breaks a tie. The pair below is
-one grid read two ways, so the second spec fails if the axes are threaded
-anywhere but where they are used.
+{- | One grid read twice, once with the axes the tool has always used and once
+with two of them swapped. Between them the two specs cover all three axes: the
+grouping and walking axes decide the second, and since every Z in the grid is
+equal, the tie axis alone decides the first.
 -}
 module Spec.SortAxes (
   sortAxesSpec,
