@@ -139,10 +139,15 @@ paddedCell rules cell =
 cellOutput :: Text -> Text
 cellOutput body = "{\"part\" : {\"nodes\" : [[" <> body <> "]]}}\n"
 
-{- | `12.0` comes out as `12`: `scientificToText` rebuilds the text from the
-parsed value and drops the point, and `applyDecimalPadding` only pads text that
-already has one. The source text is still on the node in `nvText`, so the fix
-belongs in the formatter and not in the parser. Issue #217.
+{- | The first three ran red for issue #217 and are green since #241: `12.0`
+used to come out as `12`, because `scientificToText` rebuilds the text from the
+parsed value and drops the point.
+
+The last two are red again. #241 fixed the point by formatting from `nvText`,
+which brings the whole source spelling with it, so a number written in exponent
+form now reaches the output with no fraction to pad at all and a leading sign
+survives. Only the decimal point needs reading from the source; the digits
+should still come from the value, which is what these two say.
 -}
 decimalPaddingSpec :: Spec
 decimalPaddingSpec = do
@@ -164,6 +169,29 @@ decimalPaddingSpec = do
 
     it "leaves significant decimals past the minimum alone" $
       formatCell (Number (mkNumberValue "0.12345" 0.12345)) `shouldBe` wrap "0.12345"
+
+    it "pads one the source wrote in exponent form" $
+      formatCell (Number (mkNumberValue "2.0e-3" 0.002)) `shouldBe` wrap "0.002"
+
+    it "drops a sign the source wrote, which is PreserveNumberFormat's job" $
+      formatCell (Number (mkNumberValue "+1.5" 1.5)) `shouldBe` wrap "1.500"
+
+{- | Zero is the documented way to ask for no decimal padding, so it must not
+also switch on the format preservation that a minimum brings with it. `preserve`
+in `formatWithCursor` asks whether the property is set rather than what it is
+set to, so today zero stops a number being normalized.
+-}
+padDecimalsZeroSpec :: Spec
+padDecimalsZeroSpec = do
+  let formatCell = paddedCell ".*.nodes[*][*] { PadDecimals: 0; }"
+      wrap = cellOutput
+
+  describe "PadDecimals: 0" $ do
+    it "normalises a number instead of echoing the source text" $
+      formatCell (Number (mkNumberValue "0.12000" 0.12)) `shouldBe` wrap "0.12"
+
+    it "normalises one the source wrote in exponent form" $
+      formatCell (Number (mkNumberValue "2.0e-3" 0.002)) `shouldBe` wrap "0.002"
 
 {- | `JBFL_DOCS.md` described this twice and got it wrong both times, once as
 trailing zeros and once as leading spaces, so a reader could reasonably try to
@@ -187,6 +215,7 @@ spec = do
   mapM_ formatNodeSpec specs
   reachSpec
   decimalPaddingSpec
+  padDecimalsZeroSpec
   padAmountSpec
 
   dynamicTests <- runIO dynamicJbflTests
