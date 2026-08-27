@@ -294,9 +294,9 @@ annotatedVertexToNodesWithPrev prevMeta (AnnotatedVertex comments vertex meta) =
       vertexArray :: Node
       vertexArray =
         let name = String (vName vertex)
-            x = Number (mkNumberValueNormalized (vX vertex))
-            y = Number (mkNumberValueNormalized (vY vertex))
-            z = Number (mkNumberValueNormalized (vZ vertex))
+            x = Number (vXNum vertex)
+            y = Number (vYNum vertex)
+            z = Number (vZNum vertex)
             possiblyMeta = concatMap (pure . mkObject) (vMeta vertex)
          in mkArray . V.fromList $ [name, x, y, z] ++ possiblyMeta
    in ( map Comment preComments

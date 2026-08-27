@@ -164,4 +164,5 @@ main = hspec $ do
   xColumnSortingSpec
   metadataAcrossTreesSpec
   metadataPreservedSpec
+  vertexTextSpec
   triangleMetadataSpec

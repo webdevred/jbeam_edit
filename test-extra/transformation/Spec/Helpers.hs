@@ -3,6 +3,7 @@ module Spec.Helpers (
   parseJbeamFile,
   vertexPositionsInOrder,
   vertexCoordinatesInOrder,
+  vertexTextsInOrder,
   vertexCoordinates,
   effectiveMetaByCoordinate,
   metaNumber,
@@ -64,6 +65,24 @@ vertexCoordinatesInOrder topNode =
     Left _ -> []
     Right rows ->
       [ (realToFrac (nvValue x), realToFrac (nvValue y), realToFrac (nvValue z))
+      | row <- V.toList rows
+      , Just inner <- [expectArray row]
+      , Just (String name) <- [inner V.!? 0]
+      , name /= "id"
+      , Just (Number x) <- [inner V.!? 1]
+      , Just (Number y) <- [inner V.!? 2]
+      , Just (Number z) <- [inner V.!? 3]
+      ]
+
+{- | The coordinates as text rather than as numbers, so a spec can say what
+a transform wrote back rather than what it means.
+-}
+vertexTextsInOrder :: Node -> [(Text, Text, Text)]
+vertexTextsInOrder topNode =
+  case NP.queryNodes nodesQuery topNode >>= NP.expectArray nodesQuery of
+    Left _ -> []
+    Right rows ->
+      [ (nvText x, nvText y, nvText z)
       | row <- V.toList rows
       , Just inner <- [expectArray row]
       , Just (String name) <- [inner V.!? 0]

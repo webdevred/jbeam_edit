@@ -12,7 +12,6 @@ module JbeamEdit.Core.Node (
   isPriorAssocCommentNode,
   isComplexNode,
   possiblyChildren,
-  numberValueToScientific,
   scientificToText,
   mkNumberValue,
   mkNumberValueNormalized,
@@ -150,9 +149,6 @@ isNumberNode _ = False
 isPriorAssocCommentNode :: Node -> Bool
 isPriorAssocCommentNode (Comment cmt) = commentIsAttachedToPreviousNode cmt
 isPriorAssocCommentNode _ = False
-
-numberValueToScientific :: NumberValue -> Scientific
-numberValueToScientific = nvValue
 
 scientificToText :: Scientific -> Text
 scientificToText v
