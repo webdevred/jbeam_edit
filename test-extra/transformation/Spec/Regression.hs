@@ -237,9 +237,9 @@ vertexTextSpec =
     . it "are spelled the way the file wrote them"
     $ do
       topNode <- parseJbeamFile letterEndingNodesFixture
-      let before = sort (vertexTextsInOrder topNode)
-      before `shouldNotBe` []
+      let asWritten = sort (vertexTextsInOrder topNode)
+      asWritten `shouldNotBe` []
       case transform M.empty newTransformationConfig topNode of
         Left err -> expectationFailure ("transform failed: " ++ T.unpack err)
         Right (_, _, _, resultNode) ->
-          sort (vertexTextsInOrder resultNode) `shouldBe` before
+          sort (vertexTextsInOrder resultNode) `shouldBe` asWritten
