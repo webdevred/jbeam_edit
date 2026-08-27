@@ -14,6 +14,7 @@ import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Text.Encoding (encodeUtf8)
 import JbeamEdit.Transformation.Config
+import JbeamEdit.Transformation.Types (Axis (..), SortAxes (..))
 import Test.Hspec
 
 parseField :: (TransformationConfig -> a) -> Text -> Either Text a
@@ -75,6 +76,27 @@ configParsingSpec = describe "the transformation config parser" $ do
 
   it "rejects a support-threshold below 1" $
     parseField supportThreshold "support-threshold: 0.8\n" `shouldSatisfy` isLeft
+
+  it "reads a permutation of the three axes" $ do
+    pendingWith
+      "sort-axes has no key in the parser yet, so a config naming one is \
+      \accepted and then ignored, and the file sorts by the default axes \
+      \without saying so. Issue #243."
+    parseField sortAxes (olderThresholds <> "sort-axes: [X, Y, Z]\n")
+      `shouldBe` Right (SortAxes AxisX AxisY AxisZ)
+
+  it "rejects a list that is not three distinct axes" $ do
+    pendingWith
+      "the same missing key, from the other side: a repeated or short list \
+      \has to be refused where it is written, not silently replaced by the \
+      \default. Issue #243."
+    parseField sortAxes (olderThresholds <> "sort-axes: [X, X, Y]\n")
+      `shouldSatisfy` isLeft
+    parseField sortAxes (olderThresholds <> "sort-axes: [X, Y]\n")
+      `shouldSatisfy` isLeft
+
+  it "gives the axes the tool has always used when the key is absent" $
+    parseField sortAxes olderThresholds `shouldBe` Right defaultSortAxes
 
   it "gives every default for an empty file" $ do
     parseField ySortingThreshold "" `shouldBe` Right defaultSortingThreshold

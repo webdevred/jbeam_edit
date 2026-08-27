@@ -1,0 +1,28 @@
+{
+"testpart":{
+    "nodes":[
+        ["id", "posX", "posY", "posZ"],
+        // Synthetic regression-test fixture, not vetted by the jbeam
+        // maintainer and not intended as a demo/example.
+        //
+        // Two columns per side, mirrored across the centre line, at one
+        // station so only the columns can decide the order. X is compared
+        // raw, so the left side runs from the centre outwards while the
+        // right side runs from the outside in, and no existing fixture has
+        // both sides in columns to show it.
+        ["nl0", 0.40, -1.00, 0.10],
+        ["nl1", 0.40, -1.00, 0.50],
+        ["nl2", 0.80, -1.00, 0.10],
+        ["nl3", 0.80, -1.00, 0.50],
+        ["nr0", -0.40, -1.00, 0.10],
+        ["nr1", -0.40, -1.00, 0.50],
+        ["nr2", -0.80, -1.00, 0.10],
+        ["nr3", -0.80, -1.00, 0.50],
+    ],
+    "beams":[
+        ["id1:", "id2:"],
+        ["nl0", "nl1"],
+        ["nr0", "nr1"],
+    ],
+},
+}
