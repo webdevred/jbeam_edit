@@ -320,6 +320,7 @@ test-suite jbeam-edit-transformation-test
         Spec.Config
         Spec.Helpers
         Spec.Regression
+        Spec.SortAxes
         Paths_jbeam_edit
 
     autogen-modules:    Paths_jbeam_edit
