@@ -225,12 +225,10 @@ xColumnSortingSpec =
 {- | Both sides of a car hold the same shape mirrored, so the order the
 transform writes them in should mirror too. `compareAV` and the column pass
 compare X as written, and the sides have opposite signs, so the left side is
-walked from the centre outwards and the right side from the outside in. The
-maintainer wants the outer column first, which is what the right side already
-does by accident.
+walked from the centre outwards and the right side from the outside in.
 
-The assertion says only that the two sides agree, not which way they run, so
-it cannot be satisfied by the current code whichever direction is chosen.
+Which direction both should take is still open, so the assertion says only
+that they agree.
 -}
 mirroredColumnsFixture :: FilePath
 mirroredColumnsFixture =
