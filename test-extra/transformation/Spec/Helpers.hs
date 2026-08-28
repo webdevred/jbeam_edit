@@ -7,7 +7,6 @@ module Spec.Helpers (
   effectiveMetaByCoordinate,
   metaNumber,
   outOfOrderPairs,
-  commentTexts,
 ) where
 
 import Data.Char (isDigit)
@@ -161,18 +160,3 @@ outOfOrderPairs thr resultNode =
   where
     positions = zip (vertexPositionsInOrder resultNode) [0 :: Int ..]
     groupPrefix = T.dropWhileEnd isDigit
-
-{- | Every comment in a top node, in no particular order. The transformation
-writes a side comment above each tree it creates, so the absence of one names
-a tree that was never created.
--}
-commentTexts :: Node -> [Text]
-commentTexts node = case node of
-  Comment comment -> [cText comment]
-  Array arrayValue -> concatMap commentTexts (V.toList (avNodes arrayValue))
-  Object objectValue -> concatMap commentTexts (V.toList (ovNodes objectValue))
-  ObjectKey (key, value) -> commentTexts key ++ commentTexts value
-  String _ -> []
-  Number _ -> []
-  Bool _ -> []
-  Null -> []

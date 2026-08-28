@@ -13,11 +13,26 @@ module Spec.Regression (
   noBeamsSpec,
 ) where
 
+import Data.List (sort)
+import Data.List.NonEmpty qualified as NE
 import Data.Map qualified as M
 import Data.Set qualified as S
+import Data.Text (Text)
 import Data.Text qualified as T
+import GHC.IsList (toList)
+import JbeamEdit.Core.Node (Node)
 import JbeamEdit.Transformation
+import JbeamEdit.Transformation.BeamExtraction (vertexConns)
 import JbeamEdit.Transformation.Config
+import JbeamEdit.Transformation.Types (
+  AnnotatedVertex (..),
+  VertexTree (..),
+ )
+import JbeamEdit.Transformation.VertexExtraction (
+  determineGroup',
+  getVertexForest,
+  verticesQuery,
+ )
 import Spec.Helpers
 import Test.Hspec
 
@@ -235,14 +250,35 @@ noBeamsFixture = "examples/regression_jbeam/no-beams-repro.jbeam"
 noBeamsSpec :: Spec
 noBeamsSpec =
   describe "a file with no beams section" $ do
-    it "is transformed, keeping every node" . withNoBeams $ \resultNode ->
-      length (vertexCoordinates resultNode) `shouldBe` 4
-
-    it "classifies no node as support" . withNoBeams $ \resultNode ->
-      commentTexts resultNode `shouldNotContain` ["Support nodes"]
-  where
-    withNoBeams assert = do
+    it "is transformed, keeping every node" $ do
       topNode <- parseJbeamFile noBeamsFixture
       case transform M.empty newTransformationConfig topNode of
         Left err -> expectationFailure ("transform failed: " ++ T.unpack err)
-        Right (_, _, _, resultNode) -> assert resultNode
+        Right (_, _, _, resultNode) ->
+          length (vertexCoordinates resultNode) `shouldBe` 4
+
+    it "counts a connection for every beamed vertex when there are beams" $ do
+      topNode <- parseJbeamFile supportRenameIdempotencyFixture
+      connectionCounts topNode
+        `shouldBe` Right [("nl0", 3), ("nl10", 3), ("nl20", 3)]
+
+    it "counts nothing at all when there are none" $ do
+      topNode <- parseJbeamFile noBeamsFixture
+      connectionCounts topNode `shouldBe` Right []
+
+{- | The connection count `vertexConns` produces, as a sorted list so a spec
+can read it. Grouping the vertices by tree type is what `transform` does
+before it asks, and is repeated here because the wrapper it uses is internal.
+-}
+connectionCounts :: Node -> Either Text [(Text, Int)]
+connectionCounts topNode = do
+  (_, _, forest) <- getVertexForest brks verticesQuery topNode
+  let annotated =
+        concatMap (concatMap (NE.toList . tAnnotatedVertices . snd) . toList) forest
+  grouped <- M.fromListWith (++) <$> mapM withGroup annotated
+  (_, conns) <-
+    vertexConns (maxSupportCoordinates newTransformationConfig) topNode grouped
+  pure (sort [(name, count) | (name, (_, count)) <- M.toList conns])
+  where
+    brks = xGroupBreakpoints newTransformationConfig
+    withGroup av = (,[av]) <$> determineGroup' brks (aVertex av)
