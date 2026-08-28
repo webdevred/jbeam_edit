@@ -19,12 +19,9 @@ import Data.Text qualified as T
 import Data.Vector qualified as V
 import GHC.IsList (fromList)
 import JbeamEdit.Core.Node (
-  InternalComment (..),
   Node (..),
   NumberValue (..),
-  avNodes,
   expectArray,
-  ovNodes,
  )
 import JbeamEdit.Core.NodePath qualified as NP
 import JbeamEdit.IOUtils (tryReadFile)
