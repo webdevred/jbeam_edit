@@ -246,7 +246,8 @@ applyDecimalPadding padDecimals node
   | padDecimals /= 0
   , T.any (== '.') node =
       let (int, frac) = T.breakOnEnd "." node
-          paddedFrac = T.justifyLeft padDecimals '0' frac
+          cleanFrac = T.dropWhileEnd ('0' ==) frac
+          paddedFrac = T.justifyLeft padDecimals '0' cleanFrac
        in int <> paddedFrac
   | otherwise = node
 
@@ -254,9 +255,24 @@ applyPadLogic :: (Node -> Text) -> Rule -> Node -> Text
 applyPadLogic f rs n =
   let padAmount = sum $ lookupProperty PadAmount rs
       padDecimals = sum $ lookupProperty PadDecimals rs
-      decimalPaddedText
-        | isNumberNode n = applyDecimalPadding padDecimals (f n)
-        | otherwise = f n
+      preserveNumberFormat = Just True == lookupProperty PreserveNumberFormat rs
+      -- A whole number renders without a point, so `applyDecimalPadding` would
+      -- have nothing to pad and a `12.0` in the file would come back as `12`.
+      -- Whether the file asked for decimals is the one thing the value cannot
+      -- say. The bare point left here is filled in by the padding below, which
+      -- runs whenever this branch does.
+      numberText (NumberValue origText _)
+        | preserveNumberFormat = origText
+        | padDecimals > 0
+        , T.any ('.' ==) origText
+        , not (T.any ('.' ==) rendered) =
+            rendered <> "."
+        | otherwise = rendered
+        where
+          rendered = f n
+      decimalPaddedText = case n of
+        Number number -> applyDecimalPadding padDecimals (numberText number)
+        _ -> f n
    in bool (T.justifyLeft padAmount ' ' decimalPaddedText) (f n) (isComplexNode n)
 
 complexNewLine :: RuleSet -> NC.NodeCursor -> Maybe ComplexNewLine

@@ -118,10 +118,105 @@ reachSpec = do
     it "applies ComplexNewLine below the matched value too" $
       formatWith (shortPattern "ComplexNewLine : Force;") `shouldNotBe` baseline
 
+{- | The padding properties only reach values under `nodes`, so a spec about one
+number still has to build the structure around it.
+-}
+paddedCell :: String -> Node -> Text
+paddedCell rules cell =
+  formatNode (rulesFromSource rules) (docWith cell)
+  where
+    row cells = mkArray (fromList cells)
+    docWith c =
+      mkObject
+        ( fromList
+            [ ObjectKey
+                ( String "part"
+                , mkObject (fromList [ObjectKey (String "nodes", row [row [c]])])
+                )
+            ]
+        )
+
+cellOutput :: Text -> Text
+cellOutput body = "{\"part\" : {\"nodes\" : [[" <> body <> "]]}}\n"
+
+{- | The first three ran red for issue #217 and are green since #241: `12.0`
+used to come out as `12`, because `scientificToText` rebuilds the text from the
+parsed value and drops the point.
+
+The last two are red again. #241 fixed the point by formatting from `nvText`,
+which brings the whole source spelling with it, so a number written in exponent
+form now reaches the output with no fraction to pad at all and a leading sign
+survives. Only the decimal point needs reading from the source; the digits
+should still come from the value, which is what these two say.
+-}
+decimalPaddingSpec :: Spec
+decimalPaddingSpec = do
+  let formatCell = paddedCell ".*.nodes[*][*] { PadDecimals: 3; }"
+      wrap = cellOutput
+
+  describe "PadDecimals" $ do
+    it "pads a whole number the source wrote with a decimal point" $
+      formatCell (Number (mkNumberValue "12.0" 12)) `shouldBe` wrap "12.000"
+
+    it "pads one that already has decimals" $
+      formatCell (Number (mkNumberValue "1.2" 1.2)) `shouldBe` wrap "1.200"
+
+    it "leaves one written without a decimal point alone" $
+      formatCell (Number (mkNumberValue "12" 12)) `shouldBe` wrap "12"
+
+    it "trims trailing zeros back to the minimum" $
+      formatCell (Number (mkNumberValue "0.12000" 0.12)) `shouldBe` wrap "0.120"
+
+    it "leaves significant decimals past the minimum alone" $
+      formatCell (Number (mkNumberValue "0.12345" 0.12345)) `shouldBe` wrap "0.12345"
+
+    it "pads one the source wrote in exponent form" $
+      formatCell (Number (mkNumberValue "2.0e-3" 0.002)) `shouldBe` wrap "0.002"
+
+    it "drops a sign the source wrote, which is PreserveNumberFormat's job" $
+      formatCell (Number (mkNumberValue "+1.5" 1.5)) `shouldBe` wrap "1.500"
+
+{- | Zero is the documented way to ask for no decimal padding, so it must not
+also switch on the format preservation that a minimum brings with it. `preserve`
+in `formatWithCursor` asks whether the property is set rather than what it is
+set to, so today zero stops a number being normalized.
+-}
+padDecimalsZeroSpec :: Spec
+padDecimalsZeroSpec = do
+  let formatCell = paddedCell ".*.nodes[*][*] { PadDecimals: 0; }"
+      wrap = cellOutput
+
+  describe "PadDecimals: 0" $ do
+    it "normalises a number instead of echoing the source text" $
+      formatCell (Number (mkNumberValue "0.12000" 0.12)) `shouldBe` wrap "0.12"
+
+    it "normalises one the source wrote in exponent form" $
+      formatCell (Number (mkNumberValue "2.0e-3" 0.002)) `shouldBe` wrap "0.002"
+
+{- | `JBFL_DOCS.md` described this twice and got it wrong both times, once as
+trailing zeros and once as leading spaces, so a reader could reasonably try to
+make either true. The shipped `complex.jbfl` depends on the real behaviour to
+line up its `glowMap` columns.
+-}
+padAmountSpec :: Spec
+padAmountSpec = do
+  let formatCell = paddedCell ".*.nodes[*][*] { PadAmount: 8; }"
+      wrap = cellOutput
+
+  describe "PadAmount"
+    . it "fills the value out to the width with trailing spaces"
+    $ do
+      formatCell (Number (mkNumberValue "7.89" 7.89)) `shouldBe` wrap "7.89    "
+      formatCell (Number (mkNumberValue "0.1234" 0.1234)) `shouldBe` wrap "0.1234  "
+      formatCell (Number (mkNumberValue "12" 12)) `shouldBe` wrap "12      "
+
 spec :: Spec
 spec = do
   mapM_ formatNodeSpec specs
   reachSpec
+  decimalPaddingSpec
+  padDecimalsZeroSpec
+  padAmountSpec
 
   dynamicTests <- runIO dynamicJbflTests
   forM_ dynamicTests $ \(outFile, formatted, expected) ->

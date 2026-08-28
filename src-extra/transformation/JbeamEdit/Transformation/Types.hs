@@ -4,8 +4,14 @@ module JbeamEdit.Transformation.Types (
   VertexTree (..),
   VertexTreeType (..),
   Vertex (..),
+  vX,
+  vY,
+  vZ,
   AnnotatedVertex (..),
   VertexTreeKey (..),
+  Axis (..),
+  SortAxes (..),
+  axisOf,
   Beam (..),
   BeamPair (..),
   mkBeamPair,
@@ -55,8 +61,34 @@ data VertexTree = VertexTree
 
 data Vertex = Vertex
   { vName :: Text
-  , vX, vY, vZ :: Scientific
+  , vXNum, vYNum, vZNum :: NumberValue
   , vMeta :: Maybe (Vector Node)
+  }
+  deriving (Show)
+
+{- | A vertex keeps the number as the file wrote it, because it is written
+back out unchanged and the formatter decides how it looks. Sorting and
+grouping want the value, and read it through these.
+-}
+vX, vY, vZ :: Vertex -> Scientific
+vX = nvValue . vXNum
+vY = nvValue . vYNum
+vZ = nvValue . vZNum
+
+data Axis = AxisX | AxisY | AxisZ deriving (Eq, Show)
+
+axisOf :: Axis -> Vertex -> Scientific
+axisOf AxisX = vX
+axisOf AxisY = vY
+axisOf AxisZ = vZ
+
+{- | The three steps of the vertex sort: the axis that is banded with the
+threshold, the axis a band is walked along, and the axis that breaks a tie.
+-}
+data SortAxes = SortAxes
+  { groupAxis :: Axis
+  , walkAxis :: Axis
+  , tieAxis :: Axis
   }
   deriving (Eq, Show)
 
@@ -65,7 +97,7 @@ data AnnotatedVertex = AnnotatedVertex
   , aVertex :: Vertex
   , aMeta :: MetaMap
   }
-  deriving (Eq, Show)
+  deriving (Show)
 
 anVertexName :: AnnotatedVertex -> Text
 anVertexName = vName . aVertex

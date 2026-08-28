@@ -47,17 +47,17 @@ Typical use cases include:
 
 ## Properties Overview
 
-| Setting Name           | Description                                                                                                                                                                                           | Applies To                      |
-|------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
-| `PadDecimals`          | Adds trailing zeros only if the fractional part is shorter than `PadDecimals`, leaving existing extra decimals untouched. Guarantees a minimum number of decimal digits.                              | Numeric values                  |
-| `PadAmount`            | Specifies the **total length** (number of characters) the formatted value should occupy.                                                                                                              | Any scalar except for comments  |
-| `AutoPad`              | Aligns values in array rows into columns by padding each cell to the maximum width in that column. Applies to the array it is set on (e.g. `nodes`, `beams`).                                         | Arrays of arrays                |
-| `AlignObjectKeys`      | Pads object keys so that `:` separators align vertically across all entries in the same object.                                                                                                       | Objects                         |
-| `AutoPadSubObjects`    | Aligns values within sibling inline objects by treating matching sub-keys as columns. Useful for `glowMap`-style structures.                                                                          | Objects with inline sub-objects |
-| `ComplexNewLine`       | Controls multiline formatting for complex structures. `None` disables it (inline output). `Force` always enables it. Replaces the deprecated `NoComplexNewLine` and `ForceComplexNewLine` properties. | Any complex data structure      |
-| `PreserveNumberFormat` | Outputs numbers exactly as written in the source file instead of normalizing them. Useful for preserving intentional formatting like `+1` or `0.002` vs `2.0e-3`.                                     | Numeric values                  |
-| `Indent`               | Controls the amount of indentation. Defaults to 4 spaces.                                                                                                                                             | Any complex data structure      |
-| `TrailingComma`        | Controls trailing commas. `Preserve` keeps the source value (default). `Force` always adds one. `None` always removes them. Resolved at the child level, so `.*` covers root.                         | Arrays and objects              |
+| Setting Name           | Description                                                                                                                                                                                                                              | Applies To                      |
+|------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
+| `PadDecimals`          | Guarantees a minimum number of decimal digits, adding trailing zeros when the fraction is shorter and trimming them back when it is longer. Significant digits are never cut, so `0.12000` becomes `0.120` and `0.12345` stays as it is. | Numeric values                  |
+| `PadAmount`            | Fills the value out with **trailing spaces** to the given total length, so a column lines up. Does not change the value itself.                                                                                                          | Any scalar except for comments  |
+| `AutoPad`              | Aligns values in array rows into columns by padding each cell to the maximum width in that column. Applies to the array it is set on (e.g. `nodes`, `beams`).                                                                            | Arrays of arrays                |
+| `AlignObjectKeys`      | Pads object keys so that `:` separators align vertically across all entries in the same object.                                                                                                                                          | Objects                         |
+| `AutoPadSubObjects`    | Aligns values within sibling inline objects by treating matching sub-keys as columns. Useful for `glowMap`-style structures.                                                                                                             | Objects with inline sub-objects |
+| `ComplexNewLine`       | Controls multiline formatting for complex structures. `None` disables it (inline output). `Force` always enables it. Replaces the deprecated `NoComplexNewLine` and `ForceComplexNewLine` properties.                                    | Any complex data structure      |
+| `PreserveNumberFormat` | Outputs numbers exactly as written in the source file instead of normalizing them. Useful for preserving intentional formatting like `+1` or `0.002` vs `2.0e-3`.                                                                        | Numeric values                  |
+| `Indent`               | Controls the amount of indentation. Defaults to 4 spaces.                                                                                                                                                                                | Any complex data structure      |
+| `TrailingComma`        | Controls trailing commas. `Preserve` keeps the source value (default). `Force` always adds one. `None` always removes them. Resolved at the child level, so `.*` covers root.                                                            | Arrays and objects              |
 
 ## How Matching Works
 
@@ -115,15 +115,15 @@ only pads the root object, and why the shipped `minimal.jbfl` can set
   - `PadAmount: 8`
   - `ComplexNewLine: None`
   - `Indent: 4`
-- Behavior: Format floats as fixed-width strings of length 8, padding with trailing zeros after the decimal point, keeping nested arrays inline with 4-space indentation.
+- Behavior: Give the fraction at least 3 digits by adding zeros, then pad the whole value to 8 characters with spaces so the column lines up, keeping nested arrays inline with 4-space indentation.
 
 Examples
 
 | Original Value | Initial width | Exported String |
 |----------------|---------------|-----------------|
-| 1.2            | 3             | 1.200000        |
-| 3.14           | 3             | 3.140000        |
-| 12.0           | 3             | 12.00000        |
+| 1.2            | 3             | `1.200   `      |
+| 3.14           | 3             | `3.140   `      |
+| 12.0           | 3             | `12.000  `      |
 
 ### Pattern: `.*.beams[*][*]`
 
@@ -136,15 +136,15 @@ Examples
 - Matches values in the innermost arrays under the key beams.
 - Properties:
   - `PadAmount: 8`
-- Behavior: Format floats as fixed-width strings of length 8, padded with leading spaces to align right.
+- Behavior: Format floats as fixed-width strings of length 8, filled out with trailing spaces so the column lines up.
 
 Examples:
 
-| Original Value | Initial width | Exported String                |
-|----------------|---------------|--------------------------------|
-| 5.0            | 3             | 5.0 with 7 spaces before       |
-| 0.1234         | 6             | 0.1234 with 2 spaces before    |
-| 7.89           | 4             | 7.89 with 5 spaces before      |
+| Original Value | Initial width | Exported String |
+|----------------|---------------|-----------------|
+| 5.0            | 3             | `5.0     `      |
+| 0.1234         | 6             | `0.1234  `      |
+| 7.89           | 4             | `7.89    `      |
 
 ## Padding Behavior on Scalar Values
 

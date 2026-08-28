@@ -11,6 +11,7 @@ module Spec.Regression (
   metadataPreservedSpec,
   xColumnSortingSpec,
   noBeamsSpec,
+  vertexTextSpec,
 ) where
 
 import Data.List (sort)
@@ -276,9 +277,30 @@ connectionCounts topNode = do
   let annotated =
         concatMap (concatMap (NE.toList . tAnnotatedVertices . snd) . toList) forest
   grouped <- M.fromListWith (++) <$> mapM withGroup annotated
-  (_, conns) <-
-    vertexConns (maxSupportCoordinates newTransformationConfig) topNode grouped
+  let (_, conns) =
+        vertexConns (maxSupportCoordinates newTransformationConfig) topNode grouped
   pure (sort [(name, count) | (name, (_, count)) <- M.toList conns])
   where
     brks = xGroupBreakpoints newTransformationConfig
     withGroup av = (,[av]) <$> determineGroup' brks (aVertex av)
+
+{- | The transformation reorders and renames, and never changes a coordinate,
+so a number has to come back out spelled the way the file wrote it. It used to
+be read as a value and written back from that value, which dropped the point
+in `-1.0` and the trailing zeros in `0.5000`. Only the formatter decides how a
+number looks, and it can only do that while the source text is still there.
+
+Compared as sorted lists because the transform is free to move a vertex.
+-}
+vertexTextSpec :: Spec
+vertexTextSpec =
+  describe "the coordinates a transform writes back"
+    . it "are spelled the way the file wrote them"
+    $ do
+      topNode <- parseJbeamFile letterEndingNodesFixture
+      let asWritten = sort (vertexTextsInOrder topNode)
+      asWritten `shouldNotBe` []
+      case transform M.empty newTransformationConfig topNode of
+        Left err -> expectationFailure ("transform failed: " ++ T.unpack err)
+        Right (_, _, _, resultNode) ->
+          sort (vertexTextsInOrder resultNode) `shouldBe` asWritten

@@ -1,7 +1,6 @@
-/* Node coordinates use PadDecimals for uniform decimal places.
-  PreserveNumberFormat is excluded here because it would override
-  PadDecimals, keeping the original varying precision (e.g. 0.5
-  vs 0.500) instead of normalizing to 3 decimals. */
+/* PadDecimals gives node coordinates a uniform number of decimals. It reads
+  the source text to do that, so 12.0 keeps its point and 0.12000 is trimmed
+  back, and PreserveNumberFormat is not needed alongside it. */
 .*.nodes[*][*] {
     PadDecimals: 3;
 }
