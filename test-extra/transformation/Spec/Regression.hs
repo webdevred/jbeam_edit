@@ -266,9 +266,9 @@ noBeamsSpec =
       topNode <- parseJbeamFile noBeamsFixture
       connectionCounts topNode `shouldBe` Right []
 
-{- | The connection count `vertexConns` produces, as a sorted list so a spec
-can read it. Grouping the vertices by tree type is what `transform` does
-before it asks, and is repeated here because the wrapper it uses is internal.
+{- | Grouping the vertices by tree type is what `transform` does before it
+asks for the counts, and is repeated here because the wrapper it uses is
+internal.
 -}
 connectionCounts :: Node -> Either Text [(Text, Int)]
 connectionCounts topNode = do
