@@ -18,7 +18,11 @@ import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Vector qualified as V
 import GHC.IsList (fromList)
-import JbeamEdit.Core.Node (Node (..), NumberValue (..), expectArray)
+import JbeamEdit.Core.Node (
+  Node (..),
+  NumberValue (..),
+  expectArray,
+ )
 import JbeamEdit.Core.NodePath qualified as NP
 import JbeamEdit.IOUtils (tryReadFile)
 import JbeamEdit.Parsing.Jbeam (parseNodes)

@@ -227,9 +227,9 @@ moveVerticesInVertexForest triangleVertexNames topNode newNames tfCfg vertexTree
         Right movableVertices' ->
           let groupedVertices = M.fromListWith (++) movableVertices'
            in do
-                (badBeamNodes, conns) <-
-                  vertexConns (maxSupportCoordinates tfCfg) topNode groupedVertices
-                let (supportForest, nonSupportVertices) =
+                let (badBeamNodes, conns) =
+                      vertexConns (maxSupportCoordinates tfCfg) topNode groupedVertices
+                    (supportForest, nonSupportVertices) =
                       moveSupportVertices triangleVertexNames newNames tfCfg conns groupedVertices
                 newForest <-
                   foldM

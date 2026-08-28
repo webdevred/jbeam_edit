@@ -14,7 +14,6 @@ import Data.Set (Set)
 import Data.Set qualified as S
 import Data.Text (Text)
 import Data.Text qualified as T
-import Data.Vector qualified as V
 import JbeamEdit.Core.Node (Node)
 import JbeamEdit.IOUtils (humanJoin, putErrorStringLn, tryReadFile)
 import JbeamEdit.Parsing.Jbeam (parseNodes)
@@ -56,11 +55,7 @@ extractVertexNames node =
     Right (_, _, vf) -> Right (allVerticesInForest vf)
 
 extractFileBeams :: Node -> [Beam]
-extractFileBeams node =
-  case extractBeams node of
-    Right bs
-      | not (V.null bs) -> snd (extractBeamsWithMeta bs)
-    _ -> []
+extractFileBeams topNode = snd . extractBeamsWithMeta $ extractBeams topNode
 
 findInvalidRefs :: Set Text -> [Beam] -> [(Text, Text, Set Text)]
 findInvalidRefs allVertexNames beams =
