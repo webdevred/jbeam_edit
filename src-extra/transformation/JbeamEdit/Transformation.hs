@@ -601,7 +601,7 @@ extractTriangleVertexNames =
     . V.filter (\n -> not (isCommentNode n) && not (isObjectNode n))
   where
     extractTriple n = do
-      inner <- expectArray n
+      inner <- maybeArray n
       case V.toList inner of
         [a, b, c] -> (,,) <$> maybeString a <*> maybeString b <*> maybeString c
         _ -> Nothing

@@ -18,11 +18,7 @@ import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Vector qualified as V
 import GHC.IsList (fromList)
-import JbeamEdit.Core.Node (
-  Node (..),
-  NumberValue (..),
-  expectArray,
- )
+import JbeamEdit.Core.Node (Node (..), NumberValue (..), maybeArray)
 import JbeamEdit.Core.NodePath qualified as NP
 import JbeamEdit.IOUtils (tryReadFile)
 import JbeamEdit.Parsing.Jbeam (parseNodes)
@@ -53,7 +49,7 @@ vertexPositionsInOrder topNode =
     Right rows ->
       [ (name, realToFrac (nvValue yNum))
       | row <- V.toList rows
-      , Just inner <- [expectArray row]
+      , Just inner <- [maybeArray row]
       , Just (String name) <- [inner V.!? 0]
       , name /= "id"
       , Just (Number yNum) <- [inner V.!? 2]
@@ -70,7 +66,7 @@ vertexCoordinatesInOrder topNode =
     Right rows ->
       [ (realToFrac (nvValue x), realToFrac (nvValue y), realToFrac (nvValue z))
       | row <- V.toList rows
-      , Just inner <- [expectArray row]
+      , Just inner <- [maybeArray row]
       , Just (String name) <- [inner V.!? 0]
       , name /= "id"
       , Just (Number x) <- [inner V.!? 1]
@@ -88,7 +84,7 @@ vertexTextsInOrder topNode =
     Right rows ->
       [ (nvText x, nvText y, nvText z)
       | row <- V.toList rows
-      , Just inner <- [expectArray row]
+      , Just inner <- [maybeArray row]
       , Just (String name) <- [inner V.!? 0]
       , name /= "id"
       , Just (Number x) <- [inner V.!? 1]
@@ -107,7 +103,7 @@ vertexCoordinates topNode =
       S.fromList
         [ (realToFrac (nvValue x), realToFrac (nvValue y), realToFrac (nvValue z))
         | row <- V.toList rows
-        , Just inner <- [expectArray row]
+        , Just inner <- [maybeArray row]
         , Just (String name) <- [inner V.!? 0]
         , name /= "id"
         , Just (Number x) <- [inner V.!? 1]
@@ -138,7 +134,7 @@ effectiveMetaByCoordinate topNode =
         Nothing -> go (M.union (metaMapFromObject row) sticky) found rest
 
     vertexRow row = do
-      inner <- expectArray row
+      inner <- maybeArray row
       String name <- inner V.!? 0
       Number x <- inner V.!? 1
       Number y <- inner V.!? 2

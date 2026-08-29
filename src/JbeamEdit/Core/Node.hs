@@ -1,5 +1,5 @@
 module JbeamEdit.Core.Node (
-  expectArray,
+  maybeArray,
   isCommentNode,
   isObjectNode,
   isObjectKeyNode,
@@ -165,20 +165,20 @@ isSinglelineComment :: Node -> Bool
 isSinglelineComment (Comment (InternalComment _ False _ _)) = True
 isSinglelineComment _ = False
 
-expectArray :: Node -> Maybe (Vector Node)
-expectArray (Array av) = Just (avNodes av)
-expectArray _ = Nothing
+maybeArray :: Node -> Maybe (Vector Node)
+maybeArray (Array av) = Just (avNodes av)
+maybeArray _ = Nothing
 
-expectObject :: Node -> Maybe (Vector Node)
-expectObject (Object ov) = Just (ovNodes ov)
-expectObject _ = Nothing
+maybeObject :: Node -> Maybe (Vector Node)
+maybeObject (Object ov) = Just (ovNodes ov)
+maybeObject _ = Nothing
 
 maybeString :: Node -> Maybe Text
 maybeString (String t) = Just t
 maybeString _ = Nothing
 
 possiblyChildren :: Node -> Maybe (Vector Node)
-possiblyChildren n = expectArray n <|> expectObject n
+possiblyChildren n = maybeArray n <|> maybeObject n
 
 moreNodesThanOne :: Vector Node -> Bool
 moreNodesThanOne v

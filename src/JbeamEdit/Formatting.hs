@@ -30,7 +30,7 @@ import JbeamEdit.Core.Node (
   NumberValue (..),
   ObjectValue (..),
   commentIsAttachedToPreviousNode,
-  expectArray,
+  maybeArray,
   isCommentNode,
   isComplexNode,
   isObjectKeyNode,
@@ -276,7 +276,7 @@ maxColumnLengthsWithCache rs cursor nodes
       let indexed = V.indexed ns
           arrays =
             V.mapMaybe
-              ( \(idx, node) -> case expectArray node of
+              ( \(idx, node) -> case maybeArray node of
                   Just arr -> Just (arr, idx + offset)
                   Nothing -> Nothing
               )

@@ -1,7 +1,7 @@
 module JbeamEdit.Transformation.BeamExtraction (vertexConns, possiblyBeam, extractBeams, extractBeamsWithMeta, beamInKnownSet) where
 
 import Data.Bool (bool)
-import Data.Either (fromRight)
+import Data.Foldable (fold)
 import Data.List (genericTake, sortOn)
 import Data.Map (Map)
 import Data.Map qualified as M
@@ -52,10 +52,7 @@ extractBeamFromArray sectionMeta vec
     maybeObject _ = Nothing
 
 extractBeams :: Node -> Vector Node
-extractBeams topNode =
-  fromRight
-    V.empty
-    (NP.queryNodes beamQuery topNode >>= NP.expectArray beamQuery)
+extractBeams = foldMap (fold . maybeArray) . NP.queryNodes beamQuery
 
 extractBeamsWithMeta :: Vector Node -> ([Node], [Beam])
 extractBeamsWithMeta = go M.empty [] [] . V.toList
