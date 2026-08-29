@@ -42,7 +42,7 @@ jobs:
           pattern: |
             **/*.hs
             !examples/ast/*/*.hs
-          version: latest
+          version: 0.15.0.0
       - name: Check bash formatting
         run: |
           sudo apt update > /dev/null 2>&1
