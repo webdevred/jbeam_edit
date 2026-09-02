@@ -24,6 +24,32 @@ RuleSet
                     ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ), rsHere = fromList
               [
                 ( SomeKey AutoPad, SomeProperty AutoPad True ) ], rsBelow = fromList [] } ),
+          ( ObjectKey "camerasInternal", RuleSet
+            { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Just
+              ( RuleSet
+                { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Just
+                  ( RuleSet
+                    { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Nothing, rsHere = fromList [], rsBelow = fromList
+                      [
+                        ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None ),
+                        ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ), rsAnyArrayIndex = Just
+                  ( RuleSet
+                    { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Just
+                      ( RuleSet
+                        { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Nothing, rsHere = fromList [], rsBelow = fromList
+                          [
+                            ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None ),
+                            ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ), rsAnyArrayIndex = Nothing, rsHere = fromList [], rsBelow = fromList [] } ), rsHere = fromList [], rsBelow = fromList
+                  [
+                    ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None ),
+                    ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ), rsHere = fromList [], rsBelow = fromList [] } ),
+          ( ObjectKey "clutch", RuleSet
+            { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Nothing, rsHere = fromList
+              [
+                ( SomeKey AlignObjectKeys, SomeProperty AlignObjectKeys True ),
+                ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine Force ) ], rsBelow = fromList
+              [
+                ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ),
           ( ObjectKey "components", RuleSet
             { rsBySelectors = fromList
               [
@@ -44,6 +70,80 @@ RuleSet
                   [
                     ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None ),
                     ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ), rsHere = fromList [], rsBelow = fromList [] } ),
+          ( ObjectKey "differential_C", RuleSet
+            { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Nothing, rsHere = fromList
+              [
+                ( SomeKey AlignObjectKeys, SomeProperty AlignObjectKeys True ) ], rsBelow = fromList
+              [
+                ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine Force ),
+                ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ),
+          ( ObjectKey "differential_F", RuleSet
+            { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Nothing, rsHere = fromList
+              [
+                ( SomeKey AlignObjectKeys, SomeProperty AlignObjectKeys True ) ], rsBelow = fromList
+              [
+                ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine Force ),
+                ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ),
+          ( ObjectKey "differential_R", RuleSet
+            { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Nothing, rsHere = fromList
+              [
+                ( SomeKey AlignObjectKeys, SomeProperty AlignObjectKeys True ) ], rsBelow = fromList
+              [
+                ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine Force ),
+                ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ),
+          ( ObjectKey "driveModes", RuleSet
+            { rsBySelectors = fromList
+              [
+                ( ObjectKey "defaultSettings", RuleSet
+                  { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Just
+                    ( RuleSet
+                      { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Just
+                        ( RuleSet
+                          { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Nothing, rsHere = fromList [], rsBelow = fromList
+                            [
+                              ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None ),
+                              ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ), rsAnyArrayIndex = Just
+                        ( RuleSet
+                          { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Just
+                            ( RuleSet
+                              { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Nothing, rsHere = fromList [], rsBelow = fromList
+                                [
+                                  ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None ),
+                                  ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ), rsAnyArrayIndex = Nothing, rsHere = fromList [], rsBelow = fromList [] } ), rsHere = fromList [], rsBelow = fromList
+                        [
+                          ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None ),
+                          ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ), rsHere = fromList [], rsBelow = fromList [] } ),
+                ( ObjectKey "modes", RuleSet
+                  { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Just
+                    ( RuleSet
+                      { rsBySelectors = fromList
+                        [
+                          ( ObjectKey "settings", RuleSet
+                            { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Just
+                              ( RuleSet
+                                { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Just
+                                  ( RuleSet
+                                    { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Nothing, rsHere = fromList [], rsBelow = fromList
+                                      [
+                                        ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None ),
+                                        ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ), rsAnyArrayIndex = Just
+                                  ( RuleSet
+                                    { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Just
+                                      ( RuleSet
+                                        { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Nothing, rsHere = fromList [], rsBelow = fromList
+                                          [
+                                            ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None ),
+                                            ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ), rsAnyArrayIndex = Nothing, rsHere = fromList [], rsBelow = fromList [] } ), rsHere = fromList [], rsBelow = fromList
+                                  [
+                                    ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None ),
+                                    ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ), rsHere = fromList [], rsBelow = fromList [] } ) ], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Nothing, rsHere = fromList [], rsBelow = fromList [] } ), rsAnyArrayIndex = Nothing, rsHere = fromList [], rsBelow = fromList [] } ) ], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Nothing, rsHere = fromList [], rsBelow = fromList [] } ),
+          ( ObjectKey "engineBlock", RuleSet
+            { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Nothing, rsHere = fromList
+              [
+                ( SomeKey AlignObjectKeys, SomeProperty AlignObjectKeys True ),
+                ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine Force ) ], rsBelow = fromList
+              [
+                ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ),
           ( ObjectKey "flexbodies", RuleSet
             { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Just
               ( RuleSet
@@ -63,6 +163,35 @@ RuleSet
                   [
                     ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None ),
                     ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ), rsHere = fromList [], rsBelow = fromList [] } ),
+          ( ObjectKey "gauges", RuleSet
+            { rsBySelectors = fromList
+              [
+                ( ObjectKey "configuration", RuleSet
+                  { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Nothing, rsHere = fromList
+                    [
+                      ( SomeKey AlignObjectKeys, SomeProperty AlignObjectKeys True ) ], rsBelow = fromList
+                    [
+                      ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine Force ),
+                      ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ),
+                ( ObjectKey "displayData", RuleSet
+                  { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Nothing, rsHere = fromList
+                    [
+                      ( SomeKey AlignObjectKeys, SomeProperty AlignObjectKeys True ) ], rsBelow = fromList
+                    [
+                      ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine Force ),
+                      ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ) ], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Nothing, rsHere = fromList
+              [
+                ( SomeKey AlignObjectKeys, SomeProperty AlignObjectKeys True ) ], rsBelow = fromList
+              [
+                ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine Force ),
+                ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ),
+          ( ObjectKey "gearbox", RuleSet
+            { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Nothing, rsHere = fromList
+              [
+                ( SomeKey AlignObjectKeys, SomeProperty AlignObjectKeys True ),
+                ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine Force ) ], rsBelow = fromList
+              [
+                ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ),
           ( ObjectKey "glowMap", RuleSet
             { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Just
               ( RuleSet
@@ -97,6 +226,13 @@ RuleSet
                         [
                           ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None ),
                           ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ), rsHere = fromList [], rsBelow = fromList [] } ),
+                ( ObjectKey "torqueCompressionBrake", RuleSet
+                  { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Just
+                    ( RuleSet
+                      { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Nothing, rsHere = fromList [], rsBelow = fromList
+                        [
+                          ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None ),
+                          ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ), rsHere = fromList [], rsBelow = fromList [] } ),
                 ( ObjectKey "torqueModIntake", RuleSet
                   { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Just
                     ( RuleSet
@@ -110,12 +246,37 @@ RuleSet
                       { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Nothing, rsHere = fromList [], rsBelow = fromList
                         [
                           ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None ),
-                          ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ), rsHere = fromList [], rsBelow = fromList [] } ) ], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Nothing, rsHere = fromList
+                          ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ), rsHere = fromList [], rsBelow = fromList [] } ) ], rsPrefixes =
+              [
+                ( "deformGroups", RuleSet
+                  { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Nothing, rsHere = fromList [], rsBelow = fromList
+                    [
+                      ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None ),
+                      ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ) ], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Nothing, rsHere = fromList
               [
                 ( SomeKey AlignObjectKeys, SomeProperty AlignObjectKeys True ) ], rsBelow = fromList
               [
                 ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine Force ),
                 ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ),
+          ( ObjectKey "mirrors", RuleSet
+            { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Just
+              ( RuleSet
+                { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Just
+                  ( RuleSet
+                    { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Nothing, rsHere = fromList [], rsBelow = fromList
+                      [
+                        ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None ),
+                        ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ), rsAnyArrayIndex = Just
+                  ( RuleSet
+                    { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Just
+                      ( RuleSet
+                        { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Nothing, rsHere = fromList [], rsBelow = fromList
+                          [
+                            ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None ),
+                            ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ), rsAnyArrayIndex = Nothing, rsHere = fromList [], rsBelow = fromList [] } ), rsHere = fromList [], rsBelow = fromList
+                  [
+                    ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None ),
+                    ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ), rsHere = fromList [], rsBelow = fromList [] } ),
           ( ObjectKey "nodes", RuleSet
             { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Just
               ( RuleSet
@@ -142,7 +303,24 @@ RuleSet
           ( ObjectKey "powertrain", RuleSet
             { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Just
               ( RuleSet
-                { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Nothing, rsHere = fromList [], rsBelow = fromList
+                { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Just
+                  ( RuleSet
+                    { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Nothing, rsHere = fromList [], rsBelow = fromList
+                      [
+                        ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None ),
+                        ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ), rsAnyArrayIndex = Nothing, rsHere = fromList [], rsBelow = fromList
+                  [
+                    ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None ),
+                    ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ), rsHere = fromList [], rsBelow = fromList [] } ),
+          ( ObjectKey "pressureWheels", RuleSet
+            { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Just
+              ( RuleSet
+                { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Just
+                  ( RuleSet
+                    { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Nothing, rsHere = fromList [], rsBelow = fromList
+                      [
+                        ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None ),
+                        ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ), rsAnyArrayIndex = Nothing, rsHere = fromList [], rsBelow = fromList
                   [
                     ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None ),
                     ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ), rsHere = fromList [], rsBelow = fromList [] } ),
@@ -164,7 +342,16 @@ RuleSet
                             ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ), rsAnyArrayIndex = Nothing, rsHere = fromList [], rsBelow = fromList [] } ), rsHere = fromList [], rsBelow = fromList
                   [
                     ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None ),
-                    ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ), rsHere = fromList [], rsBelow = fromList [] } ),
+                    ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ), rsHere = fromList
+              [
+                ( SomeKey AutoPad, SomeProperty AutoPad True ) ], rsBelow = fromList [] } ),
+          ( ObjectKey "radiator", RuleSet
+            { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Nothing, rsHere = fromList
+              [
+                ( SomeKey AlignObjectKeys, SomeProperty AlignObjectKeys True ),
+                ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine Force ) ], rsBelow = fromList
+              [
+                ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ),
           ( ObjectKey "rails", RuleSet
             { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Just
               ( RuleSet
@@ -172,6 +359,20 @@ RuleSet
                   [
                     ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None ),
                     ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ), rsAnyArrayIndex = Nothing, rsHere = fromList [], rsBelow = fromList [] } ),
+          ( ObjectKey "slidenodes", RuleSet
+            { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Just
+              ( RuleSet
+                { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Just
+                  ( RuleSet
+                    { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Nothing, rsHere = fromList [], rsBelow = fromList
+                      [
+                        ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None ),
+                        ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ), rsAnyArrayIndex = Nothing, rsHere = fromList [], rsBelow = fromList
+                  [
+                    ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None ),
+                    ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ), rsHere = fromList
+              [
+                ( SomeKey AutoPad, SomeProperty AutoPad True ) ], rsBelow = fromList [] } ),
           ( ObjectKey "slots", RuleSet
             { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Just
               ( RuleSet
@@ -190,7 +391,9 @@ RuleSet
                             ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ), rsAnyArrayIndex = Nothing, rsHere = fromList [], rsBelow = fromList [] } ), rsHere = fromList [], rsBelow = fromList
                   [
                     ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None ),
-                    ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ), rsHere = fromList [], rsBelow = fromList [] } ),
+                    ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ), rsHere = fromList
+              [
+                ( SomeKey AutoPad, SomeProperty AutoPad True ) ], rsBelow = fromList [] } ),
           ( ObjectKey "slots2", RuleSet
             { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Just
               ( RuleSet
@@ -209,7 +412,9 @@ RuleSet
                             ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ), rsAnyArrayIndex = Nothing, rsHere = fromList [], rsBelow = fromList [] } ), rsHere = fromList [], rsBelow = fromList
                   [
                     ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None ),
-                    ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ), rsHere = fromList [], rsBelow = fromList [] } ),
+                    ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ), rsHere = fromList
+              [
+                ( SomeKey AutoPad, SomeProperty AutoPad True ) ], rsBelow = fromList [] } ),
           ( ObjectKey "soundConfig", RuleSet
             { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Nothing, rsHere = fromList
               [
@@ -231,6 +436,39 @@ RuleSet
               [
                 ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine Force ),
                 ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ),
+          ( ObjectKey "soundscape", RuleSet
+            { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Just
+              ( RuleSet
+                { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Just
+                  ( RuleSet
+                    { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Nothing, rsHere = fromList [], rsBelow = fromList
+                      [
+                        ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None ),
+                        ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ), rsAnyArrayIndex = Just
+                  ( RuleSet
+                    { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Just
+                      ( RuleSet
+                        { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Nothing, rsHere = fromList [], rsBelow = fromList
+                          [
+                            ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None ),
+                            ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ), rsAnyArrayIndex = Nothing, rsHere = fromList [], rsBelow = fromList [] } ), rsHere = fromList [], rsBelow = fromList
+                  [
+                    ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None ),
+                    ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ), rsHere = fromList [], rsBelow = fromList [] } ),
+          ( ObjectKey "torsionbars", RuleSet
+            { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Just
+              ( RuleSet
+                { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Just
+                  ( RuleSet
+                    { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Nothing, rsHere = fromList [], rsBelow = fromList
+                      [
+                        ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None ),
+                        ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ), rsAnyArrayIndex = Nothing, rsHere = fromList [], rsBelow = fromList
+                  [
+                    ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None ),
+                    ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ), rsHere = fromList
+              [
+                ( SomeKey AutoPad, SomeProperty AutoPad True ) ], rsBelow = fromList [] } ),
           ( ObjectKey "triangles", RuleSet
             { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Just
               ( RuleSet
@@ -240,10 +478,31 @@ RuleSet
                     ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ), rsHere = fromList
               [
                 ( SomeKey AutoPad, SomeProperty AutoPad True ) ], rsBelow = fromList [] } ),
+          ( ObjectKey "turbocharger", RuleSet
+            { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Nothing, rsHere = fromList
+              [
+                ( SomeKey AlignObjectKeys, SomeProperty AlignObjectKeys True ),
+                ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine Force ) ], rsBelow = fromList
+              [
+                ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ),
           ( ObjectKey "variables", RuleSet
             { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Just
               ( RuleSet
                 { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Nothing, rsHere = fromList [], rsBelow = fromList
                   [
                     ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine None ),
-                    ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ), rsHere = fromList [], rsBelow = fromList [] } ) ], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Nothing, rsHere = fromList [], rsBelow = fromList [] } ), rsAnyArrayIndex = Nothing, rsHere = fromList [], rsBelow = fromList [] }
+                    ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ), rsHere = fromList [], rsBelow = fromList [] } ),
+          ( ObjectKey "vehicleController", RuleSet
+            { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Nothing, rsHere = fromList
+              [
+                ( SomeKey AlignObjectKeys, SomeProperty AlignObjectKeys True ),
+                ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine Force ) ], rsBelow = fromList
+              [
+                ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ),
+          ( ObjectKey "waterDamage", RuleSet
+            { rsBySelectors = fromList [], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Nothing, rsHere = fromList
+              [
+                ( SomeKey AlignObjectKeys, SomeProperty AlignObjectKeys True ),
+                ( SomeKey ComplexNewLine, SomeProperty ComplexNewLine Force ) ], rsBelow = fromList
+              [
+                ( SomeKey PreserveNumberFormat, SomeProperty PreserveNumberFormat True ) ] } ) ], rsPrefixes = [], rsAnyObjectKey = Nothing, rsAnyArrayIndex = Nothing, rsHere = fromList [], rsBelow = fromList [] } ), rsAnyArrayIndex = Nothing, rsHere = fromList [], rsBelow = fromList [] }

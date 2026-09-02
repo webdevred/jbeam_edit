@@ -13,7 +13,9 @@
 }
 
 .*.nodes, .*.beams,
-.*.triangles {
+.*.triangles, .*.slots,
+.*.slots2, .*.props,
+.*.slidenodes, .*.torsionbars {
    AutoPad : true;
 }
 
@@ -28,7 +30,15 @@
 .*.mainEngine.burnEfficiency[*],
 .*.mainEngine.torqueModIntake[*],
 .*.mainEngine.torqueModMult[*],
-.*.powertrain[*], .*.flexbodies[*] {
+.*.mainEngine.torqueCompressionBrake[*],
+.*.powertrain[*], .*.flexbodies[*],
+.*.pressureWheels[*],
+.*.slidenodes[*], .*.torsionbars[*],
+.*.mainEngine.deformGroups*,
+.*.driveModes.defaultSettings[*],
+.*.driveModes.modes.*.settings[*],
+.*.mirrors[*], .*.soundscape[*],
+.*.camerasInternal[*] {
     PreserveNumberFormat : true;
     ComplexNewLine : None;
 }
@@ -43,9 +53,44 @@
 .*.slots2[*].*, .*.slots2[*][*].*,
 .*.props[*].*, .*.props[*][*].*,
 .*.flexbodies[*].*,
-.*.flexbodies[*][*].* {
+.*.flexbodies[*][*].*,
+.*.driveModes.defaultSettings[*].*,
+.*.driveModes.defaultSettings[*][*].*,
+.*.driveModes.modes.*.settings[*].*,
+.*.driveModes.modes.*.settings[*][*].*,
+.*.mirrors[*].*, .*.mirrors[*][*].*,
+.*.soundscape[*].*,
+.*.soundscape[*][*].*,
+.*.camerasInternal[*].*,
+.*.camerasInternal[*][*].*,
+.*.slidenodes[*].*,
+.*.torsionbars[*].*,
+.*.pressureWheels[*].*,
+.*.powertrain[*].* {
     PreserveNumberFormat : true;
     ComplexNewLine : None;
+}
+
+/* These containers render multi-line with aligned keys, but the arrays and
+  objects inside them stay on one line. ComplexNewLine reaches below the node
+  its rule names, so without > each of the seven needed a second rule setting
+  None on its children purely to undo the first. PreserveNumberFormat has to
+  keep reaching down, which is why it cannot join the > block. */
+.* > .gearbox, .* > .clutch,
+.* > .turbocharger,
+.* > .vehicleController,
+.* > .radiator, .* > .waterDamage,
+.* > .engineBlock {
+    ComplexNewLine: Force;
+    AlignObjectKeys: true;
+}
+
+.*.gearbox, .*.clutch,
+.*.turbocharger,
+.*.vehicleController,
+.*.radiator, .*.waterDamage,
+.*.engineBlock {
+    PreserveNumberFormat: true;
 }
 
 .*.glowMap {
@@ -55,7 +100,11 @@
 
 .*.mainEngine, .*.sounds,
 .*.soundConfig, .*.soundConfigExhaust,
-.*.information,
+.*.information, .*.gauges,
+.*.gauges.configuration,
+.*.gauges.displayData,
+.*.differential_R, .*.differential_F,
+.*.differential_C,
 .*.glowMap.dumptruck_gaugelight_warning,
 .*.glowMap.chassis_gaugelight_warning {
     ComplexNewLine: Force;
