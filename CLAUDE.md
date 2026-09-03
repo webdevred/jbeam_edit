@@ -59,6 +59,24 @@ cabal test --project-file=cabal.project.dev
 cabal run jbeam-edit -- <file.jbeam>
 ```
 
+### Type-checking without building
+
+`cabal.project.dev` sets `write-ghc-environment-files: always`, so a module and
+everything it imports can be checked without linking. About 1.3 seconds against
+14 for the equivalent `cabal build`, with the same errors and warnings:
+
+```bash
+ghc -fno-code -Wall -package-env .ghc.environment.x86_64-linux-9.10.3 \
+  -XGHC2021 -XOverloadedStrings -XImportQualifiedPost -XDerivingStrategies -XTupleSections \
+  -isrc -isrc-extra/transformation -itest-extra/transformation \
+  test-extra/transformation/Spec/Regression.hs
+```
+
+The environment file is named after the compiler, so there is one per GHC you
+have built with. Keep `-Wall`: `-Werror` is set in `cabal.project.ci` and
+nowhere else, so a local build stays green on a warning that fails CI. That is
+how a binding shadowing hspec's `before` reached a pull request.
+
 `jbeam-edit` names both a library and an executable, so `cabal build jbeam-edit`
 fails with `Ambiguous target` instead of building. Say `exe:jbeam-edit` or
 `lib:jbeam-edit`. The failure is easy to miss when the command is piped, and a
