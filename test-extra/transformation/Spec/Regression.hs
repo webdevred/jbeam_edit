@@ -10,6 +10,7 @@ module Spec.Regression (
   metadataAcrossTreesSpec,
   metadataPreservedSpec,
   xColumnSortingSpec,
+  mirroredColumnsSpec,
   noBeamsSpec,
   vertexTextSpec,
 ) where
@@ -237,6 +238,34 @@ xColumnSortingSpec =
       case transform M.empty columnSortingConfig node of
         Left err -> expectationFailure ("transform failed: " ++ T.unpack err)
         Right (_, _, _, resultNode) -> assert resultNode
+
+{- | Both sides of a car hold the same shape mirrored, so the order the
+transform writes them in should mirror too. `compareAV` and the column pass
+compare X as written, and the sides have opposite signs, so the left side is
+walked from the centre outwards and the right side from the outside in.
+
+Which direction both should take is still open, so the assertion says only
+that they agree.
+-}
+mirroredColumnsFixture :: FilePath
+mirroredColumnsFixture =
+  "examples/regression_jbeam/mirrored-columns-repro.jbeam"
+
+mirroredColumnsSpec :: Spec
+mirroredColumnsSpec =
+  describe "two sides holding mirrored columns"
+    . it "writes them back in mirrored order"
+    $ do
+      topNode <- parseJbeamFile mirroredColumnsFixture
+      case transform M.empty newTransformationConfig topNode of
+        Left err -> expectationFailure ("transform failed: " ++ T.unpack err)
+        Right (_, _, _, resultNode) -> do
+          let coordinates = vertexCoordinatesInOrder resultNode
+              left = filter (\(x, _, _) -> x > 0) coordinates
+              right = filter (\(x, _, _) -> x < 0) coordinates
+              mirror (x, y, z) = (negate x, y, z)
+          left `shouldNotBe` []
+          map mirror right `shouldBe` left
 
 {- | A jbeam file is not obliged to have a beams section. Classifying, sorting
 and renaming need none: only support classification reads beams, and its
