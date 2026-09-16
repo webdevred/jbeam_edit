@@ -19,7 +19,6 @@ import Data.Map (Map)
 import Data.Map qualified as M
 import Data.Map.Ordered (OMap)
 import Data.Maybe (isJust, isNothing, listToMaybe, mapMaybe)
-import Data.Scientific (Scientific)
 import Data.Set (Set)
 import Data.Set qualified as S
 import Data.Text (Text)
@@ -37,9 +36,9 @@ import JbeamEdit.Transformation.Types
 verticesQuery :: NP.NodePath
 verticesQuery = fromList [NP.ObjectIndex 0, NP.ObjectKey "nodes"]
 
-nodeScientific :: Node -> Maybe Scientific
-nodeScientific (Number nv) = Just (numberValueToScientific nv)
-nodeScientific _ = Nothing
+nodeNumberValue :: Node -> Maybe NumberValue
+nodeNumberValue (Number nv) = Just nv
+nodeNumberValue _ = Nothing
 
 newVertex :: Node -> Maybe Vertex
 newVertex (Array av) = case V.toList (avNodes av) of
@@ -51,10 +50,10 @@ newVertex _ = Nothing
 mkVertex
   :: Text -> Node -> Node -> Node -> Maybe (Vector Node) -> Maybe Vertex
 mkVertex name n1 n2 n3 meta = do
-  x <- nodeScientific n1
-  y <- nodeScientific n2
-  z <- nodeScientific n3
-  pure Vertex {vName = name, vX = x, vY = y, vZ = z, vMeta = meta}
+  x <- nodeNumberValue n1
+  y <- nodeNumberValue n2
+  z <- nodeNumberValue n3
+  pure Vertex {vName = name, vXNum = x, vYNum = y, vZNum = z, vMeta = meta}
 
 isNonVertex :: Node -> Bool
 isNonVertex = isNothing . newVertex

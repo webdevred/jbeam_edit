@@ -11,13 +11,30 @@ module Spec.Regression (
   metadataPreservedSpec,
   xColumnSortingSpec,
   mirroredColumnsSpec,
+  noBeamsSpec,
+  vertexTextSpec,
 ) where
 
+import Data.List (sort)
+import Data.List.NonEmpty qualified as NE
 import Data.Map qualified as M
 import Data.Set qualified as S
+import Data.Text (Text)
 import Data.Text qualified as T
+import GHC.IsList (toList)
+import JbeamEdit.Core.Node (Node)
 import JbeamEdit.Transformation
+import JbeamEdit.Transformation.BeamExtraction (vertexConns)
 import JbeamEdit.Transformation.Config
+import JbeamEdit.Transformation.Types (
+  AnnotatedVertex (..),
+  VertexTree (..),
+ )
+import JbeamEdit.Transformation.VertexExtraction (
+  determineGroup',
+  getVertexForest,
+  verticesQuery,
+ )
 import Spec.Helpers
 import Test.Hspec
 
@@ -249,3 +266,70 @@ mirroredColumnsSpec =
               mirror (x, y, z) = (negate x, y, z)
           left `shouldNotBe` []
           map mirror right `shouldBe` left
+
+{- | A jbeam file is not obliged to have a beams section. Classifying, sorting
+and renaming need none: only support classification reads beams, and its
+answer without them is that there are no support nodes. Issue #229.
+
+`transform` instead fails the whole file, and the tool still exits 0, so a
+run over a directory leaves such files untouched without saying why.
+-}
+noBeamsFixture :: FilePath
+noBeamsFixture = "examples/regression_jbeam/no-beams-repro.jbeam"
+
+noBeamsSpec :: Spec
+noBeamsSpec =
+  describe "a file with no beams section" $ do
+    it "is transformed, keeping every node" $ do
+      topNode <- parseJbeamFile noBeamsFixture
+      case transform M.empty newTransformationConfig topNode of
+        Left err -> expectationFailure ("transform failed: " ++ T.unpack err)
+        Right (_, _, _, resultNode) ->
+          length (vertexCoordinates resultNode) `shouldBe` 4
+
+    it "counts a connection for every beamed vertex when there are beams" $ do
+      topNode <- parseJbeamFile supportRenameIdempotencyFixture
+      connectionCounts topNode
+        `shouldBe` Right [("nl0", 3), ("nl10", 3), ("nl20", 3)]
+
+    it "counts nothing at all when there are none" $ do
+      topNode <- parseJbeamFile noBeamsFixture
+      connectionCounts topNode `shouldBe` Right []
+
+{- | Grouping the vertices by tree type is what `transform` does before it
+asks for the counts, and is repeated here because the wrapper it uses is
+internal.
+-}
+connectionCounts :: Node -> Either Text [(Text, Int)]
+connectionCounts topNode = do
+  (_, _, forest) <- getVertexForest brks verticesQuery topNode
+  let annotated =
+        concatMap (concatMap (NE.toList . tAnnotatedVertices . snd) . toList) forest
+  grouped <- M.fromListWith (++) <$> mapM withGroup annotated
+  let (_, conns) =
+        vertexConns (maxSupportCoordinates newTransformationConfig) topNode grouped
+  pure (sort [(name, count) | (name, (_, count)) <- M.toList conns])
+  where
+    brks = xGroupBreakpoints newTransformationConfig
+    withGroup av = (,[av]) <$> determineGroup' brks (aVertex av)
+
+{- | The transformation reorders and renames, and never changes a coordinate,
+so a number has to come back out spelled the way the file wrote it. It used to
+be read as a value and written back from that value, which dropped the point
+in `-1.0` and the trailing zeros in `0.5000`. Only the formatter decides how a
+number looks, and it can only do that while the source text is still there.
+
+Compared as sorted lists because the transform is free to move a vertex.
+-}
+vertexTextSpec :: Spec
+vertexTextSpec =
+  describe "the coordinates a transform writes back"
+    . it "are spelled the way the file wrote them"
+    $ do
+      topNode <- parseJbeamFile letterEndingNodesFixture
+      let asWritten = sort (vertexTextsInOrder topNode)
+      asWritten `shouldNotBe` []
+      case transform M.empty newTransformationConfig topNode of
+        Left err -> expectationFailure ("transform failed: " ++ T.unpack err)
+        Right (_, _, _, resultNode) ->
+          sort (vertexTextsInOrder resultNode) `shouldBe` asWritten

@@ -37,7 +37,7 @@ spec = do
             , (SomeKey PadDecimals, SomeProperty PadDecimals 2)
             ]
     it "applies PadAmount and PadDecimals" $
-      applyPadLogic (formatScalarNode False) ruleSet fakeNode `shouldBe` "123.50 "
+      applyPadLogic formatScalarNode ruleSet fakeNode `shouldBe` "123.50 "
 
   describe "matching a pattern against a cursor" $ do
     let cursorAt crumbs = NodeCursor (fromList crumbs)

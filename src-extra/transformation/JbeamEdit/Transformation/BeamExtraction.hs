@@ -1,5 +1,7 @@
 module JbeamEdit.Transformation.BeamExtraction (vertexConns, possiblyBeam, extractBeams, extractBeamsWithMeta, beamInKnownSet) where
 
+import Data.Bool (bool)
+import Data.Foldable (fold)
 import Data.List (genericTake, sortOn)
 import Data.Map (Map)
 import Data.Map qualified as M
@@ -49,10 +51,8 @@ extractBeamFromArray sectionMeta vec
     maybeObject n@(Object _) = Just n
     maybeObject _ = Nothing
 
-extractBeams :: Node -> Either Text (Vector Node)
-extractBeams topNode =
-  NP.queryNodes beamQuery topNode
-    >>= NP.expectArray beamQuery
+extractBeams :: Node -> Vector Node
+extractBeams = foldMap (fold . maybeArray) . NP.queryNodes beamQuery
 
 extractBeamsWithMeta :: Vector Node -> ([Node], [Beam])
 extractBeamsWithMeta = go M.empty [] [] . V.toList
@@ -73,9 +73,8 @@ vertexConns
   :: Natural
   -> Node
   -> Map VertexTreeType [AnnotatedVertex]
-  -> Either Text ([Node], VertexConnMap)
-vertexConns maxSupport topNode vsPerType =
-  go <$> extractBeams topNode
+  -> ([Node], VertexConnMap)
+vertexConns maxSupport topNode vsPerType = go (extractBeams topNode)
   where
     knownNodeNames = S.fromList $ concatMap (map anVertexName) vsPerType
     go beamNodes =
@@ -103,7 +102,7 @@ vertexConns maxSupport topNode vsPerType =
               | (t, vs) <- M.toList topVerticesPerType
               , (v, c) <- vs
               ]
-       in (badNodes, vertexConnMap)
+       in bool (badNodes, vertexConnMap) (badNodes, M.empty) (null beamNodes)
 
 beamInKnownSet :: Set Text -> Beam -> Bool
 beamInKnownSet known (Beam (BeamPair a b) _) =

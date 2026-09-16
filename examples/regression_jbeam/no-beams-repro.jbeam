@@ -1,0 +1,18 @@
+{
+"testpart":{
+    "nodes":[
+        ["id", "posX", "posY", "posZ"],
+        // Synthetic regression-test fixture, not vetted by the jbeam
+        // maintainer and not intended as a demo/example.
+        //
+        // Nodes and nothing else. A jbeam file is not obliged to have a beams
+        // section, and classifying, sorting and renaming need no beams at all.
+        // Only support classification does, and its answer here is simply that
+        // there are none.
+        ["nl0", 0.9,  -1.0, 0.1],
+        ["nl1", 0.9,  0.0,  0.1],
+        ["nr2", -0.9, -1.0, 0.1],
+        ["nr3", -0.9, 0.0,  0.1],
+    ],
+},
+}

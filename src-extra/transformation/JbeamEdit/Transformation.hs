@@ -227,9 +227,9 @@ moveVerticesInVertexForest triangleVertexNames topNode newNames tfCfg vertexTree
         Right movableVertices' ->
           let groupedVertices = M.fromListWith (++) movableVertices'
            in do
-                (badBeamNodes, conns) <-
-                  vertexConns (maxSupportCoordinates tfCfg) topNode groupedVertices
-                let (supportForest, nonSupportVertices) =
+                let (badBeamNodes, conns) =
+                      vertexConns (maxSupportCoordinates tfCfg) topNode groupedVertices
+                    (supportForest, nonSupportVertices) =
                       moveSupportVertices triangleVertexNames newNames tfCfg conns groupedVertices
                 newForest <-
                   foldM
@@ -294,9 +294,9 @@ annotatedVertexToNodesWithPrev prevMeta (AnnotatedVertex comments vertex meta) =
       vertexArray :: Node
       vertexArray =
         let name = String (vName vertex)
-            x = Number (mkNumberValueNormalized (vX vertex))
-            y = Number (mkNumberValueNormalized (vY vertex))
-            z = Number (mkNumberValueNormalized (vZ vertex))
+            x = Number (vXNum vertex)
+            y = Number (vYNum vertex)
+            z = Number (vZNum vertex)
             possiblyMeta = concatMap (pure . mkObject) (vMeta vertex)
          in mkArray . V.fromList $ [name, x, y, z] ++ possiblyMeta
    in ( map Comment preComments
@@ -601,7 +601,7 @@ extractTriangleVertexNames =
     . V.filter (\n -> not (isCommentNode n) && not (isObjectNode n))
   where
     extractTriple n = do
-      inner <- expectArray n
+      inner <- maybeArray n
       case V.toList inner of
         [a, b, c] -> (,,) <$> maybeString a <*> maybeString b <*> maybeString c
         _ -> Nothing

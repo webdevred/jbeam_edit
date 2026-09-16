@@ -28,7 +28,7 @@ jobs:
     steps:
       - name: Extract the tested GHC versions
         id: get-latest-version
-        uses: Kleidukos/get-tested@v0.1.10.0-rc3
+        uses: Kleidukos/get-tested@v0.1.10.0
         with:
           cabal-file: jbeam-edit.cabal
           version: 0.1.10.0-rc3
@@ -170,7 +170,7 @@ jobs:
           find dist -type f -name '*.zip' -print0 | xargs -0 -I{} mv {} dist_flat/
           ls -la dist_flat
       - name: Create GitHub Release and upload zips
-        uses: softprops/action-gh-release@v3.0.2
+        uses: softprops/action-gh-release@v3.0.3
         with:
           tag_name: ${{ github.ref_name }}
           draft: true
