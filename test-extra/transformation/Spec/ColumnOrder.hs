@@ -146,8 +146,8 @@ columnOrderSpec = describe "the reading order each part asks for" $ do
 
   it "reads the body's front edge as two columns, and the rest as it stands" $ do
     pendingWith
-      "The front edge leans: its two columns run 0.152 along Y as they rise, \
-      \and the next column starts 0.008 behind where the first one ends, so \
+      "The front edge leans: its first column runs 0.152 along Y as it rises \
+      \and the next one starts 0.008 behind where that column ends, so \
       \no threshold separates them. All five nodes share one band at 0.23 \
       \and Z then reads them bl0 bl1 bl2 bl3 bl4, which is the order the \
       \file already has and still not the order asked for. Taking the \
