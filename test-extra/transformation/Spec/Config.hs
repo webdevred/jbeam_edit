@@ -80,3 +80,11 @@ configParsingSpec = describe "the transformation config parser" $ do
     parseField ySortingThreshold "" `shouldBe` Right defaultSortingThreshold
     parseField supportThreshold "" `shouldBe` Right defaultSupportThreshold
     parseField xSortingThreshold "" `shouldBe` Right Nothing
+
+  it "rejects an x-sorting-threshold on a part that groups by X already" $
+    pendingWith
+      "No config key names the sort axes yet, so no source can say that a \
+      \part groups by X, and a spec that wrote one would be inventing the \
+      \syntax. x-sorting-threshold keeps its own axis, so the two together \
+      \ask for the same axis twice, which is what has to be rejected. The \
+      \assertion goes in once the key has a name (question D)."

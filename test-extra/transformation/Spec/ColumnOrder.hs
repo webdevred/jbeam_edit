@@ -12,6 +12,7 @@ invented fixture instead, because the shape it covers is in none of the three.
 -}
 module Spec.ColumnOrder (
   columnOrderSpec,
+  partFixedPointSpec,
 ) where
 
 import Data.Map qualified as M
@@ -21,10 +22,15 @@ import Data.Text qualified as T
 import JbeamEdit.Transformation (transform)
 import JbeamEdit.Transformation.Config (
   TransformationConfig (..),
+  defaultSortAxes,
   newTransformationConfig,
  )
 import JbeamEdit.Transformation.Types (Axis (..), SortAxes (..))
-import Spec.Helpers (originalNamesInOutputOrder, parseJbeamFile)
+import Spec.Helpers (
+  originalNamesInOutputOrder,
+  parseJbeamFile,
+  vertexNamesInOrder,
+ )
 import Test.Hspec
 
 hoodFixture :: FilePath
@@ -38,6 +44,13 @@ bodyFixture = "examples/regression_jbeam/body-columns-repro.jbeam"
 
 middleGroupFixture :: FilePath
 middleGroupFixture = "examples/regression_jbeam/middle-group-sign-repro.jbeam"
+
+{- | A part with nodes and no beams section at all. Reading the columns off the
+beams finds no chain here, so the order has to fall back on the bands and the
+walk axis, which is what the spec below pins.
+-}
+noBeamsFixture :: FilePath
+noBeamsFixture = "examples/regression_jbeam/no-beams-repro.jbeam"
 
 {- | The order marked up for one side of the body shell: the front edge read as
 two columns, the rear column read from its lowest node, and everything between
@@ -173,3 +186,62 @@ columnOrderSpec = describe "the reading order each part asks for" $ do
   it "reads the middle group by X as written, not by its distance from the centre" $ do
     order <- orderWith (SortAxes AxisY AxisZ AxisX) 0.05 middleGroupFixture
     order `shouldBe` ["nl0", "nm0", "nm1", "nr0"]
+
+  it "reads a part with no beams in bands, since it has no chains to read" $ do
+    order <- orderWith defaultSortAxes 0.05 noBeamsFixture
+    order `shouldBe` ["nl0", "nl1", "nr2", "nr3"]
+
+{- | The names and coordinates of what a transform wrote out, and of what a
+second transform over that output wrote out. The names are part of it because
+the defect this catches renames a vertex without moving it.
+-}
+namesTwice
+  :: SortAxes
+  -> Scientific
+  -> FilePath
+  -> IO
+       ( [(Text, (Double, Double, Double))]
+       , [(Text, (Double, Double, Double))]
+       )
+namesTwice axes threshold path = do
+  topNode <- parseJbeamFile path
+  let config =
+        newTransformationConfig
+          { sortAxes = axes
+          , ySortingThreshold = threshold
+          }
+      run node =
+        case transform M.empty config node of
+          Left err -> fail ("transform failed: " ++ T.unpack err)
+          Right (_, _, _, resultNode) -> pure resultNode
+  onceNode <- run topNode
+  twiceNode <- run onceNode
+  pure (vertexNamesInOrder onceNode, vertexNamesInOrder twiceNode)
+
+{- | Running the tool over a directory twice is ordinary use, and a part that
+comes out differently the second time has no settled order to mark up at all.
+The axes and thresholds are the ones each part asks for in `columnOrderSpec`,
+so these say the wanted order is reachable as well as right.
+-}
+partFixedPointSpec :: Spec
+partFixedPointSpec = describe "transforming a part a second time" $ do
+  it "writes the hood out exactly as the first transform left it" $ do
+    (once, twice) <- namesTwice (SortAxes AxisX AxisY AxisZ) 0.23 hoodFixture
+    once `shouldNotBe` []
+    twice `shouldBe` once
+
+  it "writes the front bumper out exactly as the first transform left it" $ do
+    (once, twice) <- namesTwice (SortAxes AxisX AxisZ AxisY) 0.23 frontBumperFixture
+    once `shouldNotBe` []
+    twice `shouldBe` once
+
+  it "writes the body out exactly as the first transform left it" $ do
+    pendingWith
+      "A second transform renames bl0 to bll0 and br0 to brr0, and the first \
+      \vertex of each side already has that name, so the body ends up with \
+      \two bll0 and two brr0. Those four names are the only thing the second \
+      \run changes here. The body has no settled order to mark up until a \
+      \rename leaves the names unique."
+    (once, twice) <- namesTwice (SortAxes AxisY AxisZ AxisX) 0.23 bodyFixture
+    once `shouldNotBe` []
+    twice `shouldBe` once
