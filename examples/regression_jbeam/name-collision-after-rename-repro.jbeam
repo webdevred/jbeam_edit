@@ -1,0 +1,22 @@
+{
+"testpart":{
+    "nodes":[
+        ["id", "posX", "posY", "posZ"],
+        // Synthetic regression-test fixture, not vetted by the jbeam
+        // maintainer and not intended as a demo/example.
+        //
+        // Two groups on the left side, one node each. nsl is named the way a
+        // support node is named, and the single beam gives each node one
+        // connection, which is below the support threshold for a group of
+        // two. So nsl takes the ordinary prefix path, where the s is stripped
+        // and it becomes nl. The real nl group has become nll by then, and
+        // the second run maps both groups onto nll.
+        ["nl0", 0.9, -1.0, 0.1],
+        ["nsl0", 0.8, -1.0, 0.2],
+    ],
+    "beams":[
+        ["id1:", "id2:"],
+        ["nl0", "nsl0"],
+    ],
+},
+}

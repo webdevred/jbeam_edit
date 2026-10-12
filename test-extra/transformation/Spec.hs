@@ -166,4 +166,5 @@ main = hspec $ do
   metadataAcrossTreesSpec
   metadataPreservedSpec
   vertexTextSpec
+  nameCollisionSpec
   triangleMetadataSpec
