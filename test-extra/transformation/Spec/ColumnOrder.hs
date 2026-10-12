@@ -1,13 +1,14 @@
-{- | The reading order the jbeam maintainer marked up, one spec per part.
+{- | The reading order the jbeam maintainer marked up, part by part.
 
 Each spec states the order he asked for, so it describes the target rather than
 what the tool produces today. The axes are set on the config record directly:
 no YAML key reads them yet, and the name of the threshold key is still open, so
 a spec that spelled either one out would be inventing config syntax.
 
-The fixtures are cut from the files the maintainer sent. The hood and the bumper
-keep their first part and drop the second, which `transform` never reads, and
-the body file holds one part and is copied whole.
+The part fixtures are cut from the files the maintainer sent. The hood and the
+bumper keep their first part and drop the second, which `transform` never reads,
+and the body file holds one part and is copied whole. The last spec uses an
+invented fixture instead, because the shape it covers is in none of the three.
 -}
 module Spec.ColumnOrder (
   columnOrderSpec,
@@ -34,6 +35,9 @@ frontBumperFixture = "examples/regression_jbeam/front-bumper-columns-repro.jbeam
 
 bodyFixture :: FilePath
 bodyFixture = "examples/regression_jbeam/body-columns-repro.jbeam"
+
+middleGroupFixture :: FilePath
+middleGroupFixture = "examples/regression_jbeam/middle-group-sign-repro.jbeam"
 
 {- | The order marked up for one side of the body shell: the front edge read as
 two columns, the rear column read from its lowest node, and everything between
@@ -156,7 +160,7 @@ columnOrderSpec = describe "the reading order each part asks for" $ do
       "The rear column climbs 0.461 in Z and travels 0.299 towards the front \
       \while it does, which is more than the threshold, so banding Y alone \
       \puts bl45 and bl46 one band ahead of bl47 and bl44 and reads them \
-      \bl45 bl46 bl47 bl44. Holding a column back until the band its lowest \
+      \bl45 bl46 bl47 bl44. Holding a column back to the band its lowest \
       \node landed in gives bl47 bl44 bl45 bl46, which is what was decided."
     order <- orderWith (SortAxes AxisY AxisZ AxisX) 0.23 bodyFixture
     let names = group "bl" order
@@ -165,3 +169,7 @@ columnOrderSpec = describe "the reading order each part asks for" $ do
   it "leaves the body's middle nodes alone" $ do
     order <- orderWith (SortAxes AxisY AxisZ AxisX) 0.23 bodyFixture
     group "bmm" order `shouldBe` ["bmm0", "bmm1", "bmm2", "bmm3", "bmm4"]
+
+  it "reads the middle group by X as written, not by its distance from the centre" $ do
+    order <- orderWith (SortAxes AxisY AxisZ AxisX) 0.05 middleGroupFixture
+    order `shouldBe` ["nl0", "nm0", "nm1", "nr0"]

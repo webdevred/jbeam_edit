@@ -1,0 +1,20 @@
+{
+"testpart":{
+    "nodes":[
+        ["id", "posX", "posY", "posZ"],
+        // Synthetic regression-test fixture, not vetted by the jbeam
+        // maintainer and not intended as a demo/example.
+        //
+        // The middle group holds two nodes on opposite sides of the centre
+        // line at one Y and one Z, so X alone decides which of them is read
+        // first. Read as written nm0 comes first. Read as a distance from the
+        // centre line nm1 does, since 0.02 is nearer than 0.05. The outer two
+        // nodes are here so the spec also says that the middle group is the
+        // one being measured.
+        ["nl0", 0.4, 0.0, 0.1],
+        ["nm0", -0.05, 0.0, 0.1],
+        ["nm1", 0.02, 0.0, 0.1],
+        ["nr0", -0.4, 0.0, 0.1],
+    ],
+},
+}
