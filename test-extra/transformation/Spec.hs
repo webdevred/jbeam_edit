@@ -20,6 +20,7 @@ import JbeamEdit.Transformation.BeamExtraction (beamInKnownSet)
 import JbeamEdit.Transformation.BeamValidation
 import JbeamEdit.Transformation.Config
 import JbeamEdit.Transformation.Types (Beam)
+import Spec.ColumnOrder (columnOrderSpec)
 import Spec.Config (configParsingSpec)
 import Spec.Helpers (parseJbeamFile)
 import Spec.Regression
@@ -157,6 +158,7 @@ main = hspec $ do
   mapM_ (testFixedPoint "cfg-example" tfConfig) inputFiles
   configParsingSpec
   sortAxesSpec
+  columnOrderSpec
   beamValidationSpec
   supportRenameIdempotencySpec
   letterEndingNodesSpec
