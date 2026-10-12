@@ -147,8 +147,10 @@ columnOrderSpec = describe "the reading order each part asks for" $ do
   it "reads the body's front edge as two columns, and the rest as it stands" $ do
     pendingWith
       "The front edge leans: its first column runs 0.152 along Y as it rises \
-      \and the next one starts 0.008 behind where that column ends, so \
-      \no threshold separates them. All five nodes share one band at 0.23 \
+      \and the next one starts only 0.008 behind where that column ends. A \
+      \threshold of 0.16 does separate the two, and it splits stations \
+      \further back that 0.23 keeps whole: the side falls into 17 bands at \
+      \0.16 against 14 at 0.23. All five nodes share one band at 0.23 \
       \and Z then reads them bl0 bl1 bl2 bl3 bl4, which is the order the \
       \file already has and still not the order asked for. Taking the \
       \columns from the beams gives bl0 bl2 bl4 bl1 bl3. This spec covers the \
