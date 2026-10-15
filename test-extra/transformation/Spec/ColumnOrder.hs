@@ -58,7 +58,7 @@ them exactly as the file already has it.
 -}
 bodySideOrder :: Text -> [Text]
 bodySideOrder prefix =
-  map named ([0, 2, 4, 1, 3] <> [5 .. 43] <> [47, 44, 45, 46])
+  map named ([0, 2, 4, 1, 3] <> [47, 44, 45, 46])
   where
     named index = prefix <> T.pack (show (index :: Int))
 
@@ -147,15 +147,14 @@ columnOrderSpec = describe "the reading order each part asks for" $ do
   it "reads the body's front edge as two columns, and the rest as it stands" $ do
     pendingWith
       "The front edge leans: its first column runs 0.152 along Y as it rises \
-      \and the next one starts only 0.008 behind where that column ends. A \
-      \threshold of 0.16 does separate the two, and it splits stations \
-      \further back that 0.23 keeps whole: the side falls into 17 bands at \
-      \0.16 against 14 at 0.23. All five nodes share one band at 0.23 \
-      \and Z then reads them bl0 bl1 bl2 bl3 bl4, which is the order the \
-      \file already has and still not the order asked for. Taking the \
-      \columns from the beams gives bl0 bl2 bl4 bl1 bl3. This spec covers the \
-      \whole side, so the rear column below is part of it and needs the \
-      \hold-back as well."
+      \and the next one starts only 0.008 behind where that column ends. All \
+      \five nodes share one band at 0.23 and Z then reads them bl0 bl1 bl2 \
+      \bl3 bl4, which is the order the file already has and still not the \
+      \order asked for. A threshold of 0.16 does separate the two columns, \
+      \and it leaves the rear column below reading bl45 bl46 bl47 bl44, so \
+      \no one threshold serves both. Taking the columns from the beams gives \
+      \bl0 bl2 bl4 bl1 bl3. This spec covers the whole side, so the rear \
+      \column below is part of it and needs the hold-back as well."
     order <- orderWith (SortAxes AxisY AxisZ AxisX) 0.23 bodyFixture
     group "bl" order `shouldBe` bodySideOrder "bl"
 
