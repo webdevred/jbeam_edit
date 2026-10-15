@@ -238,12 +238,6 @@ partFixedPointSpec = describe "transforming a part a second time" $ do
     twice `shouldBe` once
 
   it "writes the body out exactly as the first transform left it" $ do
-    pendingWith
-      "A second transform renames bl0 to bll0 and br0 to brr0, and the first \
-      \vertex of each side already has that name, so the body ends up with \
-      \two bll0 and two brr0. Those four names are the only thing the second \
-      \run changes here. The body has no settled order to mark up until a \
-      \rename leaves the names unique."
     (once, twice) <- namesTwice (SortAxes AxisY AxisZ AxisX) 0.23 bodyFixture
     once `shouldNotBe` []
     twice `shouldBe` once
