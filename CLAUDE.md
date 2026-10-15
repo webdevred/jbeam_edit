@@ -174,11 +174,13 @@ printf 'y-sorting-threshold: 0.05\nsupport-threshold: 20\n' > .jbeam-edit.yaml
 jbeam-edit --transform <file>
 ```
 
-Three checks that pay off on a body file, which is close to mirror symmetric:
+Five checks that pay off on a body file, which is close to mirror symmetric:
 
 - Pair every left vertex with the right vertex at the same `(Y, Z)` and compare their output indices. "One side is fine, the other is a mess" usually turns out to be exactly one vertex in the wrong place, and this finds it at once.
 - Transform twice and diff. Anything that differs is a fixed-point defect.
 - Remove one property of the input, the metadata rows or the interleaved naming, and see whether the symptom survives. Isolating the cause that way beats tracing the pipeline by reading it.
+- Sweep the threshold and print the band boundaries before saying that no value separates two groups. On `examples/regression_jbeam/body-columns-repro.jbeam` the front edge splits into its two columns from 0.153 to 0.160 and the rear column's four nodes share one band from 0.300 to 0.325.
+- Sweep with exact decimals. A float reimplementation of the banding keeps bl47 in its band at 0.299, where the tool starts a new one.
 
 ### Where each step lives
 
