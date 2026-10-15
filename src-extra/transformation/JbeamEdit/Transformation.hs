@@ -387,7 +387,7 @@ vertexPrefix newNames brks treeType v
       updatedPrefix (dropSupportSuffix typeSpecific prefix)
         <> T.singleton 's'
         <> typeSpecific
-  | T.length prefix >= 3
+  | T.length prefix' >= 3
       && T.last prefix' == 's' =
       updatedPrefix (T.init prefix') <> typeSpecific
   | T.length prefix >= 3
