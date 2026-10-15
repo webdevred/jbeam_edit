@@ -317,6 +317,7 @@ test-suite jbeam-edit-transformation-test
     main-is:            Spec.hs
     hs-source-dirs:     test-extra/transformation
     other-modules:
+        Spec.ColumnOrder
         Spec.Config
         Spec.Helpers
         Spec.Regression
