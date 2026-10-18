@@ -159,12 +159,11 @@ parseXSortingThreshold :: Object -> Parser (Maybe Scientific)
 parseXSortingThreshold o = do
   thr <- o .:? "x-sorting-threshold"
   case thr of
-    Nothing -> pure defaultXSortingThreshold
-    Just Null -> pure defaultXSortingThreshold
-    Just (Bool False) -> pure defaultXSortingThreshold
-    Just (String "off") -> pure defaultXSortingThreshold
-    Just (Number number) -> pure (Just number)
-    Just _ -> failWithMessage
+    Just (Number n) -> pure (Just n)
+    v
+      | all (`elem` [Null, Bool False, String "off"]) v ->
+          pure defaultXSortingThreshold
+    _ -> failWithMessage
   where
     failWithMessage =
       fail
