@@ -52,15 +52,28 @@ walk axis, which is what the spec below pins.
 noBeamsFixture :: FilePath
 noBeamsFixture = "examples/regression_jbeam/no-beams-repro.jbeam"
 
-{- | The order marked up for one side of the body shell: the front edge read as
-two columns, the rear column read from its lowest node, and everything between
-them exactly as the file already has it.
+{- | The order marked up for the front edge of the body shell, which is read as
+two columns.
+-}
+bodyFrontEdgeOrder :: Text -> [Text]
+bodyFrontEdgeOrder = bodyOrder [0, 2, 4, 1, 3]
+
+{- | The order marked up for the rear column of the body shell, which is read
+from its lowest node.
+-}
+bodyRearColumnOrder :: Text -> [Text]
+bodyRearColumnOrder = bodyOrder [47, 44, 45, 46]
+
+{- | The order marked up for one whole side of the body shell. The fixture holds
+nothing between the two columns, so the side is the one followed by the other.
 -}
 bodySideOrder :: Text -> [Text]
-bodySideOrder prefix =
-  map named ([0, 2, 4, 1, 3] <> [47, 44, 45, 46])
+bodySideOrder prefix = bodyFrontEdgeOrder prefix <> bodyRearColumnOrder prefix
+
+bodyOrder :: [Int] -> Text -> [Text]
+bodyOrder indices prefix = map named indices
   where
-    named index = prefix <> T.pack (show (index :: Int))
+    named index = prefix <> T.pack (show index)
 
 {- | The order a transform wrote the vertices out in, under the names they had
 in the file, which is what the marked up orders are written in.
@@ -129,22 +142,21 @@ columnOrderSpec = describe "the reading order each part asks for" $ do
 
   it "reads the bumper's right side as the mirror of its left" $ do
     pendingWith
-      "The right side holds a beam between fbr1 and fbm0 where the left side \
-      \has one between fbl1 and fbl0. Of the 31 beams here whose two nodes \
-      \both have a mirror node, that is the only pair with no mirror image. \
-      \Today the side reads \
-      \fbr3 fbr0 fbr1 fbr2 fbr4 fbr5 fbr6 fbr7. Its X values are negative, so \
-      \comparing X as written already puts the outer column first here, and \
-      \the columns from the beams are the only thing missing. Those would \
-      \read it fbr1 fbr2 fbr3 fbr0 fbr4 fbr5 fbr6 fbr7 while that beam \
-      \stands, since it leaves fbr0 out of the chain its mirror image is in. \
-      \So the mirrored order asserted here holds only once that beam has a \
-      \mirror image, and the fixture is left exactly as it was sent."
+      "No change to the tool turns this one green. The right side holds a \
+      \beam between fbr1 and fbm0 where the left side has one between fbl1 \
+      \and fbl0, and of the 31 beams here whose two nodes both have a mirror \
+      \node, that is the only pair with no mirror image. The order asserted \
+      \here needs that beam to have one, so it waits on the file and not on \
+      \the code, and the fixture is left exactly as it was sent. What the \
+      \tool is missing meanwhile is only the columns from the beams: the \
+      \side reads fbr3 fbr0 fbr1 fbr2 fbr4 fbr5 fbr6 fbr7 today, and its X \
+      \values are negative, so comparing X as written already puts the outer \
+      \column first here."
     order <- orderWith (SortAxes AxisX AxisZ AxisY) 0.23 frontBumperFixture
     group "fbr" order
       `shouldBe` ["fbr0", "fbr1", "fbr2", "fbr3", "fbr4", "fbr5", "fbr6", "fbr7"]
 
-  it "reads the body's front edge as two columns, and the rest as it stands" $ do
+  it "reads the body's front edge as two columns" $ do
     pendingWith
       "The front edge leans: its first column runs 0.152 along Y as it rises \
       \and the next one starts only 0.008 behind where that column ends. All \
@@ -153,10 +165,10 @@ columnOrderSpec = describe "the reading order each part asks for" $ do
       \order asked for. A threshold of 0.16 does separate the two columns, \
       \and it leaves the rear column below reading bl45 bl46 bl47 bl44, so \
       \no one threshold serves both. Taking the columns from the beams gives \
-      \bl0 bl2 bl4 bl1 bl3. This spec covers the whole side, so the rear \
-      \column below is part of it and needs the hold-back as well."
+      \bl0 bl2 bl4 bl1 bl3. The rear column of the same side is the spec \
+      \below, which asks for the hold-back instead."
     order <- orderWith (SortAxes AxisY AxisZ AxisX) 0.23 bodyFixture
-    group "bl" order `shouldBe` bodySideOrder "bl"
+    take 5 (group "bl" order) `shouldBe` bodyFrontEdgeOrder "bl"
 
   it "reads the body's right side the same way as its left" $ do
     pendingWith
@@ -178,7 +190,7 @@ columnOrderSpec = describe "the reading order each part asks for" $ do
       \node landed in gives bl47 bl44 bl45 bl46, which is what was decided."
     order <- orderWith (SortAxes AxisY AxisZ AxisX) 0.23 bodyFixture
     let names = group "bl" order
-    drop (length names - 4) names `shouldBe` ["bl47", "bl44", "bl45", "bl46"]
+    drop (length names - 4) names `shouldBe` bodyRearColumnOrder "bl"
 
   it "leaves the body's middle nodes alone" $ do
     order <- orderWith (SortAxes AxisY AxisZ AxisX) 0.23 bodyFixture
