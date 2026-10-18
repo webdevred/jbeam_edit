@@ -30,12 +30,12 @@ import JbeamEdit.Core.Node (
   NumberValue (..),
   ObjectValue (..),
   commentIsAttachedToPreviousNode,
-  maybeArray,
   isCommentNode,
   isComplexNode,
   isObjectKeyNode,
   isSinglelineComment,
   isStringNode,
+  maybeArray,
   scientificToText,
  )
 import JbeamEdit.Core.NodeCursor (newCursor)

@@ -13,9 +13,10 @@ module Spec.Regression (
   mirroredColumnsSpec,
   noBeamsSpec,
   vertexTextSpec,
+  nameCollisionSpec,
 ) where
 
-import Data.List (sort)
+import Data.List (group, sort)
 import Data.List.NonEmpty qualified as NE
 import Data.Map qualified as M
 import Data.Set qualified as S
@@ -341,3 +342,29 @@ vertexTextSpec =
         Left err -> expectationFailure ("transform failed: " ++ T.unpack err)
         Right (_, _, _, resultNode) ->
           sort (vertexTextsInOrder resultNode) `shouldBe` asWritten
+
+{- | A node named the way a support node is named, on a file where nothing is
+classified as support, takes the ordinary prefix path. That path strips the
+`s`, so it lands on the name the side group is about to take, and the run
+after that hands two nodes the same name.
+-}
+nameCollisionFixture :: FilePath
+nameCollisionFixture =
+  "examples/regression_jbeam/name-collision-after-rename-repro.jbeam"
+
+nameCollisionSpec :: Spec
+nameCollisionSpec =
+  describe "renaming a file that has already been renamed"
+    . it "never gives two nodes the same name"
+    $ do
+      topNode <- parseJbeamFile nameCollisionFixture
+      case transform M.empty newTransformationConfig topNode of
+        Left err -> expectationFailure ("first transform failed: " ++ T.unpack err)
+        Right (_, _, _, onceNode) ->
+          case transform M.empty newTransformationConfig onceNode of
+            Left err -> expectationFailure ("second transform failed: " ++ T.unpack err)
+            Right (_, _, _, twiceNode) -> do
+              let names = map fst (vertexPositionsInOrder twiceNode)
+                  duplicated = [name | name : _ : _ <- group (sort names)]
+              names `shouldNotBe` []
+              duplicated `shouldBe` []

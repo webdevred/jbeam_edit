@@ -19,8 +19,8 @@ import GHC.IsList (IsList (..))
 import JbeamEdit.Core.Node qualified as N (
   Node (..),
   avNodes,
-  maybeArray,
   isCommentNode,
+  maybeArray,
   maybeObjectKey,
   ovNodes,
  )
