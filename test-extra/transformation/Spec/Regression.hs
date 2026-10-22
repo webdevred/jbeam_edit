@@ -240,14 +240,7 @@ xColumnSortingSpec =
         Left err -> expectationFailure ("transform failed: " ++ T.unpack err)
         Right (_, _, _, resultNode) -> assert resultNode
 
-{- | Both sides of a car hold the same shape mirrored, so the order the
-transform writes them in should mirror too. `compareAV` and the column pass
-compare X as written, and the sides have opposite signs, so the left side is
-walked from the centre outwards and the right side from the outside in.
-
-Which direction both should take is still open, so the assertion says only
-that they agree.
--}
+-- The assertion is direction agnostic: it only says the two sides agree.
 mirroredColumnsFixture :: FilePath
 mirroredColumnsFixture =
   "examples/regression_jbeam/mirrored-columns-repro.jbeam"
