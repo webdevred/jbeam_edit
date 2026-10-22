@@ -16,7 +16,7 @@ module JbeamEdit.Transformation.Config (
   defaultMaxSupportCoordinates,
 ) where
 
-import Control.Monad (forM, when)
+import Control.Monad (forM)
 import Data.Bifunctor (first)
 import Data.ByteString.Lazy qualified as LBS
 import Data.Functor (($>))
@@ -144,10 +144,11 @@ instance FromJSON XGroupBreakpoints where
 
 parseSupportThreshold :: Object -> Parser Scientific
 parseSupportThreshold o = do
-  thr <- o .: "support-threshold"
-  when (thr < 1) failWithMessage $> thr
-  where
-    failWithMessage =
+  thr <- o .:? "support-threshold"
+  case thr of
+    Just (Number thr') | thr' >= 1 && thr' <= 100 -> pure thr'
+    Nothing -> pure defaultSupportThreshold
+    _ ->
       fail
         "'support-threshold' must be a percentage value of 1 or higher (e.g., 80 or 80.8). Values below 1 (e.g., 0.80) are not allowed."
 
@@ -158,12 +159,11 @@ parseXSortingThreshold :: Object -> Parser (Maybe Scientific)
 parseXSortingThreshold o = do
   thr <- o .:? "x-sorting-threshold"
   case thr of
-    Nothing -> pure defaultXSortingThreshold
-    Just Null -> pure defaultXSortingThreshold
-    Just (Bool False) -> pure defaultXSortingThreshold
-    Just (String "off") -> pure defaultXSortingThreshold
-    Just (Number number) -> pure (Just number)
-    Just _ -> failWithMessage
+    Just (Number n) -> pure (Just n)
+    v
+      | all (`elem` [Null, Bool False, String "off"]) v ->
+          pure defaultXSortingThreshold
+    _ -> failWithMessage
   where
     failWithMessage =
       fail
