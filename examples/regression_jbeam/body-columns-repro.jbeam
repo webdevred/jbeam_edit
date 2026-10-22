@@ -1,0 +1,298 @@
+{
+    "body_nodes" : {
+        "nodes" : [
+            ["id",    "posX", "posY", "posZ"],
+            {"collision" : true},
+            {"frictionCoef" : 0.5},
+            {"nodeMaterial" : "|NM_METAL"},
+            {"nodeWeight" : 0.78},
+            {"selfCollision" : true},
+            {"group":"gen4_body"},
+
+            // Left side
+            ["bl0",  0.953,  -1.967, 0.122],
+            ["bl1",  1.036,  -1.807, 0.125],
+            ["bl2",  0.920,  -1.953, 0.439],
+            ["bl3",  0.998,  -1.791, 0.473],
+            ["bl4",  0.780,  -1.815, 0.719],
+            ["bl44", 0.821,  2.738,  0.594],
+            ["bl45", 0.825,  2.536,  0.745],
+            ["bl46", 0.713,  2.464,  0.914],
+            ["bl47", 0.813,  2.763,  0.453],
+
+            // Middle side
+            ["bmm0",  0.038,  -0.997, 0.943],
+            ["bmm1",  0.038,  -0.838, 0.949],
+            ["bmm2",  0.038,  -0.087, 1.293],
+            ["bmm3",  0.038,  0.587,  1.350],
+            ["bmm4",  0.038,  1.055,  1.324],
+
+            // Right side
+            ["br0",   -0.877, -1.967, 0.122],
+            ["br1",   -0.961, -1.807, 0.125],
+            ["br2",   -0.845, -1.953, 0.439],
+            ["br3",   -0.922, -1.791, 0.473],
+            ["br4",   -0.704, -1.815, 0.719],
+            ["br44",  -0.746, 2.738,  0.594],
+            ["br45",  -0.749, 2.536,  0.745],
+            ["br46",  -0.637, 2.464,  0.914],
+            ["br47",  -0.738, 2.763,  0.453],
+
+            // Support nodes
+            {"selfCollision":"false","group":""},
+            ["bsl",   0.494,  -1.391, 0.484],
+            ["bsl1",  0.457,  0.131,  0.484],
+            ["bsl2",  0.457,  1.761,  0.484],
+            ["bsm",   0.038,  0.293,  1.040],
+            ["bsr",   -0.418, -1.391, 0.484],
+            ["bsr1",  -0.381, 0.131,  0.484],
+            ["bsr2",  -0.381, 1.761,  0.484]
+        ],
+        "beams" : [
+            ["id1:",  "id2:"],
+
+            // Structural beams
+            {"beamType":"|NORMAL"},
+		    {"beamSpring":420000, "beamDamp":40},
+		    {"beamDeform":7000, "beamStrength":"FLT_MAX"},
+		    {"deformLimitExpansion":1.1},
+
+            // Fenders strong
+
+            // Right
+
+            // Left
+
+            // Fenders weak
+
+            // Right
+            ["br3",   "br2"],
+            ["br3",   "br1"],
+            ["br2",   "br0"],
+            ["br1",   "br0"],
+            ["br4",   "br2"],
+
+            // Left
+            ["bl4",  "bl2"],
+            ["bl2",  "bl0"],
+            ["bl1",  "bl0"],
+            ["bl3",  "bl2"],
+            ["bl3",  "bl1"],
+
+            // Door strong
+
+            // Right
+
+            // Left
+
+            // Door weak
+
+            // Right
+
+            // Left
+
+            // Roof strong
+
+            // Roof weak
+            ["bmm2",  "bmm3"],
+            ["bmm3",  "bmm4"],
+
+            // Roof body connect
+
+            // Right
+
+            // Left
+
+            // Cowl panel strong
+
+            // Cowl panel weak
+            ["bmm1",  "bmm0"],
+
+            // Quarterpanels connect
+
+            // Right
+
+            // Left
+
+            // Quarterpanels
+
+            // Right
+            ["br47",  "br44"],
+            ["br45",  "br46"],
+            ["br44",  "br45"],
+
+            // Left
+            ["bl45", "bl46"],
+            ["bl47", "bl44"],
+            ["bl44", "bl45"],
+
+            // Crossing beams
+
+            // Doors
+
+            // Right
+
+            // Left
+
+            // Fenders
+
+            // Right
+            ["br4",   "br3"],
+            ["br3",   "br0"],
+            ["br1",   "br2"],
+
+            // Left
+            ["bl3",  "bl0"],
+            ["bl4",  "bl3"],
+            ["bl1",  "bl2"],
+
+            // Fenders connect
+
+            // Right
+
+            // Left
+
+            // Quarterpanels connect
+
+            // Right
+
+            // Left
+
+            // Quarterpanels
+
+            // Right
+
+            // Left
+
+            // Roof
+
+            // Body roof connect
+
+            // Right
+
+            // Left
+
+            // Support beams
+            {"beamSpring":250000,"beamDamp":100},
+
+            // Doors
+
+            // Right
+            ["bl3",  "bl2"],
+
+            // Left
+
+            // Fenders
+
+            // Right
+            ["bsr",   "bmm0"],
+            ["bsr",   "br3"],
+            ["br1",   "bsr"],
+            ["br2",   "bsr"],
+            ["br0",   "bsr"],
+            ["br4",   "bsr"],
+            ["bmm1",  "bsr"],
+
+            // Left
+            ["bl2",  "bsl"],
+            ["bsl",   "bmm0"],
+            ["bl1",  "bsl"],
+            ["bmm1",  "bsl"],
+            ["bl0",  "bsl"],
+            ["bsl",   "bl3"],
+            ["bl4",  "bsl"],
+
+            // Quarterpanels
+
+            // Right
+            ["bsr2",  "br44"],
+            ["br46",  "bsr2"],
+            ["br47",  "bsr2"],
+            ["br45",  "bsr2"],
+
+            // Left
+            ["bl47", "bsl2"],
+            ["bsl2",  "bl44"],
+            ["bl45", "bsl2"],
+            ["bl46", "bsl2"],
+
+            // Roof
+            ["bsm",   "bmm2"],
+            ["bmm4",  "bsm"],
+            ["bmm3",  "bsm"]
+
+            //Connecting beams
+            {"beamType":"|NORMAL"},
+            {"beamSpring":501000,"beamDamp":75},
+            {"deformLimitExpansion":""},
+
+            //Fenders front
+            {"beamType":"|NORMAL"},
+            {"beamDeform":8500,"beamStrength":30000}, 
+            ["bl0","rll4"],
+            ["bl0","rll2"],
+            ["bl1","rll4"],
+            ["bl2","rll3"],
+            ["bl2","rll5"],
+            ["bl3","rll5"],
+            ["bl3","ftl1"],
+            ["bl4","ftl0"],
+            ["bl4","fsl1"],
+
+            ["br0","rlr4"],
+            ["br0","rlr2"],
+            ["br1","rlr4"],
+            ["br2","rlr3"],
+            ["br2","rlr5"],
+            ["br3","rlr5"],
+            ["br3","ftr1"],
+            ["br4","ftr0"],
+            ["br4","fsr1"],
+
+            //Fenders middle
+            {"beamDeform":8500,"beamStrength":"FLT_MAX"},
+
+            //Fenders rear
+            {"beamDeform":12000},
+
+            //Cowl panel
+
+            ["bmm0","fwm"],
+            ["bmm1","rcm0"],
+            ["bmm1","fwm"],
+
+            //Doors
+            {"beamDeform":6500},
+
+            //Roof
+            {"beamDeform":8500},
+
+            ["bmm2","rcm1"],
+            ["bmm3","rcm4"],
+            ["bmm4","rccl0"],
+            ["bmm4","rccr0"],
+
+            //Quarter panels
+            {"beamDeform":60000},
+            ["bl47","rucl"],
+            ["bl44","rucl"],
+            ["bl45","rrcl2"],
+            ["bl46","rrcl2"],
+
+            ["br47","rucr"],
+            ["br44","rucr"],
+            ["br44","rucm"],
+            ["br45","rrcr2"],
+            ["br46","rrcr2"]
+
+        ],
+        "triangles" : [
+            ["id1:",  "id2:",  "id3:"],
+            ["id1:",  "id2:",  "id3:"],
+            ["br0",   "br2",   "br1"],
+            ["br2",   "br3",   "br1"],
+            ["bl0",  "bl1",  "bl2"],
+            ["bl1",  "bl3",  "bl2"]
+        ]
+    }
+}
