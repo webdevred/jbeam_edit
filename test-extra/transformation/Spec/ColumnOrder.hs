@@ -1,15 +1,3 @@
-{- | The reading order the jbeam maintainer marked up, part by part.
-
-Each spec states the order he asked for, so it describes the target rather than
-what the tool produces today. The axes are set on the config record directly:
-no YAML key reads them yet, and the name of the threshold key is still open, so
-a spec that spelled either one out would be inventing config syntax.
-
-The part fixtures are cut from the files the maintainer sent. The hood and the
-bumper keep their first part and drop the second, which `transform` never reads,
-and the body file holds one part and is copied whole. The last spec uses an
-invented fixture instead, because the shape it covers is in none of the three.
--}
 module Spec.ColumnOrder (
   columnOrderSpec,
   partFixedPointSpec,
@@ -45,28 +33,16 @@ bodyFixture = "examples/regression_jbeam/body-columns-repro.jbeam"
 middleGroupFixture :: FilePath
 middleGroupFixture = "examples/regression_jbeam/middle-group-sign-repro.jbeam"
 
-{- | A part with nodes and no beams section at all. Reading the columns off the
-beams finds no chain here, so the order has to fall back on the bands and the
-walk axis, which is what the spec below pins.
--}
 noBeamsFixture :: FilePath
 noBeamsFixture = "examples/regression_jbeam/no-beams-repro.jbeam"
 
-{- | The order marked up for the front edge of the body shell, which is read as
-two columns.
--}
 bodyFrontEdgeOrder :: Text -> [Text]
 bodyFrontEdgeOrder = bodyOrder [0, 2, 4, 1, 3]
 
-{- | The order marked up for the rear column of the body shell, which is read
-from its lowest node.
--}
 bodyRearColumnOrder :: Text -> [Text]
 bodyRearColumnOrder = bodyOrder [47, 44, 45, 46]
 
-{- | The order marked up for one whole side of the body shell. The fixture holds
-nothing between the two columns, so the side is the one followed by the other.
--}
+-- Nothing sits between the two columns in the fixture.
 bodySideOrder :: Text -> [Text]
 bodySideOrder prefix = bodyFrontEdgeOrder prefix <> bodyRearColumnOrder prefix
 
@@ -75,9 +51,6 @@ bodyOrder indices prefix = map named indices
   where
     named index = prefix <> T.pack (show index)
 
-{- | The order a transform wrote the vertices out in, under the names they had
-in the file, which is what the marked up orders are written in.
--}
 orderWith :: SortAxes -> Scientific -> FilePath -> IO [Text]
 orderWith axes threshold path = do
   topNode <- parseJbeamFile path
@@ -196,10 +169,6 @@ columnOrderSpec = describe "the reading order each part asks for" $ do
     order <- orderWith defaultSortAxes 0.05 noBeamsFixture
     order `shouldBe` ["nl0", "nl1", "nr2", "nr3"]
 
-{- | The names and coordinates of what a transform wrote out, and of what a
-second transform over that output wrote out. The names are part of it because
-the defect this catches renames a vertex without moving it.
--}
 namesTwice
   :: SortAxes
   -> Scientific
@@ -223,11 +192,7 @@ namesTwice axes threshold path = do
   twiceNode <- run onceNode
   pure (vertexNamesInOrder onceNode, vertexNamesInOrder twiceNode)
 
-{- | Running the tool over a directory twice is ordinary use, and a part that
-comes out differently the second time has no settled order to mark up at all.
-The axes and thresholds are the ones each part asks for in `columnOrderSpec`,
-so these say the wanted order is reachable as well as right.
--}
+-- Uses the axes and thresholds of columnOrderSpec.
 partFixedPointSpec :: Spec
 partFixedPointSpec = describe "transforming a part a second time" $ do
   it "writes the hood out exactly as the first transform left it" $ do

@@ -57,9 +57,6 @@ vertexPositionsInOrder topNode =
       , Just (Number yNum) <- [inner V.!? 2]
       ]
 
-{- | (name, position) for every vertex in a top node's "nodes" section, in the
-order the rows stand in the file.
--}
 vertexNamesInOrder :: Node -> [(Text, (Double, Double, Double))]
 vertexNamesInOrder topNode =
   case NP.queryNodes nodesQuery topNode >>= NP.expectArray nodesQuery of
@@ -75,10 +72,7 @@ vertexNamesInOrder topNode =
       , Just (Number z) <- [inner V.!? 3]
       ]
 
-{- | The vertices in the order a transform wrote them out, under the names they
-had before it ran. `transform` renames while it reorders, so a spec saying
-which vertex ended up where has to go through the positions, which survive.
--}
+-- transform renames while it reorders, so the vertices are matched by position, which survives.
 originalNamesInOutputOrder :: Node -> Node -> [Text]
 originalNamesInOutputOrder inputNode outputNode =
   map (named . snd) (vertexNamesInOrder outputNode)
