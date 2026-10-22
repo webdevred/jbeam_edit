@@ -326,6 +326,11 @@ vertexForestToNodeVector initialMeta vf =
 treesOrder :: [VertexTreeType]
 treesOrder = [LeftTree, MiddleTree, RightTree, SupportTree]
 
+sortCoordinate :: VertexTreeType -> Axis -> Vertex -> Scientific
+sortCoordinate vt AxisX v
+  | vt `elem` [LeftTree, RightTree] = abs (axisOf AxisX v)
+sortCoordinate _ axis v = axisOf axis v
+
 compareAV
   :: (Ord a, Ord b)
   => SortAxes
@@ -340,9 +345,9 @@ compareAV axes supportKey treeType (band1, vertex1) (band2, vertex2) =
           EQ
           (on compare (supportKey . aVertex) vertex1 vertex2)
           (treeType == SupportTree)
-      compareWalk = comparing (axisOf (walkAxis axes) . aVertex) vertex1 vertex2
+      compareWalk = comparing (sortCoordinate treeType (walkAxis axes) . aVertex) vertex1 vertex2
       compareGroup = compare band1 band2
-      compareTie = on compare (axisOf (tieAxis axes) . aVertex) vertex1 vertex2
+      compareTie = on compare (sortCoordinate treeType (tieAxis axes) . aVertex) vertex1 vertex2
    in mconcat
         [ supportNameCompare
         , on compare aMeta vertex1 vertex2
@@ -464,7 +469,7 @@ sortVertices treeType newNames tfCfg (VertexTree comments vertices) =
   let brks = xGroupBreakpoints tfCfg
       axes = sortAxes tfCfg
       thr = ySortingThreshold tfCfg
-      groupCoordinate = axisOf (groupAxis axes) . aVertex
+      groupCoordinate = sortCoordinate treeType (groupAxis axes) . aVertex
       sorted = NE.sortBy (on compare groupCoordinate) vertices
       (_, bandIndices) =
         mapAccumL
