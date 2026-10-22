@@ -257,14 +257,6 @@ mirroredColumnsSpec =
   describe "two sides holding mirrored columns"
     . it "writes them back in mirrored order"
     $ do
-      pendingWith
-        "The two sides come out in opposite directions. X is compared as \
-        \written, so the left side is read from the centre outwards, 0.40 \
-        \then 0.80, and the right side from the outside in, -0.80 then \
-        \-0.40. Comparing the distance from the centre line instead makes \
-        \the two agree, and that is the change this spec goes green with. \
-        \Which direction both should then take is a separate question, and \
-        \the assertion here says nothing about it. Issue #243."
       topNode <- parseJbeamFile mirroredColumnsFixture
       case transform M.empty newTransformationConfig topNode of
         Left err -> expectationFailure ("transform failed: " ++ T.unpack err)
