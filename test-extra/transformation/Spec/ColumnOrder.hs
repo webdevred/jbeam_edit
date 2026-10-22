@@ -97,14 +97,6 @@ group prefix = filter (T.isPrefixOf prefix)
 columnOrderSpec :: Spec
 columnOrderSpec = describe "the reading order each part asks for" $ do
   it "reads the hood one column at a time, the outer column first" $ do
-    pendingWith
-      "The hood's columns run across the car, so X groups them, and the \
-      \column by the fender is wanted first. X is compared as written, so \
-      \the group sorts from the centre line outwards and the inner column \
-      \comes out first: hdl3 hdl4 hdl5 hdl6 hdl0 hdl1 hdl2. Comparing the \
-      \distance from the centre line, negated where X groups, turns this \
-      \green on its own. The right side already reads the wanted way, \
-      \because its X values are negative."
     order <- orderWith (SortAxes AxisX AxisY AxisZ) 0.23 hoodFixture
     order
       `shouldBe` [ "hdl0"
