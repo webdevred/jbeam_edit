@@ -6,10 +6,7 @@
         // maintainer and not intended as a demo/example.
         //
         // Two columns per side, mirrored across the centre line, at one
-        // station so only the columns can decide the order. X is compared
-        // raw, so the left side runs from the centre outwards while the
-        // right side runs from the outside in, and no existing fixture has
-        // both sides in columns to show it.
+        // station so only the columns can decide the order.
         ["nl0", 0.40, -1.00, 0.10],
         ["nl1", 0.40, -1.00, 0.50],
         ["nl2", 0.80, -1.00, 0.10],
