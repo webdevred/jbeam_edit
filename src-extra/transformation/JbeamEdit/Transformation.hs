@@ -328,7 +328,7 @@ treesOrder = [LeftTree, MiddleTree, RightTree, SupportTree]
 
 sortCoordinate :: VertexTreeType -> Axis -> Vertex -> Scientific
 sortCoordinate vt AxisX v
-  | vt `elem` [LeftTree, RightTree] = abs (axisOf AxisX v)
+  | vt `elem` [LeftTree, RightTree] = negate . abs $ axisOf AxisX v
 sortCoordinate _ axis v = axisOf axis v
 
 compareAV
