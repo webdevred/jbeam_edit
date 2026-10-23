@@ -63,20 +63,20 @@ sortAxesSpec :: Spec
 sortAxesSpec = describe "the axes the sort reads" $ do
   it "walks each band across the car with the axes the tool has always used" $
     coordinatesWith defaultSortAxes
-      `shouldReturn` [ (0.3, -1.0, 0.5)
-                     , (0.8, -1.0, 0.5)
-                     , (0.3, 0.0, 0.5)
+      `shouldReturn` [ (0.8, -1.0, 0.5)
+                     , (0.3, -1.0, 0.5)
                      , (0.8, 0.0, 0.5)
-                     , (0.3, 1.0, 0.5)
+                     , (0.3, 0.0, 0.5)
                      , (0.8, 1.0, 0.5)
+                     , (0.3, 1.0, 0.5)
                      ]
 
   it "walks each column front to back when the grouping and walking axes swap" $
     coordinatesWith (SortAxes AxisX AxisY AxisZ)
-      `shouldReturn` [ (0.3, -1.0, 0.5)
-                     , (0.3, 0.0, 0.5)
-                     , (0.3, 1.0, 0.5)
-                     , (0.8, -1.0, 0.5)
+      `shouldReturn` [ (0.8, -1.0, 0.5)
                      , (0.8, 0.0, 0.5)
                      , (0.8, 1.0, 0.5)
+                     , (0.3, -1.0, 0.5)
+                     , (0.3, 0.0, 0.5)
+                     , (0.3, 1.0, 0.5)
                      ]
