@@ -162,6 +162,8 @@ main = hspec $ do
   letterEndingNodesSpec
   ySortingBandingSpec
   xColumnSortingSpec
+  mirroredColumnsSpec
+  mirroredBandedColumnsSpec
   noBeamsSpec
   metadataAcrossTreesSpec
   metadataPreservedSpec
