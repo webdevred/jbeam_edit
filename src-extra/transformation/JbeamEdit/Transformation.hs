@@ -449,7 +449,7 @@ columnBandVertices
   -> NonEmpty (Int, AnnotatedVertex)
   -> NonEmpty ((Int, Int), AnnotatedVertex)
 columnBandVertices axis thr vs =
-  let coordinate = axisOf axis . aVertex . snd
+  let coordinate = abs . axisOf axis . aVertex . snd
       bandGroups = NE.groupBy1 (on (==) fst) vs
       assignColumnBand group =
         let sorted = NE.sortBy (on compare coordinate) group
