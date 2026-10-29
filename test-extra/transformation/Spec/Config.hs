@@ -36,6 +36,41 @@ olderThresholds =
     , "max-support-coordinates: 3"
     ]
 
+sortAxesConfig :: [Text] -> Text
+sortAxesConfig entries =
+  olderThresholds <> T.unlines ("sort-axes:" : map ("  " <>) entries)
+
+sortAxesNotReadYet :: Expectation
+sortAxesNotReadYet =
+  pendingWith
+    "the parser does not read sort-axes yet, so a config naming it parses \
+    \and the key is ignored. Issue #243."
+
+derivedTieCases :: [(Text, Text, SortAxes)]
+derivedTieCases =
+  [ ("Y", "Z", SortAxes AxisY AxisZ AxisX)
+  , ("Y", "X", SortAxes AxisY AxisX AxisZ)
+  , ("Z", "Y", SortAxes AxisZ AxisY AxisX)
+  , ("Z", "X", SortAxes AxisZ AxisX AxisY)
+  , ("X", "Y", SortAxes AxisX AxisY AxisZ)
+  , ("X", "Z", SortAxes AxisX AxisZ AxisY)
+  ]
+
+derivesTheTieAxis :: (Text, Text, SortAxes) -> Spec
+derivesTheTieAxis (group, walk, expected) =
+  it
+    ( "takes the axis left over as the tie axis for group "
+        ++ T.unpack group
+        ++ " and walk "
+        ++ T.unpack walk
+    )
+    $ do
+      sortAxesNotReadYet
+      parseField
+        sortAxes
+        (sortAxesConfig ["group-axis: " <> group, "walk-axis: " <> walk])
+        `shouldBe` Right expected
+
 configParsingSpec :: Spec
 configParsingSpec = describe "the transformation config parser" $ do
   it "reads a bare YAML number for the keys that have always taken one" $ do
@@ -72,22 +107,43 @@ configParsingSpec = describe "the transformation config parser" $ do
   it "rejects a support-threshold below 1" $
     parseField supportThreshold "support-threshold: 0.8\n" `shouldSatisfy` isLeft
 
-  it "reads a permutation of the three axes" $ do
-    pendingWith
-      "sort-axes has no key in the parser yet, so a config naming one is \
-      \accepted and then ignored, and the file sorts by the default axes \
-      \without saying so. Issue #243."
-    parseField sortAxes (olderThresholds <> "sort-axes: [X, Y, Z]\n")
-      `shouldBe` Right (SortAxes AxisX AxisY AxisZ)
+  mapM_ derivesTheTieAxis derivedTieCases
 
-  it "rejects a list that is not three distinct axes" $ do
-    pendingWith
-      "the same missing key, from the other side: a repeated or short list \
-      \has to be refused where it is written, not silently replaced by the \
-      \default. Issue #243."
-    parseField sortAxes (olderThresholds <> "sort-axes: [X, X, Y]\n")
+  it "accepts a tie-axis that is the axis left over" $ do
+    sortAxesNotReadYet
+    parseField
+      sortAxes
+      (sortAxesConfig ["group-axis: X", "walk-axis: Z", "tie-axis: Y"])
+      `shouldBe` Right (SortAxes AxisX AxisZ AxisY)
+
+  it "reads axis names written in quotes" $ do
+    sortAxesNotReadYet
+    parseField
+      sortAxes
+      (sortAxesConfig ["group-axis: \"Y\"", "walk-axis: \"X\""])
+      `shouldBe` Right (SortAxes AxisY AxisX AxisZ)
+
+  it "rejects an axis named twice" $ do
+    sortAxesNotReadYet
+    parseField sortAxes (sortAxesConfig ["group-axis: Y", "walk-axis: Y"])
       `shouldSatisfy` isLeft
-    parseField sortAxes (olderThresholds <> "sort-axes: [X, Y]\n")
+    parseField
+      sortAxes
+      (sortAxesConfig ["group-axis: X", "walk-axis: Y", "tie-axis: X"])
+      `shouldSatisfy` isLeft
+    parseField
+      sortAxes
+      (sortAxesConfig ["group-axis: X", "walk-axis: Y", "tie-axis: Y"])
+      `shouldSatisfy` isLeft
+
+  it "rejects a sort-axes that names only one of group-axis and walk-axis" $ do
+    sortAxesNotReadYet
+    parseField sortAxes (sortAxesConfig ["group-axis: X"]) `shouldSatisfy` isLeft
+    parseField sortAxes (sortAxesConfig ["walk-axis: X"]) `shouldSatisfy` isLeft
+
+  it "rejects an axis that is not X, Y or Z" $ do
+    sortAxesNotReadYet
+    parseField sortAxes (sortAxesConfig ["group-axis: W", "walk-axis: Z"])
       `shouldSatisfy` isLeft
 
   it "gives the axes the tool has always used when the key is absent" $
