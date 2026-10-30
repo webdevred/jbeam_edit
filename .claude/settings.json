@@ -9,5 +9,17 @@
       "Read(/tmp/jbeam-edit-*/**)",
       "Read(/tmp/jbeam-corpus/**)"
     ]
+  },
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/context-loader.py\""
+          }
+        ]
+      }
+    ]
   }
 }
