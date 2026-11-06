@@ -147,12 +147,6 @@ columnOrderSpec = describe "the reading order each part asks for" $ do
     group "br" order `shouldBe` bodySideOrder "br"
 
   it "never reads the rear column before its lowest node" $ do
-    pendingWith
-      "The rear column climbs 0.461 in Z and travels 0.299 towards the front \
-      \while it does, which is more than the threshold, so banding Y alone \
-      \puts bl45 and bl46 one band ahead of bl47 and bl44 and reads them \
-      \bl45 bl46 bl47 bl44. Holding a column back to the band its lowest \
-      \node landed in gives bl47 bl44 bl45 bl46, which is what was decided."
     order <- orderWith (SortAxes AxisY AxisZ AxisX) 0.23 bodyFixture
     let names = group "bl" order
     drop (length names - 4) names `shouldBe` bodyRearColumnOrder "bl"
