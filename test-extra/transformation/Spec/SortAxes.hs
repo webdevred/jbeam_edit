@@ -53,30 +53,83 @@ grid = case parseNodes (LBS.fromStrict (encodeUtf8 gridSource)) of
   Right node -> node
   Left err -> error ("the grid source does not parse: " ++ T.unpack err)
 
-coordinatesWith :: SortAxes -> IO [(Double, Double, Double)]
-coordinatesWith axes =
-  case transform M.empty newTransformationConfig {sortAxes = axes} grid of
+{- | The same grid inside the middle breakpoints, at X -0.02 and 0.06. The two
+columns differ in distance from the centre line, so a key that read X as a
+distance would put 0.06 first, where the middle group reads X as written.
+-}
+middleGridSource :: Text
+middleGridSource =
+  T.unlines
+    [ "{\"testpart\":{"
+    , "    \"nodes\":["
+    , "        [\"id\", \"posX\", \"posY\", \"posZ\"],"
+    , "        [\"nm0\", -0.02,  1.0, 0.5],"
+    , "        [\"nm1\",  0.06,  0.0, 0.5],"
+    , "        [\"nm2\", -0.02, -1.0, 0.5],"
+    , "        [\"nm3\",  0.06,  1.0, 0.5],"
+    , "        [\"nm4\", -0.02,  0.0, 0.5],"
+    , "        [\"nm5\",  0.06, -1.0, 0.5],"
+    , "    ],"
+    , "    \"beams\":["
+    , "        [\"id1:\", \"id2:\"],"
+    , "        [\"nm0\", \"nm1\"],"
+    , "    ],"
+    , "},"
+    , "}"
+    ]
+
+middleGrid :: Node
+middleGrid = case parseNodes (LBS.fromStrict (encodeUtf8 middleGridSource)) of
+  Right node -> node
+  Left err -> error ("the middle grid source does not parse: " ++ T.unpack err)
+
+coordinatesOf :: Node -> SortAxes -> IO [(Double, Double, Double)]
+coordinatesOf node axes =
+  case transform M.empty newTransformationConfig {sortAxes = axes} node of
     Left err -> fail ("transform failed: " ++ T.unpack err)
     Right (_, _, _, resultNode) -> pure (vertexCoordinatesInOrder resultNode)
+
+coordinatesWith :: SortAxes -> IO [(Double, Double, Double)]
+coordinatesWith = coordinatesOf grid
 
 sortAxesSpec :: Spec
 sortAxesSpec = describe "the axes the sort reads" $ do
   it "walks each band across the car with the axes the tool has always used" $
     coordinatesWith defaultSortAxes
-      `shouldReturn` [ (0.3, -1.0, 0.5)
-                     , (0.8, -1.0, 0.5)
-                     , (0.3, 0.0, 0.5)
+      `shouldReturn` [ (0.8, -1.0, 0.5)
+                     , (0.3, -1.0, 0.5)
                      , (0.8, 0.0, 0.5)
-                     , (0.3, 1.0, 0.5)
+                     , (0.3, 0.0, 0.5)
                      , (0.8, 1.0, 0.5)
+                     , (0.3, 1.0, 0.5)
                      ]
 
   it "walks each column front to back when the grouping and walking axes swap" $
     coordinatesWith (SortAxes AxisX AxisY AxisZ)
-      `shouldReturn` [ (0.3, -1.0, 0.5)
-                     , (0.3, 0.0, 0.5)
-                     , (0.3, 1.0, 0.5)
-                     , (0.8, -1.0, 0.5)
+      `shouldReturn` [ (0.8, -1.0, 0.5)
                      , (0.8, 0.0, 0.5)
                      , (0.8, 1.0, 0.5)
+                     , (0.3, -1.0, 0.5)
+                     , (0.3, 0.0, 0.5)
+                     , (0.3, 1.0, 0.5)
+                     ]
+
+  it "walks each band across the car when X is the walking axis" $
+    coordinatesWith (SortAxes AxisY AxisX AxisZ)
+      `shouldReturn` [ (0.8, -1.0, 0.5)
+                     , (0.3, -1.0, 0.5)
+                     , (0.8, 0.0, 0.5)
+                     , (0.3, 0.0, 0.5)
+                     , (0.8, 1.0, 0.5)
+                     , (0.3, 1.0, 0.5)
+                     ]
+
+  it "reads the middle group by X as written" $
+    coordinatesOf middleGrid defaultSortAxes
+      `shouldReturn` [ (-0.02, -1.0, 0.5)
+                     , (0.06, -1.0, 0.5)
+                     , (-0.02, 0.0, 0.5)
+                     , (0.06, 0.0, 0.5)
+                     , (-0.02, 1.0, 0.5)
+                     , (0.06, 1.0, 0.5)
                      ]

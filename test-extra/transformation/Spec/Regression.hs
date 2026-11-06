@@ -10,6 +10,8 @@ module Spec.Regression (
   metadataAcrossTreesSpec,
   metadataPreservedSpec,
   xColumnSortingSpec,
+  mirroredColumnsSpec,
+  mirroredBandedColumnsSpec,
   noBeamsSpec,
   vertexTextSpec,
   nameCollisionSpec,
@@ -234,6 +236,67 @@ xColumnSortingSpec =
         { ySortingThreshold = 0.31
         , xSortingThreshold = Just 0.2
         }
+    withColumnSorting node assert =
+      case transform M.empty columnSortingConfig node of
+        Left err -> expectationFailure ("transform failed: " ++ T.unpack err)
+        Right (_, _, _, resultNode) -> assert resultNode
+
+-- The assertion is direction agnostic: it only says the two sides agree.
+mirroredColumnsFixture :: FilePath
+mirroredColumnsFixture =
+  "examples/regression_jbeam/mirrored-columns-repro.jbeam"
+
+mirroredColumnsSpec :: Spec
+mirroredColumnsSpec =
+  describe "two sides holding mirrored columns"
+    . it "writes them back in mirrored order"
+    $ do
+      topNode <- parseJbeamFile mirroredColumnsFixture
+      case transform M.empty newTransformationConfig topNode of
+        Left err -> expectationFailure ("transform failed: " ++ T.unpack err)
+        Right (_, _, _, resultNode) -> do
+          let coordinates = vertexCoordinatesInOrder resultNode
+              left = filter (\(x, _, _) -> x > 0) coordinates
+              right = filter (\(x, _, _) -> x < 0) coordinates
+              mirror (x, y, z) = (negate x, y, z)
+          left `shouldNotBe` []
+          map mirror right `shouldBe` left
+
+mirroredBandedColumnsFixture :: FilePath
+mirroredBandedColumnsFixture =
+  "examples/regression_jbeam/mirrored-banded-columns-repro.jbeam"
+
+mirroredBandedColumnsSpec :: Spec
+mirroredBandedColumnsSpec =
+  describe "two sides holding mirrored columns, banded by X" $ do
+    mapM_
+      writesInMirroredOrder
+      [ ("two columns per side", mirroredColumnsFixture)
+      ,
+        ( "three columns per side, wider together than the threshold"
+        , mirroredBandedColumnsFixture
+        )
+      ]
+
+    it "is a fixed point: a second transform moves nothing further" $ do
+      topNode <- parseJbeamFile mirroredBandedColumnsFixture
+      withColumnSorting topNode $ \resultNode ->
+        withColumnSorting resultNode $ \againNode ->
+          vertexCoordinatesInOrder againNode
+            `shouldBe` vertexCoordinatesInOrder resultNode
+  where
+    writesInMirroredOrder (description, fixture) =
+      it ("writes " ++ description ++ " back in mirrored order") $ do
+        topNode <- parseJbeamFile fixture
+        withColumnSorting topNode $ \resultNode -> do
+          let coordinates = vertexCoordinatesInOrder resultNode
+              left = filter (\(x, _, _) -> x > 0) coordinates
+              right = filter (\(x, _, _) -> x < 0) coordinates
+              mirror (x, y, z) = (negate x, y, z)
+          left `shouldNotBe` []
+          map mirror right `shouldBe` left
+    columnSortingConfig =
+      newTransformationConfig {xSortingThreshold = Just 0.1}
     withColumnSorting node assert =
       case transform M.empty columnSortingConfig node of
         Left err -> expectationFailure ("transform failed: " ++ T.unpack err)
