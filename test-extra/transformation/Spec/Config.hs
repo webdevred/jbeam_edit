@@ -72,19 +72,11 @@ configParsingSpec = describe "the transformation config parser" $ do
   it "rejects a support-threshold below 1" $
     parseField supportThreshold "support-threshold: 0.8\n" `shouldSatisfy` isLeft
 
-  it "reads a permutation of the three axes" $ do
-    pendingWith
-      "sort-axes has no key in the parser yet, so a config naming one is \
-      \accepted and then ignored, and the file sorts by the default axes \
-      \without saying so. Issue #243."
+  it "reads a permutation of the three axes" $
     parseField sortAxes (olderThresholds <> "sort-axes: [X, Y, Z]\n")
       `shouldBe` Right (SortAxes AxisX AxisY AxisZ)
 
   it "rejects a list that is not three distinct axes" $ do
-    pendingWith
-      "the same missing key, from the other side: a repeated or short list \
-      \has to be refused where it is written, not silently replaced by the \
-      \default. Issue #243."
     parseField sortAxes (olderThresholds <> "sort-axes: [X, X, Y]\n")
       `shouldSatisfy` isLeft
     parseField sortAxes (olderThresholds <> "sort-axes: [X, Y]\n")
@@ -97,3 +89,11 @@ configParsingSpec = describe "the transformation config parser" $ do
     parseField ySortingThreshold "" `shouldBe` Right defaultSortingThreshold
     parseField supportThreshold "" `shouldBe` Right defaultSupportThreshold
     parseField xSortingThreshold "" `shouldBe` Right Nothing
+
+  it "rejects an x-sorting-threshold on a part that groups by X already" $
+    pendingWith
+      "No config key names the sort axes yet, so no source can say that a \
+      \part groups by X, and a spec that wrote one would be inventing the \
+      \syntax. x-sorting-threshold keeps its own axis, so the two together \
+      \ask for the same axis twice, which is what has to be rejected. The \
+      \assertion goes in once the key has a name (question D)."

@@ -2,6 +2,8 @@
 module Spec.Helpers (
   parseJbeamFile,
   vertexPositionsInOrder,
+  vertexNamesInOrder,
+  originalNamesInOutputOrder,
   vertexCoordinatesInOrder,
   vertexTextsInOrder,
   vertexCoordinates,
@@ -54,6 +56,30 @@ vertexPositionsInOrder topNode =
       , name /= "id"
       , Just (Number yNum) <- [inner V.!? 2]
       ]
+
+vertexNamesInOrder :: Node -> [(Text, (Double, Double, Double))]
+vertexNamesInOrder topNode =
+  case NP.queryNodes nodesQuery topNode >>= NP.expectArray nodesQuery of
+    Left _ -> []
+    Right rows ->
+      [ (name, (realToFrac (nvValue x), realToFrac (nvValue y), realToFrac (nvValue z)))
+      | row <- V.toList rows
+      , Just inner <- [maybeArray row]
+      , Just (String name) <- [inner V.!? 0]
+      , name /= "id"
+      , Just (Number x) <- [inner V.!? 1]
+      , Just (Number y) <- [inner V.!? 2]
+      , Just (Number z) <- [inner V.!? 3]
+      ]
+
+-- transform renames while it reorders, so the vertices are matched by position, which survives.
+originalNamesInOutputOrder :: Node -> Node -> [Text]
+originalNamesInOutputOrder inputNode outputNode =
+  map (named . snd) (vertexNamesInOrder outputNode)
+  where
+    before =
+      M.fromList [(position, name) | (name, position) <- vertexNamesInOrder inputNode]
+    named position = M.findWithDefault "<not in the input>" position before
 
 {- | Every vertex coordinate in a top node's "nodes" section, in the order
 `transform` wrote them out. Use this where the defect is about which vertex
